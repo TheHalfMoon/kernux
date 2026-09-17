@@ -6,7 +6,9 @@
 
 **CATEGORY:** Agent Operating Environment
 
-**STATUS:** CANONICAL_PLAN_IN_REVIEW
+**STATUS:** CANONICAL_PLAN_ESTABLISHED
+
+**CANONICAL_PLAN_MERGED_TO_MAIN:** TRUE
 
 **PRODUCT_IMPLEMENTATION_STARTED:** FALSE
 
@@ -14,11 +16,13 @@
 
 ## Current repository truth
 
-The repository was bootstrapped from an empty `main` with a planning README. The canonical planning branch is:
+The canonical pre-implementation plan was merged to `main` through PR #1 at merge commit:
 
-`codex/kernux-canonical-plan`
+`ad3277ff7f3be00577d646098b401f409865d995`
 
-This branch is intended to establish product, architecture, security, protocol, provenance, UX, quality, and execution authority before implementation begins.
+The merged canonical set establishes product, architecture, security, protocol, provenance, UX, context/memory, native-agent/headless operation, data lifecycle, product strategy/distribution, quality/evidence, and dependency-ordered execution authority before product implementation begins.
+
+No product code or founding-donor product code has been imported yet.
 
 ## Active frontier
 
@@ -26,9 +30,11 @@ This branch is intended to establish product, architecture, security, protocol, 
 
 **SLICE:** `S00.1 — Repository baseline`
 
-**NEXT TASK AFTER PLAN MERGE:** `KX-P00-S01-T01 — Establish monorepo and canonical repository baseline`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T01 — Establish monorepo and canonical repository baseline`
 
-No product implementation task is authorized ahead of the merged canonical plan.
+This task is `NEXT`, not yet `PROVEN`. It must be executed under the canonical plan and refined into bounded work as SpecGrain becomes active during P00.
+
+No later implementation task may bypass P00/P01 dependencies or donor-provenance gates.
 
 ## Dependency rule
 
@@ -76,6 +82,10 @@ Implementation must preserve these from the first product commit:
 10. Evidence is bound to exact revisions/runs; self-report is not proof.
 11. macOS, Windows, Linux, WSL, SSH, and folder workspaces are architectural inputs, not later patches.
 12. Donor code remains provenance-traceable.
+13. Native model-backed agents and external coding agents use the same task/capability/evidence model.
+14. Context, search, indexing, and durable memory remain provenance-aware and user-governed.
+15. Headless CLI/API and desktop UI are peer surfaces over the same core contracts.
+16. Kernux-owned data has explicit retention, export, backup, restore, and deletion semantics.
 
 ## First-generation protocol posture
 
@@ -96,10 +106,13 @@ The earliest coherent external alpha is expected after P09 plus a bounded sandbo
 - privileged daemon + capability policy;
 - local files/process/PTY;
 - at least two real agent integrations;
+- native model-backed agent path;
 - browser deterministic + semantic paths;
 - task/fleet basics;
 - git/worktree review;
+- context/search with inspectable provenance;
 - evidence/replay/restart recovery;
+- headless CLI/API path;
 - at least one isolated runtime.
 
 An alpha is not authorized merely because individual donor features work.
@@ -115,4 +128,4 @@ When reporting progress, provide:
 - R3/security blocker status;
 - release-qualification status.
 
-Do not infer project completion from LOC, feature count, or green unit tests alone.
+Do not infer project completion from LOC, feature count, donor coverage, or green unit tests alone.
