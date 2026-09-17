@@ -1,0 +1,118 @@
+# CURRENT
+
+## Canonical project state
+
+**PROJECT:** Kernux
+
+**CATEGORY:** Agent Operating Environment
+
+**STATUS:** CANONICAL_PLAN_IN_REVIEW
+
+**PRODUCT_IMPLEMENTATION_STARTED:** FALSE
+
+**RELEASE_READY:** FALSE
+
+## Current repository truth
+
+The repository was bootstrapped from an empty `main` with a planning README. The canonical planning branch is:
+
+`codex/kernux-canonical-plan`
+
+This branch is intended to establish product, architecture, security, protocol, provenance, UX, quality, and execution authority before implementation begins.
+
+## Active frontier
+
+**PHASE:** `P00 — Repository and governance foundation`
+
+**SLICE:** `S00.1 — Repository baseline`
+
+**NEXT TASK AFTER PLAN MERGE:** `KX-P00-S01-T01 — Establish monorepo and canonical repository baseline`
+
+No product implementation task is authorized ahead of the merged canonical plan.
+
+## Dependency rule
+
+Implementation proceeds in dependency order from `docs/canonical/EXECUTION_MASTER_PLAN.md` and `specs/tasks.md`.
+
+A later task may begin only when:
+
+- its declared dependencies are PROVEN;
+- the task has been refined to a bounded Grain/WorkPacket where SpecGrain is active;
+- required context/provenance is current;
+- no live repository truth contradicts the planned frontier.
+
+## Delivery method
+
+Kernux uses:
+
+- **SpecGrain** for bounded, independently verifiable work preparation;
+- **Diffcipline** for exact-change proof and risk-profile verification.
+
+Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
+
+## Founding donor authority
+
+Founder authorization has been stated for full source reuse from:
+
+- `stablyai/orca`;
+- TinyFish source / `tinyfish-io/agentql` public reference;
+- `wonderwhy-er/DesktopCommanderMCP`.
+
+No donor code has been imported into Kernux yet. Before import, exact source revision, permission/provenance, source/destination mapping, transformation class, notices, and characterization evidence are required.
+
+## Architecture invariants
+
+Implementation must preserve these from the first product commit:
+
+1. `kernuxd` is the privileged local authority.
+2. Renderer/agent/browser/plugin code cannot grant itself host privilege.
+3. Core architecture is capability-based, not donor-provider-based.
+4. Local-first core does not require Kernux cloud.
+5. Execution host owns process/session lifecycle truth.
+6. Disconnect is not process death; `unverifiable` is a valid state.
+7. Side-effect retries require idempotency/ambiguity handling.
+8. Untrusted web/document/tool content cannot authorize elevated actions.
+9. Secrets are brokered/referenced rather than casually exposed.
+10. Evidence is bound to exact revisions/runs; self-report is not proof.
+11. macOS, Windows, Linux, WSL, SSH, and folder workspaces are architectural inputs, not later patches.
+12. Donor code remains provenance-traceable.
+
+## First-generation protocol posture
+
+- ACP stable v1: preferred structured coding-agent client path.
+- A2A 1.0: independent/opaque agent collaboration adapter.
+- MCP 2026-07-28 generation: new native tool/context integration baseline.
+- WebMCP: negotiated experimental structured web-action path.
+- CDP/Playwright: deterministic browser control.
+- KRP: Kernux-owned privileged runtime protocol.
+
+Reverify protocol truth before implementing each protocol-dependent phase.
+
+## First alpha definition
+
+The earliest coherent external alpha is expected after P09 plus a bounded sandbox part of P10, and must include:
+
+- desktop workspace;
+- privileged daemon + capability policy;
+- local files/process/PTY;
+- at least two real agent integrations;
+- browser deterministic + semantic paths;
+- task/fleet basics;
+- git/worktree review;
+- evidence/replay/restart recovery;
+- at least one isolated runtime.
+
+An alpha is not authorized merely because individual donor features work.
+
+## Completion reporting
+
+When reporting progress, provide:
+
+- PROVEN canonical tasks / total currently planned;
+- phase exit gates proven / total;
+- applicable golden journeys proven / total;
+- platform matrix status;
+- R3/security blocker status;
+- release-qualification status.
+
+Do not infer project completion from LOC, feature count, or green unit tests alone.
