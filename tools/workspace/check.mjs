@@ -23,7 +23,7 @@ const requiredPaths = [
   "docs/DEVELOPMENT.md",
   "docs/canonical/EXECUTION_MASTER_PLAN.md",
   "specs/CURRENT.md",
-  "specs/tasks.md"
+  "specs/tasks.md",
 ];
 
 for (const path of requiredPaths) {
@@ -49,7 +49,12 @@ for (const pattern of ["apps/*", "packages/*", "tools/*"]) {
 }
 
 const cargo = await readFile(resolve(root, "Cargo.toml"), "utf8");
-for (const required of ["[workspace]", 'resolver = "3"', 'edition = "2024"', 'rust-version = "1.98"']) {
+for (const required of [
+  "[workspace]",
+  'resolver = "3"',
+  'edition = "2024"',
+  'rust-version = "1.98"',
+]) {
   if (!cargo.includes(required)) {
     throw new Error(`Cargo workspace is missing ${required}`);
   }
