@@ -8,6 +8,7 @@ This document describes the repository baseline established by `KX-P00-S01-T01`.
 - pnpm: `12.4.2` (pinned in `package.json`)
 - Rust: `1.98.1` (pinned in `rust-toolchain.toml`)
 - Rust edition: `2024`
+- Python: `>=3.11` for repository governance tooling only
 
 The Rust pin uses 1.98.1 rather than 1.98.0 because 1.98.1 is the current stable point release at baseline creation and fixes a compiler miscompilation present in 1.98.0.
 
@@ -33,7 +34,7 @@ Run the deterministic repository-baseline check:
 pnpm check
 ```
 
-The root command now runs the baseline workspace, JavaScript/TypeScript, and Rust checks established by T02. Security-specific and higher-risk verification profiles are introduced by later P00 tasks and must not be represented as passing before they exist.
+The root command now runs the baseline workspace, JavaScript/TypeScript, Rust, and pinned SpecGrain checks. Security-specific and higher-risk verification profiles are introduced by later P00 tasks and must not be represented as passing before they exist.
 
 Baseline CI currently proves:
 
@@ -44,9 +45,10 @@ Baseline CI currently proves:
 - Node smoke tests;
 - Rustfmt formatting;
 - Clippy with warnings denied;
-- Rust smoke tests.
+- Rust smoke tests;
+- pinned SpecGrain store validation.
 
-GitHub Actions installs pnpm dependencies from the committed lockfile with --frozen-lockfile and keys the pnpm cache from that lockfile. Rust currently has no external crates, so a separate dependency cache would add complexity without measurable value; revisit this when the Rust dependency graph becomes non-empty.
+GitHub Actions installs pnpm dependencies from the committed lockfile with --frozen-lockfile and keys the pnpm cache from that lockfile. Rust currently has no external crates, so a separate dependency cache would add complexity without measurable value; revisit this when the Rust dependency graph becomes non-empty. Python is not a Kernux product runtime dependency; it is required only for pinned repository-governance tooling such as SpecGrain.
 
 ## Formatting baseline
 

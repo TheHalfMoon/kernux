@@ -1,0 +1,69 @@
+{
+  "acceptance": [
+    "Diffcipline configuration parses and defines explicit R0, R1, R2, and R3 verification commands.",
+    "The Diffcipline CI job uses an exact immutable release commit and executes repository-declared verification.",
+    "Existing JavaScript/TypeScript and Rust baseline CI remain green on the exact final head.",
+    "Diffcipline returns PASS for the exact final candidate at the required R1 profile.",
+    "Post-merge main CI preserves the baseline gates and Diffcipline proof gate."
+  ],
+  "change_surface": [
+    ".diffcipline.toml",
+    ".github/workflows/ci.yml",
+    "docs/governance/DIFFCIPLINE.md",
+    "docs/evidence/P00-S03-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 6000,
+    "estimated_tokens": 2600
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "diffcipline-r1-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000001",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Use the immutable Diffcipline v1.0.0 proof engine and action rather than reimplementing exact-diff verification inside Kernux."
+      },
+      "safety": {
+        "requirements": [
+          "Repository verification commands must remain explicitly reviewed, bounded, and static; untrusted content cannot author new executable verification commands."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux applies a repository-owned R0-R3 Diffcipline policy and pinned CI proof gate without weakening existing checks.",
+  "parent_id": null,
+  "rationale": "Bind completion claims to the exact diff and executed verification before donor imports or product implementation.",
+  "risk": {
+    "level": "low",
+    "recovery": "Revert the bounded Diffcipline activation PR and restore the previous CI workflow."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Add a repository-owned .diffcipline.toml with explicit R0-R3 verification profiles.",
+    "Add a pinned Diffcipline v1.0.0 GitHub Action proof job for pull requests and main pushes.",
+    "Document risk-profile semantics, local proof usage, and fail-closed completion rules.",
+    "Record exact qualification evidence and canonical frontier updates after the gate is proven."
+  ],
+  "scope_out": [
+    "No Kernux product implementation or founding-donor source import.",
+    "No branch-protection administration or release publication."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-S03-T01 — Activate Diffcipline proof policy and CI gate"
+}

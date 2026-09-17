@@ -6,6 +6,10 @@ node_modules/
 # Rust
 target/
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Build and test output
 dist/
 out/
@@ -38,3 +42,6 @@ Thumbs.db
 
 # Local Kernux runtime state
 .kernux/local/
+
+# SpecGrain runtime state
+.specgrain/tmp/

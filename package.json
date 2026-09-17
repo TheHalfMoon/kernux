@@ -4,14 +4,16 @@
   "private": true,
   "description": "Kernux Agent Operating Environment monorepo root",
   "scripts": {
-    "check": "pnpm check:workspace && pnpm check:js && pnpm check:rust",
+    "check": "pnpm check:workspace && pnpm check:js && pnpm check:rust && pnpm specgrain:check",
     "check:workspace": "node ./tools/workspace/check.mjs",
-    "format:check": "oxfmt --check package.json tsconfig.json tools/workspace tools/typescript-smoke.ts",
-    "lint": "oxlint tools/workspace tools/typescript-smoke.ts",
+    "format:check": "oxfmt --check package.json tsconfig.json tools/workspace tools/specgrain/run.mjs tools/typescript-smoke.ts",
+    "lint": "oxlint tools/workspace tools/specgrain/run.mjs tools/typescript-smoke.ts",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test:js": "node --test tools/workspace/check.test.mjs",
     "check:js": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:js",
-    "check:rust": "cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace --all-targets"
+    "check:rust": "cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace --all-targets",
+    "specgrain": "node tools/specgrain/run.mjs",
+    "specgrain:check": "node tools/specgrain/run.mjs check ."
   },
   "devDependencies": {
     "oxfmt": "0.68.0",
