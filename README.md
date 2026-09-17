@@ -4,7 +4,7 @@
 
 Kernux is an open **Agent Operating Environment**: one workspace where humans and AI agents can plan, browse, use computers, run tools, work across local and remote runtimes, and deliver outcomes with explicit permissions and verifiable evidence.
 
-> **Repository state:** canonical planning. Product implementation has not started.
+> **Repository state:** canonical plan established on `main`. Product implementation has not started.
 
 ## The product in one sentence
 
@@ -51,7 +51,7 @@ Kernux is deliberately broader than a coding IDE, browser agent, desktop automat
 - **Open ecosystem.** MCP, A2A, Agent Skills, WebMCP, CLI, OpenAPI, and native adapters are first-class integration paths.
 - **Provenance by default.** Donor code and external references remain traceable to exact source revisions and obligations.
 
-## Canonical planning set
+## Canonical authority set
 
 Start here:
 
@@ -90,6 +90,6 @@ See [`DONOR_PROVENANCE.md`](docs/canonical/DONOR_PROVENANCE.md) for pinned revis
 
 ## Current frontier
 
-No product implementation is canonically complete. The first implementation frontier is **P00 — Repository and governance foundation**, followed by the capability kernel and its contracts. See [`specs/CURRENT.md`](specs/CURRENT.md).
+The canonical plan is established on `main`; no product implementation is canonically complete yet. The first implementation frontier is **P00 — Repository and governance foundation**, followed by the capability kernel and its contracts. See [`specs/CURRENT.md`](specs/CURRENT.md).
 
 The pre-implementation plan has also been challenged through [`PLANNING_COMPLETENESS_AUDIT.md`](docs/canonical/PLANNING_COMPLETENESS_AUDIT.md). That audit adds binding refinement requirements for native model-backed agents, context/search/memory, headless CLI/API operation, Design Mode, data portability/lifecycle, and privacy-safe diagnostics before the relevant phase gates may be called proven.
