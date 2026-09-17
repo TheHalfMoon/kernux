@@ -3,11 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "description": "Kernux Agent Operating Environment monorepo root",
-  "packageManager": "pnpm@12.4.2",
-  "engines": {
-    "node": ">=24.0.0 <27",
-    "pnpm": ">=12.4.2 <13"
-  },
   "scripts": {
     "check": "pnpm check:workspace && pnpm check:js && pnpm check:rust",
     "check:workspace": "node ./tools/workspace/check.mjs",
@@ -22,5 +17,10 @@
     "oxfmt": "0.68.0",
     "oxlint": "1.83.0",
     "typescript": "7.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=24.0.0 <27",
+    "pnpm": ">=12.4.2 <13"
+  },
+  "packageManager": "pnpm@12.4.2"
 }
