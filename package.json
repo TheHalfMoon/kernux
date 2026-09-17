@@ -9,7 +9,18 @@
     "pnpm": ">=12.4.2 <13"
   },
   "scripts": {
-    "check": "node ./tools/workspace/check.mjs",
-    "check:workspace": "node ./tools/workspace/check.mjs"
+    "check": "pnpm check:workspace && pnpm check:js && pnpm check:rust",
+    "check:workspace": "node ./tools/workspace/check.mjs",
+    "format:check": "oxfmt --check package.json tsconfig.json tools/workspace tools/typescript-smoke.ts",
+    "lint": "oxlint tools/workspace tools/typescript-smoke.ts",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test:js": "node --test tools/workspace/check.test.mjs",
+    "check:js": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:js",
+    "check:rust": "cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace --all-targets"
+  },
+  "devDependencies": {
+    "oxfmt": "0.68.0",
+    "oxlint": "1.83.0",
+    "typescript": "7.0.2"
   }
 }

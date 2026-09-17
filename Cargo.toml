@@ -1,5 +1,5 @@
 [workspace]
-members = []
+members = ["tools/rust-smoke"]
 resolver = "3"
 
 [workspace.package]
