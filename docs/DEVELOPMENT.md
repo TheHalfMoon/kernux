@@ -33,14 +33,27 @@ Run the deterministic repository-baseline check:
 pnpm check
 ```
 
-At T01 this validates the workspace contract only. It does **not** claim that formatting, linting, static analysis, unit tests, security tests, or CI are already configured. Those gates begin in subsequent P00 tasks and must not be represented as passing before they exist.
+The root command now runs the baseline workspace, JavaScript/TypeScript, and Rust checks established by T02. Security-specific and higher-risk verification profiles are introduced by later P00 tasks and must not be represented as passing before they exist.
+
+Baseline CI currently proves:
+
+- the repository workspace contract;
+- Oxfmt formatting;
+- Oxlint linting;
+- strict TypeScript compilation;
+- Node smoke tests;
+- Rustfmt formatting;
+- Clippy with warnings denied;
+- Rust smoke tests.
+
+GitHub Actions installs pnpm dependencies from the committed lockfile with --frozen-lockfile and keys the pnpm cache from that lockfile. Rust currently has no external crates, so a separate dependency cache would add complexity without measurable value; revisit this when the Rust dependency graph becomes non-empty.
 
 ## Formatting baseline
 
 - `.editorconfig` is the editor-neutral whitespace baseline.
 - `.gitattributes` normalizes repository text to LF while preserving Windows batch-file CRLF requirements.
 - `rustfmt.toml` defines the initial Rust formatter behavior.
-- JavaScript/TypeScript formatter/linter dependencies are intentionally deferred to the baseline-CI task so their executable versions and CI gates are introduced together.
+- JavaScript/TypeScript formatting and linting are pinned through the root lockfile and run in CI.
 
 ## Dependency discipline
 
