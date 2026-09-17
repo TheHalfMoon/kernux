@@ -20,7 +20,7 @@ Kernux is deliberately broader than a coding IDE, browser agent, desktop automat
      v
  Task Graph -----> Agent Fleet -------------------+
      |              |                             |
-     |              +-- CLI/API/A2A agents       |
+     |              +-- Native / CLI / API / A2A agents
      |                                            |
      +------> Capability Kernel <-----------------+
                   |       |       |
@@ -31,7 +31,8 @@ Kernux is deliberately broader than a coding IDE, browser agent, desktop automat
                          Runtime Fabric
                  local | sandbox | SSH | cloud
                                       |
-                         Evidence + Replay
+                    Context + Evidence
+                         + Replay
 ```
 
 ## Founding design principles
@@ -42,7 +43,10 @@ Kernux is deliberately broader than a coding IDE, browser agent, desktop automat
 - **Structured before visual.** Prefer typed tools, WebMCP, accessibility/DOM, and deterministic automation before vision/coordinates.
 - **Execution-host truth.** The machine executing work owns process/session truth; network loss is not proof of process death.
 - **Evidence before done.** Agent self-report is never completion authority.
+- **Context with provenance.** Agents receive bounded, inspectable context bundles rather than ambient access to everything.
+- **User-governed memory.** Durable memory is scoped, reviewable, exportable, and deletable.
 - **Replayable work.** Tasks preserve state, events, artifacts, approvals, and evidence rather than only chat history.
+- **Portable local data.** Kernux-owned history has explicit export, backup, retention, and deletion semantics.
 - **Cross-platform by contract.** macOS, Windows, Linux, WSL, SSH, folders, and git worktrees are designed in rather than patched in later.
 - **Open ecosystem.** MCP, A2A, Agent Skills, WebMCP, CLI, OpenAPI, and native adapters are first-class integration paths.
 - **Provenance by default.** Donor code and external references remain traceable to exact source revisions and obligations.
@@ -55,11 +59,15 @@ Start here:
 - [`docs/canonical/ARCHITECTURE.md`](docs/canonical/ARCHITECTURE.md)
 - [`docs/canonical/SECURITY_MODEL.md`](docs/canonical/SECURITY_MODEL.md)
 - [`docs/canonical/UX_BLUEPRINT.md`](docs/canonical/UX_BLUEPRINT.md)
+- [`docs/canonical/CONTEXT_MEMORY_AND_SEARCH.md`](docs/canonical/CONTEXT_MEMORY_AND_SEARCH.md)
+- [`docs/canonical/NATIVE_AGENT_AND_HEADLESS.md`](docs/canonical/NATIVE_AGENT_AND_HEADLESS.md)
+- [`docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md`](docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md)
 - [`docs/canonical/DONOR_PROVENANCE.md`](docs/canonical/DONOR_PROVENANCE.md)
 - [`docs/canonical/PROTOCOL_STRATEGY.md`](docs/canonical/PROTOCOL_STRATEGY.md)
 - [`docs/canonical/QUALITY_AND_EVIDENCE.md`](docs/canonical/QUALITY_AND_EVIDENCE.md)
 - [`docs/canonical/ARCHITECTURE_DECISIONS.md`](docs/canonical/ARCHITECTURE_DECISIONS.md)
 - [`docs/canonical/EXECUTION_MASTER_PLAN.md`](docs/canonical/EXECUTION_MASTER_PLAN.md)
+- [`docs/canonical/PLANNING_COMPLETENESS_AUDIT.md`](docs/canonical/PLANNING_COMPLETENESS_AUDIT.md)
 - [`docs/research/EXTERNAL_REFERENCES.md`](docs/research/EXTERNAL_REFERENCES.md)
 - [`specs/CURRENT.md`](specs/CURRENT.md)
 - [`specs/tasks.md`](specs/tasks.md)
@@ -82,3 +90,5 @@ See [`DONOR_PROVENANCE.md`](docs/canonical/DONOR_PROVENANCE.md) for pinned revis
 ## Current frontier
 
 No product implementation is canonically complete. The first implementation frontier is **P00 — Repository and governance foundation**, followed by the capability kernel and its contracts. See [`specs/CURRENT.md`](specs/CURRENT.md).
+
+The pre-implementation plan has also been challenged through [`PLANNING_COMPLETENESS_AUDIT.md`](docs/canonical/PLANNING_COMPLETENESS_AUDIT.md). That audit adds binding refinement requirements for native model-backed agents, context/search/memory, headless CLI/API operation, Design Mode, data portability/lifecycle, and privacy-safe diagnostics before the relevant phase gates may be called proven.
