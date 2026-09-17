@@ -6,7 +6,7 @@
 
 **CATEGORY:** Agent Operating Environment
 
-**STATUS:** CANONICAL_PLAN_ESTABLISHED
+**STATUS:** P00_IN_PROGRESS
 
 **CANONICAL_PLAN_MERGED_TO_MAIN:** TRUE
 
@@ -20,7 +20,11 @@ The canonical pre-implementation plan was merged to `main` through PR #1 at merg
 
 `ad3277ff7f3be00577d646098b401f409865d995`
 
-The merged canonical set establishes product, architecture, security, protocol, provenance, UX, context/memory, native-agent/headless operation, data lifecycle, product strategy/distribution, quality/evidence, and dependency-ordered execution authority before product implementation begins.
+The first repository-foundation task, `KX-P00-S01-T01`, was merged through PR #3 at merge commit:
+
+`a921ad864077b6465de62427524136e11a576245`
+
+That task established the pnpm/Cargo workspace skeleton, pinned baseline toolchains, canonical repository folders, root workspace check, and formatting/editor baseline without starting product implementation or importing donor code.
 
 No product code or founding-donor product code has been imported yet.
 
@@ -30,11 +34,13 @@ No product code or founding-donor product code has been imported yet.
 
 **SLICE:** `S00.1 — Repository baseline`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T01 — Establish monorepo and canonical repository baseline`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T01 — Establish monorepo and canonical repository baseline`
 
-This task is `NEXT`, not yet `PROVEN`. It must be executed under the canonical plan and refined into bounded work as SpecGrain becomes active during P00.
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T02 — Add baseline CI for Rust/TS format, lint, static checks, unit placeholders and cache discipline`
 
-No later implementation task may bypass P00/P01 dependencies or donor-provenance gates.
+T02 is dependency-eligible because T01 is proven. No later task may bypass the dependency order or donor-provenance gates.
+
+T01 proof is recorded in `docs/evidence/P00-S01-T01.md`.
 
 ## Dependency rule
 
@@ -55,6 +61,8 @@ Kernux uses:
 - **Diffcipline** for exact-change proof and risk-profile verification.
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
+
+SpecGrain and Diffcipline are not yet repository-active; their canonical adoption tasks remain in P00 and must not be represented as already enforced.
 
 ## Founding donor authority
 
