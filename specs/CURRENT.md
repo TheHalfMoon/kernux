@@ -24,7 +24,11 @@ The first repository-foundation task, `KX-P00-S01-T01`, was merged through PR #3
 
 `a921ad864077b6465de62427524136e11a576245`
 
-That task established the pnpm/Cargo workspace skeleton, pinned baseline toolchains, canonical repository folders, root workspace check, and formatting/editor baseline without starting product implementation or importing donor code.
+The baseline-CI task, `KX-P00-S01-T02`, was merged through PR #5 at merge commit:
+
+`646fda9f784ce2368f534a56d8a454ae27b87a35`
+
+T02 established pinned, reproducible Rust and JavaScript/TypeScript checks with committed lockfiles, frozen pnpm installation, cache discipline, pinned GitHub Action revisions, bounded CI timeouts, and successful post-merge verification on `main`.
 
 No product code or founding-donor product code has been imported yet.
 
@@ -34,13 +38,18 @@ No product code or founding-donor product code has been imported yet.
 
 **SLICE:** `S00.1 — Repository baseline`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T01 — Establish monorepo and canonical repository baseline`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T02 — Add baseline CI for Rust/TS format, lint, static checks, unit placeholders and cache discipline`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T02 — Add baseline CI for Rust/TS format, lint, static checks, unit placeholders and cache discipline`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S02-T01 — Initialize repository-local SpecGrain and document deterministic authoring/refinement workflow`
 
-T02 is dependency-eligible because T01 is proven. No later task may bypass the dependency order or donor-provenance gates.
+SpecGrain is dependency-eligible because T01 is proven. Diffcipline is also dependency-eligible because T02 is proven, but Kernux activates SpecGrain first so subsequent governance work can use bounded repository-local Grains rather than ad-hoc macro execution.
 
-T01 proof is recorded in `docs/evidence/P00-S01-T01.md`.
+No later task may bypass the dependency order or donor-provenance gates.
+
+Proof is recorded in:
+
+- `docs/evidence/P00-S01-T01.md`;
+- `docs/evidence/P00-S01-T02.md`.
 
 ## Dependency rule
 
@@ -62,7 +71,7 @@ Kernux uses:
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
 
-SpecGrain and Diffcipline are not yet repository-active; their canonical adoption tasks remain in P00 and must not be represented as already enforced.
+SpecGrain and Diffcipline are not yet repository-active. SpecGrain is the active next P00 task; Diffcipline follows once SpecGrain activation is proven.
 
 ## Founding donor authority
 
