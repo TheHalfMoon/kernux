@@ -56,6 +56,7 @@ Kernux is deliberately broader than a coding IDE, browser agent, desktop automat
 Start here:
 
 - [`docs/canonical/PRODUCT_THESIS.md`](docs/canonical/PRODUCT_THESIS.md)
+- [`docs/canonical/PRODUCT_STRATEGY_AND_DISTRIBUTION.md`](docs/canonical/PRODUCT_STRATEGY_AND_DISTRIBUTION.md)
 - [`docs/canonical/ARCHITECTURE.md`](docs/canonical/ARCHITECTURE.md)
 - [`docs/canonical/SECURITY_MODEL.md`](docs/canonical/SECURITY_MODEL.md)
 - [`docs/canonical/UX_BLUEPRINT.md`](docs/canonical/UX_BLUEPRINT.md)
