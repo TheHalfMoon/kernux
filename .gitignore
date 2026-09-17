@@ -1,0 +1,40 @@
+# JavaScript / Node
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+
+# Rust
+target/
+
+# Build and test output
+dist/
+out/
+build/
+coverage/
+.cache/
+.tmp/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editors / operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Local Kernux runtime state
+.kernux/local/
