@@ -11,6 +11,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -74,14 +75,45 @@ def _download(url: str, destination: Path) -> None:
         request = urllib.request.Request(
             url, headers={"User-Agent": "Kernux-SpecGrain-Bootstrap/1"}
         )
-        with urllib.request.urlopen(request, timeout=30) as response, temporary.open(
-            "wb"
-        ) as output:
-            while chunk := response.read(CHUNK_SIZE):
-                total += len(chunk)
-                if total > MAX_ARCHIVE_BYTES:
-                    raise RuntimeError("SpecGrain archive exceeds download bound")
-                output.write(chunk)
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response, temporary.open(
+                "wb"
+            ) as output:
+                while chunk := response.read(CHUNK_SIZE):
+                    total += len(chunk)
+                    if total > MAX_ARCHIVE_BYTES:
+                        raise RuntimeError("SpecGrain archive exceeds download bound")
+                    output.write(chunk)
+        except urllib.error.URLError as urllib_error:
+            curl = shutil.which("curl")
+            if curl is None:
+                raise RuntimeError(
+                    "verified HTTPS download failed and system curl is unavailable"
+                ) from urllib_error
+            result = subprocess.run(
+                [
+                    curl,
+                    "--proto",
+                    "=https",
+                    "--tlsv1.2",
+                    "--fail",
+                    "--location",
+                    "--silent",
+                    "--show-error",
+                    "--max-time",
+                    "30",
+                    "--output",
+                    str(temporary),
+                    url,
+                ],
+                check=False,
+            )
+            if result.returncode != 0:
+                raise RuntimeError(
+                    "verified HTTPS download failed with both urllib and curl"
+                ) from urllib_error
+            if temporary.stat().st_size > MAX_ARCHIVE_BYTES:
+                raise RuntimeError("SpecGrain archive exceeds download bound")
         os.replace(temporary, destination)
     finally:
         temporary.unlink(missing_ok=True)
