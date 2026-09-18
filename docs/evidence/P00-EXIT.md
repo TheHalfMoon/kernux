@@ -4,15 +4,15 @@
 
 **PHASE:** `P00 — Repository and governance foundation`
 
-**EXIT STATUS:** `IMPLEMENTED_UNPROVEN — main protection is configured; protected closeout merge and post-merge qualification remain`
+**EXIT STATUS:** `PROVEN`
 
-**P00 EXIT PROVEN:** `FALSE — pending final post-merge qualification`
+**P00 EXIT PROVEN:** `TRUE`
 
-**P01 IMPLEMENTATION AUTHORIZED:** `FALSE`
+**P01 IMPLEMENTATION AUTHORIZED:** `TRUE AFTER CANONICAL CLOSEOUT MERGES`
 
 **ACTIVE GRAIN:** `SG-000007 — KX-P00-EXIT — Protect main and qualify the P00 phase exit gate`
 
-The eight P00 macro tasks are canonically PROVEN. The required `main` protection is now configured and read back from GitHub. The phase exit remains unproven only until this protected closeout change merges without bypass and the resulting `main` revision passes all five required jobs.
+The eight P00 macro tasks and the P00 phase exit are now PROVEN. Required `main` protection is configured, the protected P00 exit PR merged without bypass, and the resulting `main` revision passed all five required jobs.
 
 This document is an evidence packet and blocker record, not a completion claim.
 
@@ -220,23 +220,74 @@ The final closeout head will also be required by GitHub to satisfy these five ch
 
 **Protected closeout policy status:** PROVEN.
 
-## Remaining proof
+## Protected P00 exit merge and post-merge qualification
 
-All repository-owned and repository-administration P00 exit criteria are now positively established except the final state transition itself.
+PR #32 final exact head:
 
-Remaining steps:
+`9fcba2f9f5e8f3ad80a62a36b1d8d7fe68dde6d7`
 
-- [ ] make PR #32 ready for review;
-- [ ] require its final exact head to pass all five protected checks;
-- [ ] merge PR #32 without bypass;
-- [ ] observe all five required jobs SUCCESS on the resulting `main` merge revision;
-- [ ] only then create the final canonical P00 closeout that marks the phase PROVEN and advances `KX-P01-S01-T01` to `NEXT`.
+Protected pull-request CI:
+
+`35331700649` — SUCCESS.
+
+Observed required jobs:
+
+- JavaScript / TypeScript — SUCCESS;
+- Rust — SUCCESS;
+- SpecGrain — SUCCESS;
+- Diffcipline R1 — SUCCESS;
+- Provenance — SUCCESS.
+
+GitHub reported the ready PR as:
+
+- `mergeStateStatus: CLEAN`;
+- `mergeable: MERGEABLE`;
+- no review threads;
+- protection read-back still required exactly the five canonical contexts;
+- administrator enforcement remained enabled;
+- required approving review count remained zero;
+- force pushes and deletion remained disabled.
+
+PR #32 merged through the ordinary merge endpoint with exact expected head and no bypass.
+
+Merge revision:
+
+`25d172c65cdc4723256889d2c624ffc19a581d0b`
+
+Post-merge main CI:
+
+`35331802827` — SUCCESS.
+
+All five canonical jobs passed on the resulting `main` revision.
+
+**Status:** PROVEN.
+
+## P00 acceptance conclusion
+
+**PROVEN** for the `P00 — Repository and governance foundation` exit gate.
+
+Established:
+
+- fresh-clone reproducibility: PROVEN;
+- JavaScript/TypeScript baseline: PROVEN;
+- Rust baseline: PROVEN;
+- SpecGrain reproducibility: PROVEN;
+- Diffcipline R1 reproducibility: PROVEN;
+- donor provenance/notice/license enforcement: PROVEN;
+- no current donor product import: PROVEN;
+- protected `main` with required pull requests/status checks: PROVEN;
+- `Provenance` as required merge-time status check: PROVEN;
+- protected closeout PR without bypass: PROVEN;
+- post-merge main qualification: PROVEN;
+- P00 macro-task registry: 8 / 8 PROVEN.
+
+No P01 product/contract implementation was performed before this proof existed.
 
 ## Completion boundary
 
-`P00_COMPLETE = FALSE — FINAL_POST_MERGE_QUALIFICATION_PENDING`
+`P00_COMPLETE = TRUE`
 
-`P01_AUTHORIZED = FALSE — UNTIL_FINAL_P00_CLOSEOUT`
+`P01_AUTHORIZED = TRUE AFTER THIS CANONICAL CLOSEOUT MERGES`
 
 `PRODUCT_IMPLEMENTATION_STARTED = FALSE`
 

@@ -32,7 +32,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P00-S01-T03 | PROVEN | R0 | Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs. | T01 |
 | KX-P00-S01-T04 | PROVEN | R1 | Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies. | notices structure |
 
-**P00 gate:** fresh clone reproduces checks; SpecGrain/Diffcipline usable; provenance is enforceable before donor imports.
+**P00 gate: PROVEN.** Fresh clone reproduces checks; SpecGrain/Diffcipline are usable; protected `main` requires JavaScript / TypeScript, Rust, SpecGrain, Diffcipline R1, and Provenance; provenance is enforceable before donor imports.
 
 ---
 
@@ -40,7 +40,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | ID | State | Risk | Macro outcome | Depends |
 | --- | --- | --- | --- | --- |
-| KX-P01-S01-T01 | PLANNED | R2 | Define canonical IDs/revisions for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, Event. | P00 |
+| KX-P01-S01-T01 | NEXT | R2 | Define canonical IDs/revisions for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, Event. | P00 |
 | KX-P01-S02-T01 | PLANNED | R3 | Define v1 capability taxonomy, resource URI model, consequence classes, constraints, Grant semantics. | identities |
 | KX-P01-S03-T01 | PLANNED | R3 | Define runtime capability negotiation, contact/execution state, operation IDs, cancellation and structured errors. | identities + capabilities |
 | KX-P01-S04-T01 | PLANNED | R2 | Define event envelope, lineage, artifact references, evidence binding and redaction metadata. | identities |
