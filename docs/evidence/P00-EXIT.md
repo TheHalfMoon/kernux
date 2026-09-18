@@ -4,15 +4,15 @@
 
 **PHASE:** `P00 — Repository and governance foundation`
 
-**EXIT STATUS:** `BLOCKED_EXTERNAL`
+**EXIT STATUS:** `IMPLEMENTED_UNPROVEN — main protection is configured; protected closeout merge and post-merge qualification remain`
 
-**P00 EXIT PROVEN:** `FALSE`
+**P00 EXIT PROVEN:** `FALSE — pending final post-merge qualification`
 
 **P01 IMPLEMENTATION AUTHORIZED:** `FALSE`
 
 **ACTIVE GRAIN:** `SG-000007 — KX-P00-EXIT — Protect main and qualify the P00 phase exit gate`
 
-The eight P00 macro tasks are canonically PROVEN. The phase exit is not yet proven because merge-time protection of `main` has not been established with repository-admin evidence.
+The eight P00 macro tasks are canonically PROVEN. The required `main` protection is now configured and read back from GitHub. The phase exit remains unproven only until this protected closeout change merges without bypass and the resulting `main` revision passes all five required jobs.
 
 This document is an evidence packet and blocker record, not a completion claim.
 
@@ -89,21 +89,20 @@ No P01 macro task is authorized while the phase exit is unproven.
 
 ## Fresh-clone and baseline evidence
 
-A real shallow fresh clone of `main@296e123b63ce9666f86b9b0a0765e80cce51c407` was created before SG-000007 refinement.
+A real shallow fresh clone of exact post-refinement `main@d52b5e7e6db04f4655b66beff5d62720f9d5bd77` was created after branch protection was enabled.
 
 Observed from that clone:
 
 - `pnpm install --frozen-lockfile` — PASS;
 - workspace baseline — PASS;
-- formatting — PASS;
-- JavaScript/TypeScript lint/typecheck/tests — PASS;
-- Rust format/clippy/tests — PASS;
+- JavaScript/TypeScript format, lint, typecheck, and tests — PASS;
+- Rust format, clippy, and tests — PASS;
 - SpecGrain check — PASS;
 - full `pnpm check` — PASS.
 
-The only repository change between that fresh-clone revision and `d52b5e7e6db04f4655b66beff5d62720f9d5bd77` is the SG-000007 refinement spec.
+The live CI run on the same main revision, `35327049103`, independently covers the supported Node 24 execution baseline.
 
-Exact SG-000007 main CI is green, but an exact post-refinement local fresh-clone run is not independently recorded in this packet yet. This criterion therefore remains **PARTIAL**, not silently upgraded to PASS.
+**Status:** PROVEN.
 
 ## SpecGrain / Diffcipline reproducibility
 
@@ -162,77 +161,82 @@ Review threads observed: none.
 
 This proves the repository-side closeout candidate is green before branch protection is enabled. It does **not** satisfy the protected-closeout criterion because the required `main` protection has not been established.
 
-## Public branch-state read-back
+## Main branch protection proof
 
-The public branch endpoint for `main` is readable without repository-administration scope and currently reports:
+The required classic branch protection was applied through the repository owner's authenticated GitHub CLI and immediately read back from the GitHub API.
+
+Observed protection:
 
 - branch: `main`;
-- commit: `d52b5e7e6db04f4655b66beff5d62720f9d5bd77`;
-- `protected: false`;
-- `protection.enabled: false`;
-- required-status-check enforcement: `off`;
-- required status contexts: `[]`.
+- `protected: true`;
+- `protection.enabled: true`;
+- required-status-check enforcement: `everyone`;
+- strict/up-to-date required checks: `true`;
+- required contexts, exactly:
+  - `JavaScript / TypeScript`;
+  - `Rust`;
+  - `SpecGrain`;
+  - `Diffcipline R1`;
+  - `Provenance`;
+- required pull request reviews policy present;
+- required approving review count: `0`;
+- code-owner reviews: `false`;
+- last-push approval: `false`;
+- administrator enforcement: `true`;
+- conversation resolution required: `true`;
+- force pushes: `false`;
+- branch deletion: `false`;
+- required linear history: `false`;
+- required signatures: `false`;
+- branch lock: `false`.
 
-This independently reconfirms that the SG-000007 protection requirement is not currently satisfied.
+This establishes that `Provenance` is now a merge-time required status check rather than only an evidence-producing workflow job.
 
-The same endpoint can later prove the protected flag and required status-check contexts after an administrator enables the rule, even if the connected GitHub App still lacks administration-scope access to the full branch-protection endpoint.
+**Status:** PROVEN.
 
-## Merge-enforcement blocker
+## Protected closeout PR evidence
 
-Before SG-000007 refinement, live repository-administration truth was queried through the repository owner's authenticated GitHub CLI:
+PR #32 remained draft while protection was installed.
 
-- branch protection endpoint for `main`: `404 Branch not protected`;
-- repository rulesets: `[]`.
+A branch update made after protection produced exact head:
 
-Therefore the five CI jobs were evidence-producing checks but were not proven merge requirements.
+`2df3cf78d2ff61b28f89ec42e575fe08c5bab0a5`
 
-SG-000007 requires `main` protection with:
+Protected pull-request CI:
 
-1. pull requests required;
-2. strict required-status-check mode / branch up to date before merge;
-3. exactly these required checks:
-   - `JavaScript / TypeScript`;
-   - `Rust`;
-   - `SpecGrain`;
-   - `Diffcipline R1`;
-   - `Provenance`;
-4. required approving review count effectively zero for the single-maintainer bootstrap;
-5. conversation resolution required;
-6. administrator enforcement / no bypass;
-7. force pushes disabled;
-8. branch deletion disabled;
-9. no extra signed-commit, linear-history, deployment, CODEOWNERS, or unrelated gate introduced solely for P00 exit.
+`35331377363` — SUCCESS.
 
-### Current execution-environment limitation
+Observed jobs:
 
-No available tool in the current execution environment can presently apply or verify the administration setting:
+- JavaScript / TypeScript — SUCCESS;
+- Rust — SUCCESS;
+- SpecGrain — SUCCESS;
+- Diffcipline R1 — SUCCESS;
+- Provenance — SUCCESS.
 
-- the connected GitHub App can read/write repository content and PRs but its installation token does not expose GitHub administration / branch-protection access;
-- the available authenticated-computer connector reports its remote-call allowance exhausted for the current period;
-- the available browser-automation environment has no saved GitHub credentials.
+Review threads observed: none.
 
-These are tool-access limitations, not evidence that protection exists.
+The final closeout head will also be required by GitHub to satisfy these five checks before merge. No administrator bypass is authorized.
 
-**Branch protection status for P00 proof:** NOT PROVEN.
+**Protected closeout policy status:** PROVEN.
 
-## Required remaining proof
+## Remaining proof
 
-P00 remains blocked until all of the following are observed with real evidence:
+All repository-owned and repository-administration P00 exit criteria are now positively established except the final state transition itself.
 
-- [ ] enable the exact SG-000007 `main` protection policy;
-- [ ] read back the live protection configuration with repository-admin authority;
-- [ ] prove `Provenance` is a required `main` status check, not only a workflow job;
-- [ ] record an exact post-refinement fresh-clone `pnpm install --frozen-lockfile && pnpm check` pass, or an equivalently explicit fresh-clone proof accepted by the Grain;
-- [ ] update this packet from `BLOCKED_EXTERNAL` to `PROVEN` only after the above evidence exists;
-- [ ] update `specs/CURRENT.md` to P00-complete truth and advance `KX-P01-S01-T01` only then;
-- [ ] run the P00 closeout PR under the protected rule without admin bypass;
-- [ ] obtain final post-merge main CI success.
+Remaining steps:
+
+- [ ] make PR #32 ready for review;
+- [ ] require its final exact head to pass all five protected checks;
+- [ ] merge PR #32 without bypass;
+- [ ] observe all five required jobs SUCCESS on the resulting `main` merge revision;
+- [ ] only then create the final canonical P00 closeout that marks the phase PROVEN and advances `KX-P01-S01-T01` to `NEXT`.
 
 ## Completion boundary
 
-`P00_COMPLETE = FALSE`
+`P00_COMPLETE = FALSE — FINAL_POST_MERGE_QUALIFICATION_PENDING`
 
-`P01_AUTHORIZED = FALSE`
+`P01_AUTHORIZED = FALSE — UNTIL_FINAL_P00_CLOSEOUT`
 
 `PRODUCT_IMPLEMENTATION_STARTED = FALSE`
 
