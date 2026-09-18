@@ -32,7 +32,11 @@ The SpecGrain-adoption task, `KX-P00-S02-T01`, was merged through PR #7 at merge
 
 `752b5f9b977a31c54743d92ff6f9063428eb3976`
 
-T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state, an exact source pin and archive digest, portable deterministic launchers, a dedicated CI gate, and the first bounded successor Grain (`SG-000001`).
+The Diffcipline-adoption task, `KX-P00-S03-T01`, was merged through PR #9 at merge commit:
+
+`da096259e1bb7d669206f2d097e56731004d7c41`
+
+T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate proven on both pull-request and main-push event paths.
 
 No product code or founding-donor product code has been imported yet.
 
@@ -40,13 +44,13 @@ No product code or founding-donor product code has been imported yet.
 
 **PHASE:** `P00 — Repository and governance foundation`
 
-**SLICE:** `S00.3 — Diffcipline adoption`
+**SLICE:** `S00.4 — Provenance system`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S02-T01 — Initialize repository-local SpecGrain and document deterministic authoring/refinement workflow`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S03-T01 — Initialize Diffcipline policy with R0-R3 verification profiles and CI gate`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S03-T01 — Initialize Diffcipline policy with R0-R3 verification profiles and CI gate`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S04-T01 — Define machine-readable donor provenance/import manifest schema and validation command`
 
-The next task is represented by repository-local Grain `SG-000001`, which is in `GRAIN` state and is projected as eligible by the pinned SpecGrain engine. Canonical macro-frontier authority remains `specs/CURRENT.md`; SpecGrain readiness cannot bypass dependency order.
+The next task must be refined through repository-local SpecGrain before implementation. It establishes the machine-readable provenance gate required before any founding-donor source can enter Kernux.
 
 No later task may bypass the dependency order or donor-provenance gates.
 
@@ -54,7 +58,8 @@ Proof is recorded in:
 
 - `docs/evidence/P00-S01-T01.md`;
 - `docs/evidence/P00-S01-T02.md`;
-- `docs/evidence/P00-S02-T01.md`.
+- `docs/evidence/P00-S02-T01.md`;
+- `docs/evidence/P00-S03-T01.md`.
 
 ## Dependency rule
 
@@ -76,7 +81,7 @@ Kernux uses:
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
 
-SpecGrain is repository-active and pinned to an exact verified source revision. Diffcipline is not yet repository-active; `SG-000001` is the authorized bounded Grain for activating it.
+SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline now enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence.
 
 ## Founding donor authority
 
