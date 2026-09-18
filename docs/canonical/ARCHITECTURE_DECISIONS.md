@@ -296,6 +296,26 @@ Remote execution requires the intersection of controller authorization, Kernux/k
 
 Wire representation, policy-engine implementation, runtime cancellation/errors, Event envelope, persistence, and generated Rust/TypeScript contracts remain owned by later dependency-ordered work.
 
+## ADR-0040 — Runtime truth uses negotiated capability, stable OperationId, host-owned observation, and reconcile-before-retry
+
+**Status:** Accepted
+
+Runtime/provider type never implies capability. Kernux explicitly negotiates the provider-neutral capability/action contract, then separately applies the existing authorization and remote-host-policy intersection.
+
+Contact and execution state are independent. The closed conceptual contact vocabulary is `connected | degraded | disconnected`; execution is `live | exited | unverifiable`. Disconnect, timeout, controller restart, missing heartbeat, request failure, or cancellation acceptance cannot establish `exited`.
+
+`RequestId` identifies one protocol attempt. `OperationId` identifies one logical side-effecting operation across transport retries and reconnects. One OperationId is bound to one canonical operation fingerprint. Same-ID/different-fingerprint reuse fails closed; same-ID/same-fingerprint replay resolves the existing logical operation rather than creating a duplicate side effect.
+
+After a `may_have_started` outcome, callers reconcile the existing OperationId before creating any fresh operation identity. Unknown retry safety defaults to reconciliation, not optimistic re-execution.
+
+Cancellation is a request against an OperationId. Acceptance is not termination proof. Only authoritative execution-owner observation establishes terminal `exited` state and cause.
+
+Structured errors separate protocol-request failure from operation truth and carry provider-neutral retry guidance plus side-effect certainty. Provider-native status/error data remains foreign diagnostic metadata.
+
+Reconnect authenticates Runtime identity, renegotiates capability/protocol support, rechecks current authority for new admissions, and reconciles outstanding operations. It cannot resurrect expired/revoked Grants or silently transfer operation authority to a changed trust identity.
+
+Event-envelope representation, generated schema encoding, global compatibility rules, transport implementation, operation-ledger persistence, and concrete runtime adapters remain dependency-ordered downstream work.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:
