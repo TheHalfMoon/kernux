@@ -88,6 +88,20 @@ class ProjectLicenseTests(unittest.TestCase):
         finally:
             temporary.cleanup()
 
+    def test_parent_directory_symlink_is_rejected(self) -> None:
+        temporary, root = self.materialize()
+        try:
+            docs = root / "docs"
+            moved = root / "docs-real"
+            docs.rename(moved)
+            try:
+                docs.symlink_to(moved, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"directory symlink creation unavailable: {exc}")
+            self.assert_invalid(root, "must not traverse a symlink")
+        finally:
+            temporary.cleanup()
+
     def test_policy_missing_tampered_and_symlinked_fail_closed(self) -> None:
         relative = pathlib.Path("docs/canonical/LICENSE_POLICY.md")
 
