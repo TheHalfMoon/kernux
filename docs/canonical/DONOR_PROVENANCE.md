@@ -8,11 +8,21 @@ This file remains the narrative donor map and import-policy authority. Machine-r
 
 - `third_party/provenance/schema/import-manifest.schema.json` — strict v1 manifest contract;
 - `third_party/provenance/manifests/*.json` — per-donor/import records when imports are prepared or executed;
-- `tools/provenance/validate.py` — deterministic fail-closed validator;
-- `tools/provenance/test_validate.py` — conformance and adversarial contract suite;
-- the dedicated `Provenance` CI job — fresh-checkout enforcement of tests plus every tracked manifest.
+- `third_party/notices/inventory.json` — versioned third-party source/license inventory;
+- `third_party/notices/licenses/` — byte-preserved upstream license snapshots;
+- `tools/provenance/validate.py` and `tools/provenance/validate_notices.py` — deterministic fail-closed validators;
+- `tools/provenance/test_validate.py` and `tools/provenance/test_validate_notices.py` — conformance and adversarial contract suites;
+- `docs/canonical/DONOR_IMPORT_CHECKLIST.md` — the human-reviewable pre-merge import control;
+- the dedicated `Provenance` CI job — full-history enforcement of both validator suites, the notice inventory, and every tracked manifest.
 
-Run `python3 tools/provenance/validate.py check` locally before any donor-import PR. An empty ledger is valid before the first import; once donor source is prepared or imported, its record must satisfy the machine-readable contract and repository evidence checks.
+Run both validators before any donor-import PR:
+
+```bash
+python3 tools/provenance/validate_notices.py check
+python3 tools/provenance/validate.py check
+```
+
+An empty provenance ledger is valid before the first import. Once a donor record is prepared or imported, it must match a notice-inventory source identity and include the preserved license snapshot in its evidence paths.
 
 ## Founding donor 1 — Orca
 
