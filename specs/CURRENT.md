@@ -73,41 +73,33 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**P00 EXIT STATUS:** `PROVEN`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S01-T01 — Canonical IDs/revisions`
 
-**P00 MACRO TASKS:** `8 / 8 PROVEN`
+**P01 PROGRESS:** `1 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S01-T01 — Define canonical IDs/revisions for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, Event`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S02-T01 — Define v1 capability taxonomy, resource URI model, consequence classes, constraints, Grant semantics`
 
-P00 exit proof is recorded in `docs/evidence/P00-EXIT.md`.
+The identity/revision task was refined through PR #34 and implemented through PR #35.
 
-The protected exit PR merged at `25d172c65cdc4723256889d2c624ffc19a581d0b`, and post-merge main CI run `35331802827` passed all five required jobs.
+Canonical identity contract:
 
-`main` is protected with strict required status checks for:
+- `docs/canonical/IDENTITY_AND_REVISION_MODEL.md`;
+- ADR-0038 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
+- evidence packet `docs/evidence/P01-S01-T01.md`;
+- native SG-000008 evidence record `sha256:a331754e945d9ea8ad6943377992722b0c47a978262b23c892365a6b4cbfc09d`.
 
-- JavaScript / TypeScript;
-- Rust;
-- SpecGrain;
-- Diffcipline R1;
-- Provenance.
+Implementation merged at `0da7f594bb48cab42aed7f5afa7e3409f40f76b7`, and post-merge CI run `35333409634` passed all five protected required jobs.
 
-Pull requests are required, administrator enforcement is enabled, conversation resolution is required, required approving review count is zero for the current single-maintainer bootstrap, and force pushes/deletion are disabled.
+Canonical IDs for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event are UUIDv7. Revision, content digest, foreign/provider IDs, and ordering coordinates are separate concepts. UUIDv7 lexical/time order is not event or security authority.
 
 No donor product source has been imported.
 
-P01 may begin only through bounded SpecGrain refinement of KX-P01-S01-T01. No later P01 task may bypass its declared dependencies.
+KX-P01-S02-T01 is now authorized because its identity dependency is PROVEN. No later P01 task may bypass its declared dependencies.
 
-Proof for P00 is recorded in:
+Proof for the current frontier includes:
 
-- `docs/evidence/P00-S01-T01.md`;
-- `docs/evidence/P00-S01-T02.md`;
-- `docs/evidence/P00-S01-T03.md`;
-- `docs/evidence/P00-S01-T04.md`;
-- `docs/evidence/P00-S02-T01.md`;
-- `docs/evidence/P00-S03-T01.md`;
-- `docs/evidence/P00-S04-T01.md`;
-- `docs/evidence/P00-S04-T02.md`;
-- `docs/evidence/P00-EXIT.md`.
+- `docs/evidence/P00-EXIT.md`;
+- `docs/evidence/P01-S01-T01.md`.
 
 ## Dependency rule
 

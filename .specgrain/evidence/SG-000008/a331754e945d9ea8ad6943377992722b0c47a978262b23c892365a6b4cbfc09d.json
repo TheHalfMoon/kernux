@@ -1,0 +1,150 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:a331754e945d9ea8ad6943377992722b0c47a978262b23c892365a6b4cbfc09d",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "A rerun creates a distinct Run ID; reconnect/resume retains an AgentSession ID only when continuity of the same logical session is established, otherwise a new AgentSession ID is required; Runtime ID persists across reconnect/restart only for the same enrolled trust identity.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Artifact content bytes cannot change under one Artifact ID: its SHA-256 content digest is invariant across allowed metadata revisions; changed bytes require a new Artifact ID. Evidence that cites an Artifact binds the exact Artifact revision and digest when applicable.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical documentation remains internally consistent with ARCHITECTURE, QUALITY_AND_EVIDENCE, NATIVE_AGENT_AND_HEADLESS, DATA_LIFECYCLE_AND_PORTABILITY, the execution plan, and the P01 task registry.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Exact implementation passes focused document/invariant review, RFC UUIDv7 example/grammar validation, pnpm check, git diff --check, Diffcipline R2, supported OpenCodeReview rules, protected exact-head CI, and post-merge main qualification.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Exact references to revisioned entities bind ID plus revision. ID-only/latest references are not accepted as durable execution, authorization, replay, or evidence authority. Provider/native identifiers are stored as foreign metadata and never substituted for Kernux IDs.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Revision is a positive uint32 semantic value 1..4294967295, starts at 1, increments exactly one for each accepted canonical mutation of a revisioned entity, uses expected-revision compare-and-swap, rejects zero/overflow/stale writes, and remains JSON-number-safe.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The architecture decision and canonical identity document preserve provider neutrality, do not introduce donor/provider names into the core contract, and leave resource URI, event envelope, schema source, and generated type details to their declared later P01 tasks.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The contract states UUIDv7 creation time is not authorization, freshness, causal order, event order, or a substitute for an explicit timestamp/sequence; clock rollback/skew cannot confer authority.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The identity contract enumerates exactly the nine macro-task entities and assigns each an RFC 9562 UUIDv7 canonical ID with lowercase 8-4-4-4-12 text, version 7, RFC variant, non-nil value, opaque/non-secret semantics, and no encoded provider/entity/business meaning.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The mutability matrix explicitly covers all nine entities: Project, Task, WorkUnit, Runtime, and Artifact canonical metadata are revisioned under bounded rules; Run, AgentSession, Evidence, and Event are immutable identity records with revision fixed at 1, with new logical occurrences/assertions/facts receiving new IDs.",
+        "detail": "Rechecked against the canonical identity document, ADR-0038, architecture alignment, protected PR qualification, and post-merge main CI.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7;github-pr:34;github-actions:35332820371;github-actions:35332893877;github-pr:35;github-actions:35333341683;github-actions:35333409634;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass;local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "github-actions:35333341683",
+        "passed": true
+      },
+      {
+        "check_id": "canonical-doc-consistency-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/ARCHITECTURE.md;git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/ARCHITECTURE_DECISIONS.md;github-pr:35",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "local:b959244536996c3d4cf417573212d93156f319a6:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "digest-ordering-separation-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/ARCHITECTURE.md;github-pr:35",
+        "passed": true
+      },
+      {
+        "check_id": "entity-mutability-matrix-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;github-pr:35",
+        "passed": true
+      },
+      {
+        "check_id": "exact-reference-binding-review-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;github-pr:35",
+        "passed": true
+      },
+      {
+        "check_id": "p00-prerequisite-proof-bound",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:5a2548ef4bcc145070d81e53e1437729d7a9434c:docs/evidence/P00-EXIT.md;github-pr:34",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "github-actions:35333409634",
+        "passed": true
+      },
+      {
+        "check_id": "provider-neutrality-review-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/ARCHITECTURE_DECISIONS.md",
+        "passed": true
+      },
+      {
+        "check_id": "revision-semantics-review-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;github-pr:35",
+        "passed": true
+      },
+      {
+        "check_id": "uuidv7-identity-contract-review-pass",
+        "detail": "Required SG-000008 evidence rechecked against exact repository/GitHub evidence.",
+        "evidence_ref": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;RFC9562:2024-05;local:b959244536996c3d4cf417573212d93156f319a6:identity-focused-invariants-pass",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:0da7f594bb48cab42aed7f5afa7e3409f40f76b7",
+    "issues": [],
+    "observed_changed_paths": [
+      "docs/canonical/ARCHITECTURE.md",
+      "docs/canonical/ARCHITECTURE_DECISIONS.md",
+      "docs/canonical/IDENTITY_AND_REVISION_MODEL.md"
+    ],
+    "packet_digest": "sha256:867d6543f9879464e19d88f160070a210833bd69076e4163dbdc0dd4e5df96ef",
+    "result_digest": "sha256:64c1a104e2c186d13819dce765633c4f34716fefdd1c3e3ad2b4f197f6a513de",
+    "spec_id": "SG-000008",
+    "spec_revision": "sha256:1a6022d9a78b682f3364fe9d61ca8c3baee89fafd0121a84fb93b07f165c33a8",
+    "verification_version": 1,
+    "verified": true
+  }
+}
