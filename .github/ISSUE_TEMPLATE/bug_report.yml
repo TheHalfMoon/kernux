@@ -1,0 +1,90 @@
+name: Bug Report
+description: Report a reproducible Kernux defect.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report unpublished security vulnerabilities here. Follow SECURITY.md.
+        Remove credentials, tokens, personal data, PHI, and proprietary content from public evidence.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched existing issues for this defect.
+          required: true
+        - label: This report does not disclose an unpublished security vulnerability or sensitive data.
+          required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Defect summary
+      description: What is wrong, in one bounded statement?
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Kernux revision or version
+      description: Prefer an exact commit SHA when testing source.
+      placeholder: e.g. d0952e8...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, architecture, runtime/location (local, WSL, SSH, container), and relevant tool versions.
+      placeholder: |
+        OS:
+        Architecture:
+        Runtime:
+        Node/pnpm:
+        Rust:
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      options:
+        - Desktop UI
+        - CLI or API
+        - Daemon or local runtime
+        - Browser automation
+        - Agent integration
+        - Git or workspace
+        - Governance, build, or CI
+        - Other or not sure
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Give deterministic steps and the smallest safe input that reproduces the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Paste only the logs, traces, screenshots, or commands needed to understand the defect. Remove sensitive data first.
+  - type: textarea
+    id: recovery
+    attributes:
+      label: Recovery or workaround
+      description: If known, explain whether restart/retry is safe and whether the issue can duplicate or lose side effects.

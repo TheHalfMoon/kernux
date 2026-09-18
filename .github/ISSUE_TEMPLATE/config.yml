@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security policy
+    url: https://github.com/TheHalfMoon/kernux/security/policy
+    about: Read the security policy before reporting a vulnerability. Do not disclose vulnerability details in a public issue.
+  - name: Support guidance
+    url: https://github.com/TheHalfMoon/kernux/blob/main/SUPPORT.md
+    about: Choose the right support channel and redact sensitive data before posting.
