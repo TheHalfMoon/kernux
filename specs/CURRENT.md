@@ -41,7 +41,13 @@ The donor-provenance contract task, `KX-P00-S04-T01`, was completed through two 
 - PR #13 core contract merge: `6851f8f59d236a33e3f94c4e77e17756ba16dba2`;
 - PR #14 conformance/enforcement merge: `c68b22c74aa402511c1a8e6ee2d0a298cc28d189`.
 
-T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate. T04.1 established the strict donor import manifest v1 schema, fail-closed validator, 21-test conformance corpus, and dedicated Provenance CI job proven on both pull-request and main-push event paths.
+The third-party notice/checklist task, `KX-P00-S04-T02`, was refined through PR #16 and completed through two bounded implementation slices:
+
+- PR #16 SpecGrain refinement merge: `dfa4cedde60a77a924d4d60e21c2843d8afb46f1`;
+- PR #17 notice inventory core merge: `e7dcfda6a425a761cc709e1f24b5254de50f702c`;
+- PR #18 conformance/enforcement + donor import checklist merge: `e14debcf36ddf64f75b60dc3bbc4bb9c291443fb`.
+
+T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate. T04.1 established the strict donor import manifest v1 schema, fail-closed validator, 21-test conformance corpus, and dedicated Provenance CI job. T04.2 added the versioned notice inventory, byte-preserved founding-donor public license snapshots, fail-closed notice/provenance cross-validation, an 18-test notice corpus, a canonical donor import checklist, and expanded Provenance CI that now proves 39 combined provenance/notice tests plus both validators.
 
 No product code or founding-donor product code has been imported yet.
 
@@ -51,13 +57,15 @@ No product code or founding-donor product code has been imported yet.
 
 **SLICE:** `S00.4 — Provenance system`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S04-T01 — Define machine-readable donor provenance/import manifest schema and validation command`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S04-T02 — Add third-party notices/license inventory structure and donor import checklist`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S04-T02 — Add third-party notices/license inventory structure and donor import checklist`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T04 — Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies`
 
-T04.1 is proven and the machine-readable provenance validator is now an enforced CI surface. T04.2 is dependency-eligible and must be refined through repository-local SpecGrain before implementation. It completes the human- and machine-reviewable notices/license/checklist layer required before founding-donor import work can begin.
+T04.2 is proven. The repository now enforces both donor provenance and third-party notice/license evidence before future donor imports.
 
-No later task may bypass the dependency order or donor-provenance gates.
+T04 is the active successor because its declared dependency is the notices structure just proven by T04.2. The master plan does not declare an ordering dependency between T03 and T04; `KX-P00-S01-T03` remains unfinished P00 baseline work and must also be proven before P00 exit.
+
+No P01 implementation is authorized until the remaining P00 baseline work and P00 exit gate are reconciled. No later task may bypass the dependency order or donor-provenance gates.
 
 Proof is recorded in:
 
@@ -65,7 +73,8 @@ Proof is recorded in:
 - `docs/evidence/P00-S01-T02.md`;
 - `docs/evidence/P00-S02-T01.md`;
 - `docs/evidence/P00-S03-T01.md`;
-- `docs/evidence/P00-S04-T01.md`.
+- `docs/evidence/P00-S04-T01.md`;
+- `docs/evidence/P00-S04-T02.md`.
 
 ## Dependency rule
 
@@ -87,7 +96,7 @@ Kernux uses:
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
 
-SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence. The dedicated Provenance job independently runs the donor-manifest conformance corpus and validates every tracked donor record from full Git history.
+SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence. The dedicated Provenance job independently runs both provenance/notice conformance corpora, validates the third-party notice inventory, and validates every tracked donor record from full Git history.
 
 ## Founding donor authority
 
@@ -97,7 +106,7 @@ Founder authorization has been stated for full source reuse from:
 - TinyFish source / `tinyfish-io/agentql` public reference;
 - `wonderwhy-er/DesktopCommanderMCP`.
 
-No donor code has been imported into Kernux yet. The machine-readable provenance contract and CI validator are now proven. Before import, exact source revision, permission/provenance, source/destination mapping, transformation class, notices, characterization evidence, and all task-specific security evidence remain required.
+No donor code has been imported into Kernux yet. The machine-readable provenance contract, notice/license inventory, donor import checklist, and CI enforcement are now proven. Before any import, the active import task must still authorize the bounded source change and provide exact source revision, permission/provenance, source/destination mapping, transformation class, preserved notices, dependency/asset review, characterization evidence, and all applicable security evidence.
 
 ## Architecture invariants
 
