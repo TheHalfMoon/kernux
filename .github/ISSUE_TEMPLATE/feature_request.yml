@@ -1,0 +1,64 @@
+name: Feature Request
+description: Propose a user outcome or capability for Kernux.
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Start with the user problem and desired outcome. A proposal does not override the canonical project frontier.
+        Do not include secrets, private data, PHI, or unpublished vulnerability details.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem exists today, for whom, and in what context?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: What should become possible or measurably better?
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Example workflow
+      description: Describe one concrete end-to-end journey without assuming a specific implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: platforms
+    attributes:
+      label: Platforms and runtimes
+      description: Which of macOS, Windows, Linux, WSL, SSH, container/isolated, mobile, or browser contexts matter?
+  - type: textarea
+    id: security
+    attributes:
+      label: Security, privacy, and data boundary
+      description: What capabilities, secrets, destructive actions, off-device data, or untrusted content are involved?
+  - type: textarea
+    id: sources
+    attributes:
+      label: External sources or references
+      description: List products, repositories, standards, or code you think are relevant. Source reuse still requires Kernux provenance/license review.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What existing Kernux capability or simpler workflow could address the problem?
+  - type: textarea
+    id: success
+    attributes:
+      label: Evidence of success
+      description: What observable behavior or measurement would show the outcome is achieved?
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Public-report confirmation
+      options:
+        - label: I removed sensitive data and understand this request does not authorize implementation outside the canonical frontier.
+          required: true

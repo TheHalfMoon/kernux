@@ -1,0 +1,49 @@
+name: Support Question
+description: Ask about setup, development, or current Kernux behavior.
+title: "[Support] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check README.md and docs/DEVELOPMENT.md first.
+        Do not post vulnerability details, credentials, tokens, personal data, PHI, or proprietary content.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do, and where are you blocked?
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Kernux revision or version
+      placeholder: e.g. current main or an exact commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the relevant OS, runtime/location, and tool versions.
+    validations:
+      required: true
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What you already tried
+      description: Include commands or docs you followed and the observed result.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Optional minimal logs or output. Remove sensitive information before posting.
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Public-report confirmation
+      options:
+        - label: This is not an unpublished security vulnerability, and I removed sensitive data from the report.
+          required: true
