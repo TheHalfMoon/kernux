@@ -179,6 +179,9 @@ The encoding is an implementation detail; stable method/event semantics are the 
 
 ## 6. Core data model
 
+Canonical identity and revision semantics for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event are frozen in [`IDENTITY_AND_REVISION_MODEL.md`](IDENTITY_AND_REVISION_MODEL.md). The entity descriptions below define meaning; they do not override that identity/revision contract.
+
+
 ### Workspace
 
 A user-level container for layout, open projects, enrolled runtimes, and preferences.
@@ -213,7 +216,7 @@ One execution occurrence of a Task or WorkUnit. Re-running identical content cre
 
 ### AgentSession
 
-One adapter-backed agent conversation/execution session with provider identity, runtime host, resumability metadata, usage, and status.
+One logical adapter-backed agent conversation/execution continuity. Provider identity remains foreign metadata; mutable usage/status are projected state around the immutable AgentSession identity.
 
 ### CapabilityRequest
 
@@ -229,7 +232,7 @@ An execution host implementing a negotiated subset of Kernux runtime capabilitie
 
 ### Artifact
 
-Content-addressed output with digest, media type, size, producer, source event, optional semantic metadata, and retention class.
+A logical immutable-content output record with its own Artifact ID plus a separate content digest, media type, size, producer, source event, optional semantic metadata, and retention class.
 
 ### Evidence
 
@@ -268,7 +271,7 @@ run.completed
 
 Rules:
 
-- durable event ids are unique and monotonic within a run stream;
+- durable Event IDs are unique; later event-envelope contracts define explicit per-stream ordering coordinates and MUST NOT use UUIDv7 lexical order as event-order authority;
 - events have producer identity and timestamp;
 - large payloads live in the artifact store and are referenced by digest;
 - current state is a projection and can be rebuilt;
