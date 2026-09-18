@@ -28,7 +28,6 @@ CARGO_PATH = Path("Cargo.toml")
 README_PATH = Path("README.md")
 THIRD_PARTY_README_PATH = Path("third_party/README.md")
 NOTICE_README_PATH = Path("third_party/notices/README.md")
-
 README_MARKER = "Kernux-owned code is licensed under the Apache License 2.0."
 THIRD_PARTY_MARKER = "The root Apache-2.0 license applies to Kernux-owned code and does not relicense third-party material under this directory."
 NOTICE_MARKER = "The root Apache-2.0 license applies to Kernux-owned code and does not relicense the third-party evidence or material represented here."
