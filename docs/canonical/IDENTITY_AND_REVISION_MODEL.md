@@ -298,7 +298,7 @@ Event is an immutable append-oriented fact. Corrections are represented by later
 
 Run, AgentSession, Evidence, and Event use semantic revision 1. Changing live projections around them does not mutate those immutable identity records.
 
-Later event-envelope work MUST define explicit ordering coordinates. Event ID or UUIDv7 lexical order is not sufficient ordering authority.
+[`EVENT_AND_EVIDENCE_MODEL.md`](EVENT_AND_EVIDENCE_MODEL.md) defines the v1 event-envelope ordering coordinates. Event ID or UUIDv7 lexical order is not sufficient ordering authority.
 
 ## 11. Security and privacy properties
 
