@@ -328,6 +328,16 @@ Redaction/exclusion is explicit view/export metadata. Transformed bytes receive 
 
 Wire schema, canonical serialization, whole-Event digest/signature, persistent event-store layout, compatibility policy, and executable fixture corpus remain downstream work.
 
+## ADR-0042 — JSON Schema 2020-12 is the single source for generated KRP core contracts
+
+**Status:** Accepted
+
+The authoritative v1 cross-language wire source is `protocol/schema/krp.v1.schema.json`, using JSON Schema Draft 2020-12 and a deliberately restricted repository-owned subset. Rust and TypeScript contract files are generated deterministically from those bytes and carry the schema SHA-256; generated files are never a competing source of truth.
+
+The generator must fail on unsupported schema constructs rather than approximating them. Schema validation proves structural shape only and does not grant authority.
+
+S05-T02 remains authoritative for version/unknown/additive compatibility behavior, and S05-T03 remains authoritative for the full adversarial protocol corpus.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:

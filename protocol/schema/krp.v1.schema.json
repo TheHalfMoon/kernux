@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kernux.dev/schema/krp/v1",
+  "title": "Kernux Runtime Protocol v1 Core Contracts",
+  "description": "Authoritative provider-neutral schema source for P01 core generated contracts.",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "EntityKind": {
+      "type": "string",
+      "enum": ["project", "task", "work_unit", "run", "agent_session", "runtime", "artifact", "evidence", "event"]
+    },
+    "ConsequenceClass": {
+      "type": "string",
+      "enum": ["C0", "C1", "C2", "C3"]
+    },
+    "ContactState": {
+      "type": "string",
+      "enum": ["connected", "degraded", "disconnected"]
+    },
+    "ExecutionState": {
+      "type": "string",
+      "enum": ["live", "exited", "unverifiable"]
+    },
+    "SideEffectCertainty": {
+      "type": "string",
+      "enum": ["definitely_not_started", "operation_known", "may_have_started", "not_applicable"]
+    },
+    "RetryGuidance": {
+      "type": "string",
+      "enum": ["retry_request", "reconcile_operation", "new_operation_if_still_authorized", "do_not_retry"]
+    },
+    "EvidenceSourceClass": {
+      "type": "string",
+      "enum": ["machine", "external_service", "human_review", "agent_report", "imported"]
+    },
+    "RedactionState": {
+      "type": "string",
+      "enum": ["none", "excluded", "transformed"]
+    },
+    "StreamOwnerKind": {
+      "type": "string",
+      "enum": ["project", "task", "run", "runtime"]
+    },
+    "CanonicalRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/EntityKind" },
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "revision": { "type": "integer", "minimum": 1, "maximum": 4294967295 }
+      }
+    },
+    "ConstraintSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "allowed_roots": { "type": "array", "items": { "type": "string" } },
+        "network_hosts": { "type": "array", "items": { "type": "string" } },
+        "max_bytes": { "type": "integer", "minimum": 0 },
+        "max_duration_ms": { "type": "integer", "minimum": 0 },
+        "max_uses": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "CapabilityRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request_id", "subject", "action", "resource_uri", "runtime", "consequence", "constraints"],
+      "properties": {
+        "request_id": { "type": "string" },
+        "subject": { "$ref": "#/$defs/CanonicalRef" },
+        "action": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$" },
+        "resource_uri": { "type": "string", "pattern": "^kernux://" },
+        "runtime": { "$ref": "#/$defs/CanonicalRef" },
+        "consequence": { "$ref": "#/$defs/ConsequenceClass" },
+        "constraints": { "$ref": "#/$defs/ConstraintSet" }
+      }
+    },
+    "Grant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grant_id", "request_id", "subject", "action", "resource_uri", "runtime", "consequence", "constraints", "expires_at", "max_uses", "issuer_policy_revision"],
+      "properties": {
+        "grant_id": { "type": "string" },
+        "request_id": { "type": "string" },
+        "subject": { "$ref": "#/$defs/CanonicalRef" },
+        "action": { "type": "string" },
+        "resource_uri": { "type": "string" },
+        "runtime": { "$ref": "#/$defs/CanonicalRef" },
+        "consequence": { "$ref": "#/$defs/ConsequenceClass" },
+        "constraints": { "$ref": "#/$defs/ConstraintSet" },
+        "expires_at": { "type": "string" },
+        "max_uses": { "type": "integer", "minimum": 1 },
+        "issuer_policy_revision": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "CapabilityVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "version", "features"],
+      "properties": {
+        "action": { "type": "string" },
+        "version": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "RuntimeDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime", "contract_version", "capabilities", "observation_generation", "observed_at"],
+      "properties": {
+        "runtime": { "$ref": "#/$defs/CanonicalRef" },
+        "contract_version": { "type": "string" },
+        "capabilities": { "type": "array", "items": { "$ref": "#/$defs/CapabilityVersion" } },
+        "observation_generation": { "type": "integer", "minimum": 1 },
+        "observed_at": { "type": "string" }
+      }
+    },
+    "OperationStart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request_id", "operation_id", "subject", "action", "resource_uri", "runtime", "constraints", "payload_sha256"],
+      "properties": {
+        "request_id": { "type": "string" },
+        "operation_id": { "type": "string" },
+        "subject": { "$ref": "#/$defs/CanonicalRef" },
+        "action": { "type": "string" },
+        "resource_uri": { "type": "string" },
+        "runtime": { "$ref": "#/$defs/CanonicalRef" },
+        "constraints": { "$ref": "#/$defs/ConstraintSet" },
+        "payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "OperationObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation_id", "runtime", "observation_generation", "execution_state", "observed_at"],
+      "properties": {
+        "operation_id": { "type": "string" },
+        "runtime": { "$ref": "#/$defs/CanonicalRef" },
+        "observation_generation": { "type": "integer", "minimum": 1 },
+        "execution_state": { "$ref": "#/$defs/ExecutionState" },
+        "termination_cause": { "type": "string" },
+        "observed_at": { "type": "string" }
+      }
+    },
+    "RuntimeError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "category", "message", "request_id", "retry_guidance", "side_effect_certainty"],
+      "properties": {
+        "code": { "type": "string" },
+        "category": { "type": "string" },
+        "message": { "type": "string" },
+        "request_id": { "type": "string" },
+        "operation_id": { "type": "string" },
+        "retry_guidance": { "$ref": "#/$defs/RetryGuidance" },
+        "side_effect_certainty": { "$ref": "#/$defs/SideEffectCertainty" }
+      }
+    },
+    "ArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact", "role"],
+      "properties": {
+        "artifact": { "$ref": "#/$defs/CanonicalRef" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "role": { "type": "string" },
+        "media_type": { "type": "string" },
+        "size_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "StreamRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_kind", "owner"],
+      "properties": {
+        "owner_kind": { "$ref": "#/$defs/StreamOwnerKind" },
+        "owner": { "$ref": "#/$defs/CanonicalRef" }
+      }
+    },
+    "EventCorrelations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "project": { "$ref": "#/$defs/CanonicalRef" },
+        "task": { "$ref": "#/$defs/CanonicalRef" },
+        "work_unit": { "$ref": "#/$defs/CanonicalRef" },
+        "run": { "$ref": "#/$defs/CanonicalRef" },
+        "agent_session": { "$ref": "#/$defs/CanonicalRef" },
+        "runtime": { "$ref": "#/$defs/CanonicalRef" },
+        "grant_id": { "type": "string" },
+        "request_id": { "type": "string" },
+        "operation_id": { "type": "string" }
+      }
+    },
+    "Redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "affected_roles"],
+      "properties": {
+        "state": { "$ref": "#/$defs/RedactionState" },
+        "affected_roles": { "type": "array", "items": { "type": "string" } },
+        "reason_class": { "type": "string" },
+        "policy_ref": { "type": "string" },
+        "policy_version": { "type": "string" },
+        "source_artifact": { "$ref": "#/$defs/ArtifactRef" },
+        "transformed_artifact": { "$ref": "#/$defs/ArtifactRef" }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "event_type", "contract_version", "stream", "stream_seq", "producer", "recorded_at", "correlations", "artifact_refs", "redaction"],
+      "properties": {
+        "event_id": { "type": "string" },
+        "event_type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$" },
+        "contract_version": { "type": "string" },
+        "stream": { "$ref": "#/$defs/StreamRef" },
+        "stream_seq": { "type": "integer", "minimum": 1 },
+        "previous_event_id": { "type": "string" },
+        "producer": { "type": "string" },
+        "occurred_at": { "type": "string" },
+        "recorded_at": { "type": "string" },
+        "correlations": { "$ref": "#/$defs/EventCorrelations" },
+        "artifact_refs": { "type": "array", "items": { "$ref": "#/$defs/ArtifactRef" } },
+        "redaction": { "$ref": "#/$defs/Redaction" }
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "claim", "subject_bindings", "source_class", "observer", "observed_event_ids", "artifact_refs", "result", "limitations", "recorded_by_event_id", "redaction"],
+      "properties": {
+        "evidence_id": { "type": "string" },
+        "claim": { "type": "string" },
+        "subject_bindings": { "type": "array", "items": { "$ref": "#/$defs/CanonicalRef" } },
+        "source_class": { "$ref": "#/$defs/EvidenceSourceClass" },
+        "observer": { "type": "string" },
+        "observed_event_ids": { "type": "array", "items": { "type": "string" } },
+        "artifact_refs": { "type": "array", "items": { "$ref": "#/$defs/ArtifactRef" } },
+        "runtime_context": { "$ref": "#/$defs/CanonicalRef" },
+        "operation_id": { "type": "string" },
+        "implementation_revision": { "type": "string" },
+        "result": { "type": "string" },
+        "limitations": { "type": "array", "items": { "type": "string" } },
+        "recorded_by_event_id": { "type": "string" },
+        "redaction": { "$ref": "#/$defs/Redaction" }
+      }
+    }
+  }
+}

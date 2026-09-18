@@ -165,7 +165,7 @@ sandbox.*
 identity.*
 ```
 
-KRP should be generated from one schema source into Rust and TypeScript contract types. Protocol conformance tests are mandatory before remote use.
+KRP uses `protocol/schema/krp.v1.schema.json` (JSON Schema Draft 2020-12) as its single v1 generated-contract source. Rust and TypeScript outputs are deterministic derivatives; protocol conformance tests are mandatory before remote use.
 
 ## 6. Agent Skills
 
