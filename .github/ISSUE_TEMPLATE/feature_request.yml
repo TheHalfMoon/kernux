@@ -1,3 +1,4 @@
+# SG-000006 explicit-path reconciliation: behavior unchanged; SG-000005 wildcard mismatch remains negative evidence.
 name: Feature Request
 description: Propose a user outcome or capability for Kernux.
 title: "[Feature] "
