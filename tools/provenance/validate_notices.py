@@ -186,7 +186,7 @@ def validate_inventory(data: Any) -> tuple[list[str], list[dict[str, Any]]]:
     if errors or not isinstance(data, dict):
         return sorted(set(errors)), []
     version = data["schema_version"]
-    if isinstance(version, bool) or version != 1:
+    if isinstance(version, bool) or not isinstance(version, int) or version != 1:
         errors.append("$.schema_version: expected integer 1")
     entries = data["entries"]
     if not isinstance(entries, list):
@@ -216,7 +216,7 @@ def validate_inventory(data: Any) -> tuple[list[str], list[dict[str, Any]]]:
         if not isinstance(entry_id, str) or _ENTRY_ID.fullmatch(entry_id) is None:
             errors.append(f"{at}.entry_id: expected canonical notice entry ID")
         category = entry["category"]
-        if category not in _CATEGORIES:
+        if not isinstance(category, str) or category not in _CATEGORIES:
             errors.append(f"{at}.category: value is not in the allowed enum")
 
         source_errors = _source_errors(entry["source"], f"{at}.source")
@@ -281,6 +281,43 @@ def _snapshot_errors(entry: dict[str, Any], index: int, root: Path = ROOT) -> li
             f"{at}.snapshot_sha256: digest mismatch; expected {expected}, observed {actual}"
         ]
     return []
+
+
+def _license_tree_errors(
+    entries: list[dict[str, Any]],
+    root: Path = ROOT,
+) -> list[str]:
+    expected = {entry["license"]["snapshot_path"] for entry in entries}
+    license_root = root / "third_party/notices/licenses"
+    if license_root.is_symlink():
+        return ["licenses: license snapshot directory must not be a symlink"]
+    if not license_root.is_dir():
+        return ["licenses: license snapshot directory is missing"]
+
+    errors: list[str] = []
+    observed: set[str] = set()
+    stack = [license_root]
+    while stack:
+        directory = stack.pop()
+        try:
+            children = sorted(directory.iterdir(), key=lambda item: item.name)
+        except OSError as exc:
+            errors.append(f"licenses: cannot inspect snapshot directory: {exc}")
+            continue
+        for child in children:
+            relative = child.relative_to(root).as_posix()
+            if child.is_symlink():
+                errors.append(f"licenses: symlink entry is forbidden: {relative}")
+            elif child.is_dir():
+                stack.append(child)
+            elif child.is_file():
+                observed.add(relative)
+            else:
+                errors.append(f"licenses: unsupported filesystem entry: {relative}")
+
+    for relative in sorted(observed - expected):
+        errors.append(f"licenses: untracked license snapshot: {relative}")
+    return errors
 
 
 def _load_manifest_data(
@@ -357,6 +394,7 @@ def validate_repository(
 
     for index, entry in enumerate(entries):
         errors.extend(_snapshot_errors(entry, index, root))
+    errors.extend(_license_tree_errors(entries, root))
 
     if manifest_paths is None:
         try:
