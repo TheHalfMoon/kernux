@@ -28,7 +28,11 @@ The baseline-CI task, `KX-P00-S01-T02`, was merged through PR #5 at merge commit
 
 `646fda9f784ce2368f534a56d8a454ae27b87a35`
 
-T02 established pinned, reproducible Rust and JavaScript/TypeScript checks with committed lockfiles, frozen pnpm installation, cache discipline, pinned GitHub Action revisions, bounded CI timeouts, and successful post-merge verification on `main`.
+The SpecGrain-adoption task, `KX-P00-S02-T01`, was merged through PR #7 at merge commit:
+
+`752b5f9b977a31c54743d92ff6f9063428eb3976`
+
+T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state, an exact source pin and archive digest, portable deterministic launchers, a dedicated CI gate, and the first bounded successor Grain (`SG-000001`).
 
 No product code or founding-donor product code has been imported yet.
 
@@ -36,20 +40,21 @@ No product code or founding-donor product code has been imported yet.
 
 **PHASE:** `P00 — Repository and governance foundation`
 
-**SLICE:** `S00.1 — Repository baseline`
+**SLICE:** `S00.3 — Diffcipline adoption`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T02 — Add baseline CI for Rust/TS format, lint, static checks, unit placeholders and cache discipline`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S02-T01 — Initialize repository-local SpecGrain and document deterministic authoring/refinement workflow`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S02-T01 — Initialize repository-local SpecGrain and document deterministic authoring/refinement workflow`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S03-T01 — Initialize Diffcipline policy with R0-R3 verification profiles and CI gate`
 
-SpecGrain is dependency-eligible because T01 is proven. Diffcipline is also dependency-eligible because T02 is proven, but Kernux activates SpecGrain first so subsequent governance work can use bounded repository-local Grains rather than ad-hoc macro execution.
+The next task is represented by repository-local Grain `SG-000001`, which is in `GRAIN` state and is projected as eligible by the pinned SpecGrain engine. Canonical macro-frontier authority remains `specs/CURRENT.md`; SpecGrain readiness cannot bypass dependency order.
 
 No later task may bypass the dependency order or donor-provenance gates.
 
 Proof is recorded in:
 
 - `docs/evidence/P00-S01-T01.md`;
-- `docs/evidence/P00-S01-T02.md`.
+- `docs/evidence/P00-S01-T02.md`;
+- `docs/evidence/P00-S02-T01.md`.
 
 ## Dependency rule
 
@@ -71,7 +76,7 @@ Kernux uses:
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
 
-SpecGrain and Diffcipline are not yet repository-active. SpecGrain is the active next P00 task; Diffcipline follows once SpecGrain activation is proven.
+SpecGrain is repository-active and pinned to an exact verified source revision. Diffcipline is not yet repository-active; `SG-000001` is the authorized bounded Grain for activating it.
 
 ## Founding donor authority
 
