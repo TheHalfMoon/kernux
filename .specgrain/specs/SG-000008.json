@@ -1,0 +1,94 @@
+{
+  "acceptance": [
+    "The identity contract enumerates exactly the nine macro-task entities and assigns each an RFC 9562 UUIDv7 canonical ID with lowercase 8-4-4-4-12 text, version 7, RFC variant, non-nil value, opaque/non-secret semantics, and no encoded provider/entity/business meaning.",
+    "The contract states UUIDv7 creation time is not authorization, freshness, causal order, event order, or a substitute for an explicit timestamp/sequence; clock rollback/skew cannot confer authority.",
+    "Revision is a positive uint32 semantic value 1..4294967295, starts at 1, increments exactly one for each accepted canonical mutation of a revisioned entity, uses expected-revision compare-and-swap, rejects zero/overflow/stale writes, and remains JSON-number-safe.",
+    "The mutability matrix explicitly covers all nine entities: Project, Task, WorkUnit, Runtime, and Artifact canonical metadata are revisioned under bounded rules; Run, AgentSession, Evidence, and Event are immutable identity records with revision fixed at 1, with new logical occurrences/assertions/facts receiving new IDs.",
+    "Artifact content bytes cannot change under one Artifact ID: its SHA-256 content digest is invariant across allowed metadata revisions; changed bytes require a new Artifact ID. Evidence that cites an Artifact binds the exact Artifact revision and digest when applicable.",
+    "A rerun creates a distinct Run ID; reconnect/resume retains an AgentSession ID only when continuity of the same logical session is established, otherwise a new AgentSession ID is required; Runtime ID persists across reconnect/restart only for the same enrolled trust identity.",
+    "Exact references to revisioned entities bind ID plus revision. ID-only/latest references are not accepted as durable execution, authorization, replay, or evidence authority. Provider/native identifiers are stored as foreign metadata and never substituted for Kernux IDs.",
+    "The architecture decision and canonical identity document preserve provider neutrality, do not introduce donor/provider names into the core contract, and leave resource URI, event envelope, schema source, and generated type details to their declared later P01 tasks.",
+    "Canonical documentation remains internally consistent with ARCHITECTURE, QUALITY_AND_EVIDENCE, NATIVE_AGENT_AND_HEADLESS, DATA_LIFECYCLE_AND_PORTABILITY, the execution plan, and the P01 task registry.",
+    "Exact implementation passes focused document/invariant review, RFC UUIDv7 example/grammar validation, pnpm check, git diff --check, Diffcipline R2, supported OpenCodeReview rules, protected exact-head CI, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000008.json",
+    "docs/canonical/IDENTITY_AND_REVISION_MODEL.md",
+    "docs/canonical/ARCHITECTURE.md",
+    "docs/canonical/ARCHITECTURE_DECISIONS.md",
+    "docs/evidence/P01-S01-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 8500,
+    "estimated_tokens": 6800
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "p00-prerequisite-proof-bound",
+      "uuidv7-identity-contract-review-pass",
+      "revision-semantics-review-pass",
+      "entity-mutability-matrix-pass",
+      "exact-reference-binding-review-pass",
+      "digest-ordering-separation-pass",
+      "provider-neutrality-review-pass",
+      "canonical-doc-consistency-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000008",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Freeze conceptual semantics in canonical documents and an ADR now; defer executable wire schemas and generated Rust/TypeScript types to the already-planned P01 schema-generation task."
+      },
+      "safety": {
+        "requirements": [
+          "Canonical IDs are identifiers, not secrets or authorization tokens; possession or UUID timestamp order must never grant authority.",
+          "Do not conflate foreign/provider IDs, filesystem paths, Git revisions, or content hashes with canonical Kernux entity identity.",
+          "Do not use UUIDv7 sort order as an event/causal ordering primitive; later event contracts must define explicit ordering semantics.",
+          "Do not silently overwrite a revisioned entity after an expected-revision mismatch or revision overflow.",
+          "Do not preempt later P01 contracts by introducing capability, runtime-operation, event-envelope, database, or generated-wire-schema details."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has one provider-neutral, cross-runtime identity and revision contract for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event before later capability, runtime, event-envelope, persistence, or generated-schema work begins.",
+  "parent_id": null,
+  "rationale": "P00 is PROVEN and KX-P01-S01-T01 is the first authorized P01 task. Identity semantics must be frozen before later schemas and execution contracts can safely reference durable entities. The contract must distinguish canonical identity from mutable revision, content digest, provider-native identifiers, and event ordering.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded identity/revision contract, ADR, architecture cross-link, and closeout state. No persisted product data exists yet, so no data migration is required during this task."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define canonical v1 entity identifiers for exactly Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event using RFC 9562 UUIDv7 with one canonical lowercase hyphenated textual representation and fail-closed validation requirements.",
+    "Define revision semantics as positive non-zero unsigned 32-bit integers, initial revision 1, no wraparound, optimistic expected-revision compare-and-swap semantics, and explicit revision-conflict behavior.",
+    "Define an entity mutability matrix that states which entities may advance revision and which are immutable occurrence/assertion/fact identities.",
+    "Define exact references versus locator/id-only references; execution, authorization, durable lineage, and evidence must bind exact revisions where the target is revisioned.",
+    "Separate Kernux canonical IDs from provider/native/external IDs, content digests, filesystem paths, repository revisions, model identifiers, and other foreign identities.",
+    "Define Artifact logical identity versus immutable content digest, and explicitly forbid UUIDv7 timestamp ordering from serving as causal/event ordering authority.",
+    "Add an accepted architecture decision for the v1 identity/revision policy and align the canonical architecture prose without selecting a code-generation schema source yet.",
+    "Bind the P00 exit prerequisite through exact canonical evidence and preserve all existing negative evidence."
+  ],
+  "scope_out": [
+    "Do not define CapabilityRequest, Grant, capability resource URI syntax, consequence classes, or policy semantics; those belong to KX-P01-S02-T01.",
+    "Do not define runtime capability negotiation, contact/execution state, operation IDs, cancellation, or structured runtime errors; those belong to KX-P01-S03-T01.",
+    "Do not define the Event envelope, stream/sequence schema, lineage payload, evidence payload, or redaction metadata; those belong to KX-P01-S04-T01. This task may only state identity/revision constraints those later schemas must obey.",
+    "Do not select the single schema source, generate Rust/TypeScript contract types, add code-generation dependencies, or create cross-language conformance fixtures; those belong to KX-P01-S05-T01 and successors.",
+    "Do not add database tables/migrations, daemon/runtime implementation, UI code, donor product source, provider-specific core fields, or release behavior."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S01-T01 — Freeze canonical v1 entity IDs and revision semantics"
+}
