@@ -27,8 +27,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P00-S01-T02 | PROVEN | R1 | Add baseline CI for Rust/TS format, lint, static checks, unit placeholders and cache discipline. | T01 |
 | KX-P00-S02-T01 | PROVEN | R1 | Initialize repository-local SpecGrain and document deterministic authoring/refinement workflow. | T01 |
 | KX-P00-S03-T01 | PROVEN | R1 | Initialize Diffcipline policy with R0-R3 verification profiles and CI gate. | T02 |
-| KX-P00-S04-T01 | NEXT | R2 | Define machine-readable donor provenance/import manifest schema and validation command. | T01 |
-| KX-P00-S04-T02 | PLANNED | R1 | Add third-party notices/license inventory structure and donor import checklist. | provenance schema |
+| KX-P00-S04-T01 | PROVEN | R2 | Define machine-readable donor provenance/import manifest schema and validation command. | T01 |
+| KX-P00-S04-T02 | NEXT | R1 | Add third-party notices/license inventory structure and donor import checklist. | provenance schema |
 | KX-P00-S01-T03 | PLANNED | R0 | Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs. | T01 |
 | KX-P00-S01-T04 | PLANNED | R1 | Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies. | notices structure |
 

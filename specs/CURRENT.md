@@ -36,7 +36,12 @@ The Diffcipline-adoption task, `KX-P00-S03-T01`, was merged through PR #9 at mer
 
 `da096259e1bb7d669206f2d097e56731004d7c41`
 
-T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate proven on both pull-request and main-push event paths.
+The donor-provenance contract task, `KX-P00-S04-T01`, was completed through two bounded implementation slices:
+
+- PR #13 core contract merge: `6851f8f59d236a33e3f94c4e77e17756ba16dba2`;
+- PR #14 conformance/enforcement merge: `c68b22c74aa402511c1a8e6ee2d0a298cc28d189`.
+
+T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate. T04.1 established the strict donor import manifest v1 schema, fail-closed validator, 21-test conformance corpus, and dedicated Provenance CI job proven on both pull-request and main-push event paths.
 
 No product code or founding-donor product code has been imported yet.
 
@@ -46,11 +51,11 @@ No product code or founding-donor product code has been imported yet.
 
 **SLICE:** `S00.4 — Provenance system`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S03-T01 — Initialize Diffcipline policy with R0-R3 verification profiles and CI gate`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S04-T01 — Define machine-readable donor provenance/import manifest schema and validation command`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S04-T01 — Define machine-readable donor provenance/import manifest schema and validation command`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S04-T02 — Add third-party notices/license inventory structure and donor import checklist`
 
-The next task must be refined through repository-local SpecGrain before implementation. It establishes the machine-readable provenance gate required before any founding-donor source can enter Kernux.
+T04.1 is proven and the machine-readable provenance validator is now an enforced CI surface. T04.2 is dependency-eligible and must be refined through repository-local SpecGrain before implementation. It completes the human- and machine-reviewable notices/license/checklist layer required before founding-donor import work can begin.
 
 No later task may bypass the dependency order or donor-provenance gates.
 
@@ -59,7 +64,8 @@ Proof is recorded in:
 - `docs/evidence/P00-S01-T01.md`;
 - `docs/evidence/P00-S01-T02.md`;
 - `docs/evidence/P00-S02-T01.md`;
-- `docs/evidence/P00-S03-T01.md`.
+- `docs/evidence/P00-S03-T01.md`;
+- `docs/evidence/P00-S04-T01.md`.
 
 ## Dependency rule
 
@@ -81,7 +87,7 @@ Kernux uses:
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
 
-SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline now enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence.
+SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence. The dedicated Provenance job independently runs the donor-manifest conformance corpus and validates every tracked donor record from full Git history.
 
 ## Founding donor authority
 
@@ -91,7 +97,7 @@ Founder authorization has been stated for full source reuse from:
 - TinyFish source / `tinyfish-io/agentql` public reference;
 - `wonderwhy-er/DesktopCommanderMCP`.
 
-No donor code has been imported into Kernux yet. Before import, exact source revision, permission/provenance, source/destination mapping, transformation class, notices, and characterization evidence are required.
+No donor code has been imported into Kernux yet. The machine-readable provenance contract and CI validator are now proven. Before import, exact source revision, permission/provenance, source/destination mapping, transformation class, notices, characterization evidence, and all task-specific security evidence remain required.
 
 ## Architecture invariants
 
