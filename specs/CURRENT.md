@@ -53,6 +53,16 @@ The project-license/compatibility task, `KX-P00-S01-T04`, was refined through PR
 - PR #22 Apache-2.0 project-license core merge: `e7c864e82507a7c7e168226190ee4ec26278a9c9`;
 - PR #23 conformance/enforcement merge: `d19122c9217e2ad1d9c133de3e64f34ff984f7d5`.
 
+The contributor/repository-governance task, `KX-P00-S01-T03`, was refined and completed with an explicit scope-correction chain:
+
+- PR #25 primary SpecGrain refinement merge: `c6f67895e62a1f5a5d5dbca43a3dd01cc6504279`;
+- PR #26 governance core merge: `e159848ee6dbb820d98d0590d2c200e6d31d1a49`;
+- PR #27 workspace-enforcement merge: `7c87797421d698e1e08de34d623a0ff4158fbc8c`;
+- PR #28 explicit-path corrective refinement merge: `e4f1ed03b18543efb71b26bb18627aa4e67fb7d3`;
+- PR #29 explicit-path corrective implementation merge: `f483762e1afdff04686801c6ac097d555e749259`.
+
+SG-000005 remains natively unverified because its `.github/ISSUE_TEMPLATE/**` change-surface entry is not glob-expanded by the pinned verifier. That negative evidence is preserved. SG-000006 explicitly re-adopted the four affected paths and is natively VERIFIED with evidence record `sha256:5096e6059a53f6c1db6c2d00317b61137f03fc2c8ca9945795838b9d8f3fc6bb`.
+
 T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate. T04.1 established the strict donor import manifest v1 schema, fail-closed validator, 21-test conformance corpus, and dedicated Provenance CI job. T04.2 added the versioned notice inventory, byte-preserved founding-donor public license snapshots, fail-closed notice/provenance cross-validation, an 18-test notice corpus, a canonical donor import checklist, and expanded Provenance CI. KX-P00-S01-T04 established the Apache-2.0 project-license core, explicit third-party license boundaries, conservative current compatibility policy, fail-closed project-license validation, and 12 additional conformance tests for 51 combined provenance/notice/project-license tests.
 
 No product code or founding-donor product code has been imported yet.
@@ -61,27 +71,30 @@ No product code or founding-donor product code has been imported yet.
 
 **PHASE:** `P00 — Repository and governance foundation`
 
-**SLICE:** `S00.1 — Repository baseline`
+**SLICE:** `P00 exit-gate reconciliation`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T04 — Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T03 — Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T03 — Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs`
+**P00 MACRO TASKS:** `8 / 8 PROVEN`
 
-T04 is proven. Kernux-owned code is licensed under Apache-2.0, third-party material retains its own applicable terms and notices, and project-license drift is enforced by the Provenance CI job.
+**NEXT AUTHORIZED MACRO TASK:** `NONE — P00 exit gate must be proven before P01`
 
-T03 is now the only remaining P00 macro task. Its declared dependency is T01, which is already PROVEN.
+All P00 macro tasks are now PROVEN. T03 established contributor/security/support/conduct/governance surfaces, GitHub issue/PR templates, README discoverability, and deterministic fail-closed workspace enforcement.
 
-No P01 implementation is authorized until T03 is proven and the P00 exit gate is explicitly reconciled. No later task may bypass the dependency order or donor-provenance gates.
+P00 is not yet complete. The active work is the explicit phase exit-gate reconciliation against fresh-clone checks, live CI, SpecGrain/Diffcipline reproducibility, provenance enforcement, and donor-internal dependency truth.
+
+No P01 implementation is authorized until that exit gate is proven. No later task may bypass the dependency order or donor-provenance gates.
 
 Proof is recorded in:
 
 - `docs/evidence/P00-S01-T01.md`;
 - `docs/evidence/P00-S01-T02.md`;
+- `docs/evidence/P00-S01-T03.md`;
+- `docs/evidence/P00-S01-T04.md`;
 - `docs/evidence/P00-S02-T01.md`;
 - `docs/evidence/P00-S03-T01.md`;
 - `docs/evidence/P00-S04-T01.md`;
-- `docs/evidence/P00-S04-T02.md`;
-- `docs/evidence/P00-S01-T04.md`.
+- `docs/evidence/P00-S04-T02.md`.
 
 ## Dependency rule
 
