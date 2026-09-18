@@ -163,6 +163,7 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
         if isinstance(repository, str):
             try:
                 parsed = urlsplit(repository)
+                path_parts = parsed.path.split("/")
                 canonical = (
                     parsed.scheme == "https"
                     and bool(parsed.hostname)
@@ -170,7 +171,11 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
                     and parsed.password is None
                     and not parsed.query
                     and not parsed.fragment
-                    and parsed.path not in ("", "/")
+                    and parsed.path.startswith("/")
+                    and not parsed.path.endswith("/")
+                    and "\" not in parsed.path
+                    and len(path_parts) > 1
+                    and all(part not in ("", ".", "..") for part in path_parts[1:])
                 )
             except ValueError:
                 canonical = False
@@ -231,7 +236,9 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
 
 
 
-def _repository_path_errors(root: Path, relative: str, at: str) -> list[str]:
+def _repository_path_errors(
+    root: Path, relative: str, at: str, *, require_file: bool = False
+) -> list[str]:
     candidate = root
     for part in relative.split("/"):
         candidate /= part
@@ -248,6 +255,8 @@ def _repository_path_errors(root: Path, relative: str, at: str) -> list[str]:
         resolved.relative_to(root_resolved)
     except ValueError:
         return [f"{at}: repository path resolves outside the repository"]
+    if require_file and not resolved.is_file():
+        return [f"{at}: evidence path must resolve to a regular file"]
     return []
 
 
@@ -283,9 +292,15 @@ def _commit_reference_errors(root: Path, oid: str, at: str) -> list[str]:
 def _repository_errors(data: dict[str, Any], root: Path = ROOT) -> list[str]:
     errors: list[str] = []
 
-    def local_paths(paths: list[str], at: str) -> None:
+    def local_paths(
+        paths: list[str], at: str, *, require_file: bool = True
+    ) -> None:
         for index, relative in enumerate(paths):
-            errors.extend(_repository_path_errors(root, relative, f"{at}[{index}]"))
+            errors.extend(
+                _repository_path_errors(
+                    root, relative, f"{at}[{index}]", require_file=require_file
+                )
+            )
 
     local_paths(data["license"]["evidence_paths"], "$.license.evidence_paths")
     local_paths(data["dependency_review"]["evidence_paths"], "$.dependency_review.evidence_paths")
@@ -297,7 +312,11 @@ def _repository_errors(data: dict[str, Any], root: Path = ROOT) -> list[str]:
         if generation is not None:
             local_paths(generation["evidence_paths"], f"$.mappings[{index}].generation.evidence_paths")
         if data["status"] == "imported" and mapping["transformation"] != "reference-only":
-            local_paths(mapping["destination_paths"], f"$.mappings[{index}].destination_paths")
+            local_paths(
+                mapping["destination_paths"],
+                f"$.mappings[{index}].destination_paths",
+                require_file=False,
+            )
 
     if data["status"] == "imported":
         import_commit = data["import"]["commit"]
@@ -308,9 +327,9 @@ def _repository_errors(data: dict[str, Any], root: Path = ROOT) -> list[str]:
             at = f"$.import.adaptation_commits[{index}]"
             errors.extend(_commit_reference_errors(root, oid, at))
             try:
-                if not _git_is_ancestor(root, previous, oid):
+                if oid == previous or not _git_is_ancestor(root, previous, oid):
                     errors.append(
-                        f"{at}: adaptation commit must descend from the import commit and prior adaptations"
+                        f"{at}: adaptation commit must strictly descend from the import commit and prior adaptations"
                     )
             except (OSError, subprocess.TimeoutExpired) as exc:
                 errors.append(f"{at}: adaptation ancestry verification failed: {exc}")
