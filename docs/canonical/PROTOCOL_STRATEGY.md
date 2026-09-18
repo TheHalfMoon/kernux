@@ -128,6 +128,8 @@ KRP is the minimal Kernux-owned protocol required because no external standard c
 
 KRP connects orchestrator/clients with `kernuxd` and enrolled Kernux runtimes.
 
+The provider-neutral runtime-operation semantics for negotiation, contact/execution truth, RequestId/OperationId, deduplication, cancellation, structured errors, retry guidance, and reconnect reconciliation are frozen in [`RUNTIME_OPERATION_MODEL.md`](RUNTIME_OPERATION_MODEL.md). The generated wire representation remains owned by later P01 schema work.
+
 ### Required properties
 
 - explicit protocol and capability versions;

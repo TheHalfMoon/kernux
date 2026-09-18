@@ -204,6 +204,8 @@ The UI must make the active execution boundary visible.
 
 ## 10. Process and terminal safety
 
+Runtime lifecycle truth, operation deduplication, cancellation, retry, and structured-error semantics follow [`RUNTIME_OPERATION_MODEL.md`](RUNTIME_OPERATION_MODEL.md).
+
 - Avoid shell interpolation when argv execution is available.
 - Keep shell choice explicit and runtime-specific.
 - Capture process identity, parentage, runtime, cwd, environment-policy summary, and lifecycle.
@@ -247,6 +249,8 @@ Future marketplace packages should support signatures/provenance and immutable v
 ## 13. Remote runtime security
 
 Enrollment creates an explicit device identity and trust relationship.
+
+Reconnect/reconciliation must preserve the runtime identity, operation, and authority rules in [`RUNTIME_OPERATION_MODEL.md`](RUNTIME_OPERATION_MODEL.md); reconnect never implies reauthorization or operation restart.
 
 Requirements:
 
