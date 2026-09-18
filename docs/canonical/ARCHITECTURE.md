@@ -220,11 +220,11 @@ One logical adapter-backed agent conversation/execution continuity. Provider ide
 
 ### CapabilityRequest
 
-A typed proposed operation with subject, action, resource, runtime, provenance, risk metadata, and requested constraints.
+A typed proposed operation with canonical request identity, bounded subject/run scope, exact action, canonical resource URI, exact runtime, requested constraints, and provenance. The v1 semantic contract is [`CAPABILITY_AND_GRANT_MODEL.md`](CAPABILITY_AND_GRANT_MODEL.md).
 
 ### Grant
 
-A policy decision authorizing a bounded capability for a scope, subject, runtime, duration, and delegation depth.
+An immutable bounded authorization record binding exact subject scope, action, canonical resource scope, runtime, constraints, consequence ceiling, finite lifetime/use budget, issuer/policy revision, and delegation depth. Persistent convenience policy issues bounded Grants rather than creating an immortal wildcard Grant.
 
 ### Runtime
 

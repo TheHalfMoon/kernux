@@ -521,5 +521,449 @@ A reversible mutation escalates if the recovery path is absent or unverifiable.
 
 Untrusted causal provenance may require stronger approval or denial. It can never lower consequence or create authority.
 
+## 11. Constraints
 
-> Implementation note: this canonical contract is being landed in bounded R3 slices. Constraint, Grant, delegation, provenance, remote-intersection, and downstream sections remain unauthorized as complete until the successor slice merges and the macro task is canonically PROVEN.
+### 11.1 Constraint principles
+
+Constraints are typed policy semantics, not free-form prompt text.
+
+Rules:
+
+- all active constraints are conjunctive;
+- a Grant constraint remains enforced even if the request omits the corresponding request hint;
+- an unknown mandatory constraint denies;
+- an incomparable constraint denies;
+- intersection/narrowing can only reduce authority;
+- normalization cannot silently discard a constraint;
+- an empty constraint set does not convert action/resource/runtime/subject into wildcards.
+
+### 11.2 Common constraint families
+
+Conceptual v1 families include:
+
+#### Time
+
+- not-before;
+- expires-at.
+
+The trusted kernel clock evaluates the window.
+
+Expiry blocks new operation admission. It does not claim that an already admitted operation has been cancelled; S03 owns in-flight cancellation semantics.
+
+#### Use count
+
+- positive `max_uses`.
+
+Use admission must be atomic.
+
+One use is consumed when the operation is successfully admitted for execution, not when it completes successfully.
+
+A failed operation after admission still consumes the use. A request rejected before admission does not.
+
+This prevents concurrent/retry races from exceeding the authority budget.
+
+#### Byte limits
+
+- maximum bytes readable;
+- maximum bytes writable;
+- maximum upload/export bytes where applicable.
+
+Requested/effective limits cannot exceed the Grant maximum.
+
+#### Resource scope
+
+- exact;
+- subtree when the resource kind permits it.
+
+#### Destination/origin
+
+A set of canonical network/origin resources.
+
+The effective destination set is the intersection of policy/request/Grant/runtime-host limits.
+
+#### Process
+
+Action-specific process constraints may bind:
+
+- exact executable resource;
+- exact or explicitly defined argv vector/prefix semantics;
+- cwd resource;
+- allowed environment keys;
+- resource limits.
+
+Arbitrary shell text is not treated as equivalent to a structured argv constraint.
+
+#### Secret
+
+- exact secret reference set;
+- allowed destination/service set;
+- use-versus-reveal semantics.
+
+A Grant for `secret.use` never implies `secret.reveal`.
+
+#### Secondary resources
+
+Actions such as upload/export may bind explicit Artifact/project/network destination resources.
+
+Each secondary resource remains independently validated.
+
+### 11.3 Subset semantics
+
+Typical narrowing rules:
+
+- numeric maximum: child/effective maximum <= parent maximum;
+- allowed set: child/effective set is a subset;
+- time window: child begins no earlier and expires no later;
+- exact value: values are equal;
+- resource subtree: child scope is contained within parent scope;
+- boolean permission where defined: false is narrower than true;
+- delegation depth: child depth <= parent depth - 1.
+
+Action-specific schema defines any additional comparison. If safe subset comparison is not defined, delegation/narrowing fails closed.
+
+## 12. Grant record
+
+An issued Grant is immutable authority metadata.
+
+Conceptually:
+
+~~~text
+Grant {
+  grant_id
+  subject_scope
+  action
+  resource
+  resource_match
+  runtime_id
+  constraints
+  consequence_ceiling
+  issuer_authority
+  policy_revision
+  issued_at
+  not_before
+  expires_at
+  max_uses
+  delegation_depth
+  parent_grant_id?
+}
+~~~
+
+### 12.1 One exact action
+
+One Grant authorizes one exact action.
+
+A profile or policy decision covering several actions issues/evaluates separate exact Grants or separate policy rules.
+
+### 12.2 Exact subject/runtime
+
+The Grant binds exact Run scope and, when applicable, exact AgentSession scope.
+
+The Grant binds one exact Runtime ID.
+
+There is no `any runtime`, `all agents`, or `*` value in an issued v1 Grant.
+
+### 12.3 Finite envelope
+
+Every issued Grant has:
+
+- finite time window;
+- positive finite max-use budget;
+- explicit resource scope;
+- exact action;
+- exact runtime;
+- bounded subject scope;
+- bounded consequence ceiling;
+- finite delegation depth.
+
+Persistent convenience is represented by policy that can issue new bounded Grants, not by an immortal Grant.
+
+### 12.4 Immutable issuance
+
+After issuance, widening any authority field requires a new authorization decision and a new Grant ID.
+
+The original record is not edited to become broader.
+
+Grant state such as revocation, expiry, and use consumption is derived from trusted policy/event/consumption records around the immutable issuance record.
+
+## 13. Grant matching and admission
+
+A Grant can participate in an allow decision only when all applicable checks pass:
+
+1. Grant record is valid and known.
+2. Grant is not revoked.
+3. Trusted time is within the active window.
+4. Atomic remaining-use budget is positive.
+5. request subject is within exact Grant subject scope.
+6. request action equals Grant action.
+7. request runtime equals Grant runtime.
+8. request resource matches exact/subtree parsed-resource semantics.
+9. requested/effective constraints are within Grant constraints.
+10. authoritative consequence <= Grant consequence ceiling.
+11. contextual escalation/policy still permits the operation.
+12. runtime advertises the required action/version.
+13. local kernel hard constraints permit it.
+14. applicable project/user/organization policy permits it.
+15. remote-host policy permits it for a remote runtime.
+16. required secondary-resource authorizations are present.
+
+Any mandatory unknown result denies or moves to an explicit approval/policy-resolution state; it never converts into allow.
+
+Admission atomically consumes the use budget before side-effect execution begins.
+
+Grant match does not guarantee operation success.
+
+## 14. Revocation, expiry, and exhaustion
+
+Derived Grant state may be:
+
+- not-yet-active;
+- active;
+- revoked;
+- expired;
+- exhausted.
+
+Revocation, expiry, or exhaustion prevents new operation admission.
+
+This contract intentionally does not claim that revocation synchronously stops an operation already admitted. Cancellation/termination and ambiguous remote outcomes belong to KX-P01-S03-T01.
+
+A policy engine must preserve enough audit state to explain why a Grant was active or inactive at an admission decision.
+
+## 15. Delegation
+
+### 15.1 Default deny
+
+Default `delegation_depth` is 0.
+
+A Grant with depth 0 cannot be delegated.
+
+Possessing a delegable Grant is not, by itself, authority to delegate. The delegating subject must also be authorized for the C4 `grant.delegate` operation targeting the parent Grant/recipient context.
+
+### 15.2 Child subset
+
+A delegated child Grant must not exceed the parent in:
+
+- action;
+- resource scope;
+- runtime;
+- effective constraints;
+- consequence ceiling;
+- time window;
+- use budget;
+- authority lineage.
+
+The child may target an explicitly authorized narrower/different subject only when the delegation decision authorizes that recipient.
+
+Child delegation depth must be less than the parent's remaining depth.
+
+### 15.3 Shared ancestor budgets
+
+Delegation must not multiply parent authority.
+
+A child max-use budget is bounded by the parent's remaining budget, and an admitted child operation consumes from the child and all applicable ancestor budgets atomically or through an equivalent shared-ledger mechanism.
+
+Therefore a parent with 10 remaining uses cannot delegate two children that each independently create 10 additional effective uses.
+
+### 15.4 Parent lifetime/revocation
+
+A child cannot:
+
+- begin before its parent;
+- outlive its parent;
+- survive parent revocation as usable authority;
+- regain authority after an ancestor is exhausted.
+
+Parent/child/issuer lineage is durable audit/evidence input.
+
+## 16. Persistent policy and permission profiles
+
+User-facing `Safe`, `Standard`, `Developer`, `Autonomous`, and `Custom` are profile inputs to one policy engine.
+
+They are not alternate authorization paths.
+
+A UI choice such as:
+
+- Allow once;
+- Allow for this run;
+- Always allow within this bounded project scope;
+
+is compiled into either:
+
+- a bounded Grant; or
+- a durable policy rule that may later issue bounded Grants.
+
+There is no global hidden `allow all tools forever` Grant.
+
+Policy rules remain subordinate to:
+
+- kernel hard constraints;
+- organization constraints;
+- secret policy;
+- runtime capability;
+- remote-host policy;
+- provenance escalation.
+
+## 17. Remote authorization intersection
+
+For a remote operation, effective authority is the intersection of all mandatory layers:
+
+~~~text
+valid request
+AND bounded Grant / authorization decision
+AND local Kernux policy
+AND kernel hard constraints
+AND negotiated runtime capability/version
+AND remote-host policy
+AND required secondary-resource authority
+~~~
+
+If the controller allows but the remote host denies, the operation is denied.
+
+If the remote host allows but the controller lacks authority, the operation is denied.
+
+If capability/version negotiation is absent or unknown, the operation is denied.
+
+Reconnect does not resurrect expired/revoked authority.
+
+## 18. Data cannot authorize itself
+
+Untrusted content includes, unless explicitly designated otherwise by human/organization authority:
+
+- browser pages;
+- emails;
+- documents;
+- source/data files;
+- images;
+- downloaded content;
+- tool/MCP output;
+- external agent messages;
+- provider descriptions.
+
+Such content may:
+
+- suggest an action;
+- supply a target;
+- explain a task;
+- cause policy to classify a request as more risky.
+
+It may not:
+
+- mint a Grant;
+- create a policy rule;
+- widen resource scope;
+- add a new allowed destination;
+- extend expiry;
+- increase use budget;
+- increase delegation depth;
+- lower consequence;
+- claim its own tool action is safe;
+- change runtime/host policy.
+
+High-consequence requests retain provenance so approval can show which untrusted source materially caused the proposal.
+
+No classifier declaring content “safe” is authorization evidence.
+
+## 19. Action-specific notes
+
+### 19.1 Generic tool invocation
+
+`tool.invoke` does not mean “whatever this tool says it can do.”
+
+A trusted registered tool descriptor maps the invocation to:
+
+- exact trusted tool resource;
+- capability/version;
+- minimum consequence floor;
+- secondary-resource needs;
+- relevant constraints.
+
+Untrusted tool name/description/output cannot lower those values.
+
+If trusted metadata is insufficient, invocation is denied or escalated.
+
+### 19.2 Process and PTY
+
+A Grant for `pty.write` is not equivalent to unrestricted shell authority.
+
+The effective action-specific constraints must bind the intended PTY/runtime context and any process/command restrictions that policy requires.
+
+Generated/untrusted host execution escalates to at least C3.
+
+### 19.3 Browser/computer
+
+Authenticated browser state does not imply authority for every site action.
+
+Navigation, interaction, upload, download, and external commit are distinct actions.
+
+Computer input authority does not implicitly grant secret use, filesystem access, network egress, or policy modification.
+
+### 19.4 Secrets
+
+`secret.use` permits brokered use within exact destination/service constraints.
+
+`secret.reveal` permits plaintext disclosure and has a higher consequence floor.
+
+Neither action is implied by ordinary network, browser, process, or tool authority.
+
+## 20. Adversarial invariants
+
+Implementations and conformance fixtures must cover at least:
+
+1. `kernux://project/P/fs/src` subtree does not match `.../src-old`.
+2. encoded `.`, `..`, slash, NUL, malformed percent escapes, or repeated separators cannot create an alternate authorized resource.
+3. uppercase/noncanonical URI variants do not become a second authorization representation.
+4. wrong Project/Runtime UUID cannot match a resource solely because later path segments are equal.
+5. an unknown action is denied.
+6. an unknown resource authority is denied.
+7. an unknown mandatory constraint is denied.
+8. a provider-native permission string cannot substitute for a Kernux core action.
+9. a request cannot lower kernel consequence.
+10. untrusted content cannot create a Grant.
+11. `secret.use` does not imply `secret.reveal`.
+12. `files.write` does not imply `files.delete`.
+13. `browser.interact` does not imply `browser.commit`.
+14. `git.modify` does not imply `git.publish`.
+15. a stale/revoked/expired/exhausted Grant cannot admit a new operation.
+16. concurrent use accounting cannot exceed max uses.
+17. a delegated child cannot escape parent resource scope.
+18. child expiry cannot exceed parent expiry.
+19. child/ancestor combined usage cannot multiply the parent budget.
+20. controller allow cannot override remote-host deny.
+21. remote-host allow cannot override missing controller authority.
+22. runtime reconnect cannot resurrect revoked/expired authority.
+
+## 21. Deferred wire/runtime details
+
+This document freezes semantic v1 authorization rules, not the generated wire shape.
+
+Deferred:
+
+- schema source and code generation;
+- serialization encoding;
+- exact timestamp encoding;
+- policy database layout;
+- consumption/revocation storage;
+- runtime capability-negotiation envelope;
+- operation identity/idempotency/cancellation;
+- structured runtime errors;
+- Event/evidence envelope;
+- approval UI implementation;
+- organization identity/policy distribution.
+
+Later contracts must preserve this model or replace it through an explicit ADR with security/migration impact.
+
+## 22. Downstream requirements
+
+KX-P01-S03-T01 must preserve:
+
+- exact runtime binding;
+- grant admission before side effects;
+- expiry/revocation behavior for new admissions;
+- no false claim that revocation proves in-flight cancellation;
+- remote policy intersection;
+- operation identity separate from Grant/request identity.
+
+KX-P01-S04-T01 must preserve provenance, Grant/request decision lineage, and consequence/evidence context without using untrusted content as authority.
+
+KX-P01-S05-T01 and later conformance work must make malformed actions, malformed/noncanonical resources, prefix escapes, unknown constraints, stale/revoked Grants, delegation widening, budget multiplication, and remote-policy disagreement executable negative fixtures.
+
+No later capability adapter may silently weaken these invariants.
