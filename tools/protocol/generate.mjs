@@ -126,10 +126,17 @@ function generateTypeScript(schema, digest) {
   for (const name of Object.keys(schema.$defs).sort()) {
     const def = schema.$defs[name];
     if (def.type === "string" && def.enum) {
-      lines.push(
-        `export type ${name} = ${def.enum.map((v) => JSON.stringify(v)).join(" | ")};`,
-        "",
-      );
+      const members = def.enum.map((value) => JSON.stringify(value));
+      const singleLine = `export type ${name} = ${members.join(" | ")};`;
+      if (singleLine.length <= 100) {
+        lines.push(singleLine, "");
+      } else {
+        lines.push(`export type ${name} =`);
+        members.forEach((member, index) => {
+          lines.push(`  | ${member}${index === members.length - 1 ? ";" : ""}`);
+        });
+        lines.push("");
+      }
       continue;
     }
     const required = new Set(def.required);
