@@ -1,0 +1,106 @@
+{
+  "acceptance": [
+    "CapabilityRequest and Grant IDs follow the canonical UUIDv7 identity rules. Grant/Request identifiers are not authority tokens; possession of either never bypasses policy evaluation.",
+    "The v1 action grammar is lowercase dot-separated ASCII tokens with no wildcard token in an issued Grant. The core taxonomy is explicitly enumerated by family/action, versioned, provider-neutral, and unknown/unnegotiated actions fail closed.",
+    "The canonical resource grammar uses the kernux URI scheme with lowercase scheme/authority, no userinfo/query/fragment, no dot segments or empty/repeated path segments, canonical percent-encoding rules, canonical UUID segments where applicable, and resource-kind-specific validation. Invalid/noncanonical forms are rejected rather than silently authorized.",
+    "Resource containment is segment-aware and explicit through exact or subtree scope. A grant for one path/origin/entity cannot match a sibling that merely shares a string prefix, and percent-encoding/Unicode/path normalization cannot create an alternate authorization path.",
+    "The document defines resource authorities sufficient for v1 policy across project, runtime, artifact, network, secret, browser, git, system, policy, grant, tool, and sandbox surfaces, while permitting later versioned additions only through explicit negotiation.",
+    "Consequence classes are ordered C0 observe, C1 bounded reversible local mutation, C2 sensitive or external side effect, C3 destructive/privileged/high-impact, C4 authority expansion or irreversible external commitment. Classification is a kernel-owned minimum floor that contextual escalators may raise but never lower.",
+    "Secret reveal, authority/grant delegation, privileged system/security change, unrecoverable deletion, production/release governance, financial commitment, and generated/untrusted host execution receive explicit consequence floors. Untrusted causal provenance cannot reduce or create authority.",
+    "Grant constraints are typed and conjunctive. Narrowing/intersection can only reduce authority; an unknown or incomparable required constraint denies rather than drops. Time, use-count, byte, destination, executable/environment, secret, and resource-scope constraint families have explicit semantic ownership without fixing later wire encoding.",
+    "An issued Grant is immutable authority metadata: subject/run/session scope, exact action, resource exact/subtree scope, runtime binding, constraints, consequence ceiling, issuer/policy revision, not-before/expiry, max uses, and delegation depth are bounded. Widening requires a new authorization decision and new Grant ID.",
+    "Grant default delegation depth is zero. A delegated Grant must be a strict subset/intersection, may not outlive or exceed remaining uses/consequence/runtime/resource/action of its parent, decrements delegation depth, and records parent/issuer lineage.",
+    "Revocation/expiry/exhaustion deny new operation starts. In-flight cancellation semantics are explicitly deferred to KX-P01-S03-T01 rather than falsely claimed by Grant revocation.",
+    "Persistent Allow-for-project or organization choices become policy rules that issue bounded Grants per request/run; no immortal global allow-all Grant exists. Safe/Standard/Developer/Autonomous/Custom profiles compile into the same policy model.",
+    "The remote authorization result is the intersection of controller authorization, Kernux local policy, runtime capability negotiation, and remote-host policy; absence/unknown at any mandatory layer fails closed.",
+    "Canonical docs remain consistent with IDENTITY_AND_REVISION_MODEL, SECURITY_MODEL, ARCHITECTURE, PROTOCOL_STRATEGY, UX_BLUEPRINT, NATIVE_AGENT_AND_HEADLESS, QUALITY_AND_EVIDENCE, and the P01 task registry without preempting S03/S04/S05.",
+    "Exact implementation passes focused URI/action/resource/grant invariant checks, adversarial prefix/encoding/delegation/narrowing review, pnpm check, git diff --check, Diffcipline R3, protected exact-head CI, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000009.json",
+    "docs/canonical/CAPABILITY_AND_GRANT_MODEL.md",
+    "docs/canonical/SECURITY_MODEL.md",
+    "docs/canonical/ARCHITECTURE.md",
+    "docs/canonical/ARCHITECTURE_DECISIONS.md",
+    "docs/evidence/P01-S02-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 10000,
+    "estimated_tokens": 8000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "identity-prerequisite-proof-bound",
+      "action-taxonomy-review-pass",
+      "resource-uri-canonicalization-pass",
+      "resource-prefix-adversarial-pass",
+      "consequence-classification-review-pass",
+      "constraint-narrowing-review-pass",
+      "grant-lifecycle-review-pass",
+      "delegation-subset-review-pass",
+      "provenance-authority-separation-pass",
+      "remote-policy-intersection-pass",
+      "canonical-doc-consistency-pass",
+      "diffcipline-r3-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000009",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Freeze provider-neutral authorization semantics in canonical documents and an ADR now; defer executable policy engine, wire schemas, generated types, persistence, and UI to their already-planned phases."
+      },
+      "safety": {
+        "requirements": [
+          "Unknown action, resource authority, constraint, encoding, runtime capability, policy result, or host-policy result must fail closed rather than broaden authority.",
+          "No model, agent, tool, browser page, document, remote peer, or provider-native identifier can issue or widen a Grant merely by proposing one.",
+          "Never authorize resource containment with raw string prefix comparison; use canonical parsed segments and an explicit exact/subtree mode.",
+          "Grant delegation can only narrow; it cannot increase duration, uses, consequence, action, resource, runtime, subject, constraints, or delegation depth.",
+          "Persistent convenience profiles cannot become bypass switches for kernel hard constraints, untrusted provenance, secrets, remote-host policy, or organization policy."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has one provider-neutral, fail-closed authorization vocabulary for CapabilityRequest and Grant: exact actions, canonical resource URIs, consequence classification, typed narrowing constraints, bounded grants, revocation/delegation rules, and provenance-aware escalation before privileged kernel implementation begins.",
+  "parent_id": null,
+  "rationale": "KX-P01-S01-T01 is canonically PROVEN and KX-P01-S02-T01 is now the authorized R3 frontier. Later runtime, event, kernel-policy, adapter, browser, host, secret, and team work require a stable authorization contract that cannot be widened by string-prefix mistakes, unknown fields, agent self-classification, provider IDs, or untrusted content.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert the bounded capability/Grant contract, ADR, aligned canonical examples, and closeout state. No kernel policy persistence or product authorization state exists yet, so no Grant migration is required in this task."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define CapabilityRequest and Grant record identity using the already-proven canonical UUIDv7 rules while keeping them authorization records rather than silently adding them to the nine P01-S01 entity types.",
+    "Define a versioned exact-action grammar and a closed v1 core action taxonomy covering files, process, PTY, git, browser, computer, clipboard, network, secret, artifact, runtime, sandbox, tool, policy, grant, and identity capability families; unknown actions fail closed unless explicitly negotiated as an extension.",
+    "Define one canonical RFC-3986-compatible Kernux resource URI scheme with stable resource authorities, strict normalization/rejection rules, explicit exact-versus-subtree matching, segment-aware containment, and no raw-string prefix authorization.",
+    "Define a resource/action compatibility model and require trusted resource resolvers to perform kind-specific containment/canonicalization; a URI string alone never proves filesystem, network, runtime, or trust safety.",
+    "Define ordered v1 consequence classes C0-C4 plus context/provenance escalators; the kernel computes the authoritative class from action, resource, data/secret, runtime, provenance, reversibility, and external commitment. Callers may not lower it.",
+    "Define typed common constraints and action-specific constraints with conjunctive subset/intersection semantics, explicit unknown-constraint failure, numeric/time bounds, no implicit wildcard, and no silent widening during normalization.",
+    "Define Grant issuance/matching/lifetime/use-count/revocation/delegation semantics. One Grant binds an exact subject scope, exact action, canonical resource scope, runtime scope, constraints, consequence ceiling, issuer/policy revision, and finite authority envelope.",
+    "Define persistent project/organization choices as policy rules that may issue bounded Grants, not immortal wildcard Grants; UI profiles compile to granular policy and do not become separate authorization logic.",
+    "Define remote authority as intersection: controller Grant, local/kernel policy, runtime-advertised capability, and remote host policy must all allow the operation.",
+    "Define data-cannot-authorize-itself and provenance-aware escalation rules: untrusted browser/document/tool/remote content can influence a request but cannot mint, widen, delegate, or lower the consequence of authority.",
+    "Add an accepted ADR and align SECURITY_MODEL/ARCHITECTURE examples without implementing the policy engine or choosing generated wire-schema representation."
+  ],
+  "scope_out": [
+    "Do not implement kernuxd policy evaluation, persistence, approvals UI, secret broker, runtime host enforcement, remote protocol execution, or organization policy engine; those belong to later phases.",
+    "Do not define runtime capability negotiation/contact state/operation ID/cancellation/error envelopes; those belong to KX-P01-S03-T01.",
+    "Do not define Event envelope or stream ordering schema; those belong to KX-P01-S04-T01.",
+    "Do not select the single schema source, add code-generation dependencies, or generate Rust/TypeScript types; those belong to KX-P01-S05-T01.",
+    "Do not import donor product source or adopt donor/provider permission strings as the canonical Kernux taxonomy."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S02-T01 — Freeze v1 capability, resource, consequence, constraint, and Grant semantics"
+}
