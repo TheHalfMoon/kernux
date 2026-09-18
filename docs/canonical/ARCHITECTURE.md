@@ -298,6 +298,8 @@ runtime.artifacts.*
 
 A caller must not infer a capability from runtime type. Negotiate it.
 
+The canonical runtime negotiation, request/operation identity, deduplication, cancellation, retry, and structured-error semantics are defined in [`RUNTIME_OPERATION_MODEL.md`](RUNTIME_OPERATION_MODEL.md).
+
 ### Status truth
 
 The execution host owns process and agent lifecycle truth.
@@ -305,11 +307,11 @@ The execution host owns process and agent lifecycle truth.
 Contact state and execution state are distinct:
 
 ```text
-contact: connected | disconnected | degraded
+contact: connected | degraded | disconnected
 execution: live | exited | unverifiable
 ```
 
-A disconnect can make execution `unverifiable`; it must never be rewritten as `exited` merely because the controller lost contact.
+A disconnect, timeout, controller restart, missing heartbeat, or accepted cancellation must never be rewritten as `exited` without authoritative execution-owner observation.
 
 ## 9. Agent adapter contract
 
