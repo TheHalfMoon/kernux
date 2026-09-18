@@ -1,0 +1,190 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:7915f9afebb37a6b5261e1a07568d2f38da950b28dd2f81d18b2853cc5a518b7",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "A projection can be rebuilt from canonical accepted Events, and a fixture can detect duplicate/gapped/out-of-order/wrong-predecessor stream entries, Artifact digest mismatch, cyclic causal lineage, in-place correction attempts, and evidence self-report masquerading as independent qualification.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "A stream uses positive uint64 stream_seq beginning at 1, incrementing exactly by one for each accepted canonical append, and previous_event_id equals the immediately prior Event in that stream except for sequence 1 where it is absent. Duplicate sequence, gap, wrong predecessor, or conflicting Event ID fails closed.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "ArtifactRef binds canonical Artifact ID, exact revision when metadata matters, SHA-256 digest when bytes are relied on, role, and relevant media/size metadata. Digest mismatch is an explicit integrity failure.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical docs remain consistent with IDENTITY_AND_REVISION_MODEL, RUNTIME_OPERATION_MODEL, ARCHITECTURE, QUALITY_AND_EVIDENCE, DATA_LIFECYCLE_AND_PORTABILITY, SECURITY_MODEL, and P01 registry without preempting S05.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical per-stream ordering comes only from stream identity + stream_seq/predecessor. recorded_at/occurred_at are temporal observations, not authorization or ordering authority; separate streams have no implicit total ordering.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Corrections/supersession/forks create new Events; the prior Event is never mutated. Causal and lineage references are acyclic and do not replace stream order.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Event correlation can bind exact entity revisions plus RequestId/OperationId/GrantId and provenance Event IDs. These correlations are identifiers/evidence context, never authority tokens.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Event remains UUIDv7 immutable revision 1, but Event ID and UUID lexical/time order have no event-order authority. One Event belongs to exactly one typed canonical owner stream.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Event type uses a lowercase dotted provider-neutral grammar. Unknown/unnegotiated event type may be retained as opaque data only when compatibility policy later allows it, but cannot silently mutate a privileged canonical projection.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Evidence is immutable revision 1. A changed claim, binding, observed result, qualifying input, limitation, or implementation revision requires a new Evidence ID.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Evidence records exact claim/subject bindings and source class. Agent/model self-report can explain intent but cannot satisfy a stronger independent gate. Machine/external/human-review evidence identifies the observation/artifact/event basis it actually checked.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Exact implementation passes focused stream-order, lineage-cycle, artifact-integrity, evidence-independence, redaction, and replay/projection adversarial checks plus pnpm check, git diff --check, Diffcipline R2, protected exact-head CI, and post-merge main qualification.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Large or sensitive payloads are referenced as Artifacts rather than duplicated into the Event envelope. Ordinary Event/Evidence records do not persist secret plaintext.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Redaction/exclusion is explicit metadata. Redacted/exported views do not mutate canonical Event/Evidence; transformed bytes receive a new Artifact ID/digest; exclusions preserve that content was withheld and why, without storing secret plaintext in the manifest.",
+        "detail": "Rechecked against the canonical Event/Evidence model, focused stream/lineage/artifact/evidence/redaction adversarial checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6;github-pr:45;github-actions:35339301942;github-actions:35339377573;github-pr:46;github-actions:35341058400;github-actions:35341135584;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "artifact-binding-integrity-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/EVENT_AND_EVIDENCE_MODEL.md;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "github-actions:35341058400",
+        "passed": true
+      },
+      {
+        "check_id": "canonical-doc-consistency-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/ARCHITECTURE.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/ARCHITECTURE_DECISIONS.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/IDENTITY_AND_REVISION_MODEL.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/RUNTIME_OPERATION_MODEL.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/QUALITY_AND_EVIDENCE.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:diffcipline-r2-pass",
+        "passed": true
+      },
+      {
+        "check_id": "event-envelope-review-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/EVENT_AND_EVIDENCE_MODEL.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/ARCHITECTURE.md",
+        "passed": true
+      },
+      {
+        "check_id": "evidence-independence-review-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/EVENT_AND_EVIDENCE_MODEL.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/QUALITY_AND_EVIDENCE.md;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "identity-prerequisite-proof-bound",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:217aa6bc39bc6f78ff7304d7d6ae4567b62515e0:docs/evidence/P01-S01-T01.md;github-pr:45",
+        "passed": true
+      },
+      {
+        "check_id": "lineage-acyclicity-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;github-pr:46",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "github-actions:35341135584",
+        "passed": true
+      },
+      {
+        "check_id": "projection-rebuild-review-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/EVENT_AND_EVIDENCE_MODEL.md;local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "redaction-exclusion-review-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/EVENT_AND_EVIDENCE_MODEL.md;git:28515e290f09b1ee164d5749a3d0e0d9510a64e6:docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md",
+        "passed": true
+      },
+      {
+        "check_id": "runtime-correlation-contract-bound",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "git:f8c0d4799498821fd1591ff1cd03f06b750c6a4a:docs/evidence/P01-S03-T01.md;github-pr:45",
+        "passed": true
+      },
+      {
+        "check_id": "stream-order-adversarial-pass",
+        "detail": "Required SG-000011 evidence rechecked against exact canonical docs, focused adversarial proof, and exact GitHub CI evidence.",
+        "evidence_ref": "local:7c465058c1e77526b0270ff9d19e29469bd8cd9f:event-evidence-adversarial-pass;github-pr:46",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:28515e290f09b1ee164d5749a3d0e0d9510a64e6",
+    "issues": [],
+    "observed_changed_paths": [
+      "docs/canonical/ARCHITECTURE.md",
+      "docs/canonical/ARCHITECTURE_DECISIONS.md",
+      "docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md",
+      "docs/canonical/EVENT_AND_EVIDENCE_MODEL.md",
+      "docs/canonical/IDENTITY_AND_REVISION_MODEL.md",
+      "docs/canonical/QUALITY_AND_EVIDENCE.md",
+      "docs/canonical/RUNTIME_OPERATION_MODEL.md"
+    ],
+    "packet_digest": "sha256:39e970e84c5af391dcca47ae60a36f4817b278cd369f20e7a09a12c00434ac6a",
+    "result_digest": "sha256:954a787117f106dde4dbbae85f77820f0b31da54d9d969eeffbd2e9d6a457447",
+    "spec_id": "SG-000011",
+    "spec_revision": "sha256:4f25d40eb0c9a55c3a16bbd4addb0c63e17b3ec04ae0219ed1cbbcabc0d7d091",
+    "verification_version": 1,
+    "verified": true
+  }
+}
