@@ -1,0 +1,199 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:8a6c38130d1ef1a7ba84a01a0bfa16fece93b35427ddb746f9ca93cdb178d797",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "An issued Grant is immutable authority metadata: subject/run/session scope, exact action, resource exact/subtree scope, runtime binding, constraints, consequence ceiling, issuer/policy revision, not-before/expiry, max uses, and delegation depth are bounded. Widening requires a new authorization decision and new Grant ID.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical docs remain consistent with IDENTITY_AND_REVISION_MODEL, SECURITY_MODEL, ARCHITECTURE, PROTOCOL_STRATEGY, UX_BLUEPRINT, NATIVE_AGENT_AND_HEADLESS, QUALITY_AND_EVIDENCE, and the P01 task registry without preempting S03/S04/S05.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "CapabilityRequest and Grant IDs follow the canonical UUIDv7 identity rules. Grant/Request identifiers are not authority tokens; possession of either never bypasses policy evaluation.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Consequence classes are ordered C0 observe, C1 bounded reversible local mutation, C2 sensitive or external side effect, C3 destructive/privileged/high-impact, C4 authority expansion or irreversible external commitment. Classification is a kernel-owned minimum floor that contextual escalators may raise but never lower.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Exact implementation passes focused URI/action/resource/grant invariant checks, adversarial prefix/encoding/delegation/narrowing review, pnpm check, git diff --check, Diffcipline R3, protected exact-head CI, and post-merge main qualification.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Grant constraints are typed and conjunctive. Narrowing/intersection can only reduce authority; an unknown or incomparable required constraint denies rather than drops. Time, use-count, byte, destination, executable/environment, secret, and resource-scope constraint families have explicit semantic ownership without fixing later wire encoding.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Grant default delegation depth is zero. A delegated Grant must be a strict subset/intersection, may not outlive or exceed remaining uses/consequence/runtime/resource/action of its parent, decrements delegation depth, and records parent/issuer lineage.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Persistent Allow-for-project or organization choices become policy rules that issue bounded Grants per request/run; no immortal global allow-all Grant exists. Safe/Standard/Developer/Autonomous/Custom profiles compile into the same policy model.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Resource containment is segment-aware and explicit through exact or subtree scope. A grant for one path/origin/entity cannot match a sibling that merely shares a string prefix, and percent-encoding/Unicode/path normalization cannot create an alternate authorization path.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Revocation/expiry/exhaustion deny new operation starts. In-flight cancellation semantics are explicitly deferred to KX-P01-S03-T01 rather than falsely claimed by Grant revocation.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Secret reveal, authority/grant delegation, privileged system/security change, unrecoverable deletion, production/release governance, financial commitment, and generated/untrusted host execution receive explicit consequence floors. Untrusted causal provenance cannot reduce or create authority.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The canonical resource grammar uses the kernux URI scheme with lowercase scheme/authority, no userinfo/query/fragment, no dot segments or empty/repeated path segments, canonical percent-encoding rules, canonical UUID segments where applicable, and resource-kind-specific validation. Invalid/noncanonical forms are rejected rather than silently authorized.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The document defines resource authorities sufficient for v1 policy across project, runtime, artifact, network, secret, browser, git, system, policy, grant, tool, and sandbox surfaces, while permitting later versioned additions only through explicit negotiation.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The remote authorization result is the intersection of controller authorization, Kernux local policy, runtime capability negotiation, and remote-host policy; absence/unknown at any mandatory layer fails closed.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The v1 action grammar is lowercase dot-separated ASCII tokens with no wildcard token in an issued Grant. The core taxonomy is explicitly enumerated by family/action, versioned, provider-neutral, and unknown/unnegotiated actions fail closed.",
+        "detail": "Rechecked against canonical capability/Grant documents, bounded R3 slice proofs, adversarial resource/delegation checks, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a;github-pr:37;github-actions:35335043255;github-actions:35335114845;github-pr:38;github-actions:35335738810;github-actions:35335811013;github-pr:39;github-actions:35336002384;github-actions:35336085669;local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "action-taxonomy-review-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;github-pr:38",
+        "passed": true
+      },
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "github-actions:35335738810;github-actions:35336002384",
+        "passed": true
+      },
+      {
+        "check_id": "canonical-doc-consistency-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/ARCHITECTURE.md;git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/SECURITY_MODEL.md;git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/ARCHITECTURE_DECISIONS.md",
+        "passed": true
+      },
+      {
+        "check_id": "consequence-classification-review-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;github-pr:38;github-pr:39",
+        "passed": true
+      },
+      {
+        "check_id": "constraint-narrowing-review-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "delegation-subset-review-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "local:5591e76d350e63eb707f942a6731938c139f3376:diffcipline-r3-pass;local:f065b0cd3d1033e6972635beb16e660572825bec:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "grant-lifecycle-review-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;github-pr:39",
+        "passed": true
+      },
+      {
+        "check_id": "identity-prerequisite-proof-bound",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:217aa6bc39bc6f78ff7304d7d6ae4567b62515e0:docs/evidence/P01-S01-T01.md;github-pr:37",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "github-actions:35335811013;github-actions:35336085669",
+        "passed": true
+      },
+      {
+        "check_id": "provenance-authority-separation-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/SECURITY_MODEL.md",
+        "passed": true
+      },
+      {
+        "check_id": "remote-policy-intersection-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/ARCHITECTURE_DECISIONS.md",
+        "passed": true
+      },
+      {
+        "check_id": "resource-prefix-adversarial-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass;github-pr:39",
+        "passed": true
+      },
+      {
+        "check_id": "resource-uri-canonicalization-pass",
+        "detail": "Required SG-000009 evidence rechecked against exact repository, local R3, adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md;RFC3986:2005-01;local:f065b0cd3d1033e6972635beb16e660572825bec:capability-adversarial-pass",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:624a8e72719ba5e0561a8e9323e5720ee1d7078a",
+    "issues": [],
+    "observed_changed_paths": [
+      "docs/canonical/ARCHITECTURE.md",
+      "docs/canonical/ARCHITECTURE_DECISIONS.md",
+      "docs/canonical/CAPABILITY_AND_GRANT_MODEL.md",
+      "docs/canonical/SECURITY_MODEL.md"
+    ],
+    "packet_digest": "sha256:4fbdeb346486e03bf76a5f0d7e3829701df68dbb7ce5a8c1e975f6861021f0a4",
+    "result_digest": "sha256:076beee062c41f80ffd9b594e7315ea09ea3abb107ee1549b710fb5f19304b1a",
+    "spec_id": "SG-000009",
+    "spec_revision": "sha256:e015d1e53fd5f57bf59b4196dbb0574db9cac9715b46b66e5f2043afe6d6af8c",
+    "verification_version": 1,
+    "verified": true
+  }
+}
