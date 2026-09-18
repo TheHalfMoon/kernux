@@ -73,39 +73,36 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S03-T01 — Runtime operation semantics`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S04-T01 — Event and evidence semantics`
 
-**P01 PROGRESS:** `3 / 7 macro tasks PROVEN`
+**P01 PROGRESS:** `4 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S04-T01 — Define event envelope, lineage, artifact references, evidence binding and redaction metadata`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S05-T01 — Choose one schema source and generate Rust + TypeScript contracts with round-trip/conformance fixtures`
 
-The identity/revision task is PROVEN in `docs/evidence/P01-S01-T01.md`.
+The identity/revision, capability/Grant, runtime-operation, and Event/Evidence semantic tasks are PROVEN.
 
-The capability/Grant task is PROVEN in `docs/evidence/P01-S02-T01.md`.
+Canonical Event/Evidence contract:
 
-The runtime-operation task was refined through PR #41 and implemented through bounded R3 PRs #42 and #43.
+- `docs/canonical/EVENT_AND_EVIDENCE_MODEL.md`;
+- ADR-0041 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
+- evidence packet `docs/evidence/P01-S04-T01.md`;
+- native SG-000011 evidence record `sha256:7915f9afebb37a6b5261e1a07568d2f38da950b28dd2f81d18b2853cc5a518b7`.
 
-Canonical runtime contract:
+Final S04 implementation merged at `28515e290f09b1ee164d5749a3d0e0d9510a64e6`, and post-merge CI run `35341135584` passed all five protected required jobs.
 
-- `docs/canonical/RUNTIME_OPERATION_MODEL.md`;
-- ADR-0040 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
-- evidence packet `docs/evidence/P01-S03-T01.md`;
-- native SG-000010 evidence record `sha256:2687b01f067fdf6b8b3a8f6f56b35b6d1f717bf5ea4aa32459673a985f0f04c2`.
-
-Final runtime implementation merged at `c8a30217617971ae9aca47ed70c134cac09399b7`, and post-merge CI run `35338615458` passed all five protected required jobs.
-
-Runtime truth is provider-neutral and fail-closed: explicit capability negotiation, independent contact/execution state, stable OperationId identity, fingerprint-bound deduplication, reconcile-before-retry, cancellation distinct from termination proof, structured errors with side-effect certainty, and reconnect without implicit reauthorization.
+Event truth is append-only and provider-neutral: canonical owner stream + contiguous sequence/predecessor, immutable correction lineage, exact Artifact digest binding, independently classified Evidence, explicit redaction/exclusion metadata, and deterministic projection rebuild.
 
 No donor product source has been imported.
 
-KX-P01-S04-T01 is now authorized. No later P01 task may bypass its declared dependencies.
+KX-P01-S05-T01 is now authorized. No later P01 task may bypass its declared dependencies.
 
 Proof for the current frontier includes:
 
 - `docs/evidence/P00-EXIT.md`;
 - `docs/evidence/P01-S01-T01.md`;
 - `docs/evidence/P01-S02-T01.md`;
-- `docs/evidence/P01-S03-T01.md`.
+- `docs/evidence/P01-S03-T01.md`;
+- `docs/evidence/P01-S04-T01.md`.
 
 ## Dependency rule
 
