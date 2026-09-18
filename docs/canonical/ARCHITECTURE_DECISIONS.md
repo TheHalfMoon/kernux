@@ -278,6 +278,24 @@ UUIDv7 timestamp or lexical order is not causal, event, freshness, replay, or se
 
 Artifact byte identity is SHA-256 and is invariant for one Artifact ID; changed bytes create a new Artifact identity. Schema-source and generated Rust or TypeScript representation remain deferred to the planned P01 schema-generation task.
 
+## ADR-0039 — Authorization uses exact actions, canonical resources, bounded Grants, and fail-closed intersection
+
+**Status:** Accepted
+
+Every privileged operation is proposed as a CapabilityRequest and evaluated through one provider-neutral authorization model.
+
+Core v1 actions are exact lower-case dot-separated identifiers; issued Grants do not contain action wildcards. Resources use the canonical `kernux://` URI model and are matched through parsed exact/subtree semantics, never raw string prefix.
+
+The trusted kernel owns consequence classification and may only raise, never lower, contextual consequence. Untrusted browser/document/tool/remote content can influence a request but cannot mint or widen authority.
+
+Issued Grants are immutable bounded authorization metadata with exact subject/action/runtime, canonical resource scope, typed conjunctive constraints, consequence ceiling, finite lifetime/use budget, policy/issuer binding, and default-zero delegation depth. Persistent permission choices are policy rules that issue bounded Grants rather than immortal wildcard Grants.
+
+Delegation requires independent `grant.delegate` authority and can only narrow. Child operations consume applicable ancestor budgets so delegation cannot multiply authority.
+
+Remote execution requires the intersection of controller authorization, Kernux/kernel policy, negotiated runtime capability, and remote-host policy. Unknown or missing mandatory authority fails closed.
+
+Wire representation, policy-engine implementation, runtime cancellation/errors, Event envelope, persistence, and generated Rust/TypeScript contracts remain owned by later dependency-ordered work.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:
