@@ -548,5 +548,403 @@ After reconnect:
 
 Reconnect is not implicit resume authorization.
 
+## 18. Cancellation
 
-> Implementation note: this contract is landing in bounded R3 slices. Cancellation, structured-error, retry-guidance, reconnect/revocation, adversarial, and downstream sections remain incomplete until the successor slice merges.
+Cancellation is a separate protocol request targeting an existing OperationId.
+
+Conceptually:
+
+~~~text
+CancelRequest {
+  request_id
+  operation_id
+  reason?
+}
+~~~
+
+Cancellation does not create a new logical execution OperationId.
+
+### 18.1 Cancellation outcomes
+
+Provider-neutral conceptual outcomes are:
+
+~~~text
+accepted
+already_terminal
+not_cancellable
+unknown_operation
+denied
+unverifiable
+~~~
+
+S05 owns the final generated enum representation.
+
+### 18.2 accepted
+
+Accepted means:
+
+> the execution owner accepted the cancellation request for handling.
+
+It does not mean:
+
+- process exited;
+- browser action rolled back;
+- remote mutation was undone;
+- termination was verified.
+
+Execution remains `live` or `unverifiable` until an authoritative observation reports `exited`.
+
+### 18.3 already_terminal
+
+The operation is already authoritatively exited.
+
+Cancellation does not alter the established terminal cause.
+
+### 18.4 not_cancellable
+
+The operation contract/runtime cannot safely cancel the operation at the current point.
+
+This does not imply failure or exit.
+
+### 18.5 unknown_operation
+
+The target cannot be found under the runtime's current operation truth.
+
+As with reconciliation, unknown is interpreted against the runtime's declared persistence guarantees.
+
+### 18.6 denied
+
+Current policy/authority does not permit the cancellation request.
+
+Denial does not change execution state.
+
+### 18.7 unverifiable
+
+The cancellation request outcome itself cannot be authoritatively established.
+
+Examples:
+
+- transport loss during cancellation;
+- runtime contact lost before acknowledgement.
+
+The controller MUST NOT rewrite execution as cancelled/exited.
+
+## 19. Verified cancellation termination
+
+A user-visible "cancelled" terminal execution requires authoritative host observation of `exited` with a cancellation-compatible termination cause.
+
+Sequence example:
+
+~~~text
+cancel request -> accepted
+execution -> live
+execution -> exited(cancellation)
+~~~
+
+A different terminal cause remains truthful:
+
+~~~text
+cancel request -> accepted
+execution -> exited(completed)
+~~~
+
+The completion is not relabeled "cancelled" merely because cancellation was requested.
+
+## 20. Structured error envelope
+
+Protocol/request failures use a provider-neutral structured error concept.
+
+Conceptually:
+
+~~~text
+RuntimeError {
+  code
+  category
+  message
+  request_id
+  operation_id?
+  retry_guidance
+  side_effect_certainty
+  details?
+  provider_diagnostic?
+}
+~~~
+
+### 20.1 Canonical fields
+
+`code` is a stable Kernux error code.
+
+`category` groups related failures without replacing the exact code.
+
+`message` is human-readable explanation, not machine authorization logic.
+
+`request_id` correlates the failing protocol attempt.
+
+`operation_id` is present when the failure concerns an existing/logical operation.
+
+`retry_guidance` defines safe next-action class.
+
+`side_effect_certainty` states what is known about whether execution may have started.
+
+`details` contains typed safe diagnostics once S05 freezes representation.
+
+`provider_diagnostic` may retain foreign code/message metadata for debugging only.
+
+## 21. Provider-neutral error categories
+
+Conceptual v1 categories include:
+
+~~~text
+invalid_request
+protocol_mismatch
+capability_unavailable
+authorization_denied
+resource_invalid
+operation_conflict
+operation_unknown
+operation_unverifiable
+operation_not_cancellable
+runtime_unavailable
+runtime_revoked
+timeout
+internal
+~~~
+
+The exact generated code list belongs to S05, but later encoding must preserve semantic distinctions needed for safe retry and truth handling.
+
+### 21.1 Foreign diagnostics
+
+Provider-native error data may include:
+
+- numeric/string code;
+- provider message;
+- provider request ID;
+- transport status.
+
+It cannot override canonical Kernux:
+
+- retry guidance;
+- side-effect certainty;
+- execution state;
+- authorization decision.
+
+## 22. Side-effect certainty
+
+Closed conceptual classes:
+
+~~~text
+definitely_not_started
+operation_known
+may_have_started
+not_applicable
+~~~
+
+### 22.1 definitely_not_started
+
+Trusted logic establishes that operation admission/side effect did not start.
+
+Only this class may permit creation of a fresh OperationId for the same intended effect without reconciliation, subject to current policy.
+
+### 22.2 operation_known
+
+The logical operation exists. Caller should observe/reconcile the same OperationId rather than create a duplicate.
+
+### 22.3 may_have_started
+
+Kernux cannot prove whether the side effect started.
+
+Caller preserves the OperationId and reconciles.
+
+### 22.4 not_applicable
+
+The request is observational/non-side-effecting or the concept does not apply.
+
+## 23. Retry guidance
+
+Closed conceptual guidance:
+
+~~~text
+retry_request
+reconcile_operation
+new_operation_if_still_authorized
+do_not_retry
+~~~
+
+### 23.1 retry_request
+
+Safe to retry the protocol request semantics.
+
+For a side-effecting start this still uses the same OperationId.
+
+### 23.2 reconcile_operation
+
+Do not re-execute. Reconcile the existing OperationId.
+
+### 23.3 new_operation_if_still_authorized
+
+Permitted only when side-effect certainty is `definitely_not_started`.
+
+A fresh OperationId still requires fresh current authorization/admission.
+
+### 23.4 do_not_retry
+
+Retry is unsafe or semantically invalid without a higher-level change.
+
+### 23.5 Unknown guidance
+
+Unknown/missing retry guidance on a potentially side-effecting operation defaults to:
+
+~~~text
+reconcile_operation
+~~~
+
+not automatic retry.
+
+## 24. Error and execution truth are separate
+
+A request can fail while an operation succeeds.
+
+Examples:
+
+- acknowledgement timeout, operation later exits completed;
+- cancellation RPC fails, operation continues live;
+- observation request fails, last authoritative execution remains live;
+- transport error occurs after admission, operation becomes unverifiable until reconciliation.
+
+Therefore:
+
+~~~text
+request failure != operation failure
+transport success != operation success
+cancel accepted != operation exited
+disconnect != operation exited
+~~~
+
+## 25. Runtime revocation and authority expiry
+
+Runtime revocation blocks new privileged admissions.
+
+S02 Grant expiry/revocation/exhaustion also blocks new admissions.
+
+A reconnect does not restore prior authority automatically.
+
+For an outstanding already-admitted operation:
+
+- runtime truth remains factual even if authority later expires;
+- observing/reconciling it may use a separately allowed observation capability;
+- starting a replacement operation requires current authorization;
+- cancellation requires current cancellation authority/policy.
+
+This task does not define every future policy rule for emergency cancellation; it preserves the distinction between execution fact and new authority.
+
+## 26. Runtime identity continuity
+
+Reconnect under the same Runtime ID requires continuity of the enrolled trust identity under `IDENTITY_AND_REVISION_MODEL.md`.
+
+If the trust identity materially changes:
+
+- treat it as a different Runtime identity;
+- do not silently attach old operation authority to the new runtime;
+- old OperationIds may remain historical evidence but are not presumed resumable on the replacement.
+
+Provider reconnection to a machine with the same hostname is insufficient proof of Runtime continuity.
+
+## 27. Reconnect protocol obligations
+
+After contact restoration, before new privileged work:
+
+1. authenticate the runtime identity;
+2. validate current Runtime revision/continuity;
+3. negotiate protocol contract;
+4. negotiate required capabilities/features;
+5. re-check current authorization for new admissions;
+6. reconcile outstanding OperationIds;
+7. resume observation only from authoritative runtime/event truth;
+8. reject stale controller state.
+
+Grant/capability state from before disconnect is not blindly replayed.
+
+## 28. Adversarial invariants
+
+Implementations/conformance fixtures must cover at least:
+
+1. disconnected + last-known-live does not become exited.
+2. heartbeat timeout does not become exited.
+3. cancellation accepted does not become exited.
+4. cancellation transport loss does not become cancelled.
+5. stale observation generation cannot overwrite newer runtime truth.
+6. same OperationId + same fingerprint does not duplicate a side effect.
+7. same OperationId + different fingerprint is rejected without execution.
+8. ambiguous start keeps the original OperationId.
+9. a fresh OperationId is not auto-created after may-have-started.
+10. unknown retry guidance on a side effect becomes reconcile/no blind retry.
+11. runtime advertisement without Grant/policy does not authorize execution.
+12. Grant without negotiated runtime capability does not authorize execution.
+13. provider/runtime type does not imply action availability.
+14. runtime reconnect does not restore expired/revoked Grant authority.
+15. changed enrolled trust identity is not treated as the same Runtime.
+16. provider-native error code cannot lower canonical side-effect uncertainty.
+17. request timeout does not imply operation failure.
+18. controller restart/cache loss does not imply operation exit.
+19. equal observation generation with contradictory state is an invariant failure.
+20. unknown OperationId is not treated as definitely-not-started unless the runtime's declared persistence guarantee proves that interpretation.
+
+## 29. Deferred representation and implementation
+
+Deferred to later dependency-ordered tasks:
+
+- S04 Event envelope, event sequence, lineage, evidence/redaction metadata;
+- S05 schema source and generated Rust/TypeScript wire types;
+- S05 global additive/unknown-field/version compatibility policy;
+- S05 executable protocol fixture corpus;
+- P02 kernuxd operation ledger/policy enforcement;
+- P04/P05 process, PTY, browser, computer adapters;
+- remote transport and cryptographic enrollment;
+- persistence schema;
+- exact timeout/heartbeat values;
+- exact event-stream cursor/resume token representation.
+
+Later tasks may refine representation but MUST preserve the semantic safety invariants here unless superseded through explicit ADR and migration/security review.
+
+## 30. Downstream requirements
+
+### S04 Event model
+
+The Event envelope must be able to represent, without changing truth:
+
+- request/operation correlation;
+- contact changes;
+- operation observations;
+- cancellation requested/accepted/resolved;
+- structured errors;
+- provenance/authority lineage.
+
+Event ordering may not use UUID lexical order as execution truth.
+
+### S05 generated contracts
+
+Generated contracts/conformance fixtures must preserve:
+
+- exact closed state vocabularies;
+- RequestId/OperationId distinction;
+- operation fingerprint conflict;
+- duplicate start deduplication;
+- side-effect certainty;
+- retry guidance;
+- cancellation outcome versus terminal execution;
+- observation generation ordering;
+- unknown/malformed fail-closed behavior.
+
+### Runtime implementations
+
+A runtime adapter must state its actual:
+
+- capability set;
+- version/features;
+- cancellation support;
+- deduplication persistence envelope;
+- operation observation/reconciliation support.
+
+It must not claim stronger semantics than the provider/runtime can prove.
+
+No later runtime adapter may silently weaken these invariants.
