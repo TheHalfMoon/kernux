@@ -168,8 +168,8 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
     if isinstance(reason, str):
         text_fields.append((reason, "$.characterization.reason"))
     for value, at in text_fields:
-        if not value.strip():
-            errors.append(f"{at}: must contain non-whitespace text")
+        if not value.strip() or value != value.strip():
+            errors.append(f"{at}: must contain trimmed non-whitespace text")
 
     source = data["source"]
     if source["kind"] == "git":
@@ -215,8 +215,8 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
             errors.append("$.source: artifact source requires artifact_id and content_digest")
         if "repository" in source or "revision" in source:
             errors.append("$.source: artifact source must not declare git identity")
-        if isinstance(source.get("artifact_id"), str) and not source["artifact_id"].strip():
-            errors.append("$.source.artifact_id: must contain non-whitespace text")
+        if isinstance(source.get("artifact_id"), str) and source["artifact_id"] != source["artifact_id"].strip():
+            errors.append("$.source.artifact_id: must contain trimmed non-whitespace text")
 
     for index, mapping in enumerate(data["mappings"]):
         destinations = mapping["destination_paths"]
@@ -232,8 +232,8 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
             errors.append(f"$.mappings[{index}]: generator provenance is only valid for generated mappings")
         if generation is not None:
             for field in ("tool", "revision"):
-                if not generation[field].strip():
-                    errors.append(f"$.mappings[{index}].generation.{field}: must contain non-whitespace text")
+                if not generation[field].strip() or generation[field] != generation[field].strip():
+                    errors.append(f"$.mappings[{index}].generation.{field}: must contain trimmed non-whitespace text")
     characterization = data["characterization"]
     if characterization["status"] == "complete" and not characterization["test_paths"]:
         errors.append("$.characterization: complete status requires test_paths")
@@ -442,7 +442,7 @@ def main(argv: list[str] | None = None) -> int:
         errors = _schema_contract_errors(schema_data)
         paths = [Path(item) for item in args.paths] if args.paths else _manifest_paths()
         record_ids: dict[str, Path] = {}
-        destinations: dict[str, tuple[Path, int]] = {}
+        destinations: dict[str, Path] = {}
         for path in paths:
             try:
                 data = read_json(path)
@@ -453,15 +453,20 @@ def main(argv: list[str] | None = None) -> int:
             errors.extend(f"{path}: {error}" for error in data_errors)
             if not data_errors and isinstance(data, dict):
                 errors.extend(f"{path}: {error}" for error in _repository_errors(data))
-                for index, mapping in enumerate(data["mappings"]):
+                for mapping in data["mappings"]:
                     if mapping["transformation"] == "reference-only":
                         continue
                     for destination in mapping["destination_paths"]:
-                        prior = destinations.setdefault(destination, (path, index))
-                        if prior != (path, index):
+                        conflict = next(
+                            ((claimed, owner) for claimed, owner in destinations.items()
+                             if destination == claimed or destination.startswith(claimed + "/") or claimed.startswith(destination + "/")),
+                            None,
+                        )
+                        if conflict is not None:
                             errors.append(
-                                f"{path}: destination {destination} is already claimed by {prior[0]}"
+                                f"{path}: destination {destination} overlaps claim {conflict[0]} by {conflict[1]}"
                             )
+                        destinations[destination] = path
             if isinstance(data, dict) and isinstance(data.get("record_id"), str):
                 prior = record_ids.setdefault(data["record_id"], path)
                 if prior != path:
