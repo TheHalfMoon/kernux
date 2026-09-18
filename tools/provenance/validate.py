@@ -153,6 +153,24 @@ def _schema_contract_errors(schema: dict[str, Any]) -> list[str]:
 
 def _semantic_errors(data: dict[str, Any]) -> list[str]:
     errors: list[str] = []
+    text_fields = [
+        (data["donor"]["name"], "$.donor.name"),
+        (data["donor"]["role"], "$.donor.role"),
+        (data["license"]["spdx_expression"], "$.license.spdx_expression"),
+        (data["dependency_review"]["notes"], "$.dependency_review.notes"),
+        (data["security_review"]["reason"], "$.security_review.reason"),
+    ]
+    text_fields.extend(
+        (item["reference"], f"$.authorization[{index}].reference")
+        for index, item in enumerate(data["authorization"])
+    )
+    reason = data["characterization"]["reason"]
+    if isinstance(reason, str):
+        text_fields.append((reason, "$.characterization.reason"))
+    for value, at in text_fields:
+        if not value.strip():
+            errors.append(f"{at}: must contain non-whitespace text")
+
     source = data["source"]
     if source["kind"] == "git":
         if "repository" not in source or "revision" not in source:
@@ -197,6 +215,8 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
             errors.append("$.source: artifact source requires artifact_id and content_digest")
         if "repository" in source or "revision" in source:
             errors.append("$.source: artifact source must not declare git identity")
+        if isinstance(source.get("artifact_id"), str) and not source["artifact_id"].strip():
+            errors.append("$.source.artifact_id: must contain non-whitespace text")
 
     for index, mapping in enumerate(data["mappings"]):
         destinations = mapping["destination_paths"]
@@ -210,7 +230,10 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
             errors.append(f"$.mappings[{index}]: generated mapping requires generator provenance")
         if transformation != "generated" and generation is not None:
             errors.append(f"$.mappings[{index}]: generator provenance is only valid for generated mappings")
-
+        if generation is not None:
+            for field in ("tool", "revision"):
+                if not generation[field].strip():
+                    errors.append(f"$.mappings[{index}].generation.{field}: must contain non-whitespace text")
     characterization = data["characterization"]
     if characterization["status"] == "complete" and not characterization["test_paths"]:
         errors.append("$.characterization: complete status requires test_paths")
@@ -281,6 +304,21 @@ def _git_is_ancestor(root: Path, ancestor: str, descendant: str) -> bool:
     return result.returncode == 0
 
 
+def _commit_destination_errors(root: Path, oid: str, relative: str, at: str) -> list[str]:
+    try:
+        result = subprocess.run(
+            ["git", "diff-tree", "--root", "-m", "--no-commit-id", "--name-only", "-r", oid, "--", relative],
+            cwd=root, text=True, capture_output=True, timeout=5, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return [f"{at}: import-commit destination verification failed: {exc}"]
+    if result.returncode != 0:
+        return [f"{at}: import-commit destination verification failed"]
+    if not result.stdout.strip():
+        return [f"{at}: import commit does not touch claimed destination {relative}"]
+    return []
+
+
 def _commit_reference_errors(root: Path, oid: str, at: str) -> list[str]:
     try:
         exists = subprocess.run(
@@ -330,7 +368,18 @@ def _repository_errors(data: dict[str, Any], root: Path = ROOT) -> list[str]:
     if data["status"] == "imported":
         import_commit = data["import"]["commit"]
         assert isinstance(import_commit, str)
-        errors.extend(_commit_reference_errors(root, import_commit, "$.import.commit"))
+        import_errors = _commit_reference_errors(root, import_commit, "$.import.commit")
+        errors.extend(import_errors)
+        if not import_errors:
+            for index, mapping in enumerate(data["mappings"]):
+                if mapping["transformation"] == "reference-only":
+                    continue
+                for destination in mapping["destination_paths"]:
+                    errors.extend(
+                        _commit_destination_errors(
+                            root, import_commit, destination, f"$.mappings[{index}].destination_paths"
+                        )
+                    )
         previous = import_commit
         for index, oid in enumerate(data["import"]["adaptation_commits"]):
             at = f"$.import.adaptation_commits[{index}]"
@@ -393,6 +442,7 @@ def main(argv: list[str] | None = None) -> int:
         errors = _schema_contract_errors(schema_data)
         paths = [Path(item) for item in args.paths] if args.paths else _manifest_paths()
         record_ids: dict[str, Path] = {}
+        destinations: dict[str, tuple[Path, int]] = {}
         for path in paths:
             try:
                 data = read_json(path)
@@ -403,6 +453,15 @@ def main(argv: list[str] | None = None) -> int:
             errors.extend(f"{path}: {error}" for error in data_errors)
             if not data_errors and isinstance(data, dict):
                 errors.extend(f"{path}: {error}" for error in _repository_errors(data))
+                for index, mapping in enumerate(data["mappings"]):
+                    if mapping["transformation"] == "reference-only":
+                        continue
+                    for destination in mapping["destination_paths"]:
+                        prior = destinations.setdefault(destination, (path, index))
+                        if prior != (path, index):
+                            errors.append(
+                                f"{path}: destination {destination} is already claimed by {prior[0]}"
+                            )
             if isinstance(data, dict) and isinstance(data.get("record_id"), str):
                 prior = record_ids.setdefault(data["record_id"], path)
                 if prior != path:
