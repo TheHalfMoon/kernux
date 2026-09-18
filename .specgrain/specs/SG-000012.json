@@ -1,0 +1,113 @@
+{
+  "acceptance": [
+    "Exactly one authoritative v1 schema source exists for the generated core contract and is valid JSON Schema Draft 2020-12. Rust/TypeScript generated outputs declare that source plus exact schema SHA-256.",
+    "Generator is deterministic and fail-closed: unsupported schema construct/type/reference fails; two generations from identical input are byte-identical; --check reports clean on the committed candidate and fails on deliberate drift.",
+    "Generated Rust and TypeScript expose equivalent provider-neutral type/enum shapes for canonical references, capability/grant, runtime/operation/error, ArtifactRef, Event, and Evidence core messages.",
+    "Generated files are derived outputs and contain an explicit do-not-edit header. No critical core wire type is separately hand-maintained in Rust or TypeScript.",
+    "Shared fixtures include at least one capability/grant message, one runtime-operation message, and one Event/Evidence message; both languages consume the same tracked fixture bytes.",
+    "Rust serde/serde_json fixture tests deserialize and serialize every shared fixture and preserve semantic JSON value equality. TypeScript/Node conformance checks parse every fixture, validate required generated contract shape/schema-supported constraints, and preserve semantic JSON value equality.",
+    "Schema/generated contract preserves prior semantic distinctions including UUID/revision references, RequestId versus OperationId, contact versus execution state, side-effect certainty/retry guidance, stream_seq/previous_event_id, Artifact digest binding, Evidence source class, and redaction state.",
+    "Provider/donor names are absent from the authoritative core schema and generated public contract identifiers. Foreign provider metadata remains bounded generic diagnostic data only where the semantic contract permits it.",
+    "Normal pnpm check covers generator drift plus TypeScript contract/fixture conformance and cargo check covers the Rust contracts/fixtures. Existing CI remains green.",
+    "Canonical documentation states JSON Schema 2020-12 as the single source and clearly defers compatibility/unknown-field rules to S05-T02 and the full adversarial corpus to S05-T03.",
+    "Exact implementation passes generator determinism/drift checks, shared-fixture Rust+TypeScript conformance, provider-name scan, pnpm check, git diff --check, Diffcipline R2, protected exact-head CI, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000012.json",
+    "protocol/schema/krp.v1.schema.json",
+    "protocol/fixtures/v1",
+    "tools/protocol/generate.mjs",
+    "tools/protocol/conformance.mjs",
+    "packages/contracts/src/generated.ts",
+    "packages/contracts/src/conformance.ts",
+    "crates/kernux-contracts/Cargo.toml",
+    "crates/kernux-contracts/src/generated.rs",
+    "crates/kernux-contracts/src/lib.rs",
+    "crates/kernux-contracts/tests/fixtures.rs",
+    "Cargo.toml",
+    "Cargo.lock",
+    "package.json",
+    "tsconfig.json",
+    "docs/canonical/PROTOCOL_STRATEGY.md",
+    "docs/canonical/ARCHITECTURE_DECISIONS.md",
+    "docs/DEVELOPMENT.md",
+    "docs/evidence/P01-S05-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 12000,
+    "estimated_tokens": 10000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "prior-p01-contracts-proven",
+      "json-schema-source-selection-pass",
+      "generator-determinism-pass",
+      "generator-drift-negative-pass",
+      "generated-rust-compile-pass",
+      "generated-typescript-compile-pass",
+      "shared-fixture-rust-roundtrip-pass",
+      "shared-fixture-typescript-conformance-pass",
+      "provider-neutral-core-scan-pass",
+      "canonical-doc-consistency-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000012",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Use the existing Node/Rust toolchain and one JSON Schema file with a small in-repo generator; add only serde/serde_json on the Rust side for real JSON round-trip rather than introducing protoc, JVM, an external codegen service, or parallel handwritten contract definitions."
+      },
+      "safety": {
+        "requirements": [
+          "Generated contracts must not infer authority from successful schema validation; validation proves shape only.",
+          "Generated outputs must not be hand-edited or become a competing source of truth.",
+          "Unsupported schema constructs fail generation rather than being silently ignored or approximated.",
+          "Provider-specific names/types must not enter the canonical core schema or public generated contract API.",
+          "Compatibility behavior not frozen by this task must not be guessed into generated validators; defer it explicitly to S05-T02."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has one repository-owned JSON Schema Draft 2020-12 source for the v1 core protocol contract, deterministic Rust and TypeScript generated types, shared canonical fixtures, and cross-language round-trip/conformance checks that fail on schema/generated drift.",
+  "parent_id": null,
+  "rationale": "P01 semantic contracts S01-S04 are PROVEN. KRP now needs executable cross-language contracts before compatibility rules and the adversarial corpus can be frozen. JSON Schema 2020-12 provides a language-neutral inspectable source without requiring protoc or a second schema compiler, while a deliberately restricted repository-owned subset keeps generation deterministic and auditable.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert schema/generator/generated outputs/fixtures/contracts crate/workspace scripts/ADR and closeout state. No production runtime consumes these generated contracts yet, so no persisted-data or wire migration is required."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Select JSON Schema Draft 2020-12 as the single authoritative v1 cross-language schema source under protocol/schema. Generated Rust and TypeScript files must identify the source path and exact schema SHA-256 and must not be hand-edited.",
+    "Define a deliberately restricted JSON Schema subset sufficient for P01 core protocol types: definitions, object, string, integer, boolean, arrays, string enums, local references, required properties, descriptions, patterns, numeric bounds, and additionalProperties=false. Unsupported schema constructs fail generation explicitly.",
+    "Create a deterministic repository-local Node generator with no runtime network dependency. Same schema bytes must produce byte-identical Rust and TypeScript generated outputs.",
+    "Generate provider-neutral Rust and TypeScript contract types for canonical refs, capability requests/grants, runtime negotiation/operation observation/errors, Artifact refs, Event envelope, and Evidence records while preserving S01-S04 semantic field distinctions.",
+    "Use serde/serde_json for Rust JSON fixture round-trip and standard JSON plus TypeScript compile-time types/check helpers for TypeScript. Lock exact Rust dependency resolution in Cargo.lock.",
+    "Create one shared fixture directory consumed by both Rust and TypeScript conformance tests. At minimum include representative capability/grant, runtime-operation, and Event/Evidence envelopes.",
+    "Add deterministic generation drift checking: protocol generation in --check mode must fail when committed generated output differs from schema-derived output.",
+    "Add cross-language round-trip checks: each shared fixture validates against the supported schema subset/source contract, deserializes and reserializes in Rust, is parsed/shape-checked in TypeScript/Node, and preserves semantic JSON value equality after canonical object-key-insensitive comparison.",
+    "Add a generated-contract smoke surface to normal pnpm check and Cargo workspace CI without weakening existing gates.",
+    "Add an accepted ADR recording JSON Schema 2020-12, generated-output ownership, and the restricted-subset rule. Align PROTOCOL_STRATEGY and development documentation.",
+    "Prove generated core contracts contain no provider-specific names or donor-specific public types."
+  ],
+  "scope_out": [
+    "Do not define final unknown/additive-field compatibility or version-negotiation policy; KX-P01-S05-T02 owns it.",
+    "Do not build the full negative/adversarial protocol fixture corpus for disconnect, duplicate operation, malformed payload, and version mismatch; KX-P01-S05-T03 owns it.",
+    "Do not implement kernuxd, transport, persistence, event store, runtime adapters, browser/process execution, or UI.",
+    "Do not make JSON Schema validation itself an authorization boundary; S02/S03 kernel semantics remain authoritative."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S05-T01 — Select JSON Schema source and generate Rust/TypeScript protocol contracts"
+}
