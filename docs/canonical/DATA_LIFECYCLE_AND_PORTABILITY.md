@@ -67,6 +67,8 @@ Requirements:
 
 ## 6. Project export
 
+Event/Evidence redaction, exclusion, transformed-Artifact, and manifest semantics follow [`EVENT_AND_EVIDENCE_MODEL.md`](EVENT_AND_EVIDENCE_MODEL.md).
+
 A project should support a portable Kernux export format.
 
 A bundle may contain, based on user selection:
