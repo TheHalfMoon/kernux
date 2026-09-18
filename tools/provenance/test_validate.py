@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import copy
 import json
-import os
 import subprocess
 import sys
 import tempfile
@@ -97,6 +96,18 @@ class ProvenanceConformanceTests(unittest.TestCase):
         manifest = self.prepared_manifest()
         manifest["unexpected"] = True
         self.assert_invalid(manifest, "unknown property unexpected")
+
+    def test_schema_contract_is_strict_and_current(self) -> None:
+        self.assertEqual(validate._schema_contract_errors(self.schema), [])
+
+        drifted = copy.deepcopy(self.schema)
+        drifted["$defs"]["donor"].pop("additionalProperties")
+        errors = validate._schema_contract_errors(drifted)
+        self.assertTrue(
+            any("object schema must set additionalProperties=false" in error for error in errors),
+            errors,
+        )
+
 
     def test_whitespace_and_padded_identity_fields_are_rejected(self) -> None:
         cases = [
@@ -420,6 +431,19 @@ class ProvenanceConformanceTests(unittest.TestCase):
             (root / "nested").mkdir()
             with self.assertRaisesRegex(validate.ProvenanceError, "nested manifest directories"):
                 validate._manifest_paths(root)
+
+    def test_manifest_ledger_rejects_symlink_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "target"
+            target.mkdir()
+            link = root / "ledger"
+            try:
+                link.symlink_to(target, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"directory symlink creation unavailable: {exc}")
+            with self.assertRaisesRegex(validate.ProvenanceError, "manifest directory must not be a symlink"):
+                validate._manifest_paths(link)
 
     def test_diagnostics_are_sorted_and_deterministic(self) -> None:
         manifest = self.prepared_manifest()
