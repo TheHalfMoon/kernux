@@ -163,6 +163,7 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
         if isinstance(repository, str):
             try:
                 parsed = urlsplit(repository)
+                _ = parsed.port
                 path_parts = parsed.path.split("/")
                 canonical = (
                     parsed.scheme == "https"
@@ -171,9 +172,17 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
                     and parsed.password is None
                     and not parsed.query
                     and not parsed.fragment
+                    and repository == repository.strip()
+                    and not any(
+                        character.isspace()
+                        or ord(character) < 32
+                        or ord(character) == 127
+                        for character in repository
+                    )
+                    and "\\" not in repository
+                    and "%" not in parsed.path
                     and parsed.path.startswith("/")
                     and not parsed.path.endswith("/")
-                    and "\\" not in parsed.path
                     and len(path_parts) > 1
                     and all(part not in ("", ".", "..") for part in path_parts[1:])
                 )
