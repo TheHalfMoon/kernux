@@ -4,7 +4,11 @@
 
 Kernux is intentionally built with permission to reuse substantial source from founding donor systems. That is an advantage only if provenance stays explicit. This document records the founding sources, the revisions inspected during planning, the intended reuse boundaries, and the import rules that prevent donor internals from accidentally becoming Kernux architecture.
 
-This file is planning authority until a machine-readable ledger under `third_party/provenance/` replaces prose-only tracking.
+This file remains narrative authority for donor intent; machine-readable import records are governed by the tracked v1 contract under `third_party/provenance/`.
+
+## Machine-readable import gate
+
+The v1 contract is `third_party/provenance/schema/import-manifest.schema.json`; donor records live under `third_party/provenance/manifests/` and must pass `python3 tools/provenance/validate.py check` before import. The validator is dependency-free, rejects ambiguous/unsafe records, and never executes manifest content. An empty manifest set is valid only while no donor source has entered Kernux.
 
 ## Founding donor 1 — Orca
 
