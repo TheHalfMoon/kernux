@@ -28,21 +28,28 @@ Crossing a zone requires an explicit typed interface and audit event.
 
 Every privileged operation becomes a capability request.
 
-Representative request:
+The canonical v1 action/resource/constraint/Grant semantics are frozen in [`CAPABILITY_AND_GRANT_MODEL.md`](CAPABILITY_AND_GRANT_MODEL.md). This security model supplies the trust and policy requirements; it does not define an alternate permission syntax.
+
+Representative conceptual request:
 
 ```json
 {
-  "subject": "agent-session:as_123",
-  "run": "run_456",
-  "action": "computer.files.write",
-  "resource": "project://repo/src/auth.ts",
-  "runtime": "runtime:local",
-  "provenance": ["event:web-observation-789"],
-  "constraints": {
-    "max_bytes": 32768
+  "request_id": "01890f3a-7b30-7f77-bb88-708192a3b4c6",
+  "subject_scope": {
+    "run_id": "01890f3a-7b2d-7a11-8b22-4c5d6e708193",
+    "agent_session_id": "01890f3a-7b2e-7c33-9d44-5e6f708192a4"
+  },
+  "action": "files.write",
+  "resource": "kernux://project/01890f3a-7b2c-7d45-8a61-3c4e5f607182/fs/src/auth.ts",
+  "runtime_id": "01890f3a-7b2f-7e55-aa66-6f708192a3b5",
+  "provenance": [],
+  "requested_constraints": {
+    "io.max_write_bytes": 32768
   }
 }
 ```
+
+The example is conceptual; the later generated schema task owns exact wire encoding and constraint-field representation.
 
 Policy evaluates the request against:
 
