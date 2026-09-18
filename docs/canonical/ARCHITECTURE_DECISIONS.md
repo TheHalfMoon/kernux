@@ -316,6 +316,18 @@ Reconnect authenticates Runtime identity, renegotiates capability/protocol suppo
 
 Event-envelope representation, generated schema encoding, global compatibility rules, transport implementation, operation-ledger persistence, and concrete runtime adapters remain dependency-ordered downstream work.
 
+## ADR-0041 — Durable truth is append-only Event streams with independently bound Evidence
+
+**Status:** Accepted
+
+Canonical Event order is explicit per typed owner stream through contiguous `stream_seq` plus `previous_event_id`; UUIDv7 and timestamps are never ordering authority. Events and Evidence are immutable revision-1 records. Corrections, supersessions, and forks append new lineage rather than editing history.
+
+Artifact bytes relied upon by Events/Evidence bind SHA-256. Evidence records its actual source class and observation basis; agent/model self-report cannot satisfy a stronger independent gate.
+
+Redaction/exclusion is explicit view/export metadata. Transformed bytes receive a new Artifact identity/digest, and canonical source history is not mutated. Ordinary Event/Evidence records do not store secret plaintext.
+
+Wire schema, canonical serialization, whole-Event digest/signature, persistent event-store layout, compatibility policy, and executable fixture corpus remain downstream work.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:
