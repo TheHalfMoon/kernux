@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "entry_id": "agentql",
+      "category": "donor",
+      "source": {
+        "kind": "git",
+        "repository": "https://github.com/tinyfish-io/agentql",
+        "revision": "418ba8ad1c69dfac134a6833369a01dfba5a24a7"
+      },
+      "license": {
+        "spdx_expression": "MIT",
+        "source_license_path": "LICENSE",
+        "snapshot_path": "third_party/notices/licenses/agentql/LICENSE",
+        "snapshot_sha256": "sha256:167782868139652b3db1527f8a66a41a550cff0379373d0cb3beff44db28f883"
+      }
+    },
+    {
+      "entry_id": "desktop-commander",
+      "category": "donor",
+      "source": {
+        "kind": "git",
+        "repository": "https://github.com/wonderwhy-er/DesktopCommanderMCP",
+        "revision": "08ff76192919a6e8fe2557b39c3f99e7b54c3b92"
+      },
+      "license": {
+        "spdx_expression": "MIT",
+        "source_license_path": "LICENSE",
+        "snapshot_path": "third_party/notices/licenses/desktop-commander/LICENSE",
+        "snapshot_sha256": "sha256:e77cff545e0506903bf6a4bf29169fa40911eb76d70d239267df10c5c59370dd"
+      }
+    },
+    {
+      "entry_id": "orca",
+      "category": "donor",
+      "source": {
+        "kind": "git",
+        "repository": "https://github.com/stablyai/orca",
+        "revision": "0d23ea6e688410c878096dab8b1779857354b7d4"
+      },
+      "license": {
+        "spdx_expression": "MIT",
+        "source_license_path": "LICENSE",
+        "snapshot_path": "third_party/notices/licenses/orca/LICENSE",
+        "snapshot_sha256": "sha256:ff1b611f80580d49f4b97e93a97b24eb050b0671b26b8afe16341fab699112f3"
+      }
+    }
+  ]
+}

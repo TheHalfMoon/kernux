@@ -1,5 +1,10 @@
 # Third-party material
 
-Third-party source, notices, and provenance records belong under this boundary when a canonical task authorizes them.
+Third-party source, preserved licenses/notices, and donor provenance records live under this boundary when a canonical task authorizes them.
 
-No founding-donor product code is imported during P00/S00.1/T01.
+Current governance surfaces:
+
+- `third_party/provenance/` — machine-readable donor import records and the proven manifest v1 contract;
+- `third_party/notices/` — exact third-party license snapshots and the machine-readable notice inventory.
+
+A notice inventory entry does not imply that source code has been imported. Founding-donor product source remains absent until an authorized import task satisfies provenance, notices, characterization, dependency/asset review, and applicable security gates.
