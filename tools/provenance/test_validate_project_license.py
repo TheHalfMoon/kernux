@@ -63,7 +63,7 @@ class ProjectLicenseTests(unittest.TestCase):
         temporary, root = self.materialize()
         try:
             (root / "LICENSE").unlink()
-            self.assert_invalid(root, "required file is missing")
+            self.assert_invalid(root, "does not exist at validation head")
         finally:
             temporary.cleanup()
 
@@ -108,7 +108,7 @@ class ProjectLicenseTests(unittest.TestCase):
         temporary, root = self.materialize()
         try:
             (root / relative).unlink()
-            self.assert_invalid(root, "required file is missing")
+            self.assert_invalid(root, "does not exist at validation head")
         finally:
             temporary.cleanup()
 
