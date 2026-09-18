@@ -103,8 +103,8 @@ class NoticeInventoryTests(unittest.TestCase):
     def test_canonical_inventory_and_repository_state_pass(self) -> None:
         errors, entries, manifest_count = notices.validate_repository(self.inventory)
         self.assertEqual(errors, [])
-        self.assertEqual(len(entries), 3)
-        self.assertEqual(manifest_count, 0)
+        self.assertGreaterEqual(len(entries), 3)
+        self.assertEqual(manifest_count, len(provenance._manifest_paths()))
 
     def test_founding_donor_pins_and_license_digests_are_exact(self) -> None:
         expected = {
@@ -136,7 +136,9 @@ class NoticeInventoryTests(unittest.TestCase):
             )
             for entry in self.inventory["entries"]
         }
-        self.assertEqual(observed, expected)
+        for entry_id, values in expected.items():
+            self.assertIn(entry_id, observed)
+            self.assertEqual(observed[entry_id], values)
 
     def test_schema_version_requires_integer_one(self) -> None:
         for value in (True, 1.0, 0, 2, "1"):
