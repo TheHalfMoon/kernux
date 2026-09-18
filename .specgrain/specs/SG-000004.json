@@ -1,0 +1,96 @@
+{
+  "acceptance": [
+    "Root LICENSE matches the canonical Apache License 2.0 text by documented SHA-256 digest and the repository identifies Apache-2.0 as the license for Kernux-owned code.",
+    "A canonical license policy states that Apache-2.0 covers Kernux-owned code only and does not erase or replace third-party license, attribution, trademark, asset, model/data, binary, or service obligations.",
+    "Compatibility evidence records MIT for the three pinned public founding-donor references, MIT/Apache-2.0 for the current installed JavaScript toolchain/support packages, and no external Cargo dependency.",
+    "The policy allows current MIT/Apache-2.0 inputs subject to preserved notices and requires explicit review before any other license class enters a distributed Kernux artifact.",
+    "Project-license validation rejects missing/tampered/symlinked LICENSE or policy files, loss of third-party boundary language, a non-private root npm package, or a non-virtual root Cargo manifest without an intentional governed policy update.",
+    "The policy requires every future distributable npm package or Rust crate to declare explicit SPDX license metadata before release.",
+    "The WorkPacket binds exact canonical evidence that KX-P00-S04-T02 is already PROVEN; no native SpecGrain lifecycle state is fabricated.",
+    "Exact implementation passes focused license-policy tests, existing provenance/notice validation, baseline CI, Diffcipline R2 PASS on the exact change, OpenCodeReview on supported changed files, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000004.json",
+    "LICENSE",
+    "README.md",
+    "docs/canonical/LICENSE_POLICY.md",
+    "third_party/README.md",
+    "third_party/notices/README.md",
+    "tools/provenance/validate_project_license.py",
+    "tools/provenance/test_validate_project_license.py",
+    ".github/workflows/ci.yml",
+    "docs/evidence/P00-S01-T04.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 8500,
+    "estimated_tokens": 6500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "t02-prerequisite-proof-bound",
+      "apache-license-canonical-digest-pass",
+      "private-virtual-root-boundary-pass",
+      "current-dependency-license-inventory-pass",
+      "founding-donor-compatibility-review-pass",
+      "third-party-license-boundary-review-pass",
+      "project-license-validator-tests-pass",
+      "provenance-ci-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000004",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "stdlib",
+        "rationale": "Reuse the existing Python provenance enforcement and standard-library parsers; add no runtime/development dependency solely to enforce the license contract."
+      },
+      "safety": {
+        "requirements": [
+          "Do not invent a legal copyright owner, CLA, patent owner, or trademark grant.",
+          "Do not treat repository-level Apache-2.0 as relicensing third-party material; preserved upstream terms remain authoritative for that material.",
+          "Do not silently classify copyleft, proprietary, custom, model/data, trademark, binary, or hosted-service terms as compatible based only on SPDX labels.",
+          "Do not fetch mutable network license text at validation time; validation must be reproducible from repository-owned evidence and canonical pinned digest/text.",
+          "Do not add distributable-package metadata to private/virtual roots merely to satisfy a project-license task.",
+          "Do not manually mutate SpecGrain lifecycle state to manufacture dependency eligibility."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux-owned code is explicitly licensed under Apache-2.0 with deterministic repository validation, preserved third-party license boundaries, and a conservative compatibility policy for current donors/dependencies and future distributable packages.",
+  "parent_id": null,
+  "rationale": "KX-P00-S04-T02 is canonically proven. The repository still has no project LICENSE. Apache-2.0 preserves permissive adoption while adding an explicit patent grant. Current public founding-donor references are MIT, the installed JavaScript toolchain resolves only MIT/Apache-2.0 licenses, and Cargo currently has no external dependencies. The root npm package is private and the Cargo root is a virtual workspace, so this task applies the repository license now without introducing publish metadata into non-distributable roots; future publishable packages/crates must declare SPDX metadata before release.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded project-license/policy changes before a release that depends on them; the task imports no donor product code and creates no product/user runtime state."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Apply the exact Apache License 2.0 text from the Apache Software Foundation as the repository-root LICENSE for Kernux-owned code.",
+    "Document a canonical license policy distinguishing Kernux-owned code from donor code, dependencies, assets, model/data artifacts, trademarks, generated material, binaries, and hosted services.",
+    "Record an evidence-backed compatibility posture for the three pinned founding public donor references, the exact currently installed JavaScript license inventory, and the dependency-free Rust workspace.",
+    "Implement dependency-free validation that fails closed when LICENSE bytes, canonical policy identity, private npm-root status, virtual Cargo-root status, or required third-party boundary language drifts.",
+    "Require future distributable npm packages or Rust crates to declare explicit SPDX license metadata before release; do not add publish metadata to the current private/virtual roots.",
+    "Integrate project-license validation into existing CI/provenance enforcement and document the review path for future dependency or donor license classes.",
+    "Bind the already-proven KX-P00-S04-T02 prerequisite through exact canonical CURRENT/tasks/T02 evidence in the WorkPacket because the pinned SpecGrain lifecycle exposes no supported post-Grain state-mutation command."
+  ],
+  "scope_out": [
+    "No donor product source import and no relicensing of any third-party code, license snapshot, asset, model weight, trademark, binary, or hosted service.",
+    "No CLA/DCO/contributor-governance policy; KX-P00-S01-T03 remains separate.",
+    "No release SBOM, generated release NOTICE bundle, installer attribution packaging, package publication, or full transitive legal-opinion automation.",
+    "No assertion that Apache-2.0 resolves every future license combination; weak-copyleft, copyleft, network-copyleft, proprietary, custom, dual-license, asset/model/data, or ambiguous terms require explicit review before admission."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-S01-T04 — Establish Apache-2.0 project license and compatibility policy"
+}
