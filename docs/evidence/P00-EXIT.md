@@ -136,6 +136,32 @@ At `main@d52b5e7e6db04f4655b66beff5d62720f9d5bd77`:
 
 **Current donor-import state:** no governed donor product import exists, and no ungoverned donor product import has been established by repository evidence.
 
+## Draft closeout PR qualification
+
+Draft PR:
+
+`#32 — docs: qualify P00 exit gate`
+
+Current exact head before protection:
+
+`851e9a794a50442bd776c491ad1c209ad2d51cb5`
+
+Pull-request CI:
+
+`35328524376` — SUCCESS.
+
+Observed jobs:
+
+- JavaScript / TypeScript — SUCCESS;
+- Rust — SUCCESS;
+- SpecGrain — SUCCESS;
+- Diffcipline R1 — SUCCESS;
+- Provenance — SUCCESS.
+
+Review threads observed: none.
+
+This proves the repository-side closeout candidate is green before branch protection is enabled. It does **not** satisfy the protected-closeout criterion because the required `main` protection has not been established.
+
 ## Merge-enforcement blocker
 
 Before SG-000007 refinement, live repository-administration truth was queried through the repository owner's authenticated GitHub CLI:
