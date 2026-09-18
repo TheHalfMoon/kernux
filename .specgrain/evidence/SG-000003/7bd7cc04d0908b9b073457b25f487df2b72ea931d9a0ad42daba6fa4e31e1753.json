@@ -1,0 +1,119 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:7bd7cc04d0908b9b073457b25f487df2b72ea931d9a0ad42daba6fa4e31e1753",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "A canonical donor import checklist makes provenance, notices, dependency/assets review, characterization, applicable security review, branding/service cleanup, and exact import/adaptation history explicit pre-merge requirements.",
+        "detail": "Independent reconciliation against canonical merged state and live post-closeout CI.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "A tracked versioned inventory deterministically identifies each founding public donor/reference source by canonical repository plus exact revision, records SPDX expression and license snapshot path/digest, and rejects unknown or duplicate fields/identities.",
+        "detail": "Independent reconciliation against canonical merged state and live post-closeout CI.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "Exact upstream license snapshots for Orca, AgentQL, and Desktop Commander are preserved from the pinned planning revisions and their recorded SHA-256 digests verify byte-for-byte in repository validation.",
+        "detail": "Independent reconciliation against canonical merged state and live post-closeout CI.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "Notice validation fails closed on malformed/non-UTF8/oversized inventory data, symlink or unsafe evidence paths, missing license files, digest mismatch, duplicate source identity, and provenance records lacking a matching notice entry/license evidence relationship.",
+        "detail": "Independent reconciliation against canonical merged state and live post-closeout CI.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "The exact implementation receives Diffcipline R2 PASS plus OpenCodeReview review on all supported changed files, imports zero donor product source, and post-merge main preserves all required gates.",
+        "detail": "Independent reconciliation against canonical merged state and live post-closeout CI.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "The existing Provenance CI job runs notice tests, notice inventory validation, and provenance validation from full history; all existing CI jobs remain green.",
+        "detail": "Independent reconciliation against canonical merged state and live post-closeout CI.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "donor-import-checklist-review-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "founding-donor-license-snapshot-digest-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "notice-inventory-conformance-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "provenance-ci-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      },
+      {
+        "check_id": "provenance-notice-crosscheck-pass",
+        "detail": "Independent deterministic/current-state verification; historical exact-head R2/OCR evidence is repository-recorded and live CI was rechecked.",
+        "evidence_ref": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa:docs/evidence/P00-S04-T02.md;github-actions:35302247131",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:5cf8c40cff28b864f2d2ca612db4b6ff9dc6d7fa",
+    "issues": [],
+    "observed_changed_paths": [
+      ".github/workflows/ci.yml",
+      "docs/canonical/DONOR_IMPORT_CHECKLIST.md",
+      "docs/canonical/DONOR_PROVENANCE.md",
+      "docs/evidence/P00-S04-T02.md",
+      "specs/CURRENT.md",
+      "specs/tasks.md",
+      "third_party/README.md",
+      "third_party/notices/README.md",
+      "third_party/notices/inventory.json",
+      "third_party/notices/licenses/agentql/LICENSE",
+      "third_party/notices/licenses/desktop-commander/LICENSE",
+      "third_party/notices/licenses/orca/LICENSE",
+      "tools/provenance/test_validate_notices.py",
+      "tools/provenance/validate_notices.py"
+    ],
+    "packet_digest": "sha256:0e72ff73074edcf61deb6d1c1124aa2230466322a156cc792f067b7cb4be8950",
+    "result_digest": "sha256:36460c7d269c54679f4d0265e3099ffc4a1b6e2efd9ec72805bc57082ef9127a",
+    "spec_id": "SG-000003",
+    "spec_revision": "sha256:cd17ca24a89b463abc68e9ce47019776cccf10ff80428ccf8e188cdd1539f737",
+    "verification_version": 1,
+    "verified": true
+  }
+}
