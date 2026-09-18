@@ -43,10 +43,14 @@ def _read_regular_bytes(
     path = root / relative
     if path.is_symlink():
         return None, [f"{label}: path must not be a symlink: {relative.as_posix()}"]
-    if not path.exists():
-        return None, [f"{label}: required file is missing: {relative.as_posix()}"]
-    if not path.is_file():
-        return None, [f"{label}: path must be a regular file: {relative.as_posix()}"]
+    path_errors = provenance._repository_path_errors(
+        root,
+        relative.as_posix(),
+        label,
+        require_file=True,
+    )
+    if path_errors:
+        return None, path_errors
     try:
         size = path.stat().st_size
         if size > MAX_TEXT_BYTES:
@@ -94,6 +98,9 @@ def _digest_errors(
 
 
 def _package_errors(root: Path) -> list[str]:
+    _, guard_errors = _read_regular_bytes(root, PACKAGE_PATH, label="package")
+    if guard_errors:
+        return guard_errors
     path = root / PACKAGE_PATH
     try:
         data = provenance.read_json(path)
