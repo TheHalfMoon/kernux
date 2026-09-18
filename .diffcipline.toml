@@ -1,0 +1,15 @@
+version = 1
+
+[policy]
+max_changed_files = 12
+max_added_lines = 600
+dependency_manifest_changes = "review"
+lockfile_changes = "review"
+untracked_files = "fail"
+
+[verification]
+commands = ["pnpm check"]
+r0_commands = ["pnpm format:check", "pnpm specgrain:check"]
+r1_commands = ["pnpm check"]
+r2_commands = ["pnpm check"]
+r3_commands = ["pnpm check"]
