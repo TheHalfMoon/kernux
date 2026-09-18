@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "repository": "TheHalfMoon/SpecGrain",
+  "commit": "5de7d6499bb0a9e3a191fc0934399cf099d1980a",
+  "archive_url": "https://github.com/TheHalfMoon/SpecGrain/archive/5de7d6499bb0a9e3a191fc0934399cf099d1980a.zip",
+  "archive_sha256": "da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9",
+  "license": "MIT",
+  "minimum_python": "3.11"
+}
