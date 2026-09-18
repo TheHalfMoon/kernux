@@ -179,6 +179,9 @@ The encoding is an implementation detail; stable method/event semantics are the 
 
 ## 6. Core data model
 
+Canonical identity and revision semantics for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event are frozen in [`IDENTITY_AND_REVISION_MODEL.md`](IDENTITY_AND_REVISION_MODEL.md). The entity descriptions below define meaning; they do not override that identity/revision contract.
+
+
 ### Workspace
 
 A user-level container for layout, open projects, enrolled runtimes, and preferences.
