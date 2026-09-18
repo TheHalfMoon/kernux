@@ -162,6 +162,21 @@ Review threads observed: none.
 
 This proves the repository-side closeout candidate is green before branch protection is enabled. It does **not** satisfy the protected-closeout criterion because the required `main` protection has not been established.
 
+## Public branch-state read-back
+
+The public branch endpoint for `main` is readable without repository-administration scope and currently reports:
+
+- branch: `main`;
+- commit: `d52b5e7e6db04f4655b66beff5d62720f9d5bd77`;
+- `protected: false`;
+- `protection.enabled: false`;
+- required-status-check enforcement: `off`;
+- required status contexts: `[]`.
+
+This independently reconfirms that the SG-000007 protection requirement is not currently satisfied.
+
+The same endpoint can later prove the protected flag and required status-check contexts after an administrator enables the rule, even if the connected GitHub App still lacks administration-scope access to the full branch-protection endpoint.
+
 ## Merge-enforcement blocker
 
 Before SG-000007 refinement, live repository-administration truth was queried through the repository owner's authenticated GitHub CLI:
