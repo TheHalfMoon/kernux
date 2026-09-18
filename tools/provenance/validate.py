@@ -186,6 +186,11 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
         errors.append("$.characterization: imported status cannot remain planned")
     if imported and not data["license"]["evidence_paths"]:
         errors.append("$.license.evidence_paths: imported status requires local license/notice evidence")
+    if imported and not data["dependency_review"]["evidence_paths"]:
+        errors.append("$.dependency_review.evidence_paths: imported status requires review evidence")
+    security = data["security_review"]
+    if security["status"] == "complete" and not security["evidence_paths"]:
+        errors.append("$.security_review: complete status requires evidence_paths")
     if not data["dependency_review"]["evidence_paths"] and not data["dependency_review"]["notes"].strip():
         errors.append("$.dependency_review: evidence_paths or notes are required")
     return errors

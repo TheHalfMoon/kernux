@@ -19,12 +19,13 @@ def prepared() -> dict:
         "record_id": "orca.workspace-v1",
         "status": "prepared",
         "donor": {"name": "Orca", "role": "workspace/runtime donor"},
-        "source": {"kind": "git", "repository": "stablyai/orca", "revision": "a" * 40},
+        "source": {"kind": "git", "repository": "https://github.com/stablyai/orca", "revision": "a" * 40},
         "authorization": [{"basis": "public-license", "reference": "MIT license at pinned source revision"}],
         "license": {"spdx_expression": "MIT", "source_license_path": "LICENSE", "evidence_paths": []},
         "mappings": [{"source_paths": ["src/main"], "destination_paths": ["adapters/orca"], "transformation": "adapted"}],
         "dependency_review": {"status": "complete", "evidence_paths": [], "notes": "Embedded dependency obligations reviewed before import."},
         "characterization": {"status": "planned", "test_paths": [], "reason": "Characterization executes before import."},
+        "security_review": {"status": "not-required", "evidence_paths": [], "reason": "No sensitive boundary in this prepared fixture."},
         "import": {"commit": None, "adaptation_commits": []}
     }
 
@@ -35,7 +36,9 @@ def imported() -> dict:
     value["status"] = "imported"
     value["source"] = {"kind": "artifact", "artifact_id": "desktop-commander-docs-v1", "content_digest": "sha256:" + "b" * 64}
     value["license"]["evidence_paths"] = ["third_party/notices/desktop-commander.txt"]
+    value["dependency_review"]["evidence_paths"] = ["third_party/reviews/desktop-commander.md"]
     value["characterization"] = {"status": "complete", "test_paths": ["tests/donor/desktop_commander.py"], "reason": None}
+    value["security_review"] = {"status": "complete", "evidence_paths": ["docs/security/desktop-commander.md"], "reason": "Host boundary reviewed."}
     value["import"]["commit"] = "c" * 40
     return value
 
@@ -60,8 +63,11 @@ class ProvenanceValidationTests(unittest.TestCase):
         value = prepared()
         value["surprise"] = True
         self.assert_invalid(value, "unknown property surprise")
-        value = prepared()
-        value["mappings"][0]["source_paths"] = ["../escape"]
+        value = prepared(); value["mappings"][0]["source_paths"] = ["../escape"]
+        self.assert_invalid(value, "required pattern")
+        value = prepared(); value["mappings"][0]["source_paths"] = ["docs/مرحبا.md"]
+        self.assertEqual(pv.validate_data(value, self.schema), [])
+        value = prepared(); value["mappings"][0]["source_paths"] = ["C:/escape"]
         self.assert_invalid(value, "required pattern")
 
     def test_source_identity_must_be_unambiguous(self) -> None:
@@ -75,18 +81,15 @@ class ProvenanceValidationTests(unittest.TestCase):
 
     def test_mapping_and_lifecycle_rules_fail_closed(self) -> None:
         value = prepared()
-        value["mappings"][0] = {
-            "source_paths": ["README.md"],
-            "destination_paths": ["docs/copied.md"],
-            "transformation": "reference-only"
-        }
+        value["mappings"][0] = {"source_paths": ["README.md"], "destination_paths": ["docs/copied.md"], "transformation": "reference-only"}
         self.assert_invalid(value, "reference-only mapping")
         value = prepared()
         value["import"]["commit"] = "e" * 40
         self.assert_invalid(value, "prepared status must not declare")
-        value = imported()
-        value["characterization"] = {"status": "planned", "test_paths": [], "reason": "later"}
+        value = imported(); value["characterization"] = {"status": "planned", "test_paths": [], "reason": "later"}
         self.assert_invalid(value, "cannot remain planned")
+        value = imported(); value["security_review"]["evidence_paths"] = []
+        self.assert_invalid(value, "complete status requires evidence_paths")
 
     def test_duplicate_keys_non_utf8_and_oversize_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

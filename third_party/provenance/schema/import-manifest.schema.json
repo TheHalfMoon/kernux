@@ -1,8 +1,8 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://kernux.dev/schemas/provenance/import-manifest-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "urn:kernux:provenance:import-manifest:v1",
   "title": "Kernux donor import manifest v1", "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "record_id", "status", "donor", "source", "authorization", "license", "mappings", "dependency_review", "characterization", "import"],
+  "required": ["schema_version", "record_id", "status", "donor", "source", "authorization", "license", "mappings", "dependency_review", "characterization", "security_review", "import"],
   "properties": {
     "schema_version": { "const": 1 },
     "record_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$" },
@@ -20,12 +20,13 @@
     },
     "dependency_review": { "$ref": "#/$defs/dependencyReview" },
     "characterization": { "$ref": "#/$defs/characterization" },
+    "security_review": { "$ref": "#/$defs/securityReview" },
     "import": { "$ref": "#/$defs/import" }
   },
   "$defs": {
     "repoPath": {
       "type": "string", "minLength": 1, "maxLength": 512,
-      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.?(/|$))[A-Za-z0-9._@+ -]+(?:/[A-Za-z0-9._@+ -]+)*$"
+      "pattern": "^(?!/)(?![A-Za-z]:/)(?!.*\\\\)(?!.*//)(?!.*(?:^|/)\\.\\.?(/|$))[^\\u0000-\\u001f\\u007f]+$"
     },
     "gitOid": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
     "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
@@ -34,31 +35,23 @@
       "items": { "$ref": "#/$defs/repoPath" }
     },
     "donor": {
-      "type": "object", "additionalProperties": false,
-      "required": ["name", "role"],
-      "properties": {
-        "name": { "type": "string", "minLength": 1, "maxLength": 128 },
-        "role": { "type": "string", "minLength": 1, "maxLength": 128 }
-      }
+      "type": "object", "additionalProperties": false, "required": ["name", "role"],
+      "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 128 }, "role": { "type": "string", "minLength": 1, "maxLength": 128 } }
     },
     "source": {
       "type": "object", "additionalProperties": false,
       "required": ["kind"],
       "properties": {
         "kind": { "type": "string", "enum": ["git", "artifact"] },
-        "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+        "repository": { "type": "string", "pattern": "^https://[^\\s]+$" },
         "revision": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
         "artifact_id": { "type": "string", "minLength": 1, "maxLength": 256 },
         "content_digest": { "$ref": "#/$defs/sha256" }
       }
     },
     "authorization": {
-      "type": "object", "additionalProperties": false,
-      "required": ["basis", "reference"],
-      "properties": {
-        "basis": { "type": "string", "enum": ["public-license", "founder-authorization", "other-written-authorization"] },
-        "reference": { "type": "string", "minLength": 1, "maxLength": 1024 }
-      }
+      "type": "object", "additionalProperties": false, "required": ["basis", "reference"],
+      "properties": { "basis": { "type": "string", "enum": ["public-license", "founder-authorization", "other-written-authorization"] }, "reference": { "type": "string", "minLength": 1, "maxLength": 1024 } }
     },
     "license": {
       "type": "object", "additionalProperties": false,
@@ -79,13 +72,8 @@
       }
     },
     "dependencyReview": {
-      "type": "object", "additionalProperties": false,
-      "required": ["status", "evidence_paths", "notes"],
-      "properties": {
-        "status": { "type": "string", "enum": ["complete"] },
-        "evidence_paths": { "$ref": "#/$defs/pathList" },
-        "notes": { "type": "string", "minLength": 1, "maxLength": 2048 }
-      }
+      "type": "object", "additionalProperties": false, "required": ["status", "evidence_paths", "notes"],
+      "properties": { "status": { "type": "string", "enum": ["complete"] }, "evidence_paths": { "$ref": "#/$defs/pathList" }, "notes": { "type": "string", "minLength": 1, "maxLength": 2048 } }
     },
     "characterization": {
       "type": "object", "additionalProperties": false,
@@ -95,6 +83,10 @@
         "test_paths": { "$ref": "#/$defs/pathList" },
         "reason": { "type": ["string", "null"], "minLength": 1, "maxLength": 2048 }
       }
+    },
+    "securityReview": {
+      "type": "object", "additionalProperties": false, "required": ["status", "evidence_paths", "reason"],
+      "properties": { "status": { "type": "string", "enum": ["complete", "not-required"] }, "evidence_paths": { "$ref": "#/$defs/pathList" }, "reason": { "type": "string", "minLength": 1, "maxLength": 2048 } }
     },
     "import": {
       "type": "object", "additionalProperties": false,
