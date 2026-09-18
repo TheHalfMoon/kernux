@@ -1,0 +1,78 @@
+{
+  "acceptance": [
+    "The tracked v1 JSON Schema is strict, versioned, declares additionalProperties=false at object boundaries, and constrains transformation/status values.",
+    "The validator rejects malformed or non-UTF8 JSON, duplicate object keys, symlink inputs, oversized input, unsafe repository-relative paths, ambiguous source identity, invalid revisions/digests, and invalid prepared/imported lifecycle combinations.",
+    "Conformance tests prove valid prepared/imported records and deterministic failure for adversarial negative fixtures without adding third-party dependencies.",
+    "A dedicated Provenance CI job runs validator tests and repository validation from a fresh checkout while existing JS/TS, Rust, SpecGrain, and Diffcipline jobs remain green.",
+    "The exact candidate receives Diffcipline R2 PASS plus provenance-specific proof, imports zero donor source, and post-merge main preserves all required gates."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000002.json",
+    "third_party/provenance/schema/import-manifest.schema.json",
+    "tools/provenance/validate.py",
+    "tools/provenance/test_validate.py",
+    ".github/workflows/ci.yml",
+    "docs/canonical/DONOR_PROVENANCE.md",
+    "docs/evidence/P00-S04-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 7000,
+    "estimated_tokens": 4200
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "provenance-schema-conformance-pass",
+      "provenance-negative-tests-pass",
+      "provenance-ci-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000002",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Use JSON Schema 2020-12 plus Python 3.11 standard-library parsing and the existing repository governance runtime; add no package or runtime dependency."
+      },
+      "safety": {
+        "requirements": [
+          "The validator must never execute manifest content or follow symlinks.",
+          "Reject duplicate keys, unsafe paths, oversized records, ambiguous source identity, and incomplete imported-state evidence deterministically."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has a machine-readable donor import manifest v1 contract and deterministic validator that fails closed on ambiguous or unsafe provenance records.",
+  "parent_id": null,
+  "rationale": "",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded provenance-contract PR; no donor code or product/user runtime state exists yet."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define a strict JSON Schema 2020-12 v1 contract for donor source identity, authorization, licensing, source-to-destination mappings, transformation class, dependency review, characterization evidence, and import state.",
+    "Implement a deterministic dependency-free Python validator for tracked provenance manifests that never executes manifest content and fails closed on malformed, ambiguous, or unsafe records.",
+    "Add conformance and negative-path tests covering duplicate keys, malformed/non-UTF8 input, symlinks, oversized input, unsafe repository paths, source-identity ambiguity, transformation/lifecycle errors, and deterministic diagnostics.",
+    "Add a dedicated Provenance CI job that runs validator tests and validates every tracked donor manifest from a fresh checkout.",
+    "Document the machine-readable provenance location and enforcement workflow without importing donor source."
+  ],
+  "scope_out": [
+    "No Orca, TinyFish, AgentQL, Desktop Commander, or other donor source import.",
+    "No third-party notices/license inventory implementation or donor import checklist; KX-P00-S04-T02 remains separate.",
+    "No Kernux project-license decision, dependency addition, product implementation, or P01 contract work."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-S04-T01 — Establish donor provenance manifest v1 contract and validator"
+}
