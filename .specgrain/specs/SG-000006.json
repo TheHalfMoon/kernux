@@ -1,0 +1,73 @@
+{
+  "acceptance": [
+    "The corrective Grain uses explicit file paths only and contains no glob or wildcard change-surface entry.",
+    "All four affected GitHub issue-template/config files are observed in the exact corrective diff and remain semantically equivalent apart from a governance reconciliation comment.",
+    "The SG-000005 native verifier failure is preserved as a real historical gap and is not relabeled as PASS.",
+    "All four YAML files parse and the three issue forms satisfy required GitHub form structure: name, description, body, supported input types, safe unique IDs, and non-empty dropdown options when applicable.",
+    "Exact corrective implementation passes pnpm check, git diff --check, Diffcipline R1, supported OpenCodeReview review/rules, exact-head CI, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000006.json",
+    ".github/ISSUE_TEMPLATE/bug_report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/ISSUE_TEMPLATE/feature_request.yml",
+    ".github/ISSUE_TEMPLATE/support_question.yml"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 5000,
+    "estimated_tokens": 3200
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "sg5-wildcard-gap-recorded",
+      "explicit-path-surface-pass",
+      "issue-form-structural-pass",
+      "diffcipline-r1-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000006",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the existing four issue-template files and current validators; only add explicit path authority and non-functional reconciliation comments."
+      },
+      "safety": {
+        "requirements": [
+          "Do not rewrite or mutate SG-000005 to make prior work appear authorized.",
+          "Do not create a native SG-000005 evidence record while its exact WorkPacket verifier reports UNSCOPED_CHANGE.",
+          "Do not change public issue-template behavior during the reconciliation."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "The four GitHub issue-template surfaces introduced during T03 are explicitly re-adopted under a SpecGrain change surface whose path semantics match the pinned verifier, with the SG-000005 wildcard mismatch preserved as negative evidence.",
+  "parent_id": null,
+  "rationale": "SG-000005 declared .github/ISSUE_TEMPLATE/**, but the pinned SpecGrain verifier authorizes only exact paths or literal directory prefixes and therefore rejected the four observed issue-template files as UNSCOPED_CHANGE. This corrective Grain does not retroactively rewrite SG-000005; it explicitly governs the affected current surfaces before T03 closeout.",
+  "risk": {
+    "level": "low",
+    "recovery": "Revert the four comment-only reconciliation changes; the previous T03 files remain present but T03 must stay unproven until another explicit-scope reconciliation succeeds."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Record the SG-000005 wildcard/path-matcher mismatch as negative evidence; do not claim SG-000005 native verification.",
+    "Re-review and re-adopt the exact current bug report, feature request, support question, and issue chooser configuration under four explicit file paths.",
+    "Touch each governed YAML file with a non-functional reconciliation comment so the exact corrective implementation revision observes every explicitly authorized surface.",
+    "Re-run YAML/GitHub issue-form structure checks, full repository baseline, Diffcipline R1, supported OpenCodeReview rules, exact-head CI, and post-merge qualification."
+  ],
+  "scope_out": [
+    "Do not modify SG-000005, its revision, or its historical WorkPacket; do not manufacture a native SG-000005 proof record.",
+    "Do not change issue-form behavior, add repository settings, import donor source, change product code, start P01, or mark T03/P00 complete in the implementation slice."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-S01-T03 — Reconcile GitHub issue-template scope under explicit paths"
+}
