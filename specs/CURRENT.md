@@ -6,7 +6,7 @@
 
 **CATEGORY:** Agent Operating Environment
 
-**STATUS:** P00_IN_PROGRESS
+**STATUS:** P00_EXIT_IMPLEMENTED_UNPROVEN
 
 **CANONICAL_PLAN_MERGED_TO_MAIN:** TRUE
 
@@ -73,6 +73,10 @@ No product code or founding-donor product code has been imported yet.
 
 **SLICE:** `P00 exit-gate reconciliation`
 
+**EXIT GRAIN:** `SG-000007 — KX-P00-EXIT — Protect main and qualify the P00 phase exit gate`
+
+**EXIT STATUS:** `IMPLEMENTED_UNPROVEN — main protection proven; protected closeout merge and post-merge qualification remain`
+
 **LATEST PROVEN MACRO TASK:** `KX-P00-S01-T03 — Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs`
 
 **P00 MACRO TASKS:** `8 / 8 PROVEN`
@@ -81,9 +85,15 @@ No product code or founding-donor product code has been imported yet.
 
 All P00 macro tasks are now PROVEN. T03 established contributor/security/support/conduct/governance surfaces, GitHub issue/PR templates, README discoverability, and deterministic fail-closed workspace enforcement.
 
-P00 is not yet complete. The active work is the explicit phase exit-gate reconciliation against fresh-clone checks, live CI, SpecGrain/Diffcipline reproducibility, provenance enforcement, and donor-internal dependency truth.
+SG-000007 was refined through PR #31 and merged at `d52b5e7e6db04f4655b66beff5d62720f9d5bd77`. Its refinement PR and post-merge main CI are green.
 
-No P01 implementation is authorized until that exit gate is proven. No later task may bypass the dependency order or donor-provenance gates.
+P00 is not yet complete. Exact fresh-clone checks pass; SpecGrain/Diffcipline and Provenance are green; no donor product import exists; and `main` is now protected with pull requests, strict required checks for JavaScript / TypeScript, Rust, SpecGrain, Diffcipline R1, and Provenance, administrator enforcement, conversation resolution, and force-push/deletion disabled.
+
+The remaining proof is procedural and exact-revision-bound: merge the P00 exit packet through protected PR #32 without bypass, observe all five jobs green on the resulting `main` revision, then merge a final canonical closeout that marks P00 PROVEN and advances the first P01 macro task.
+
+The current evidence packet is `docs/evidence/P00-EXIT.md`.
+
+No P01 implementation is authorized until that final closeout is proven. No later task may bypass the dependency order or donor-provenance gates.
 
 Proof is recorded in:
 
@@ -94,7 +104,8 @@ Proof is recorded in:
 - `docs/evidence/P00-S02-T01.md`;
 - `docs/evidence/P00-S03-T01.md`;
 - `docs/evidence/P00-S04-T01.md`;
-- `docs/evidence/P00-S04-T02.md`.
+- `docs/evidence/P00-S04-T02.md`;
+- `docs/evidence/P00-EXIT.md` — current phase-exit evidence packet.
 
 ## Dependency rule
 
