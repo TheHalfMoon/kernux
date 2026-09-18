@@ -73,36 +73,39 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S02-T01 — Capability and Grant semantics`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S03-T01 — Runtime operation semantics`
 
-**P01 PROGRESS:** `2 / 7 macro tasks PROVEN`
+**P01 PROGRESS:** `3 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S03-T01 — Define runtime capability negotiation, contact/execution state, operation IDs, cancellation and structured errors`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S04-T01 — Define event envelope, lineage, artifact references, evidence binding and redaction metadata`
 
 The identity/revision task is PROVEN in `docs/evidence/P01-S01-T01.md`.
 
-The capability/Grant task was refined through PR #37 and implemented through bounded R3 PRs #38 and #39 after the original >600-line candidate correctly failed the R3 size gate.
+The capability/Grant task is PROVEN in `docs/evidence/P01-S02-T01.md`.
 
-Canonical capability contract:
+The runtime-operation task was refined through PR #41 and implemented through bounded R3 PRs #42 and #43.
 
-- `docs/canonical/CAPABILITY_AND_GRANT_MODEL.md`;
-- ADR-0039 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
-- evidence packet `docs/evidence/P01-S02-T01.md`;
-- native SG-000009 evidence record `sha256:8a6c38130d1ef1a7ba84a01a0bfa16fece93b35427ddb746f9ca93cdb178d797`.
+Canonical runtime contract:
 
-Final capability implementation merged at `624a8e72719ba5e0561a8e9323e5720ee1d7078a`, and post-merge CI run `35336085669` passed all five protected required jobs.
+- `docs/canonical/RUNTIME_OPERATION_MODEL.md`;
+- ADR-0040 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
+- evidence packet `docs/evidence/P01-S03-T01.md`;
+- native SG-000010 evidence record `sha256:2687b01f067fdf6b8b3a8f6f56b35b6d1f717bf5ea4aa32459673a985f0f04c2`.
 
-Authorization is provider-neutral and fail-closed: exact actions, canonical resources, kernel-owned consequence floors, typed narrowing constraints, bounded immutable Grants, non-multiplying delegation, provenance-aware escalation, and remote policy intersection.
+Final runtime implementation merged at `c8a30217617971ae9aca47ed70c134cac09399b7`, and post-merge CI run `35338615458` passed all five protected required jobs.
+
+Runtime truth is provider-neutral and fail-closed: explicit capability negotiation, independent contact/execution state, stable OperationId identity, fingerprint-bound deduplication, reconcile-before-retry, cancellation distinct from termination proof, structured errors with side-effect certainty, and reconnect without implicit reauthorization.
 
 No donor product source has been imported.
 
-KX-P01-S03-T01 is now authorized because its identity and capability dependencies are PROVEN. No later P01 task may bypass its declared dependencies.
+KX-P01-S04-T01 is now authorized. No later P01 task may bypass its declared dependencies.
 
 Proof for the current frontier includes:
 
 - `docs/evidence/P00-EXIT.md`;
 - `docs/evidence/P01-S01-T01.md`;
-- `docs/evidence/P01-S02-T01.md`.
+- `docs/evidence/P01-S02-T01.md`;
+- `docs/evidence/P01-S03-T01.md`.
 
 ## Dependency rule
 

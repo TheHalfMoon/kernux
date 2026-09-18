@@ -1,0 +1,195 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:2687b01f067fdf6b8b3a8f6f56b35b6d1f717bf5ea4aa32459673a985f0f04c2",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "A duplicate start carrying the same OperationId/fingerprint resolves to the existing operation/result/status rather than spawning a second side effect. Host deduplication/reconciliation must survive the reconnect/restart envelope claimed by that runtime.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "After an ambiguous/may-have-started result, callers reconcile the existing OperationId before considering a fresh OperationId for the same intended side effect. Automatic blind retry with a fresh OperationId is forbidden.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Cancellation targets OperationId and has explicit outcomes. cancel accepted/requested is not termination proof; execution remains live or unverifiable until authoritative host state reports exited with a cause. Disconnect during cancellation cannot be rewritten as cancelled/exited.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical documents remain consistent with CAPABILITY_AND_GRANT_MODEL, IDENTITY_AND_REVISION_MODEL, ARCHITECTURE, PROTOCOL_STRATEGY, SECURITY_MODEL, QUALITY_AND_EVIDENCE, and the P01 task registry without preempting S04/S05.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Contact and execution states are separate closed vocabularies: contact connected|degraded|disconnected; execution live|exited|unverifiable. No rule maps disconnected or heartbeat timeout directly to exited.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Exact implementation passes focused state-machine, duplicate-operation, fingerprint-conflict, ambiguous-retry, cancellation, structured-error, and reconnect/revocation adversarial checks plus pnpm check, git diff --check, Diffcipline R3, protected exact-head CI, and post-merge main qualification.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Negotiation is explicit and provider-neutral. A RuntimeDescriptor binds exact Runtime identity plus protocol/capability support; unsupported, unknown, malformed, or unnegotiated mandatory capability/version fails closed rather than being inferred from runtime type.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Only authoritative execution-host observation may establish exited for host-owned execution. Reconciliation may change unverifiable to live or exited; stale controller observations cannot overwrite newer host generation/observation truth.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "OperationId is bound to a canonical operation fingerprint covering at least subject scope, exact action, canonical resource, Runtime ID, effective constraints, and semantic payload identity/digest. Reuse with a different fingerprint is an operation conflict and must not execute.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "RequestId identifies one protocol attempt. OperationId identifies one logical side-effecting operation across attempts/reconnects. Both obey canonical UUIDv7 validation, are non-secret identifiers, and neither grants authority.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Retry guidance has fail-closed semantics: safe same-attempt transport retry, reconcile-existing-operation, new-operation-only-after-definitely-not-started, or no-retry. Unknown retry safety defaults to reconcile/no automatic side effect.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Runtime revocation or Grant expiry blocks new admissions. Reconnect cannot reauthorize expired/revoked authority. Runtime identity continuity follows the proven identity model; changed enrolled trust identity requires a different Runtime identity.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Structured errors separate request failure from operation truth. Provider-neutral error code/category, retry guidance, correlation IDs, and side-effect certainty are explicit; foreign provider codes/messages cannot override canonical classification.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The negotiated capability set is an intersection. Advertisement is not authorization: S02 Grant/policy/host constraints remain mandatory, and provider/runtime names do not imply permission or feature availability.",
+        "detail": "Rechecked against the canonical runtime-operation model, adversarial state/idempotency/cancellation/retry checks, bounded R3 slice proofs, protected PR CI, and post-merge main qualification.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7;github-pr:41;github-actions:35337863359;github-actions:35337928387;github-pr:42;github-actions:35338193034;github-actions:35338279519;github-pr:43;github-actions:35338536606;github-actions:35338615458;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "ambiguous-retry-review-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;github-pr:42;github-pr:43",
+        "passed": true
+      },
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "github-actions:35338193034;github-actions:35338536606",
+        "passed": true
+      },
+      {
+        "check_id": "cancellation-semantics-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "canonical-doc-consistency-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/ARCHITECTURE.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/ARCHITECTURE_DECISIONS.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/PROTOCOL_STRATEGY.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/SECURITY_MODEL.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md",
+        "passed": true
+      },
+      {
+        "check_id": "capability-prerequisite-proof-bound",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:a79c31e99074b85ba51d2b0f2a3fe755b1df90fe:docs/evidence/P01-S02-T01.md;github-pr:41",
+        "passed": true
+      },
+      {
+        "check_id": "contact-execution-state-machine-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:diffcipline-r3-pass;local:a88839927d6b8d3b7309ea2830cbea810be68a55:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "duplicate-operation-adversarial-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass;github-pr:42",
+        "passed": true
+      },
+      {
+        "check_id": "identity-prerequisite-proof-bound",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:217aa6bc39bc6f78ff7304d7d6ae4567b62515e0:docs/evidence/P01-S01-T01.md;github-pr:41",
+        "passed": true
+      },
+      {
+        "check_id": "operation-identity-fingerprint-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;local:09aa9d979ded74c2d7678c14c68febcdb02fcd4f:runtime-slice-a-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "github-actions:35338279519;github-actions:35338615458",
+        "passed": true
+      },
+      {
+        "check_id": "reconnect-revocation-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/SECURITY_MODEL.md;local:a88839927d6b8d3b7309ea2830cbea810be68a55:runtime-slice-b-adversarial-pass",
+        "passed": true
+      },
+      {
+        "check_id": "runtime-negotiation-review-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/PROTOCOL_STRATEGY.md;github-pr:42",
+        "passed": true
+      },
+      {
+        "check_id": "structured-error-review-pass",
+        "detail": "Required SG-000010 evidence rechecked against exact repository, local R3/adversarial, and GitHub CI evidence.",
+        "evidence_ref": "git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/RUNTIME_OPERATION_MODEL.md;git:c8a30217617971ae9aca47ed70c134cac09399b7:docs/canonical/ARCHITECTURE_DECISIONS.md",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:c8a30217617971ae9aca47ed70c134cac09399b7",
+    "issues": [],
+    "observed_changed_paths": [
+      "docs/canonical/ARCHITECTURE.md",
+      "docs/canonical/ARCHITECTURE_DECISIONS.md",
+      "docs/canonical/CAPABILITY_AND_GRANT_MODEL.md",
+      "docs/canonical/PROTOCOL_STRATEGY.md",
+      "docs/canonical/RUNTIME_OPERATION_MODEL.md",
+      "docs/canonical/SECURITY_MODEL.md"
+    ],
+    "packet_digest": "sha256:823a6e232cdeab95c04a9be55982262457e85200225878cf8a1a1681b858c24f",
+    "result_digest": "sha256:e05db82abc9d09e7f7529d9c88ce9bd6db7753256dacc1a7e69552201f1af024",
+    "spec_id": "SG-000010",
+    "spec_revision": "sha256:383fa506a9203b5112f3eeffa3180b514084e04631da375f2af634d7b5e2549a",
+    "verification_version": 1,
+    "verified": true
+  }
+}
