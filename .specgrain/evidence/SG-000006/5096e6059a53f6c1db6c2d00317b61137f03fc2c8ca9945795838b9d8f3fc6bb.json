@@ -1,0 +1,91 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:5096e6059a53f6c1db6c2d00317b61137f03fc2c8ca9945795838b9d8f3fc6bb",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "All four YAML files parse and the three issue forms satisfy required GitHub form structure: name, description, body, supported input types, safe unique IDs, and non-empty dropdown options when applicable.",
+        "detail": "Independently checked against explicit-path SG-000006 scope, semantic YAML equivalence, exact PR heads, and successful post-merge CI.",
+        "evidence_ref": "github-pr:28;github-pr:29;github-actions:35325592969;github-actions:35325664507;github-actions:35325800570;github-actions:35325891272",
+        "passed": true
+      },
+      {
+        "check_id": "All four affected GitHub issue-template/config files are observed in the exact corrective diff and remain semantically equivalent apart from a governance reconciliation comment.",
+        "detail": "Independently checked against explicit-path SG-000006 scope, semantic YAML equivalence, exact PR heads, and successful post-merge CI.",
+        "evidence_ref": "github-pr:28;github-pr:29;github-actions:35325592969;github-actions:35325664507;github-actions:35325800570;github-actions:35325891272",
+        "passed": true
+      },
+      {
+        "check_id": "Exact corrective implementation passes pnpm check, git diff --check, Diffcipline R1, supported OpenCodeReview review/rules, exact-head CI, and post-merge main qualification.",
+        "detail": "Independently checked against explicit-path SG-000006 scope, semantic YAML equivalence, exact PR heads, and successful post-merge CI.",
+        "evidence_ref": "github-pr:28;github-pr:29;github-actions:35325592969;github-actions:35325664507;github-actions:35325800570;github-actions:35325891272",
+        "passed": true
+      },
+      {
+        "check_id": "The SG-000005 native verifier failure is preserved as a real historical gap and is not relabeled as PASS.",
+        "detail": "Independently checked against explicit-path SG-000006 scope, semantic YAML equivalence, exact PR heads, and successful post-merge CI.",
+        "evidence_ref": "github-pr:28;github-pr:29;github-actions:35325592969;github-actions:35325664507;github-actions:35325800570;github-actions:35325891272",
+        "passed": true
+      },
+      {
+        "check_id": "The corrective Grain uses explicit file paths only and contains no glob or wildcard change-surface entry.",
+        "detail": "Independently checked against explicit-path SG-000006 scope, semantic YAML equivalence, exact PR heads, and successful post-merge CI.",
+        "evidence_ref": "github-pr:28;github-pr:29;github-actions:35325592969;github-actions:35325664507;github-actions:35325800570;github-actions:35325891272",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Required corrective evidence rechecked against exact repository/GitHub facts.",
+        "evidence_ref": "github-actions:35325800570",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r1-proof-pass",
+        "detail": "Required corrective evidence rechecked against exact repository/GitHub facts.",
+        "evidence_ref": "github-pr:29;github-actions:35325800570",
+        "passed": true
+      },
+      {
+        "check_id": "explicit-path-surface-pass",
+        "detail": "Required corrective evidence rechecked against exact repository/GitHub facts.",
+        "evidence_ref": "git:f483762e1afdff04686801c6ac097d555e749259:.github/ISSUE_TEMPLATE/bug_report.yml;git:f483762e1afdff04686801c6ac097d555e749259:.github/ISSUE_TEMPLATE/config.yml;git:f483762e1afdff04686801c6ac097d555e749259:.github/ISSUE_TEMPLATE/feature_request.yml;git:f483762e1afdff04686801c6ac097d555e749259:.github/ISSUE_TEMPLATE/support_question.yml",
+        "passed": true
+      },
+      {
+        "check_id": "issue-form-structural-pass",
+        "detail": "Required corrective evidence rechecked against exact repository/GitHub facts.",
+        "evidence_ref": "github-pr:29;github-actions:35325800570",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Required corrective evidence rechecked against exact repository/GitHub facts.",
+        "evidence_ref": "github-actions:35325891272",
+        "passed": true
+      },
+      {
+        "check_id": "sg5-wildcard-gap-recorded",
+        "detail": "Required corrective evidence rechecked against exact repository/GitHub facts.",
+        "evidence_ref": "github-pr:28;git:7c87797421d698e1e08de34d623a0ff4158fbc8c:.specgrain/specs/SG-000005.json;git:5de7d6499bb0a9e3a191fc0934399cf099d1980a:src/specgrain/verification.py",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:f483762e1afdff04686801c6ac097d555e749259",
+    "issues": [],
+    "observed_changed_paths": [
+      ".github/ISSUE_TEMPLATE/bug_report.yml",
+      ".github/ISSUE_TEMPLATE/config.yml",
+      ".github/ISSUE_TEMPLATE/feature_request.yml",
+      ".github/ISSUE_TEMPLATE/support_question.yml"
+    ],
+    "packet_digest": "sha256:b795105a86fdb070191b341be86f8023451c11809f761f1d7b7d5f49e88dc1a8",
+    "result_digest": "sha256:6e37fb4f0744622eac1cca5b8b6d58f7b301682dc606cc9276b256373102fcf5",
+    "spec_id": "SG-000006",
+    "spec_revision": "sha256:2ef3ad4c244ee5c6c599ea12926175fdb546a80bfb4e1f03ec4e153bdb3b735f",
+    "verification_version": 1,
+    "verified": true
+  }
+}
