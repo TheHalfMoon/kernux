@@ -1,0 +1,109 @@
+{
+  "acceptance": [
+    "Negotiation is explicit and provider-neutral. A RuntimeDescriptor binds exact Runtime identity plus protocol/capability support; unsupported, unknown, malformed, or unnegotiated mandatory capability/version fails closed rather than being inferred from runtime type.",
+    "The negotiated capability set is an intersection. Advertisement is not authorization: S02 Grant/policy/host constraints remain mandatory, and provider/runtime names do not imply permission or feature availability.",
+    "Contact and execution states are separate closed vocabularies: contact connected|degraded|disconnected; execution live|exited|unverifiable. No rule maps disconnected or heartbeat timeout directly to exited.",
+    "Only authoritative execution-host observation may establish exited for host-owned execution. Reconciliation may change unverifiable to live or exited; stale controller observations cannot overwrite newer host generation/observation truth.",
+    "RequestId identifies one protocol attempt. OperationId identifies one logical side-effecting operation across attempts/reconnects. Both obey canonical UUIDv7 validation, are non-secret identifiers, and neither grants authority.",
+    "OperationId is bound to a canonical operation fingerprint covering at least subject scope, exact action, canonical resource, Runtime ID, effective constraints, and semantic payload identity/digest. Reuse with a different fingerprint is an operation conflict and must not execute.",
+    "A duplicate start carrying the same OperationId/fingerprint resolves to the existing operation/result/status rather than spawning a second side effect. Host deduplication/reconciliation must survive the reconnect/restart envelope claimed by that runtime.",
+    "After an ambiguous/may-have-started result, callers reconcile the existing OperationId before considering a fresh OperationId for the same intended side effect. Automatic blind retry with a fresh OperationId is forbidden.",
+    "Cancellation targets OperationId and has explicit outcomes. cancel accepted/requested is not termination proof; execution remains live or unverifiable until authoritative host state reports exited with a cause. Disconnect during cancellation cannot be rewritten as cancelled/exited.",
+    "Structured errors separate request failure from operation truth. Provider-neutral error code/category, retry guidance, correlation IDs, and side-effect certainty are explicit; foreign provider codes/messages cannot override canonical classification.",
+    "Retry guidance has fail-closed semantics: safe same-attempt transport retry, reconcile-existing-operation, new-operation-only-after-definitely-not-started, or no-retry. Unknown retry safety defaults to reconcile/no automatic side effect.",
+    "Runtime revocation or Grant expiry blocks new admissions. Reconnect cannot reauthorize expired/revoked authority. Runtime identity continuity follows the proven identity model; changed enrolled trust identity requires a different Runtime identity.",
+    "Canonical documents remain consistent with CAPABILITY_AND_GRANT_MODEL, IDENTITY_AND_REVISION_MODEL, ARCHITECTURE, PROTOCOL_STRATEGY, SECURITY_MODEL, QUALITY_AND_EVIDENCE, and the P01 task registry without preempting S04/S05.",
+    "Exact implementation passes focused state-machine, duplicate-operation, fingerprint-conflict, ambiguous-retry, cancellation, structured-error, and reconnect/revocation adversarial checks plus pnpm check, git diff --check, Diffcipline R3, protected exact-head CI, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000010.json",
+    "docs/canonical/RUNTIME_OPERATION_MODEL.md",
+    "docs/canonical/CAPABILITY_AND_GRANT_MODEL.md",
+    "docs/canonical/ARCHITECTURE.md",
+    "docs/canonical/ARCHITECTURE_DECISIONS.md",
+    "docs/canonical/PROTOCOL_STRATEGY.md",
+    "docs/canonical/SECURITY_MODEL.md",
+    "docs/evidence/P01-S03-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 10000,
+    "estimated_tokens": 8000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "identity-prerequisite-proof-bound",
+      "capability-prerequisite-proof-bound",
+      "runtime-negotiation-review-pass",
+      "contact-execution-state-machine-pass",
+      "operation-identity-fingerprint-pass",
+      "duplicate-operation-adversarial-pass",
+      "ambiguous-retry-review-pass",
+      "cancellation-semantics-pass",
+      "structured-error-review-pass",
+      "reconnect-revocation-pass",
+      "canonical-doc-consistency-pass",
+      "diffcipline-r3-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000010",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Freeze provider-neutral runtime and operation truth semantics in canonical documents and one ADR now; defer transport, persistence, event envelopes, schema generation, and runtime implementation to already-owned downstream tasks."
+      },
+      "safety": {
+        "requirements": [
+          "Never infer execution exit from disconnect, timeout, controller restart, missing heartbeat, transport error, or cancellation acceptance.",
+          "Never retry a potentially side-effecting logical operation under a fresh OperationId while the prior OperationId may have started and remains unreconciled.",
+          "Runtime capability advertisement never grants authority and never overrides S02 policy/Grant/remote-host intersection.",
+          "Reuse of an OperationId with a different canonical fingerprint must fail closed and must not execute either interpretation as a retry.",
+          "Unknown retry safety, execution truth, capability version, or cancellation outcome defaults to reconciliation/deny rather than optimistic success or automatic re-execution."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has one provider-neutral runtime protocol contract that negotiates capability/version support explicitly, separates contact from execution truth, distinguishes request attempts from durable operations, prevents duplicate side effects across retries/reconnects, defines bounded cancellation semantics, and returns structured errors without fabricating operation outcome.",
+  "parent_id": null,
+  "rationale": "KX-P01-S01 and S02 are canonically PROVEN. Runtime adapters, remote hosts, kernuxd, browser/process/PTY execution, and future generated contracts require a stable semantic contract before implementation; otherwise disconnects, retries, cancellation, or provider-specific status/error behavior can corrupt authority and execution truth.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert the runtime semantic contract, ADR, aligned canonical documents, and closeout state. No runtime transport, persisted operation ledger, or product execution state exists yet, so no runtime data migration is required in this task."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define the conceptual v1 RuntimeDescriptor and negotiation handshake using canonical Runtime identity, protocol contract version, exact capability/action identifiers from CAPABILITY_AND_GRANT_MODEL, capability-specific version/revision metadata, optional feature flags, and explicit unknown/unsupported behavior.",
+    "Define negotiation as intersection rather than inference: callers may use only capabilities simultaneously understood by the controller, advertised by the runtime, allowed by current authorization/policy, and supported by the negotiated protocol contract. Runtime type/provider name never implies capability.",
+    "Define contact state independently from execution state. Contact is connected, degraded, or disconnected. Execution is live, exited, or unverifiable. Loss of contact can produce unverifiable but never proves exited.",
+    "Define transition invariants for reconnect/reconciliation: authoritative runtime observation may move unverifiable back to live or exited; stale controller cache/heartbeat timeout cannot manufacture terminal execution truth.",
+    "Define RequestId as one protocol attempt and OperationId as the stable identity of one logical side-effecting operation across transport retries/reconnects. Both follow the canonical UUIDv7 textual/validation rules but are not new core entity types.",
+    "Define operation fingerprint binding sufficient to reject reuse of an OperationId for a different subject/action/resource/runtime/constraints/payload identity. Same OperationId with conflicting fingerprint fails closed.",
+    "Define idempotency/replay semantics: an execution host must deduplicate repeated starts for the same OperationId/fingerprint and return/reconcile the same logical operation rather than create a duplicate side effect. An ambiguous transport result requires status reconciliation before a new OperationId may be used for the same intended side effect.",
+    "Define runtime-owned operation truth and durable/recoverable operation observation requirements across reconnect. A controller may cache observations but may not overwrite newer host truth or infer completion from silence.",
+    "Define bounded cancellation as a separate request against an OperationId. Accepted cancellation means cancellation was requested/accepted for handling, not that execution terminated. Verified termination requires authoritative exited observation and termination cause.",
+    "Define cancellation outcomes for accepted, already-terminal, not-cancellable, unknown-operation, denied, and unverifiable/unreachable cases without converting them into false execution states.",
+    "Define structured protocol error semantics with stable provider-neutral code, message, retry guidance, request/operation correlation, execution uncertainty, details, and causal/source metadata where safe. Provider-native codes may be retained only as foreign diagnostic metadata.",
+    "Define side-effect uncertainty/retry classes so callers can distinguish definitely-not-started, authoritative-operation-known, and may-have-started/unverifiable outcomes. Same-request retries and new-operation retries must not be conflated.",
+    "Define runtime revocation/re-enrollment/reconnect interaction with S02: reconnect cannot resurrect expired/revoked Grants; runtime identity continuity follows IDENTITY_AND_REVISION_MODEL; changed trust identity is a different Runtime.",
+    "Add an accepted ADR and align ARCHITECTURE, PROTOCOL_STRATEGY, SECURITY_MODEL, and capability downstream requirements without implementing transports or generated schemas."
+  ],
+  "scope_out": [
+    "Do not define Event envelope sequence/lineage/artifact/evidence/redaction schema; KX-P01-S04-T01 owns that.",
+    "Do not select the single schema source, generate Rust/TypeScript contracts, or freeze global additive/unknown-field compatibility rules; KX-P01-S05 owns those.",
+    "Do not implement kernuxd runtime adapters, SSH transport, process/PTY execution, browser/computer adapters, persistence tables, event streaming, or remote enrollment crypto.",
+    "Do not import provider/donor runtime status or error vocabularies as Kernux canonical semantics."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S03-T01 — Freeze runtime negotiation, operation truth, cancellation, and structured error semantics"
+}
