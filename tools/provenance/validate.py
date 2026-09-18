@@ -173,7 +173,7 @@ def _semantic_errors(data: dict[str, Any]) -> list[str]:
                     and not parsed.fragment
                     and parsed.path.startswith("/")
                     and not parsed.path.endswith("/")
-                    and "\" not in parsed.path
+                    and "\\" not in parsed.path
                     and len(path_parts) > 1
                     and all(part not in ("", ".", "..") for part in path_parts[1:])
                 )
