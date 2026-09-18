@@ -1,3 +1,4 @@
+# SG-000006 explicit-path reconciliation: behavior unchanged; SG-000005 wildcard mismatch remains negative evidence.
 blank_issues_enabled: false
 contact_links:
   - name: Security policy
