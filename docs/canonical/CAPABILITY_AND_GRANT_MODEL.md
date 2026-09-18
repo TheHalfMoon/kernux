@@ -953,7 +953,7 @@ Later contracts must preserve this model or replace it through an explicit ADR w
 
 ## 22. Downstream requirements
 
-KX-P01-S03-T01 must preserve:
+KX-P01-S03-T01 is semantically realized by [`RUNTIME_OPERATION_MODEL.md`](RUNTIME_OPERATION_MODEL.md) and must preserve:
 
 - exact runtime binding;
 - grant admission before side effects;
