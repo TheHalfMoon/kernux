@@ -89,6 +89,19 @@ SpecGrain and Diffcipline are used as delivery/proof methodology rather than pro
 
 See [`DONOR_PROVENANCE.md`](docs/canonical/DONOR_PROVENANCE.md) for pinned revisions and import rules.
 
+## Community and repository governance
+
+Kernux uses repository-owned governance and evidence gates before product implementation:
+
+- [Contributing](CONTRIBUTING.md) — setup, scope, pull-request, provenance, and proof expectations.
+- [Security](SECURITY.md) — vulnerability-reporting boundaries. Do not disclose unpublished vulnerability details in public issues.
+- [Support](SUPPORT.md) — bug, feature, setup, and contribution channels.
+- [Code of Conduct](CODE_OF_CONDUCT.md) — expected behavior and reporting boundaries.
+- [Repository governance](docs/governance/REPOSITORY_GOVERNANCE.md) — authority order, change discipline, proof, and policy-change rules.
+- [Development](docs/DEVELOPMENT.md) — supported local toolchain and baseline checks.
+
+GitHub issue forms and the pull-request template are part of the enforced workspace baseline; removing a required governance surface causes the deterministic workspace check to fail.
+
 ## Current frontier
 
 The canonical plan is established on `main`; no product implementation is canonically complete yet. The first implementation frontier is **P00 — Repository and governance foundation**, followed by the capability kernel and its contracts. See [`specs/CURRENT.md`](specs/CURRENT.md).
