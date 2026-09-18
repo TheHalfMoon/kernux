@@ -41,8 +41,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | ID | State | Risk | Macro outcome | Depends |
 | --- | --- | --- | --- | --- |
 | KX-P01-S01-T01 | PROVEN | R2 | Define canonical IDs/revisions for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, Event. | P00 |
-| KX-P01-S02-T01 | NEXT | R3 | Define v1 capability taxonomy, resource URI model, consequence classes, constraints, Grant semantics. | identities |
-| KX-P01-S03-T01 | PLANNED | R3 | Define runtime capability negotiation, contact/execution state, operation IDs, cancellation and structured errors. | identities + capabilities |
+| KX-P01-S02-T01 | PROVEN | R3 | Define v1 capability taxonomy, resource URI model, consequence classes, constraints, Grant semantics. | identities |
+| KX-P01-S03-T01 | NEXT | R3 | Define runtime capability negotiation, contact/execution state, operation IDs, cancellation and structured errors. | identities + capabilities |
 | KX-P01-S04-T01 | PLANNED | R2 | Define event envelope, lineage, artifact references, evidence binding and redaction metadata. | identities |
 | KX-P01-S05-T01 | PLANNED | R2 | Choose one schema source and generate Rust + TS contracts with round-trip/conformance fixtures. | prior P01 contracts |
 | KX-P01-S05-T02 | PLANNED | R2 | Define compatibility/versioning rules and unknown/additive-field behavior. | generated contracts |

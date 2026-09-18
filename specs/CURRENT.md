@@ -73,33 +73,36 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S01-T01 — Canonical IDs/revisions`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S02-T01 — Capability and Grant semantics`
 
-**P01 PROGRESS:** `1 / 7 macro tasks PROVEN`
+**P01 PROGRESS:** `2 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S02-T01 — Define v1 capability taxonomy, resource URI model, consequence classes, constraints, Grant semantics`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S03-T01 — Define runtime capability negotiation, contact/execution state, operation IDs, cancellation and structured errors`
 
-The identity/revision task was refined through PR #34 and implemented through PR #35.
+The identity/revision task is PROVEN in `docs/evidence/P01-S01-T01.md`.
 
-Canonical identity contract:
+The capability/Grant task was refined through PR #37 and implemented through bounded R3 PRs #38 and #39 after the original >600-line candidate correctly failed the R3 size gate.
 
-- `docs/canonical/IDENTITY_AND_REVISION_MODEL.md`;
-- ADR-0038 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
-- evidence packet `docs/evidence/P01-S01-T01.md`;
-- native SG-000008 evidence record `sha256:a331754e945d9ea8ad6943377992722b0c47a978262b23c892365a6b4cbfc09d`.
+Canonical capability contract:
 
-Implementation merged at `0da7f594bb48cab42aed7f5afa7e3409f40f76b7`, and post-merge CI run `35333409634` passed all five protected required jobs.
+- `docs/canonical/CAPABILITY_AND_GRANT_MODEL.md`;
+- ADR-0039 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
+- evidence packet `docs/evidence/P01-S02-T01.md`;
+- native SG-000009 evidence record `sha256:8a6c38130d1ef1a7ba84a01a0bfa16fece93b35427ddb746f9ca93cdb178d797`.
 
-Canonical IDs for Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event are UUIDv7. Revision, content digest, foreign/provider IDs, and ordering coordinates are separate concepts. UUIDv7 lexical/time order is not event or security authority.
+Final capability implementation merged at `624a8e72719ba5e0561a8e9323e5720ee1d7078a`, and post-merge CI run `35336085669` passed all five protected required jobs.
+
+Authorization is provider-neutral and fail-closed: exact actions, canonical resources, kernel-owned consequence floors, typed narrowing constraints, bounded immutable Grants, non-multiplying delegation, provenance-aware escalation, and remote policy intersection.
 
 No donor product source has been imported.
 
-KX-P01-S02-T01 is now authorized because its identity dependency is PROVEN. No later P01 task may bypass its declared dependencies.
+KX-P01-S03-T01 is now authorized because its identity and capability dependencies are PROVEN. No later P01 task may bypass its declared dependencies.
 
 Proof for the current frontier includes:
 
 - `docs/evidence/P00-EXIT.md`;
-- `docs/evidence/P01-S01-T01.md`.
+- `docs/evidence/P01-S01-T01.md`;
+- `docs/evidence/P01-S02-T01.md`.
 
 ## Dependency rule
 
