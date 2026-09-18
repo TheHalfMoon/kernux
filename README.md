@@ -64,6 +64,7 @@ Start here:
 - [`docs/canonical/NATIVE_AGENT_AND_HEADLESS.md`](docs/canonical/NATIVE_AGENT_AND_HEADLESS.md)
 - [`docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md`](docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md)
 - [`docs/canonical/DONOR_PROVENANCE.md`](docs/canonical/DONOR_PROVENANCE.md)
+- [`docs/canonical/LICENSE_POLICY.md`](docs/canonical/LICENSE_POLICY.md)
 - [`docs/canonical/PROTOCOL_STRATEGY.md`](docs/canonical/PROTOCOL_STRATEGY.md)
 - [`docs/canonical/QUALITY_AND_EVIDENCE.md`](docs/canonical/QUALITY_AND_EVIDENCE.md)
 - [`docs/canonical/ARCHITECTURE_DECISIONS.md`](docs/canonical/ARCHITECTURE_DECISIONS.md)
@@ -93,3 +94,7 @@ See [`DONOR_PROVENANCE.md`](docs/canonical/DONOR_PROVENANCE.md) for pinned revis
 The canonical plan is established on `main`; no product implementation is canonically complete yet. The first implementation frontier is **P00 — Repository and governance foundation**, followed by the capability kernel and its contracts. See [`specs/CURRENT.md`](specs/CURRENT.md).
 
 The pre-implementation plan has also been challenged through [`PLANNING_COMPLETENESS_AUDIT.md`](docs/canonical/PLANNING_COMPLETENESS_AUDIT.md). That audit adds binding refinement requirements for native model-backed agents, context/search/memory, headless CLI/API operation, Design Mode, data portability/lifecycle, and privacy-safe diagnostics before the relevant phase gates may be called proven.
+
+## License
+
+Kernux-owned code is licensed under the Apache License 2.0. Third-party material retains its own applicable terms and notices. See [`LICENSE`](LICENSE) and [`docs/canonical/LICENSE_POLICY.md`](docs/canonical/LICENSE_POLICY.md).
