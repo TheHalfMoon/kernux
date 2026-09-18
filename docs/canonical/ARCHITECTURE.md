@@ -242,6 +242,8 @@ An assertion backed by observed checks and bound to exact task/work-unit/run/imp
 
 Append-oriented fact in the run timeline. Events describe what happened; mutable projections derive current UI state.
 
+The canonical v1 Event envelope, stream ordering, lineage, Artifact-reference, Evidence, and redaction semantics are defined in [`EVENT_AND_EVIDENCE_MODEL.md`](EVENT_AND_EVIDENCE_MODEL.md).
+
 ## 7. Event and replay model
 
 Kernux should be event-oriented from the beginning.

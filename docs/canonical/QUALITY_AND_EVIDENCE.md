@@ -271,6 +271,8 @@ Comparisons between agent strategies must preregister task sets, metrics, scorin
 
 ## 13. Evidence bundle
 
+Canonical Event/Evidence, Artifact binding, evidence-source, and redaction semantics are defined in [`EVENT_AND_EVIDENCE_MODEL.md`](EVENT_AND_EVIDENCE_MODEL.md).
+
 A completed high-value run can export an evidence bundle containing:
 
 - task/work-unit revisions;

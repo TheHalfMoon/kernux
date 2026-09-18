@@ -910,7 +910,7 @@ Later tasks may refine representation but MUST preserve the semantic safety inva
 
 ### S04 Event model
 
-The Event envelope must be able to represent, without changing truth:
+[`EVENT_AND_EVIDENCE_MODEL.md`](EVENT_AND_EVIDENCE_MODEL.md) realizes this semantic requirement. The Event envelope must be able to represent, without changing truth:
 
 - request/operation correlation;
 - contact changes;
