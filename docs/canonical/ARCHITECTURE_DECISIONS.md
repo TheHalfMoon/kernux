@@ -264,6 +264,20 @@ Do not let organization billing, cloud sync, or marketplace architecture block p
 
 No `best`, `most reliable`, or superiority claim without a predeclared comparative protocol and preserved results, including negative evidence.
 
+## ADR-0038 — Canonical entity IDs are UUIDv7; revision and ordering are separate contracts
+
+**Status:** Accepted
+
+Project, Task, WorkUnit, Run, AgentSession, Runtime, Artifact, Evidence, and Event use RFC 9562 UUIDv7 canonical Kernux IDs in lowercase hyphenated textual form.
+
+Canonical IDs are opaque, non-secret identifiers and never authorization tokens. Provider/native IDs, content digests, repository revisions, paths, and other foreign identities remain separate metadata.
+
+Revisioned entities use positive uint32 revisions beginning at 1 with exact expected-revision compare-and-swap and fail-closed overflow. Run, AgentSession, Evidence, and Event are immutable identity records at semantic revision 1; their live or current views are projections over events and related state rather than in-place identity mutation.
+
+UUIDv7 timestamp or lexical order is not causal, event, freshness, replay, or security authority. Contracts that need ordering must define explicit ordering coordinates.
+
+Artifact byte identity is SHA-256 and is invariant for one Artifact ID; changed bytes create a new Artifact identity. Schema-source and generated Rust or TypeScript representation remain deferred to the planned P01 schema-generation task.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:
