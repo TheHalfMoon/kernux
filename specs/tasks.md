@@ -29,8 +29,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P00-S03-T01 | PROVEN | R1 | Initialize Diffcipline policy with R0-R3 verification profiles and CI gate. | T02 |
 | KX-P00-S04-T01 | PROVEN | R2 | Define machine-readable donor provenance/import manifest schema and validation command. | T01 |
 | KX-P00-S04-T02 | PROVEN | R1 | Add third-party notices/license inventory structure and donor import checklist. | provenance schema |
-| KX-P00-S01-T03 | PLANNED | R0 | Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs. | T01 |
-| KX-P00-S01-T04 | NEXT | R1 | Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies. | notices structure |
+| KX-P00-S01-T03 | NEXT | R0 | Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs. | T01 |
+| KX-P00-S01-T04 | PROVEN | R1 | Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies. | notices structure |
 
 **P00 gate:** fresh clone reproduces checks; SpecGrain/Diffcipline usable; provenance is enforceable before donor imports.
 

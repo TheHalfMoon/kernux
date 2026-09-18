@@ -47,7 +47,13 @@ The third-party notice/checklist task, `KX-P00-S04-T02`, was refined through PR 
 - PR #17 notice inventory core merge: `e7dcfda6a425a761cc709e1f24b5254de50f702c`;
 - PR #18 conformance/enforcement + donor import checklist merge: `e14debcf36ddf64f75b60dc3bbc4bb9c291443fb`.
 
-T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate. T04.1 established the strict donor import manifest v1 schema, fail-closed validator, 21-test conformance corpus, and dedicated Provenance CI job. T04.2 added the versioned notice inventory, byte-preserved founding-donor public license snapshots, fail-closed notice/provenance cross-validation, an 18-test notice corpus, a canonical donor import checklist, and expanded Provenance CI that now proves 39 combined provenance/notice tests plus both validators.
+The project-license/compatibility task, `KX-P00-S01-T04`, was refined through PR #21 and completed through two bounded implementation slices:
+
+- PR #21 SpecGrain refinement merge: `4709ad3c68d82dc54ae3de5ab9c338dd3aa013a3`;
+- PR #22 Apache-2.0 project-license core merge: `e7c864e82507a7c7e168226190ee4ec26278a9c9`;
+- PR #23 conformance/enforcement merge: `d19122c9217e2ad1d9c133de3e64f34ff984f7d5`.
+
+T02 established pinned, reproducible Rust and JavaScript/TypeScript checks. T02.1 established repository-local SpecGrain state and the first bounded successor Grain. T03 established a repository-owned Diffcipline v1.0.0 policy, explicit R0-R3 verification profiles, and a pinned CI proof gate. T04.1 established the strict donor import manifest v1 schema, fail-closed validator, 21-test conformance corpus, and dedicated Provenance CI job. T04.2 added the versioned notice inventory, byte-preserved founding-donor public license snapshots, fail-closed notice/provenance cross-validation, an 18-test notice corpus, a canonical donor import checklist, and expanded Provenance CI. KX-P00-S01-T04 established the Apache-2.0 project-license core, explicit third-party license boundaries, conservative current compatibility policy, fail-closed project-license validation, and 12 additional conformance tests for 51 combined provenance/notice/project-license tests.
 
 No product code or founding-donor product code has been imported yet.
 
@@ -55,17 +61,17 @@ No product code or founding-donor product code has been imported yet.
 
 **PHASE:** `P00 — Repository and governance foundation`
 
-**SLICE:** `S00.4 — Provenance system`
+**SLICE:** `S00.1 — Repository baseline`
 
-**LATEST PROVEN MACRO TASK:** `KX-P00-S04-T02 — Add third-party notices/license inventory structure and donor import checklist`
+**LATEST PROVEN MACRO TASK:** `KX-P00-S01-T04 — Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T04 — Decide/apply project license and validate compatibility strategy for planned donor imports/dependencies`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P00-S01-T03 — Add CONTRIBUTING, SECURITY, SUPPORT, CODE_OF_CONDUCT/issue/PR templates and repository governance docs`
 
-T04.2 is proven. The repository now enforces both donor provenance and third-party notice/license evidence before future donor imports.
+T04 is proven. Kernux-owned code is licensed under Apache-2.0, third-party material retains its own applicable terms and notices, and project-license drift is enforced by the Provenance CI job.
 
-T04 is the active successor because its declared dependency is the notices structure just proven by T04.2. The master plan does not declare an ordering dependency between T03 and T04; `KX-P00-S01-T03` remains unfinished P00 baseline work and must also be proven before P00 exit.
+T03 is now the only remaining P00 macro task. Its declared dependency is T01, which is already PROVEN.
 
-No P01 implementation is authorized until the remaining P00 baseline work and P00 exit gate are reconciled. No later task may bypass the dependency order or donor-provenance gates.
+No P01 implementation is authorized until T03 is proven and the P00 exit gate is explicitly reconciled. No later task may bypass the dependency order or donor-provenance gates.
 
 Proof is recorded in:
 
@@ -74,7 +80,8 @@ Proof is recorded in:
 - `docs/evidence/P00-S02-T01.md`;
 - `docs/evidence/P00-S03-T01.md`;
 - `docs/evidence/P00-S04-T01.md`;
-- `docs/evidence/P00-S04-T02.md`.
+- `docs/evidence/P00-S04-T02.md`;
+- `docs/evidence/P00-S01-T04.md`.
 
 ## Dependency rule
 
@@ -96,7 +103,7 @@ Kernux uses:
 
 Canonical task completion state is `PROVEN`, not an agent's claim of `done`.
 
-SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence. The dedicated Provenance job independently runs both provenance/notice conformance corpora, validates the third-party notice inventory, and validates every tracked donor record from full Git history.
+SpecGrain and Diffcipline are both repository-active and pinned to exact verified source revisions. Diffcipline enforces the always-on exact-diff R1 CI floor; higher-risk tasks still require their explicit profile plus task-specific evidence. The dedicated Provenance job independently runs provenance, notice, and project-license conformance corpora, validates the project license and third-party notice inventory, and validates every tracked donor record from full Git history.
 
 ## Founding donor authority
 
@@ -106,7 +113,7 @@ Founder authorization has been stated for full source reuse from:
 - TinyFish source / `tinyfish-io/agentql` public reference;
 - `wonderwhy-er/DesktopCommanderMCP`.
 
-No donor code has been imported into Kernux yet. The machine-readable provenance contract, notice/license inventory, donor import checklist, and CI enforcement are now proven. Before any import, the active import task must still authorize the bounded source change and provide exact source revision, permission/provenance, source/destination mapping, transformation class, preserved notices, dependency/asset review, characterization evidence, and all applicable security evidence.
+No donor code has been imported into Kernux yet. The machine-readable provenance contract, notice/license inventory, donor import checklist, Apache-2.0 project-license policy, and CI enforcement are now proven. Before any import, the active import task must still authorize the bounded source change and provide exact source revision, permission/provenance, source/destination mapping, transformation class, preserved notices, dependency/asset review, characterization evidence, and all applicable security evidence.
 
 ## Architecture invariants
 
