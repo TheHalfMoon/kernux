@@ -1,0 +1,80 @@
+{
+  "acceptance": [
+    "A fresh clone of the exact pre-closeout main revision runs pnpm install --frozen-lockfile and pnpm check successfully; supported Node 24 baseline is independently covered by live CI.",
+    "Live main CI has successful JavaScript / TypeScript, Rust, SpecGrain, Diffcipline R1, and Provenance jobs on the exact P00 candidate.",
+    "Classic main protection is enabled with strict required status checks for exactly the five canonical job contexts, pull requests required, required approving review count zero, admin enforcement enabled, conversation resolution required, and force pushes/deletions disabled.",
+    "The Provenance job is a required main status check, so a pull request cannot merge while that gate is missing or failing.",
+    "SpecGrain and Diffcipline workflows are documented and reproducible from repository-owned pinned configuration; current SpecGrain state checks pass and Diffcipline R1 executes verification.",
+    "Current repository truth contains no founding-donor product source import and no product code depending on ungoverned donor internals; provenance manifests remain zero unless a governed import exists.",
+    "All eight P00 macro tasks remain PROVEN and the closeout change passes local baseline, Diffcipline R1, exact-head protected-branch CI, merge protection, and final post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000007.json",
+    "docs/evidence/P00-EXIT.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 6500,
+    "estimated_tokens": 5000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "fresh-clone-check-pass",
+      "live-main-ci-pass",
+      "branch-protection-required-checks-pass",
+      "provenance-required-check-pass",
+      "specgrain-reproducibility-pass",
+      "diffcipline-reproducibility-pass",
+      "donor-import-state-pass",
+      "no-ungoverned-donor-internals-pass",
+      "p00-macro-registry-complete-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000007",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the existing five CI jobs and GitHub classic branch protection; add no workflow, action, package, or repository code solely for the phase gate."
+      },
+      "safety": {
+        "requirements": [
+          "Do not enable a positive approval count that the single-maintainer repository cannot satisfy without external authority.",
+          "Do not weaken or rename required CI gates to make protection easier to satisfy.",
+          "Do not use force-push, direct protected-main pushes, admin bypass, or temporary gate removal to land the P00 closeout.",
+          "Do not mark P00 complete or advance P01 until live branch protection and post-merge evidence are observed."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "P00 exit is independently proven: fresh-clone checks reproduce, canonical CI/proof tooling remains green, main requires the five repository gates through pull requests, and no donor product code can bypass the Provenance status check before P01 begins.",
+  "parent_id": null,
+  "rationale": "All eight P00 macro tasks are PROVEN, but live GitHub truth shows main has no branch protection or ruleset. Existing CI therefore provides evidence but does not enforce merge-time provenance. The P00 exit gate cannot be proven until main protection requires the repository gates.",
+  "risk": {
+    "level": "medium",
+    "recovery": "If protection causes an unintended repository lockout, an administrator may restore the previously observed unprotected main configuration, record the failure, and keep P00/P01 blocked until a corrected protection policy is qualified."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Configure classic protection on main to require pull requests, strict up-to-date status checks, the exact JavaScript / TypeScript, Rust, SpecGrain, Diffcipline R1, and Provenance checks, conversation resolution, and admin enforcement.",
+    "Keep required approving review count at zero during the single-maintainer bootstrap so protection enforces PR/check discipline without creating an impossible self-approval gate.",
+    "Disallow force pushes and branch deletion on protected main; do not enable history-rewriting or bypass behavior.",
+    "Re-run a fresh-clone install/check, verify live main CI, prove SpecGrain/Diffcipline reproducibility, confirm donor provenance/notice/license gates, and verify no donor product source or ungoverned donor-internal dependency is present.",
+    "Record a canonical P00 exit evidence packet, mark P00 complete only after all exit conditions pass, and advance KX-P01-S01-T01 to NEXT only then."
+  ],
+  "scope_out": [
+    "No product code, donor source import, P01 contract implementation, release work, organization policy, CODEOWNERS requirement, mandatory external reviewer, signed-commit requirement, or repository visibility change."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-EXIT — Protect main and qualify the P00 phase exit gate"
+}
