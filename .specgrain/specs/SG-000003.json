@@ -1,0 +1,90 @@
+{
+  "acceptance": [
+    "A tracked versioned inventory deterministically identifies each founding public donor/reference source by canonical repository plus exact revision, records SPDX expression and license snapshot path/digest, and rejects unknown or duplicate fields/identities.",
+    "Exact upstream license snapshots for Orca, AgentQL, and Desktop Commander are preserved from the pinned planning revisions and their recorded SHA-256 digests verify byte-for-byte in repository validation.",
+    "Notice validation fails closed on malformed/non-UTF8/oversized inventory data, symlink or unsafe evidence paths, missing license files, digest mismatch, duplicate source identity, and provenance records lacking a matching notice entry/license evidence relationship.",
+    "A canonical donor import checklist makes provenance, notices, dependency/assets review, characterization, applicable security review, branding/service cleanup, and exact import/adaptation history explicit pre-merge requirements.",
+    "The existing Provenance CI job runs notice tests, notice inventory validation, and provenance validation from full history; all existing CI jobs remain green.",
+    "The exact implementation receives Diffcipline R2 PASS plus OpenCodeReview review on all supported changed files, imports zero donor product source, and post-merge main preserves all required gates."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000003.json",
+    "third_party/README.md",
+    "third_party/notices/README.md",
+    "third_party/notices/inventory.json",
+    "third_party/notices/licenses/orca/LICENSE",
+    "third_party/notices/licenses/agentql/LICENSE",
+    "third_party/notices/licenses/desktop-commander/LICENSE",
+    "tools/provenance/validate_notices.py",
+    "tools/provenance/test_validate_notices.py",
+    ".github/workflows/ci.yml",
+    "docs/canonical/DONOR_IMPORT_CHECKLIST.md",
+    "docs/canonical/DONOR_PROVENANCE.md",
+    "docs/evidence/P00-S04-T02.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 8500,
+    "estimated_tokens": 5600
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "notice-inventory-conformance-pass",
+      "founding-donor-license-snapshot-digest-pass",
+      "provenance-notice-crosscheck-pass",
+      "donor-import-checklist-review-pass",
+      "provenance-ci-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000003",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "stdlib",
+        "rationale": "Reuse the existing provenance enforcement model and Python 3.11 standard library; add no package/runtime dependency and keep notice validation separate from product code."
+      },
+      "safety": {
+        "requirements": [
+          "Never execute third-party license/inventory content or follow symlinks while validating evidence.",
+          "Fail closed when source identity, exact revision, license evidence, digest, or provenance-to-notice linkage is ambiguous or missing.",
+          "Do not represent founder permission as changing embedded dependency, asset, trademark, model-weight, or hosted-service obligations."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has a deterministic third-party license/notice inventory with preserved founding-donor license evidence, machine validation tied to provenance records, and an executable donor import checklist before any donor source is admitted.",
+  "parent_id": null,
+  "rationale": "The provenance manifest gate is proven, but donor import still needs preserved upstream license evidence, a canonical notice inventory, and a repeatable import checklist so source reuse cannot outpace legal/provenance review.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded notice-inventory/checklist changes; no donor product source or user/product runtime state is introduced by this task."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Create a versioned machine-readable third-party notice/license inventory for source material stored in Kernux or explicitly prepared for donor import.",
+    "Preserve exact upstream license evidence for the currently identified public founding-donor sources at their pinned planning revisions: stablyai/orca, tinyfish-io/agentql, and wonderwhy-er/DesktopCommanderMCP.",
+    "Implement dependency-free validation for inventory structure, canonical source identity/revision, unique entries, safe repository-relative evidence paths, license snapshot digests, symlink/file integrity, and deterministic diagnostics.",
+    "Cross-check tracked donor provenance manifests against the notice inventory so a prepared/imported donor record cannot exist without matching source identity and preserved license evidence.",
+    "Add a canonical donor import checklist covering authorization, exact source pin, license/notice evidence, dependency/asset obligations, provenance mapping, characterization, security review where applicable, branding/service removal, mechanical import history, and post-import verification.",
+    "Run notice validation inside the existing Provenance CI job and document the enforcement workflow."
+  ],
+  "scope_out": [
+    "No Orca, TinyFish, AgentQL, Desktop Commander, or other donor product source import.",
+    "No decision or application of the Kernux project license; KX-P00-S01-T04 remains separate.",
+    "No legal compatibility conclusion for future Kernux distribution, no SBOM/release NOTICE generation, and no dependency-license scanner; those remain later tasks.",
+    "No invented license or authorization record for non-public TinyFish source; any private source must receive its own exact artifact/revision and evidence before import."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-S04-T02 — Establish third-party notice inventory and donor import checklist"
+}
