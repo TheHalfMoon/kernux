@@ -1,0 +1,90 @@
+{
+  "acceptance": [
+    "CONTRIBUTING, SECURITY, SUPPORT, and CODE_OF_CONDUCT exist, are internally consistent with AGENTS.md and canonical governance, and do not invent unavailable private contact channels or guarantees.",
+    "Bug/feature issue forms and the pull-request template collect reproducibility, platform/runtime, evidence, security/privacy, provenance/license, testing, and scope information appropriate to Kernux.",
+    "Repository governance documents canonical authority order, PR-based change discipline, exact-head evidence, no evidence fabrication, donor provenance requirements, and policy-change governance without granting contributors or agents implicit authority.",
+    "README exposes the contribution/support/security/governance entry points and public security guidance explicitly avoids disclosing unpublished vulnerabilities in public issues.",
+    "The existing workspace checker fails if required community/governance surfaces disappear, and its regression tests plus the full repository baseline pass.",
+    "The WorkPacket binds exact canonical evidence that KX-P00-S01-T01 is already PROVEN; no unsupported native lifecycle state is fabricated.",
+    "Exact implementation passes YAML/Markdown structural review, focused workspace-checker tests, pnpm check, Diffcipline R1 PASS, OpenCodeReview on supported changed files, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000005.json",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "CODE_OF_CONDUCT.md",
+    ".github/ISSUE_TEMPLATE/**",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    "docs/governance/REPOSITORY_GOVERNANCE.md",
+    "README.md",
+    "tools/workspace/check.mjs",
+    "tools/workspace/check.test.mjs",
+    "docs/evidence/P00-S01-T03.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 8000,
+    "estimated_tokens": 6000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "t01-prerequisite-proof-bound",
+      "community-files-structure-pass",
+      "security-reporting-boundary-review-pass",
+      "issue-pr-template-validation-pass",
+      "repository-governance-review-pass",
+      "workspace-governance-regression-pass",
+      "diffcipline-r1-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000005",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Use the existing repository governance, workspace checker, GitHub-native community surfaces, and current CI; add no new package or action dependency."
+      },
+      "safety": {
+        "requirements": [
+          "Do not invent a private security email, SLA, bounty, legal entity, CLA/DCO requirement, or enforcement authority that repository truth does not establish.",
+          "Security reports must be steered away from public issues without falsely claiming a private GitHub reporting feature is enabled.",
+          "Issue and PR templates must not invite secrets, PHI, credentials, or other sensitive data into public GitHub content.",
+          "Governance must preserve canonical authority, exact-evidence requirements, donor provenance, and branch protection rather than letting templates override them."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has a complete, discoverable, repository-enforced contribution, security, support, conduct, issue, pull-request, and governance baseline before product implementation begins.",
+  "parent_id": null,
+  "rationale": "T03 is the only remaining P00 macro task. Its T01 dependency is already canonically PROVEN. The repository currently lacks the community-health files and issue/PR templates named by the master plan; this Grain establishes them without inventing private contacts or importing third-party template text.",
+  "risk": {
+    "level": "low",
+    "recovery": "Revert the bounded governance implementation slices and closeout; no product runtime state or user data is created."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Add original Kernux-owned CONTRIBUTING.md, SECURITY.md, SUPPORT.md, and CODE_OF_CONDUCT.md with clear scope, reporting, evidence, provenance, and conduct expectations.",
+    "Add structured bug and feature issue forms, issue-template configuration, and a pull-request template that route security reports away from public issues and require bounded evidence/provenance disclosures.",
+    "Add docs/governance/REPOSITORY_GOVERNANCE.md defining repository authority, branch/PR discipline, evidence-before-done rules, provenance boundaries, review expectations, and escalation of policy changes.",
+    "Make the community/governance baseline discoverable from README and enforce required governance paths through the existing workspace checker with regression coverage.",
+    "Bind the already-PROVEN KX-P00-S01-T01 prerequisite through exact canonical repository evidence rather than fabricating an unsupported SpecGrain lifecycle dependency."
+  ],
+  "scope_out": [
+    "No CLA, DCO, legal-entity ownership claim, private maintainer email, response-time SLA, or security bounty promise is invented.",
+    "No branch-protection setting, GitHub repository setting, donor product-source import, product code, P01 contract work, release qualification, or cloud/runtime feature is changed.",
+    "Do not copy Contributor Covenant or other third-party governance templates verbatim; community text is Kernux-owned original prose unless separately admitted through provenance/notices."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P00-S01-T03 — Establish contributor and repository governance baseline"
+}
