@@ -1,0 +1,110 @@
+{
+  "acceptance": [
+    "Event remains UUIDv7 immutable revision 1, but Event ID and UUID lexical/time order have no event-order authority. One Event belongs to exactly one typed canonical owner stream.",
+    "A stream uses positive uint64 stream_seq beginning at 1, incrementing exactly by one for each accepted canonical append, and previous_event_id equals the immediately prior Event in that stream except for sequence 1 where it is absent. Duplicate sequence, gap, wrong predecessor, or conflicting Event ID fails closed.",
+    "Canonical per-stream ordering comes only from stream identity + stream_seq/predecessor. recorded_at/occurred_at are temporal observations, not authorization or ordering authority; separate streams have no implicit total ordering.",
+    "Event type uses a lowercase dotted provider-neutral grammar. Unknown/unnegotiated event type may be retained as opaque data only when compatibility policy later allows it, but cannot silently mutate a privileged canonical projection.",
+    "Event correlation can bind exact entity revisions plus RequestId/OperationId/GrantId and provenance Event IDs. These correlations are identifiers/evidence context, never authority tokens.",
+    "Corrections/supersession/forks create new Events; the prior Event is never mutated. Causal and lineage references are acyclic and do not replace stream order.",
+    "ArtifactRef binds canonical Artifact ID, exact revision when metadata matters, SHA-256 digest when bytes are relied on, role, and relevant media/size metadata. Digest mismatch is an explicit integrity failure.",
+    "Evidence is immutable revision 1. A changed claim, binding, observed result, qualifying input, limitation, or implementation revision requires a new Evidence ID.",
+    "Evidence records exact claim/subject bindings and source class. Agent/model self-report can explain intent but cannot satisfy a stronger independent gate. Machine/external/human-review evidence identifies the observation/artifact/event basis it actually checked.",
+    "Redaction/exclusion is explicit metadata. Redacted/exported views do not mutate canonical Event/Evidence; transformed bytes receive a new Artifact ID/digest; exclusions preserve that content was withheld and why, without storing secret plaintext in the manifest.",
+    "Large or sensitive payloads are referenced as Artifacts rather than duplicated into the Event envelope. Ordinary Event/Evidence records do not persist secret plaintext.",
+    "A projection can be rebuilt from canonical accepted Events, and a fixture can detect duplicate/gapped/out-of-order/wrong-predecessor stream entries, Artifact digest mismatch, cyclic causal lineage, in-place correction attempts, and evidence self-report masquerading as independent qualification.",
+    "Canonical docs remain consistent with IDENTITY_AND_REVISION_MODEL, RUNTIME_OPERATION_MODEL, ARCHITECTURE, QUALITY_AND_EVIDENCE, DATA_LIFECYCLE_AND_PORTABILITY, SECURITY_MODEL, and P01 registry without preempting S05.",
+    "Exact implementation passes focused stream-order, lineage-cycle, artifact-integrity, evidence-independence, redaction, and replay/projection adversarial checks plus pnpm check, git diff --check, Diffcipline R2, protected exact-head CI, and post-merge main qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000011.json",
+    "docs/canonical/EVENT_AND_EVIDENCE_MODEL.md",
+    "docs/canonical/IDENTITY_AND_REVISION_MODEL.md",
+    "docs/canonical/RUNTIME_OPERATION_MODEL.md",
+    "docs/canonical/ARCHITECTURE.md",
+    "docs/canonical/ARCHITECTURE_DECISIONS.md",
+    "docs/canonical/QUALITY_AND_EVIDENCE.md",
+    "docs/canonical/DATA_LIFECYCLE_AND_PORTABILITY.md",
+    "docs/evidence/P01-S04-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 10000,
+    "estimated_tokens": 8000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "identity-prerequisite-proof-bound",
+      "runtime-correlation-contract-bound",
+      "event-envelope-review-pass",
+      "stream-order-adversarial-pass",
+      "lineage-acyclicity-pass",
+      "artifact-binding-integrity-pass",
+      "evidence-independence-review-pass",
+      "redaction-exclusion-review-pass",
+      "projection-rebuild-review-pass",
+      "canonical-doc-consistency-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000011",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Freeze Event/Evidence semantics and one ADR in canonical documentation now; defer serialization, generated contracts, persistent storage, CAS implementation, export bundles, and compatibility fixtures to their dependency-ordered owners."
+      },
+      "safety": {
+        "requirements": [
+          "Never use Event UUID lexical order, producer timestamp, or controller receipt time as canonical stream-order authority.",
+          "Never mutate an existing Event or Evidence to correct history; append a new fact/assertion with explicit lineage.",
+          "Never let agent/model self-report satisfy a gate that requires independently observed machine, external, or human-review evidence.",
+          "Never silently omit/redact content from an exported or user-visible evidence view; preserve explicit exclusion/transformation metadata without secret plaintext.",
+          "Never treat Artifact ID alone as byte integrity when Evidence relies on bytes; bind and verify the content digest."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has one immutable, append-oriented, provider-neutral Event/Evidence contract with explicit stream ordering, request/operation/authority/provenance correlation, causal and fork lineage, exact Artifact references, independently qualified Evidence bindings, and redaction/exclusion metadata that preserves what was withheld without mutating history.",
+  "parent_id": null,
+  "rationale": "Identity, authorization, and runtime-operation semantics are PROVEN. P02 durable storage and later cross-language schemas need a stable Event/Evidence meaning before persistence or generated contracts are implemented; otherwise UUID/time ordering, mutable audit records, agent self-report, hidden payload loss, or redaction could corrupt replay and proof.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the Event/Evidence semantic contract, ADR, aligned docs, and closeout state. No persistent event store or production evidence bundle exists yet, so this task requires no stored-data migration."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define an immutable conceptual v1 Event envelope using canonical Event UUIDv7 identity/revision 1, exact event_type, stream identity, explicit stream sequence, previous-event linkage, producer identity, occurred/recorded time roles, exact entity/runtime/request/operation/Grant correlations, causal references, payload/artifact references, sensitivity/redaction metadata, and schema/event-contract version metadata.",
+    "Define a provider-neutral lowercase dotted event-type grammar and core namespace ownership without requiring every future event type to be enumerated in this task. Unknown/unnegotiated event types cannot silently drive privileged projections.",
+    "Define canonical stream semantics without introducing a new core Stream entity: one Event belongs to exactly one typed owner stream over a canonical Project, Task, Run, or Runtime identity. Define positive uint64 stream_seq assigned by durable canonical append authority and exact previous_event_id chaining.",
+    "Define ordering rules: stream_seq/previous_event_id own canonical per-stream order; Event UUIDv7 lexical order and timestamps are not ordering authority; different streams have no implied total order unless explicit causal links establish relationships.",
+    "Define append/correction behavior: Event is immutable; correction/supersession is a new Event linked to the prior Event; projection state is rebuilt from durable Events and cannot mutate history to make a timeline look cleaner.",
+    "Define event correlation with exact Project/Task/WorkUnit/Run/AgentSession/Runtime revisions where relevant plus RequestId, OperationId, GrantId, source Event IDs, and producer component/Runtime/AgentSession identity without treating those references as authority.",
+    "Define causal/lineage semantics for caused_by, supersedes, forked_from/checkpoint relationships with acyclic lineage requirements and explicit statement that causal links do not replace stream ordering.",
+    "Define Artifact references as exact Artifact ID/revision plus SHA-256 content digest when bytes matter, media type/size metadata where known, role, and source Event linkage. Large/sensitive payloads move to Artifact storage rather than being duplicated into Event records.",
+    "Define Evidence as immutable revision-1 assertion with exact claim/subject bindings, observer/source class, observed Event references, relevant Artifact exact refs/digests, runtime/operation/provider-adapter version context, result/outcome, limitations, and qualifying implementation revision where applicable.",
+    "Define evidence independence: agent/model self-report may be recorded but cannot satisfy a machine/external/human-independent gate that requires stronger evidence; Evidence must say what source class established the claim.",
+    "Define redaction/exclusion metadata for durable records and exported views: none|excluded|transformed plus reason/policy/version and affected field/artifact roles. Redaction never mutates the original Event/Evidence; transformed bytes are a new Artifact; omission is represented explicitly in manifests/views.",
+    "Define secret-minimization rules: ordinary Event/Evidence records store secret references/classification, not secret plaintext; hashes/digests are not automatically non-sensitive; payload placement/export remains policy-bound.",
+    "Define replay/projection integrity invariants including monotonic contiguous per-stream sequencing, predecessor linkage, duplicate Event ID rejection, sequence conflict rejection, missing-link detection, immutable facts, and projection rebuild from canonical events.",
+    "Add an accepted ADR and align ARCHITECTURE, QUALITY_AND_EVIDENCE, DATA_LIFECYCLE_AND_PORTABILITY, RUNTIME_OPERATION_MODEL, and identity downstream requirements without selecting wire schema or persistence layout."
+  ],
+  "scope_out": [
+    "Do not choose JSON Schema/Protobuf/other single schema source or generate Rust/TypeScript types; S05-T01 owns this.",
+    "Do not define global additive/unknown-field compatibility behavior; S05-T02 owns this.",
+    "Do not build the executable protocol fixture corpus; S05-T03 owns this.",
+    "Do not implement SQLite/event store, CAS, projections, export bundle, encryption, retention engine, or runtime event transport; later phases own those implementations.",
+    "Do not define canonical Event byte digest before S05 freezes canonical serialization; Artifact byte digest remains SHA-256 as already proven."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S04-T01 — Freeze Event envelope, lineage, artifact, evidence, and redaction semantics"
+}
