@@ -48,6 +48,14 @@
       "type": "string",
       "enum": ["project", "task", "run", "runtime"]
     },
+    "ProtocolContract": {
+      "type": "string",
+      "enum": ["krp/1"]
+    },
+    "CapabilityVersion": {
+      "type": "string",
+      "enum": ["1"]
+    },
     "UuidV7": {
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -290,7 +298,7 @@
           "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
         },
         "version": {
-          "type": "string"
+          "$ref": "#/$defs/CapabilityVersion"
         },
         "features": {
           "type": "array",
@@ -316,7 +324,7 @@
           "$ref": "#/$defs/CanonicalRef"
         },
         "protocol_contract": {
-          "type": "string"
+          "$ref": "#/$defs/ProtocolContract"
         },
         "capabilities": {
           "type": "array",
@@ -407,10 +415,10 @@
           "$ref": "#/$defs/Sha256Digest"
         },
         "protocol_contract": {
-          "type": "string"
+          "$ref": "#/$defs/ProtocolContract"
         },
         "capability_version": {
-          "type": "string"
+          "$ref": "#/$defs/CapabilityVersion"
         }
       }
     },
@@ -681,7 +689,7 @@
           "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
         },
         "contract_version": {
-          "type": "string"
+          "$ref": "#/$defs/ProtocolContract"
         },
         "stream": {
           "$ref": "#/$defs/StreamRef"

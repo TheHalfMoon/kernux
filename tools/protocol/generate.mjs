@@ -192,6 +192,7 @@ function generateRust(schema, digest) {
     const required = new Set(def.required);
     lines.push(
       "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
+      "#[serde(deny_unknown_fields)]",
       `pub struct ${name} {`,
     );
     for (const property of Object.keys(def.properties).sort()) {

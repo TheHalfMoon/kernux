@@ -1,13 +1,14 @@
 // @generated from protocol/schema/krp.v1.schema.json
-// Schema SHA-256: 0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500
+// Schema SHA-256: 7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9
 // DO NOT EDIT. Change the schema and regenerate.
 
 use serde::{Deserialize, Serialize};
 
 pub const KRP_SCHEMA_SHA256: &str =
-    "0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500";
+    "7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ArtifactRef {
     pub artifact: CanonicalRef,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,6 +21,7 @@ pub struct ArtifactRef {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CancelRequest {
     pub operation_id: UuidV7,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -28,6 +30,7 @@ pub struct CancelRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CancelResult {
     pub operation_id: UuidV7,
     pub outcome: CancellationOutcome,
@@ -51,6 +54,7 @@ pub enum CancellationOutcome {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CanonicalRef {
     pub id: UuidV7,
     pub kind: EntityKind,
@@ -59,6 +63,7 @@ pub struct CanonicalRef {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CapabilityRequest {
     pub action: String,
     pub provenance_event_ids: Vec<UuidV7>,
@@ -69,6 +74,12 @@ pub struct CapabilityRequest {
     pub resource_uri: String,
     pub runtime: CanonicalRef,
     pub subject_scope: SubjectScope,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CapabilityVersion {
+    #[serde(rename = "1")]
+    V1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -86,6 +97,7 @@ pub enum ConsequenceClass {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstraintSet {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_roots: Option<Vec<String>>,
@@ -110,6 +122,7 @@ pub enum ContactState {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DiagnosticField {
     pub key: String,
     pub value: String,
@@ -168,9 +181,10 @@ pub enum ErrorCategory {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Event {
     pub artifact_refs: Vec<ArtifactRef>,
-    pub contract_version: String,
+    pub contract_version: ProtocolContract,
     pub correlations: EventCorrelations,
     pub event_id: UuidV7,
     pub event_type: String,
@@ -188,6 +202,7 @@ pub struct Event {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EventCorrelations {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub agent_session: Option<CanonicalRef>,
@@ -216,6 +231,7 @@ pub struct EventCorrelations {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EventLineage {
     pub caused_by: Vec<UuidV7>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -228,6 +244,7 @@ pub struct EventLineage {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Evidence {
     pub artifact_refs: Vec<ArtifactRef>,
     pub claim: String,
@@ -274,6 +291,7 @@ pub enum ExecutionState {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Grant {
     pub action: String,
     pub consequence_ceiling: ConsequenceClass,
@@ -295,6 +313,7 @@ pub struct Grant {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OperationObservation {
     pub execution_state: ExecutionState,
     pub observation_generation: u64,
@@ -306,20 +325,28 @@ pub struct OperationObservation {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OperationStart {
     pub action: String,
-    pub capability_version: String,
+    pub capability_version: CapabilityVersion,
     pub constraints: ConstraintSet,
     pub operation_id: UuidV7,
     pub payload_sha256: Sha256Digest,
-    pub protocol_contract: String,
+    pub protocol_contract: ProtocolContract,
     pub request_id: UuidV7,
     pub resource_uri: String,
     pub runtime: CanonicalRef,
     pub subject_scope: SubjectScope,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProtocolContract {
+    #[serde(rename = "krp/1")]
+    Krp1,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Redaction {
     pub affected_roles: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -366,13 +393,15 @@ pub enum RetryGuidance {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RuntimeCapability {
     pub action: String,
     pub features: Vec<String>,
-    pub version: String,
+    pub version: CapabilityVersion,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RuntimeContactObservation {
     pub contact_state: ContactState,
     pub observation_generation: u64,
@@ -381,16 +410,18 @@ pub struct RuntimeContactObservation {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RuntimeDescriptor {
     pub capabilities: Vec<RuntimeCapability>,
     pub features: Vec<String>,
     pub observation_generation: u64,
     pub observed_at: String,
-    pub protocol_contract: String,
+    pub protocol_contract: ProtocolContract,
     pub runtime: CanonicalRef,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RuntimeError {
     pub category: ErrorCategory,
     pub code: String,
@@ -433,12 +464,14 @@ pub enum StreamOwnerKind {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct StreamRef {
     pub owner: CanonicalRef,
     pub owner_kind: StreamOwnerKind,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SubjectScope {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub agent_session: Option<CanonicalRef>,
