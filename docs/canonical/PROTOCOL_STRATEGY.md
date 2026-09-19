@@ -167,6 +167,16 @@ identity.*
 
 KRP uses `protocol/schema/krp.v1.schema.json` (JSON Schema Draft 2020-12) as its single v1 generated-contract source. Rust and TypeScript outputs are deterministic derivatives; protocol conformance tests are mandatory before remote use.
 
+KRP v1 compatibility is frozen in [`KRP_COMPATIBILITY.md`](KRP_COMPATIBILITY.md):
+
+- `krp/1` is the current semantic compatibility family;
+- schema SHA-256 is provenance/drift identity, not a negotiated wire version;
+- core objects are closed and unknown fields fail closed;
+- the current generated capability version token is exact `1`;
+- semantics-neutral additive optional fields require explicit feature negotiation and sender suppression for unsupported peers;
+- protocol mismatch never rewrites contact/execution or side-effect truth;
+- structurally valid but unnegotiated Event types are non-projecting.
+
 ## 6. Agent Skills
 
 Agent Skills are packaging/instruction assets, not an authorization system.
@@ -219,6 +229,8 @@ Use OpenTelemetry-compatible trace/span concepts where possible:
 Prompt/content payload export must be opt-in because traces can otherwise become a data-exfiltration path.
 
 ## 10. Version policy
+
+The rules in this section govern external ecosystem adapters. KRP's owned compatibility contract is defined separately in [`KRP_COMPATIBILITY.md`](KRP_COMPATIBILITY.md).
 
 Each external protocol adapter records:
 

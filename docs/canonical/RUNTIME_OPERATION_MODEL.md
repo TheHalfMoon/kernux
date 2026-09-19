@@ -86,9 +86,11 @@ A descriptor for an older Runtime revision is stale metadata and cannot silently
 
 The runtime advertises a protocol-contract identifier/version understood by Kernux.
 
-This task freezes negotiation semantics only. S05 owns the final generated schema/version representation and global compatibility rules.
+The current generated KRP core recognizes exactly `krp/1`. Its exact schema SHA-256 binds generated/provenance identity but is not itself the negotiated protocol version.
 
-Unknown or malformed required protocol-contract metadata fails closed.
+Global KRP compatibility rules are frozen in `KRP_COMPATIBILITY.md`.
+
+Unknown or malformed required protocol-contract metadata fails closed. There is no implicit downgrade or application-version inference.
 
 ## 4. Capability advertisement
 
@@ -171,7 +173,13 @@ The following do not become permissive fallbacks:
 
 A mandatory unknown/unsupported item fails closed.
 
+Current generated KRP core objects are closed: unknown wire fields are rejected rather than ignored. The current generated capability version is exact `1`; an unsupported version cannot fall back to it.
+
 Optional behavior may be omitted only when the caller explicitly allows that omission and the omission cannot change authorization or side-effect semantics.
+
+A future semantics-neutral additive optional field may be emitted inside `krp/1` only when both peers explicitly advertise its feature token. If the peer does not advertise support, the sender omits the field. Optional-field absence never creates a permissive semantic default.
+
+Protocol mismatch blocks affected admission/interpretation but does not rewrite contact state, execution state, cancellation outcome, or side-effect certainty.
 
 ### 5.2 No provider inference
 
