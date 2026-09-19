@@ -1,0 +1,113 @@
+{
+  "acceptance": [
+    "Dependency admission occurs before identity implementation: Cargo manifests/lock and third_party/dependencies/approved.json pin ed25519-dalek 3.0.0, getrandom 0.4.3, and zeroize 1.9.0 exactly; default features are disabled, required license exceptions are documented, cargo metadata/license observations match approvals, dependency validation passes, and no identity code lands before the admitted dependency slice is post-merge qualified.",
+    "InstallationId is exactly 16 bytes, production generation uses getrandom OS entropy, canonical external text is exactly 32 lowercase hex characters, invalid/alternate encodings reject without normalization, and InstallationId is non-secret and never treated as authority.",
+    "Active identity key creation obtains a fresh 32-byte seed from getrandom and constructs a valid Ed25519 SigningKey. The public descriptor exposes exactly the corresponding 32-byte verifying key plus InstallationId and positive generation, while private material has no Debug/Display/serde/log/evidence/filesystem exposure.",
+    "Key generation starts at 1, rotation increments exactly once with checked arithmetic, zero and overflow reject fail-closed, InstallationId remains stable across rotation, and the new verifying key differs from the retired public key under executable tests.",
+    "Rotation creates fresh OS-random secret material, produces explicit previous/current public lineage, signs/verifies with the new key, does not silently retain or reactivate the retired private key, and does not imply remote revocation or Grant authority.",
+    "RecoverySeed is exactly 32 secret bytes, zeroizes on drop, exposes no secret-revealing formatting/serialization, and recovery reconstructs the expected key only when the derived verifying key equals the supplied expected descriptor. Wrong seed/public-key/generation/install-id combinations fail with typed non-secret errors.",
+    "IdentitySessionBinding uses an exact domain/version separator and cryptographically binds InstallationId, positive key generation, exact 16-byte InstanceId, exact 32-byte SessionChallenge, verifying key, and Ed25519 signature. Verification succeeds for an exact binding and fails if any bound field, domain/version, key, challenge, or signature changes.",
+    "InstanceId production generation uses OS randomness and exact strict 32-lowercase-hex external form. SessionChallenge is caller-supplied exact 32 bytes and is not itself an authorization token or persistent secret store.",
+    "The public API provides no generic arbitrary-message signing function, no private-key byte export, no Grant/policy signing, and no durable secret-storage API. Repository source assertions and manual security review verify those negative surfaces.",
+    "Ubuntu workspace tests, local macOS tests, and the existing native Windows kernuxd CI job execute kernux-identity creation/rotation/recovery/session-binding tests successfully. Cross-compilation alone is not accepted as Windows runtime evidence.",
+    "KRP schema/generated Rust/TypeScript outputs, T02 launch-nonce authentication, and kernuxd local transport behavior remain unchanged and existing protocol/auth/runtime regression suites remain PASS.",
+    "The exact bounded candidates pass git diff --check, full pnpm check, dependency/provenance validation where applicable, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode plus complete manual accounting for exclusions, all five protected exact-head checks, and the additive Windows kernuxd job.",
+    "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S02-T01 becomes PROVEN; only KX-P02-S03-T01 may become NEXT if canonical live truth still confirms that dependency-ordered frontier, all later P02 tasks remain PLANNED, and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000020.json",
+    "Cargo.toml",
+    "Cargo.lock",
+    ".github/workflows/ci.yml",
+    "third_party/dependencies/approved.json",
+    "docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md",
+    "crates/kernux-identity",
+    "docs/evidence/P02-S02-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 18000,
+    "estimated_tokens": 14500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "dependency-admission-pass",
+      "installation-id-pass",
+      "ed25519-key-generation-pass",
+      "key-generation-counter-pass",
+      "key-rotation-pass",
+      "key-recovery-pass",
+      "recovery-seed-zeroize-pass",
+      "session-binding-pass",
+      "instance-id-pass",
+      "secret-nonexposure-pass",
+      "cross-platform-identity-runtime-pass",
+      "transport-protocol-regression-pass",
+      "scope-boundary-pass",
+      "baseline-ci-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000020",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "The canonical architecture names a dedicated kernux-identity crate, but no repository identity implementation exists. Reuse the proven T02 security/governance boundaries and existing CI; admit only Ed25519, OS-randomness, and zeroization dependencies needed for real local key lifecycle primitives. Do not add storage, credential-provider, policy, remote-trust, or generic crypto framework layers."
+      },
+      "safety": {
+        "requirements": [
+          "Private Ed25519 seed/signing material and RecoverySeed must never be serialized, logged, formatted, written to repository evidence, passed through argv/environment, or persisted by this task; secret wrappers must zeroize on drop.",
+          "Production identity creation, key rotation, and InstanceId generation must use operating-system randomness; deterministic seeds are allowed only in explicit tests/recovery inputs and must never silently replace production RNG.",
+          "Recovery must fail closed unless the supplied secret reconstructs the exact expected verifying key and bound identity generation; errors must not expose secret bytes or matching-prefix information.",
+          "Session binding must be domain-separated and field-complete so tampering or cross-protocol reuse cannot silently verify.",
+          "Local identity/key possession in this task does not itself grant policy authority, privileged host operations, remote trust, secret access, or P02 phase completion."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Create a provider-neutral Kernux local identity crate that establishes stable installation identity, real Ed25519 key creation, checked key rotation and recovery, and domain-separated instance/session binding primitives using OS randomness, while explicitly deferring durable persistence, OS credential-store integration, policy/grants, remote enrollment, and later P02 authority.",
+  "parent_id": null,
+  "rationale": "KX-P02-S01-T02 is PROVEN and post-merge-qualified, and KX-P02-S02-T01 is the only authorized frontier. The canonical architecture names a dedicated kernux-identity crate and the master plan requires installation/device identity plus key lifecycle primitives before metadata storage, policy, secrets, or remote enrollment.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only the bounded SG-000020 refinement/implementation/closeout changes, remove kernux-identity and any newly admitted direct dependency entries/lock changes, restore the prior Windows CI commands, keep KX-P02-S02-T01 at NEXT, and preserve SG-000019/T02 proof. No later P02 authority is created by rollback."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Create the repository-owned crates/kernux-identity Rust library as the sole bounded implementation surface for local installation/device identity primitives in this task; do not couple the new crate to kernuxd transport or later policy/store crates.",
+    "Before identity implementation, separately admit exact runtime dependencies ed25519-dalek = 3.0.0, getrandom = 0.4.3, and zeroize = 1.9.0 through the repository dependency registry and a task-specific license/dependency evidence packet. Use exact pins and default-features = false; enable only ed25519-dalek zeroize support unless a reviewed implementation need proves another feature necessary.",
+    "Define InstallationId as an opaque non-secret exact 16-byte value with strict 32-lowercase-hex canonical text. Production creation obtains all 16 bytes from the operating-system RNG through getrandom; parsing rejects wrong length, uppercase, non-hex, whitespace, and alternate encodings. Knowledge of the ID grants no authority.",
+    "Define an explicit positive key generation counter starting at 1 with checked increment and no zero/wraparound semantics. Key generation is identity lineage metadata, not time, authorization, or ordering authority.",
+    "Represent the active device key as an Ed25519 SigningKey created from a fresh 32-byte OS-random seed. Expose only a non-secret public descriptor containing installation identity, generation, and the exact 32-byte Ed25519 verifying key in strict 64-lowercase-hex form. Do not expose secret bytes through Debug, Display, serde, logs, errors, evidence, or ordinary public accessors.",
+    "Implement checked key rotation that preserves InstallationId, increments generation exactly once, creates a fresh independent Ed25519 key using OS randomness, returns bounded previous/current public descriptors for lineage, and does not retain the previous secret key after the rotation result is established.",
+    "Implement recovery from an explicitly supplied RecoverySeed secret wrapper plus expected InstallationId, generation, and verifying-key descriptor. The recovery seed is exactly 32 bytes, zeroizes on drop, has no secret-revealing formatting/serialization, reconstructs the same Ed25519 key only when the expected public key matches, and otherwise fails with a generic non-secret typed error.",
+    "Implement a domain-separated IdentitySessionBinding primitive that signs exactly the current InstallationId, key generation, fresh InstanceId, and caller-supplied 32-byte SessionChallenge. InstanceId is a non-secret exact 16-byte OS-random value with strict 32-lowercase-hex form. Verification must reject any tampering of installation id, generation, instance id, challenge, verifying key, domain/version, or signature.",
+    "Keep signing authority narrow: expose signing only for the identity session-binding contract in this task. Do not expose a generic arbitrary-message signing service, Grant signing, marketplace signing, remote enrollment certificate issuance, or policy authority.",
+    "Extend the existing additive Windows kernuxd CI job without renaming protected contexts so it also runs kernux-identity Clippy/tests natively on windows-latest. Ubuntu workspace CI plus local macOS qualification and the Windows job together provide cross-platform OS-RNG and Ed25519 runtime evidence.",
+    "Add deterministic/adversarial tests using synthetic recovery seeds where deterministic vectors are required, while production create/rotate paths must use the real OS RNG. Prove strict external encodings, generation overflow rejection, recovery mismatch rejection, binding tamper rejection, rotation lineage, secret non-exposure, and no accidental persistence/serialization surface.",
+    "After native verification and protected closeout, mark only KX-P02-S02-T01 PROVEN and advance only KX-P02-S03-T01 to NEXT if canonical live truth still identifies it as the next dependency-ordered frontier. P02 phase exit remains unproven."
+  ],
+  "scope_out": [
+    "Do not implement SQLite, filesystem-backed identity state, durable metadata, migrations, WAL, artifact CAS, or any persistence/restart durability claim. KX-P02-S03-T01 and later storage work own durability.",
+    "Do not integrate macOS Keychain, Windows Credential Manager/DPAPI, Linux Secret Service/libsecret, TPM/Secure Enclave, HSM, or any other credential store. KX-P02-S06-T01 owns OS/provider secret persistence.",
+    "Do not implement capability policy, Grant issuance/enforcement, permission profiles, secret brokerage, security-audit persistence, privileged filesystem/process/PTY operations, sandbox management, browser/computer control, or any later P02 task.",
+    "Do not implement remote device enrollment, mutual TLS, remote trust establishment, cloud identity, organization/user/team identity, pairing, certificate authorities, revocation distribution, or remote transport. Later P10/P14 work owns remote and organization trust.",
+    "Do not change KRP schemas, generated Rust/TypeScript protocol bytes, T02 launch-nonce authentication, local transport semantics, or kernuxd authorization behavior in this task.",
+    "Do not add PEM, PKCS#8, serde secret serialization, plaintext key files, environment-variable secrets, command-line key material, passphrase backup formats, or export APIs for private signing keys.",
+    "Do not claim that an in-memory identity survives restart. Recovery primitives reconstruct caller-supplied material but no durable storage source is implemented here."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S02-T01 — Establish local installation identity and key lifecycle"
+}
