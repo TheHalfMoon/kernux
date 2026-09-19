@@ -14,7 +14,9 @@ use std::time::Duration;
 
 use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 
+mod artifact;
 mod metadata;
+pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
 const SCHEMA_VERSION: i64 = 1;
@@ -133,6 +135,9 @@ pub enum StoreError {
     RevisionConflict,
     RevisionOverflow,
     DuplicateConflict,
+    InvalidDigest,
+    InvalidMetadata,
+    ArtifactDigestConflict,
 }
 
 impl fmt::Display for StoreError {
@@ -149,6 +154,11 @@ impl fmt::Display for StoreError {
             Self::RevisionConflict => "metadata store revision expectation does not match",
             Self::RevisionOverflow => "metadata store revision cannot advance",
             Self::DuplicateConflict => "metadata store identity already exists",
+            Self::InvalidDigest => "metadata store digest is invalid",
+            Self::InvalidMetadata => "metadata store metadata is invalid",
+            Self::ArtifactDigestConflict => {
+                "metadata store artifact digest conflicts with existing byte identity"
+            }
         })
     }
 }
