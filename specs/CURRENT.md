@@ -77,13 +77,13 @@ No product code or founding-donor product code has been imported yet.
 
 **P01 PROGRESS:** `7 / 7 macro tasks PROVEN`
 
-**P01 EXIT QUALIFICATION:** `QUALIFIED_PENDING_NATIVE_CLOSEOUT`
+**P01 EXIT QUALIFICATION:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`
 
 **P01 EXIT PROVEN:** `FALSE`
 
 **P02 AUTHORIZED:** `FALSE`
 
-**NEXT CANONICAL FRONTIER:** `Native SG-000017 verification after protected P01 exit qualification merge and post-merge main qualification`
+**NEXT CANONICAL FRONTIER:** `Protected merge of the proof-bearing P01 exit closeout and five-job post-merge qualification`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -126,7 +126,7 @@ The adversarial corpus covers all twenty canonical runtime-operation invariants 
 
 No donor product source has been imported.
 
-KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria are independently qualified in `docs/evidence/P01-EXIT.md`, but P01 exit remains `QUALIFIED_PENDING_NATIVE_CLOSEOUT`; native SG-000017 verification and a final protected closeout are still required. P02 is not authorized.
+KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria are independently qualified in `docs/evidence/P01-EXIT.md`, and native SG-000017 verification is now PROVEN with immutable record `sha256:1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d`. P01 exit remains `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`; the proof-bearing closeout merge and its five-job post-merge qualification are still required. P02 is not authorized.
 
 Proof for the current frontier includes:
 

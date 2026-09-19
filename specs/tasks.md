@@ -48,7 +48,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P01-S05-T02 | PROVEN | R2 | Define compatibility/versioning rules and unknown/additive-field behavior. | generated contracts |
 | KX-P01-S05-T03 | PROVEN | R2 | Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch. | generated contracts |
 
-**P01 gate: QUALIFIED_PENDING_NATIVE_CLOSEOUT.** Cross-language contracts executable; provider names absent from core; disconnect cannot imply exit; grants structurally bounded. Native SG-000017 proof and the final protected closeout are still required before P01 exit is PROVEN or P02 is authorized.
+**P01 gate: NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE.** Cross-language contracts executable; provider names absent from core; disconnect cannot imply exit; grants structurally bounded. Native SG-000017 proof is verified; the proof-bearing protected closeout merge and successful five-job post-merge qualification are still required before P01 exit is PROVEN or P02 is authorized.
 
 ---
 
