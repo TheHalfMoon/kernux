@@ -140,6 +140,7 @@ exactKeys(
     "truth_cases",
     "event_projection_cases",
     "feature_gate_cases",
+    "capability_admission_cases",
   ],
   "matrix",
 );
@@ -294,6 +295,62 @@ for (const entry of matrix.event_projection_cases) {
   }
 }
 
+if (
+  !Array.isArray(matrix.capability_admission_cases) ||
+  matrix.capability_admission_cases.length === 0
+) {
+  fail("capability_admission_cases must be a non-empty array");
+}
+
+for (const entry of matrix.capability_admission_cases) {
+  exactKeys(
+    entry,
+    [
+      "name",
+      "advertised_capabilities",
+      "requested_action",
+      "requested_version",
+      "expected_admission",
+    ],
+    "capability admission case",
+  );
+  if (caseNames.has(entry.name)) fail("duplicate compatibility case " + entry.name);
+  caseNames.add(entry.name);
+  if (!Array.isArray(entry.advertised_capabilities)) {
+    fail(entry.name + ".advertised_capabilities must be an array");
+  }
+  validateValue(
+    schema,
+    schema.$defs.RuntimeCapability.properties.action,
+    entry.requested_action,
+    entry.name + ".requested_action",
+  );
+  validateValue(
+    schema,
+    schema.$defs.CapabilityVersion,
+    entry.requested_version,
+    entry.name + ".requested_version",
+  );
+  for (const [index, capability] of entry.advertised_capabilities.entries()) {
+    validateValue(
+      schema,
+      schema.$defs.RuntimeCapability,
+      capability,
+      entry.name + ".advertised_capabilities[" + index + "]",
+    );
+  }
+  const admission = entry.advertised_capabilities.some(
+    (capability) =>
+      capability.action === entry.requested_action &&
+      capability.version === entry.requested_version,
+  )
+    ? "accept"
+    : "reject";
+  if (admission !== entry.expected_admission) {
+    fail(entry.name + " capability admission mismatch");
+  }
+}
+
 if (!Array.isArray(matrix.feature_gate_cases) || matrix.feature_gate_cases.length === 0) {
   fail("feature_gate_cases must be a non-empty array");
 }
@@ -315,5 +372,5 @@ for (const entry of matrix.feature_gate_cases) {
 }
 
 console.log(
-  `KRP compatibility matrix: PASS (${matrix.payload_cases.length} payload, ${matrix.truth_cases.length} truth, ${matrix.event_projection_cases.length} event-projection, ${matrix.feature_gate_cases.length} feature-gate cases)`,
+  `KRP compatibility matrix: PASS (${matrix.payload_cases.length} payload, ${matrix.truth_cases.length} truth, ${matrix.event_projection_cases.length} event-projection, ${matrix.capability_admission_cases.length} capability-admission, ${matrix.feature_gate_cases.length} feature-gate cases)`,
 );
