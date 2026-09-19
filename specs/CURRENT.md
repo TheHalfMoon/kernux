@@ -73,28 +73,30 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S04-T01 — Event and evidence semantics`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S05-T01 — Generated cross-language KRP contracts and conformance`
 
-**P01 PROGRESS:** `4 / 7 macro tasks PROVEN`
+**P01 PROGRESS:** `5 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S05-T01 — Choose one schema source and generate Rust + TypeScript contracts with round-trip/conformance fixtures`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S05-T02 — Define compatibility/versioning rules and unknown/additive-field behavior`
 
-The identity/revision, capability/Grant, runtime-operation, and Event/Evidence semantic tasks are PROVEN.
+The identity/revision, capability/Grant, runtime-operation, Event/Evidence, and generated-contract tasks are PROVEN.
 
-Canonical Event/Evidence contract:
+Canonical generated-contract proof:
 
-- `docs/canonical/EVENT_AND_EVIDENCE_MODEL.md`;
-- ADR-0041 in `docs/canonical/ARCHITECTURE_DECISIONS.md`;
-- evidence packet `docs/evidence/P01-S04-T01.md`;
-- native SG-000011 evidence record `sha256:7915f9afebb37a6b5261e1a07568d2f38da950b28dd2f81d18b2853cc5a518b7`.
+- authoritative JSON Schema: `protocol/schema/krp.v1.schema.json`;
+- schema SHA-256: `0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500`;
+- shared fixture source: `protocol/fixtures/v1/core.json`;
+- evidence packet: `docs/evidence/P01-S05-T01.md`;
+- native SG-000012 evidence record: `sha256:6d3caf7c146995e76228ec4d10ede1b2b1e440a8873b40079313d7d427d475e4`;
+- native SG-000013 prerequisite evidence record: `sha256:41d657f718ec18d70bca33d5c73e5decff5a51e7f6ad46066f8509b2883db800`.
 
-Final S04 implementation merged at `28515e290f09b1ee164d5749a3d0e0d9510a64e6`, and post-merge CI run `35341135584` passed all five protected required jobs.
+Final S05-T01 implementation merged at `a1ee7a16339302152324155357c6f96d1314fd6c`. Native proof records merged at `f4ce48bf5258c2106764d8cfbe6b769b879f5ce3`, and post-merge CI run `35414497010` passed all five protected required jobs.
 
-Event truth is append-only and provider-neutral: canonical owner stream + contiguous sequence/predecessor, immutable correction lineage, exact Artifact digest binding, independently classified Evidence, explicit redaction/exclusion metadata, and deterministic projection rebuild.
+Generated KRP truth is provider-neutral and schema-bound: one JSON Schema 2020-12 source, deterministic Rust/TypeScript generation, exact schema-digest constants, one shared fixture source consumed across languages, semantic JSON round trips, generated-output drift rejection, and governed dependency admission.
 
 No donor product source has been imported.
 
-KX-P01-S05-T01 is now authorized. No later P01 task may bypass its declared dependencies.
+KX-P01-S05-T02 is now authorized. KX-P01-S05-T03 remains dependency-ordered behind it.
 
 Proof for the current frontier includes:
 
@@ -102,7 +104,8 @@ Proof for the current frontier includes:
 - `docs/evidence/P01-S01-T01.md`;
 - `docs/evidence/P01-S02-T01.md`;
 - `docs/evidence/P01-S03-T01.md`;
-- `docs/evidence/P01-S04-T01.md`.
+- `docs/evidence/P01-S04-T01.md`;
+- `docs/evidence/P01-S05-T01.md`.
 
 ## Dependency rule
 
