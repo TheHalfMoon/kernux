@@ -1,0 +1,130 @@
+{
+  "acceptance": [
+    "Dependency admission occurs before store implementation: Cargo manifests/lock and third_party/dependencies/approved.json pin rusqlite 0.40.2 and uuid 1.26.1 exactly; rusqlite default features are disabled with only bundled enabled, uuid default features are disabled with only std enabled, exact license/feature/transitive observations are documented, dependency validation passes, and no store semantics land before the dependency slice is post-merge qualified.",
+    "Store::open on a filesystem database establishes and verifies busy_timeout=5000 ms, foreign_keys=ON, journal_mode=WAL, synchronous=FULL, trusted_schema=OFF, and the bounded WAL autocheckpoint setting. Failure to establish required database pragmas fails closed; in-memory journal behavior is not substituted as WAL evidence.",
+    "Schema version 1 has an exact deterministic migration set and schema_migrations ledger bound to PRAGMA user_version. Fresh 0->1 migration is atomic; version/ledger drift, partial migration, unknown future version, or migration error rejects without silent downgrade/recreate, and a failing migration transaction leaves the previous version/data intact.",
+    "The v1 schema contains exactly the authorized metadata table families for projects, tasks, work_units, runs, agent_sessions, runtimes, artifacts, evidence, events, grants, adapter_config_refs, and schema_migrations with foreign-key/reference constraints appropriate to the frozen P01 contracts. No Artifact blob table, secret-value table, policy-evaluation table, or remote/cloud table is introduced.",
+    "All public store APIs receiving canonical IDs reject uppercase, alternate UUID forms, whitespace, nil/non-v7/non-RFC-variant UUIDs and accept only exact lowercase hyphenated UUIDv7 text. SQLite never treats UUID lexical/timestamp order as authority or Event order.",
+    "Revisioned metadata mutation requires an exact expected revision, increments exactly one on success, returns an explicit revision conflict without write on stale expectation, rejects zero/out-of-range persisted revision, and fails closed at u32::MAX without wraparound. Immutable Run/AgentSession/Evidence/Event/Grant rows have no public in-place mutation path.",
+    "Artifact metadata enforces exact canonical Artifact identity/revision, strict lowercase SHA-256 digest shape when present, nonnegative bounded size representation, and digest invariance across revisions of one Artifact ID. No Artifact bytes are stored in SQLite and no CAS authority is claimed.",
+    "Issued Grant persistence is immutable metadata only and cannot itself authorize an operation. Adapter configuration persistence accepts bounded opaque references only; source/API/schema review proves no credential/token/password/private-key plaintext field or generic secret-value API exists.",
+    "Event append is transactional and store-assigned: first accepted event receives stream_seq=1 with no predecessor; each successor increments exactly one and records the exact immediate previous_event_id; duplicate/conflicting IDs, gaps/backwards positions, overflow, malformed event type/owner/revision, wrong predecessor, and cross-stream predecessor misuse fail closed. stream_seq storage is exact 8-byte big-endian BLOB preserving full positive u64 semantics.",
+    "Integrity/recovery fixtures prove: valid databases pass integrity_check and foreign_key_check; committed WAL-backed metadata is visible after close/reopen; an uncommitted transaction does not survive reopen; a deliberately failing migration rolls back atomically; an unknown future user_version with sentinel data rejects and preserves the data; a deterministic corrupted-file fixture rejects without silent deletion/recreation or replacement of the original bytes.",
+    "The implementation never treats DB existence/open success as integrity proof, never silently creates a clean replacement after corruption/future-schema failure, and exposes typed non-secret StoreError values without embedding row payloads, secret material, or raw SQL data values in error text.",
+    "KRP schema/generated Rust/TypeScript outputs, T02 auth/local transport, and SG-000020 identity semantics remain unchanged. Existing protocol/auth/identity/runtime regression suites remain PASS throughout S03.",
+    "Local macOS, Ubuntu Rust CI, and native Windows kernuxd CI execute the kernux-store schema/migration/WAL/revision/event/corruption/recovery corpus successfully. Native Windows runtime evidence is required; cross-compilation is not a substitute.",
+    "Every bounded candidate passes git diff --check, full pnpm check, dependency/provenance validation where applicable, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with complete manual accounting for exclusions, all five protected exact-head checks, additive Windows kernuxd, exact-head review, zero unresolved threads, ordinary merge, and exact post-merge six-job qualification before the next dependent slice begins.",
+    "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S03-T01 becomes PROVEN; only KX-P02-S04-T01 may become NEXT if canonical live truth still confirms that frontier, all later P02 tasks remain PLANNED, and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000021.json",
+    "Cargo.toml",
+    "Cargo.lock",
+    ".github/workflows/ci.yml",
+    "third_party/dependencies/approved.json",
+    "docs/evidence/P02-S03-T01-DEPENDENCY-GATE.md",
+    "crates/kernux-store",
+    "docs/evidence/P02-S03-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 20000,
+    "estimated_tokens": 16500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "dependency-admission-pass",
+      "sqlite-open-policy-pass",
+      "schema-migration-pass",
+      "schema-surface-pass",
+      "canonical-id-validation-pass",
+      "revision-cas-pass",
+      "immutable-record-pass",
+      "artifact-metadata-pass",
+      "grant-reference-boundary-pass",
+      "event-stream-append-pass",
+      "u64-stream-sequence-pass",
+      "integrity-check-pass",
+      "wal-reopen-pass",
+      "transaction-rollback-pass",
+      "migration-rollback-pass",
+      "future-schema-preservation-pass",
+      "corruption-fail-closed-pass",
+      "secret-nonpersistence-pass",
+      "cross-platform-store-runtime-pass",
+      "protocol-auth-identity-regression-pass",
+      "scope-boundary-pass",
+      "baseline-ci-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000021",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "The canonical architecture explicitly names kernux-store and SQLite for authoritative local metadata. No current repository store implementation exists. Use one mature SQLite wrapper plus one UUID parser/validator, exact minimal features, and repository-owned migrations/APIs; do not introduce an ORM, async DB runtime, SQLCipher, separate migration framework, artifact storage framework, or generic persistence abstraction."
+      },
+      "safety": {
+        "requirements": [
+          "Unknown future schema versions, migration drift, corruption, failed integrity checks, or partially applied migration state must fail closed without deleting, recreating, downgrading, or silently repairing user data.",
+          "Canonical IDs/revisions/Event ordering must preserve P01 semantics exactly; SQLite signed INTEGER limitations must not narrow the u64 Event sequence domain or turn UUID/timestamps into ordering authority.",
+          "Secret plaintext/private keys/tokens/passwords/cookies/provider credentials must not enter the ordinary SQLite metadata schema, logs, errors, fixtures, or evidence. Adapter records store references only.",
+          "Grant rows are immutable authority metadata but persistence alone never authorizes an operation; S03 must not implement policy matching, revocation, usage accounting, profiles, or admission.",
+          "Artifact metadata may reference immutable digest/size/media metadata but SQLite must not store Artifact blob bytes or preempt the S04 content-addressed store."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Create a repository-owned kernux-store SQLite metadata layer with exact UUIDv7/revision persistence semantics, versioned deterministic migrations, WAL and bounded connection policy, append-safe Event stream indexing, metadata-only Artifact/Grant/adapter-reference storage, corruption/future-schema fail-closed behavior, and restart/recovery fixtures, while explicitly deferring Artifact CAS bytes, policy evaluation, secret plaintext, credential stores, and later P02 authority.",
+  "parent_id": null,
+  "rationale": "KX-P02-S02-T01 is PROVEN and post-merge-qualified, and KX-P02-S03-T01 is the only authorized P02 frontier. Canonical architecture assigns authoritative local metadata and migrations to SQLite/kernux-store, while P01 already freezes UUIDv7/revision, Grant immutability, Event stream sequencing, and Artifact digest semantics that persistence must preserve without inventing new authority.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only bounded SG-000021 refinement/implementation/closeout changes, remove kernux-store and newly admitted direct dependency entries/lock changes, restore prior Windows CI commands, keep KX-P02-S03-T01 at NEXT, and preserve SG-000020/local-identity proof. Never delete or downgrade a user database as rollback automation; unknown/future/corrupt database files remain untouched for explicit recovery."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Create repository-owned crates/kernux-store as the sole bounded implementation surface for the S03 local SQLite metadata layer. The crate is a library and does not invent a daemon state-root/argv/environment configuration contract in this task.",
+    "Before store implementation, separately admit exact direct dependencies rusqlite = 0.40.2 with default-features = false and features = [\"bundled\"], and uuid = 1.26.1 with default-features = false and features = [\"std\"]. Document exact direct/transitive license observations, including the bundled SQLite amalgamation public-domain posture, feature graph, and cross-platform build rationale. No store semantics may land before this dependency slice is merged and post-merge qualified.",
+    "Use rusqlite bundled SQLite so macOS, Ubuntu, and Windows tests execute against repository-resolved SQLite rather than relying on a separately installed system SQLite. Do not enable rusqlite default cache/ffi-sqlite-wasm-rs features, SQLCipher, loadable extensions, or unrelated optional features.",
+    "Define Store::open for a caller-selected local database file and configure/verify finite busy timeout (5000 ms), foreign_keys=ON, journal_mode=WAL, synchronous=FULL, trusted_schema=OFF, and bounded WAL autocheckpoint policy. File-path ownership/selection belongs to the future daemon state-root contract; this task must not accept DB paths from KRP or other untrusted remote input.",
+    "Define schema version 1 using both PRAGMA user_version and an exact schema_migrations ledger. Fresh databases migrate 0->1 in one IMMEDIATE transaction. Existing version 1 databases validate ledger/schema invariants. Unknown future versions, missing/extra migration rows, partial migrations, or inconsistent version metadata fail closed without destructive downgrade or silent recreation.",
+    "Create v1 metadata tables for projects, tasks, work_units, runs, agent_sessions, runtimes, artifacts, evidence, events, grants, and adapter_config_refs plus schema_migrations. Tables preserve P01 canonical identities/revisions and only store local metadata/reference state authorized by this Grain.",
+    "Validate all canonical entity/Grant IDs at the Rust API boundary with uuid 1.26.1: exact lowercase hyphenated RFC 9562 UUIDv7 text, RFC variant, no alternate encoding/whitespace/uppercase/nil/other UUID version. Store canonical IDs as TEXT and add defensive SQL shape checks where practical; knowledge of an ID grants no authority.",
+    "Represent revisioned entity revisions as exact positive u32 semantic values stored in SQLite INTEGER with range checks 1..4294967295. Provide compare-and-swap mutation primitives that require expected_revision, increment exactly one on accepted mutation, reject stale expected revision, and fail closed at u32::MAX without overwrite or wraparound.",
+    "Treat Run, AgentSession, Evidence, Event, and issued Grant records as immutable revision-1 facts/authority metadata. Updates that would mutate an accepted immutable record are not exposed by the public store API; duplicate identity with conflicting content fails closed rather than becoming last-write-wins.",
+    "Persist Artifact metadata only: canonical Artifact ID/revision, exact lowercase 64-hex SHA-256 digest when byte identity is known, size/media/retention-reference metadata where represented. Enforce digest invariance across revisions of one Artifact ID. Do not store Artifact blob bytes or implement CAS ingest/read/GC.",
+    "Persist issued Grant metadata as immutable records/reference data without interpreting or evaluating authority. Grant ID possession remains non-authorizing; policy match, revocation/expiry/use accounting, delegation enforcement, profiles, and admission decisions remain later S05 work.",
+    "Persist adapter configuration references only as bounded opaque non-secret reference strings plus non-secret ownership/type metadata. No API in this task accepts or persists credential/token/password/private-key plaintext; secret material remains owned by later S06 approved providers.",
+    "Implement canonical Event append indexing for owner kinds project/task/run/runtime. The store assigns stream_seq atomically inside an IMMEDIATE transaction, requires contiguous sequence and exact previous_event_id linkage, and preserves immutable Event IDs. Because the conceptual sequence domain is u64 while SQLite INTEGER is signed i64, store stream_seq as an exact 8-byte big-endian BLOB so the full 1..u64::MAX domain and lexicographic numeric ordering are preserved without narrowing.",
+    "Validate event_type using the proven lowercase dotted core grammar before persistence. Event append rejects duplicate/conflicting Event ID, sequence overflow, malformed owner identity/revision, invalid event type, wrong predecessor state, and cross-stream predecessor reuse. UUID/time ordering is never stream authority.",
+    "Provide integrity and recovery primitives: explicit PRAGMA integrity_check/foreign_key_check validation, fail-closed StoreError categories, deterministic migration rollback tests, committed-WAL reopen tests, uncommitted transaction rollback/reopen tests, unknown-future-schema preservation tests, and byte-preserving corruption fixtures that prove failure does not silently delete/recreate damaged/future data.",
+    "Extend the existing additive Windows kernuxd CI job without renaming protected contexts so it also executes kernux-store Clippy/tests natively on windows-latest. Ubuntu Rust workspace CI and local macOS qualification must run the same store corpus; cross-compilation alone is not Windows runtime evidence.",
+    "Split implementation into dependency admission, schema/migration/WAL core, revisioned/immutable metadata APIs plus event append, corruption/recovery/cross-platform expansion, then native proof/closeout. Keep every candidate within Diffcipline R3 bounds and require exact-head/post-merge qualification before starting its dependent slice.",
+    "After native verification and protected closeout, mark only KX-P02-S03-T01 PROVEN and advance only KX-P02-S04-T01 to NEXT if canonical live truth still identifies it as the dependency-ordered frontier. P02 phase exit remains unproven."
+  ],
+  "scope_out": [
+    "Do not implement Artifact CAS blob ingest/read/storage, digest-based deduplication, retention garbage collection, streaming blob transfer, or Artifact filesystem layout. KX-P02-S04-T01 owns those semantics.",
+    "Do not implement policy evaluation, Grant matching/admission, revocation/expiry/use accounting, delegation enforcement, consequence classification, permission profiles, or runtime authorization. KX-P02-S05 tasks own those semantics.",
+    "Do not store secret plaintext, private keys, bearer tokens, passwords, cookies, reusable browser credentials, or model/provider API keys in SQLite. Do not implement Keychain, Credential Manager/DPAPI, libsecret, TPM/HSM, SQLCipher, or another secret/encryption provider; KX-P02-S06 owns secret-provider integration.",
+    "Do not claim ordinary SQLite metadata is encrypted at rest. OS account/disk protection is the current baseline; specialized encrypted project/export/backup modes are later work.",
+    "Do not implement project export/import bundles, general backup UI/workflows, retention/deletion/GC engine, browser-profile storage, cloud/team replication, or release migration support beyond the bounded v1 schema/recovery fixtures in this task.",
+    "Do not invent or persist rich domain payload schemas that P01 did not freeze. This task may store identity/revision/reference/index metadata required by the canonical contracts, but future policy/runtime/product fields require their owning task/migration.",
+    "Do not add a daemon DB path argument, environment variable, KRP storage command, or renderer-direct database access. kernuxd remains the eventual authoritative owner, but state-root/config wiring needs an explicit later bounded contract.",
+    "Do not change KRP schema/generated contract bytes, T02 transport authentication, local identity semantics, privileged filesystem/process/PTY operations, sandbox/browser control, remote/cloud transport, or any later P02 task."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S03-T01 — Establish SQLite metadata store and migration/recovery boundary"
+}
