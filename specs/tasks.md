@@ -57,8 +57,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | ID | State | Risk | Macro outcome | Depends |
 | --- | --- | --- | --- | --- |
 | KX-P02-S01-T01 | PROVEN | R3 | Create `kernuxd` lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown. | P01 |
-| KX-P02-S01-T02 | NEXT | R3 | Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers. | daemon transport |
-| KX-P02-S02-T01 | PLANNED | R3 | Implement installation/device identity and key creation/rotation/recovery abstraction. | daemon transport |
+| KX-P02-S01-T02 | PROVEN | R3 | Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers. | daemon transport |
+| KX-P02-S02-T01 | NEXT | R3 | Implement installation/device identity and key creation/rotation/recovery abstraction. | daemon transport |
 | KX-P02-S03-T01 | PLANNED | R3 | Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures. | P01 events/IDs |
 | KX-P02-S04-T01 | PLANNED | R2 | Implement SHA-256 artifact CAS with bounded streaming, digest verification and retention metadata. | metadata store |
 | KX-P02-S05-T01 | PLANNED | R3 | Implement policy evaluator and bounded grants/expiry/delegation/deny reasons. | capabilities + store |
@@ -68,7 +68,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 **KX-P02-S01-T01 closeout: PROVEN.** Native SG-000018 verification, proof-bearing PR #91 exact-head qualification/review, ordinary merge `f2ea966b398e445e57af94ee7b25bfbe1af21f2b`, and six-job post-merge run `35429947987` are all PROVEN. Only KX-P02-S01-T02 is NEXT; later P02 tasks remain PLANNED.
 
-**KX-P02-S01-T02 closeout:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`. The immutable SG-000019 record `sha256:fb9c164cecf8a9c72b2fd47557161d0d17046656fa3ce08bfb2939e172066aa3` is verified, but T02 remains canonically `NEXT` and later P02 tasks remain `PLANNED` until proof-bearing protected closeout merge, post-merge qualification, and separate canonical transition succeed.
+**KX-P02-S01-T02 closeout: PROVEN.** Native SG-000019 verification, proof-bearing PR #97 exact-head qualification/review, ordinary merge `78631b3095ce83ec39985f54c0ebc8e769ca4203`, and six-job post-merge run `35435786206` are all PROVEN. Only KX-P02-S02-T01 is NEXT; all other later P02 tasks remain PLANNED.
 
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
 
