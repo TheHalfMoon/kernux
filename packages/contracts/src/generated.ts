@@ -1,5 +1,5 @@
 // @generated from protocol/schema/krp.v1.schema.json
-// Schema SHA-256: e1fbe682c4a824c8a09619481277cd12cb9c544c1604badec2240b6aa50fe04b
+// Schema SHA-256: 0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500
 // DO NOT EDIT. Change the schema and regenerate.
 
 export interface ArtifactRef {
@@ -94,42 +94,56 @@ export interface Event {
   artifact_refs: Array<ArtifactRef>;
   contract_version: string;
   correlations: EventCorrelations;
-  event_id: string;
+  event_id: UuidV7;
   event_type: string;
+  lineage: EventLineage;
   occurred_at?: string;
-  previous_event_id?: string;
+  previous_event_id?: UuidV7;
   producer: string;
   recorded_at: string;
   redaction: Redaction;
+  sensitivity: string;
   stream: StreamRef;
   stream_seq: number;
 }
 
 export interface EventCorrelations {
   agent_session?: CanonicalRef;
-  grant_id?: string;
-  operation_id?: string;
+  artifact?: CanonicalRef;
+  capability_request_id?: UuidV7;
+  evidence?: CanonicalRef;
+  grant_id?: UuidV7;
+  operation_id?: UuidV7;
   project?: CanonicalRef;
-  request_id?: string;
+  protocol_request_id?: UuidV7;
   run?: CanonicalRef;
   runtime?: CanonicalRef;
   task?: CanonicalRef;
   work_unit?: CanonicalRef;
 }
 
+export interface EventLineage {
+  caused_by: Array<UuidV7>;
+  checkpoint_of?: UuidV7;
+  derived_from: Array<UuidV7>;
+  forked_from?: UuidV7;
+  supersedes?: UuidV7;
+}
+
 export interface Evidence {
   artifact_refs: Array<ArtifactRef>;
   claim: string;
-  evidence_id: string;
+  evidence_id: UuidV7;
   implementation_revision?: string;
   limitations: Array<string>;
-  observed_event_ids: Array<string>;
+  observed_event_ids: Array<UuidV7>;
   observer: string;
-  operation_id?: string;
-  recorded_by_event_id: string;
+  operation_id?: UuidV7;
+  recorded_by_event_id: UuidV7;
   redaction: Redaction;
   result: string;
   runtime_context?: CanonicalRef;
+  sensitivity: string;
   source_class: EvidenceSourceClass;
   subject_bindings: Array<CanonicalRef>;
 }
