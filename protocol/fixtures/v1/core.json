@@ -1,6 +1,6 @@
 {
   "schema": "kernux.krp.conformance/v1",
-  "schema_sha256": "0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500",
+  "schema_sha256": "7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9",
   "cases": [
     {
       "name": "capability_request",

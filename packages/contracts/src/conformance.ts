@@ -1,6 +1,6 @@
 // @generated from protocol/fixtures/v1/core.json
-// Fixture SHA-256: 1bc115ec247d0480b456fbbcfd8e6eb5daf82a712e4169c7c32adcb2e6c7e6b5
-// Schema SHA-256: 0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500
+// Fixture SHA-256: 41570fc8bc1d9f88bdd9fe9e770b74cb4e600fa85e4ee50d305bfabb81dff454
+// Schema SHA-256: 7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9
 // DO NOT EDIT. Change the shared fixture source and regenerate.
 
 import type { CapabilityRequest, Event, Evidence, Grant, OperationObservation, OperationStart, RuntimeContactObservation, RuntimeError } from "./generated";

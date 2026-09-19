@@ -1,8 +1,8 @@
 // @generated from protocol/schema/krp.v1.schema.json
-// Schema SHA-256: 0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500
+// Schema SHA-256: 7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9
 // DO NOT EDIT. Change the schema and regenerate.
 
-export const KRP_SCHEMA_SHA256 = "0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500" as const;
+export const KRP_SCHEMA_SHA256 = "7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9" as const;
 
 export interface ArtifactRef {
   artifact: CanonicalRef;
@@ -49,6 +49,8 @@ export interface CapabilityRequest {
   subject_scope: SubjectScope;
 }
 
+export type CapabilityVersion = "1";
+
 export type ConsequenceClass = "C0" | "C1" | "C2" | "C3" | "C4";
 
 export interface ConstraintSet {
@@ -94,7 +96,7 @@ export type ErrorCategory =
 
 export interface Event {
   artifact_refs: Array<ArtifactRef>;
-  contract_version: string;
+  contract_version: ProtocolContract;
   correlations: EventCorrelations;
   event_id: UuidV7;
   event_type: string;
@@ -189,16 +191,18 @@ export interface OperationObservation {
 
 export interface OperationStart {
   action: string;
-  capability_version: string;
+  capability_version: CapabilityVersion;
   constraints: ConstraintSet;
   operation_id: UuidV7;
   payload_sha256: Sha256Digest;
-  protocol_contract: string;
+  protocol_contract: ProtocolContract;
   request_id: UuidV7;
   resource_uri: string;
   runtime: CanonicalRef;
   subject_scope: SubjectScope;
 }
+
+export type ProtocolContract = "krp/1";
 
 export interface Redaction {
   affected_roles: Array<string>;
@@ -223,7 +227,7 @@ export type RetryGuidance =
 export interface RuntimeCapability {
   action: string;
   features: Array<string>;
-  version: string;
+  version: CapabilityVersion;
 }
 
 export interface RuntimeContactObservation {
@@ -238,7 +242,7 @@ export interface RuntimeDescriptor {
   features: Array<string>;
   observation_generation: number;
   observed_at: string;
-  protocol_contract: string;
+  protocol_contract: ProtocolContract;
   runtime: CanonicalRef;
 }
 
