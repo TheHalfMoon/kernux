@@ -4,17 +4,17 @@
 
 **PHASE:** `P01 — Core contracts and protocol spine`
 
-**EXIT QUALIFICATION:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`
+**EXIT STATUS:** `PROVEN`
 
-**P01 EXIT PROVEN:** `FALSE`
+**P01 EXIT PROVEN:** `TRUE`
 
-**P02 IMPLEMENTATION AUTHORIZED:** `FALSE`
+**P02 ENTRY AUTHORIZED:** `KX-P02-S01-T01 ONLY`
 
 **ACTIVE GRAIN:** `SG-000017 — KX-P01-EXIT — Prove the P01 core-contract and protocol-spine exit gate`
 
 All seven P01 macro tasks are PROVEN and the four frozen P01 exit criteria independently pass on the qualified assessment base.
 
-This packet deliberately does not mark the phase exit PROVEN and does not authorize P02. Native SG-000017 verification is complete; canonical completion still requires the proof-bearing protected closeout to pass exact-head qualification, merge without bypass, and receive successful five-job post-merge main qualification.
+P01 exit is now PROVEN. Native SG-000017 verification is complete, the proof-bearing protected closeout passed exact-head qualification, merged without bypass, and the resulting main revision passed all five required post-merge jobs. Only `KX-P02-S01-T01` is authorized as the next canonical frontier; later P02 tasks remain PLANNED.
 
 ## SG-000017 identity
 
@@ -188,32 +188,11 @@ Live branch metadata reports `main` as protected and requires these five status 
 
 This packet does not claim a fresh read of branch-protection administration fields that the connected GitHub App cannot access.
 
-The final closeout must still pass these five exact-head checks and merge through the ordinary protected path.
-
-## Qualification state
-
-The four frozen P01 exit criteria are independently qualified.
-
-`P01_EXIT_PROVEN = FALSE`
-
-`P02_IMPLEMENTATION_AUTHORIZED = FALSE`
-
-The canonical transition is intentionally withheld until:
-
-1. the qualification change passes local checks, Diffcipline R2, OpenCodeReview accounting, exact-head protected CI, ordinary merge, and post-merge main qualification — COMPLETE;
-2. SG-000017 receives native verification against that qualified implementation revision — COMPLETE;
-3. the proof-bearing protected closeout head passes all five required checks — PENDING;
-4. the protected closeout merges through the ordinary merge path — PENDING;
-5. the resulting main revision receives successful five-job post-merge qualification — PENDING;
-6. only after those remaining conditions may the canonical ledger record P01 exit PROVEN and advance `KX-P02-S01-T01` to NEXT.
-
-## Protected closeout candidate
-
-This branch is the real protected P01 exit closeout candidate. The pre-proof head `1cd9a744958e99e10b4cffc1445fb1a17d310ef6` passed workflow `35424130797` with all five required jobs SUCCESS, establishing the real `protected-closeout-pr-pass` prerequisite.
+The proof-bearing final closeout passed these five exact-head checks, merged through the ordinary protected path, and the resulting main revision passed the same five jobs post-merge.
 
 ## Native SpecGrain verification
 
-Native SG-000017 verification was produced only after that protected pre-proof qualification.
+Native SG-000017 verification was produced only after the real protected pre-proof closeout qualification.
 
 - spec revision: `sha256:7d90f1f773d99ea982bd94a0a6ec4f4f0ecdddd7405816b8e0ccf2465ed581c6`;
 - WorkPacket: `sha256:e31a693fc93da43d344337bab8d93b2a41334fb6608687001ab1b6df775a4df6`;
@@ -227,16 +206,54 @@ Native SG-000017 verification was produced only after that protected pre-proof q
 - required evidence checks: 11/11 PASS;
 - native `load_proof` integrity check — PASS.
 
-The native report is appended immutably at `.specgrain/evidence/SG-000017/1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d.json`.
+The immutable report is stored at `.specgrain/evidence/SG-000017/1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d.json`.
 
-Current closeout state remains conservative:
+## Protected closeout and post-merge proof
 
-- P01 exit remains not PROVEN;
-- P02 remains unauthorized;
-- `KX-P02-S01-T01` remains PLANNED.
+Closeout PR: `#82 — docs: close out P01 exit gate`.
+
+Pre-proof exact head: `1cd9a744958e99e10b4cffc1445fb1a17d310ef6`.
+
+Pre-proof protected CI: `35424130797` — five required jobs SUCCESS.
+
+Proof-bearing final head: `972418ace13f60f66847573e48efe53a92c14c85`.
+
+Proof-bearing protected CI: `35424320746` — five required jobs SUCCESS.
+
+Final exact-head review: `5254773417` — no findings; review threads observed: zero.
+
+Ordinary merge revision: `ab9ef10d15a2250b1e82eccaf9b91218bfd57a98`.
+
+Post-merge main CI: `35424368459` — five required jobs SUCCESS.
+
+Observed required jobs on the final head and post-merge main revision:
+
+- JavaScript / TypeScript — SUCCESS;
+- Rust — SUCCESS;
+- SpecGrain — SUCCESS;
+- Diffcipline R1 — SUCCESS;
+- Provenance — SUCCESS.
+
+No administrator bypass, force push, rebase, history rewrite, weakened check, or substituted evidence was used.
+
+## P01 acceptance conclusion
+
+**PROVEN** for `P01 — Core contracts and protocol spine`.
+
+Established:
+
+- all seven P01 macro tasks — PROVEN;
+- cross-language contracts executable — PROVEN;
+- provider names absent from core — PROVEN;
+- disconnect cannot imply exit — PROVEN;
+- Grants structurally bounded — PROVEN;
+- native SG-000017 verification — PROVEN;
+- protected proof-bearing closeout exact-head qualification — PROVEN;
+- ordinary protected merge — PROVEN;
+- five-job post-merge qualification — PROVEN.
 
 ## Next frontier
 
-Protected exact-head qualification of the proof-bearing closeout candidate, then ordinary merge and five-job post-merge qualification.
+`KX-P02-S01-T01 — Create kernuxd lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown` becomes NEXT.
 
-No P02 implementation is authorized before the protected closeout merge and its post-merge qualification complete.
+This transition authorizes only that first P02 macro task for refinement. All later P02 tasks remain PLANNED until their declared dependencies and governance gates are satisfied.
