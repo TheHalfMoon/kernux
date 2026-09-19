@@ -11,5 +11,5 @@
     "exactOptionalPropertyTypes": true,
     "types": []
   },
-  "include": ["tools/typescript-smoke.ts"]
+  "include": ["tools/typescript-smoke.ts", "packages/contracts/src/**/*.ts"]
 }
