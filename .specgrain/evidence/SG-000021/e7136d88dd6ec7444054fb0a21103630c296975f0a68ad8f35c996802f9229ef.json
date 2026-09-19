@@ -1,0 +1,278 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:e7136d88dd6ec7444054fb0a21103630c296975f0a68ad8f35c996802f9229ef",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S03-T01 becomes PROVEN; only KX-P02-S04-T01 may become NEXT if canonical live truth still confirms that frontier, all later P02 tasks remain PLANNED, and P02 phase exit remains unproven.",
+        "detail": "The closeout state machine is preserved: PR #118 pre-proof exact head passed 6/6 while S03 remains NEXT and S04/later remain PLANNED until proof-bearing merge, post-merge qualification, and separate transition.",
+        "evidence_ref": "github-pr:118;github-actions:35452855198;git:d165ccc2099f62ded33a3d73f58f414ec5910d7b;repo:docs/evidence/P02-S03-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "All public store APIs receiving canonical IDs reject uppercase, alternate UUID forms, whitespace, nil/non-v7/non-RFC-variant UUIDs and accept only exact lowercase hyphenated UUIDv7 text. SQLite never treats UUID lexical/timestamp order as authority or Event order.",
+        "detail": "Strict CanonicalId tests reject uppercase/alternate/non-v7/non-RFC forms; Event adversarial coverage proves UUID lexical order has no stream authority.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q;github-pr:116;github-actions:35447197605;github-review:116:PRR_kwDOUevqks8AAAABOUdBsw",
+        "passed": true
+      },
+      {
+        "check_id": "Artifact metadata enforces exact canonical Artifact identity/revision, strict lowercase SHA-256 digest shape when present, nonnegative bounded size representation, and digest invariance across revisions of one Artifact ID. No Artifact bytes are stored in SQLite and no CAS authority is claimed.",
+        "detail": "Artifact metadata enforces canonical ID/revision, lowercase digest, bounded size, digest invariance, and size invariance without any SQLite blob/CAS content surface.",
+        "evidence_ref": "github-pr:112;github-actions:35445347306;github-review:112:PRR_kwDOUevqks8AAAABOUXx-A;github-pr:114;github-actions:35445774048;github-review:114:PRR_kwDOUevqks8AAAABOUYtwg",
+        "passed": true
+      },
+      {
+        "check_id": "Dependency admission occurs before store implementation: Cargo manifests/lock and third_party/dependencies/approved.json pin rusqlite 0.40.2 and uuid 1.26.1 exactly; rusqlite default features are disabled with only bundled enabled, uuid default features are disabled with only std enabled, exact license/feature/transitive observations are documented, dependency validation passes, and no store semantics land before the dependency slice is post-merge qualified.",
+        "detail": "Dependency-only PR #108 admitted exact rusqlite/uuid pins/features and passed dependency validation before any store semantics landed.",
+        "evidence_ref": "github-pr:108;github-actions:35444238101;github-actions:35444323549;github-review:108:PRR_kwDOUevqks8AAAABOUU7Cg;git:3980a657ec74abc77a487a2d757fa9130ccca6d2;repo:docs/evidence/P02-S03-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "Event append is transactional and store-assigned: first accepted event receives stream_seq=1 with no predecessor; each successor increments exactly one and records the exact immediate previous_event_id; duplicate/conflicting IDs, gaps/backwards positions, overflow, malformed event type/owner/revision, wrong predecessor, and cross-stream predecessor misuse fail closed. stream_seq storage is exact 8-byte big-endian BLOB preserving full positive u64 semantics.",
+        "detail": "Event core and adversarial slices prove transactional store-assigned contiguous sequencing, exact predecessor linkage, malformed/cross-stream rejection, overflow handling, and full-u64 big-endian BLOB representation.",
+        "evidence_ref": "github-pr:115;github-actions:35446921457;github-actions:35447047056;github-review:115:PRR_kwDOUevqks8AAAABOUtlhw;github-pr:116;github-actions:35447197605;github-actions:35447292197;github-review:116:PRR_kwDOUevqks8AAAABOUdBsw",
+        "passed": true
+      },
+      {
+        "check_id": "Every bounded candidate passes git diff --check, full pnpm check, dependency/provenance validation where applicable, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with complete manual accounting for exclusions, all five protected exact-head checks, additive Windows kernuxd, exact-head review, zero unresolved threads, ordinary merge, and exact post-merge six-job qualification before the next dependent slice begins.",
+        "detail": "Every dependency-ordered implementation slice #108/#109/#110/#112/#114/#115/#116/#117 passed local R3/accounting, exact-head six-job CI, exact-head review with zero blocking threads, ordinary merge, and six-job post-merge qualification before its dependent implementation slice began. PR #118 independently passed the required six-job pre-proof gate; final proof-bearing review/merge remains intentionally future.",
+        "evidence_ref": "github-actions:35444238101;github-actions:35444547301;github-actions:35444938082;github-actions:35445347306;github-actions:35445774048;github-actions:35446921457;github-actions:35447197605;github-actions:35452434061;github-actions:35452855198;repo:docs/evidence/P02-S03-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "Integrity/recovery fixtures prove: valid databases pass integrity_check and foreign_key_check; committed WAL-backed metadata is visible after close/reopen; an uncommitted transaction does not survive reopen; a deliberately failing migration rolls back atomically; an unknown future user_version with sentinel data rejects and preserves the data; a deterministic corrupted-file fixture rejects without silent deletion/recreation or replacement of the original bytes.",
+        "detail": "Executable fixtures prove integrity/fk checks, WAL reopen, uncommitted rollback, migration rollback, future-schema preservation, FK-corrupt preservation, and deterministic corrupt-file preservation.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-pr:117;github-actions:35452434061;github-actions:35452549806;github-review:117:PRR_kwDOUevqks8AAAABOUvX3Q",
+        "passed": true
+      },
+      {
+        "check_id": "Issued Grant persistence is immutable metadata only and cannot itself authorize an operation. Adapter configuration persistence accepts bounded opaque references only; source/API/schema review proves no credential/token/password/private-key plaintext field or generic secret-value API exists.",
+        "detail": "Grant rows are immutable reference metadata only; adapter configuration persists bounded opaque references with no credential/plaintext-secret API.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q;github-pr:112;github-actions:35445347306;github-review:112:PRR_kwDOUevqks8AAAABOUXx-A",
+        "passed": true
+      },
+      {
+        "check_id": "KRP schema/generated Rust/TypeScript outputs, T02 auth/local transport, and SG-000020 identity semantics remain unchanged. Existing protocol/auth/identity/runtime regression suites remain PASS throughout S03.",
+        "detail": "Final full repository qualification preserves generated KRP, compatibility/adversarial contracts, T02 auth/lifecycle/transport, and SG-000020 identity suites unchanged.",
+        "evidence_ref": "github-actions:35452549806;git:3bf286402b70790beb997bd555cdf1b064f0492d",
+        "passed": true
+      },
+      {
+        "check_id": "Local macOS, Ubuntu Rust CI, and native Windows kernuxd CI execute the kernux-store schema/migration/WAL/revision/event/corruption/recovery corpus successfully. Native Windows runtime evidence is required; cross-compilation is not a substitute.",
+        "detail": "The final 46-test kernux-store corpus passes locally on macOS, in Ubuntu Rust CI, and natively on windows-latest; Windows execution is not cross-compilation.",
+        "evidence_ref": "local:3bf286402b70790beb997bd555cdf1b064f0492d:macos-kernux-store-46-of-46-pass;github-actions:35452549806:ubuntu-kernux-store-46-of-46-pass;github-actions:35452549806:windows-kernux-store-46-of-46-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Revisioned metadata mutation requires an exact expected revision, increments exactly one on success, returns an explicit revision conflict without write on stale expectation, rejects zero/out-of-range persisted revision, and fails closed at u32::MAX without wraparound. Immutable Run/AgentSession/Evidence/Event/Grant rows have no public in-place mutation path.",
+        "detail": "Revision CAS requires exact expected revision, advances once, rejects stale/zero/out-of-range/overflow, and immutable entity/Event surfaces expose no in-place mutation.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q;github-pr:115;github-actions:35446921457;github-review:115:PRR_kwDOUevqks8AAAABOUtlhw",
+        "passed": true
+      },
+      {
+        "check_id": "Schema version 1 has an exact deterministic migration set and schema_migrations ledger bound to PRAGMA user_version. Fresh 0->1 migration is atomic; version/ledger drift, partial migration, unknown future version, or migration error rejects without silent downgrade/recreate, and a failing migration transaction leaves the previous version/data intact.",
+        "detail": "Schema v1 uses exact user_version plus migration ledger; fresh IMMEDIATE migration is atomic and partial/future/drift/migration-error states fail closed without destructive recreation.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-actions:35444651248;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g",
+        "passed": true
+      },
+      {
+        "check_id": "Store::open on a filesystem database establishes and verifies busy_timeout=5000 ms, foreign_keys=ON, journal_mode=WAL, synchronous=FULL, trusted_schema=OFF, and the bounded WAL autocheckpoint setting. Failure to establish required database pragmas fails closed; in-memory journal behavior is not substituted as WAL evidence.",
+        "detail": "Store::open establishes and verifies the exact required busy timeout, foreign keys, WAL, FULL sync, trusted_schema OFF, and bounded autocheckpoint policy.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-actions:35444651248;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g",
+        "passed": true
+      },
+      {
+        "check_id": "The implementation never treats DB existence/open success as integrity proof, never silently creates a clean replacement after corruption/future-schema failure, and exposes typed non-secret StoreError values without embedding row payloads, secret material, or raw SQL data values in error text.",
+        "detail": "Existing v1 performs read-only integrity/fk preflight and corrupt/future failures preserve original bytes; StoreError text is typed/generic and recovery production code contains no destructive repair path.",
+        "evidence_ref": "github-pr:117;github-actions:35452434061;github-actions:35452549806;github-review:117:PRR_kwDOUevqks8AAAABOUvX3Q",
+        "passed": true
+      },
+      {
+        "check_id": "The v1 schema contains exactly the authorized metadata table families for projects, tasks, work_units, runs, agent_sessions, runtimes, artifacts, evidence, events, grants, adapter_config_refs, and schema_migrations with foreign-key/reference constraints appropriate to the frozen P01 contracts. No Artifact blob table, secret-value table, policy-evaluation table, or remote/cloud table is introduced.",
+        "detail": "Schema v1 contains exactly the authorized metadata table families and no Artifact blob, generic secret-value, policy-decision, or remote/cloud table.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "artifact-metadata-pass",
+        "detail": "Artifact metadata digest/size/reference boundaries and corrective byte-identity invariants pass.",
+        "evidence_ref": "github-pr:112;github-actions:35445347306;github-review:112:PRR_kwDOUevqks8AAAABOUXx-A;github-pr:114;github-actions:35445774048;github-review:114:PRR_kwDOUevqks8AAAABOUYtwg",
+        "passed": true
+      },
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "All bounded implementation exact heads and final main pass required CI; pre-proof closeout exact head also passes six jobs.",
+        "evidence_ref": "github-actions:35444238101;github-actions:35444547301;github-actions:35444938082;github-actions:35445347306;github-actions:35445774048;github-actions:35446921457;github-actions:35447197605;github-actions:35452434061;github-actions:35452549806;github-actions:35452855198",
+        "passed": true
+      },
+      {
+        "check_id": "canonical-id-validation-pass",
+        "detail": "CanonicalId API/tests accept only exact lowercase hyphenated RFC9562 UUIDv7/RFC variant.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q",
+        "passed": true
+      },
+      {
+        "check_id": "corruption-fail-closed-pass",
+        "detail": "Foreign-key corrupt and deterministic corrupt-file fixtures reject without delete/recreate/replacement and preserve database bytes.",
+        "evidence_ref": "github-pr:117;github-actions:35452434061;github-actions:35452549806;github-review:117:PRR_kwDOUevqks8AAAABOUvX3Q",
+        "passed": true
+      },
+      {
+        "check_id": "cross-platform-store-runtime-pass",
+        "detail": "Final 46-test store corpus executes on macOS, Ubuntu, and native Windows.",
+        "evidence_ref": "local:3bf286402b70790beb997bd555cdf1b064f0492d:macos-kernux-store-46-of-46-pass;github-actions:35452549806:ubuntu-kernux-store-46-of-46-pass;github-actions:35452549806:windows-kernux-store-46-of-46-pass",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-admission-pass",
+        "detail": "Exact rusqlite/uuid pins/features/license evidence merged and post-merge-qualified before store semantics.",
+        "evidence_ref": "github-pr:108;github-actions:35444238101;github-actions:35444323549;github-review:108:PRR_kwDOUevqks8AAAABOUU7Cg;repo:docs/evidence/P02-S03-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Every bounded implementation candidate and pre-proof closeout candidate used for qualification passed Diffcipline R3; oversized Event candidate remains FAIL.",
+        "evidence_ref": "local:19250c66c16d84dddf8e10d93deef5476f775642:diffcipline-r3-pass;local:6735a6faff367fec96156a47d30c5edbd5e252a7:diffcipline-r3-pass;local:d66e5fec0e61530b53a07adf3e183fac47492322:diffcipline-r3-pass;local:754b20d14f757ad69f195d95ed3fea61f79b0de5:diffcipline-r3-pass;local:5324e306f72f7e17e71d5e37f3aa7699af8f1254:diffcipline-r3-pass;local:6317805d68fe1a7714c4bc16f514dc27a37861d8:diffcipline-r3-pass;local:69fe5ebc86871a66b19c547db0f045e45e4d353f:diffcipline-r3-pass;local:0ca8f7846214968a6378f86e70067d22d24794d5:diffcipline-r3-pass;local:d165ccc2099f62ded33a3d73f58f414ec5910d7b:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "event-stream-append-pass",
+        "detail": "Transactional store-assigned contiguous Event append and adversarial predecessor/stream integrity coverage pass.",
+        "evidence_ref": "github-pr:115;github-actions:35446921457;github-review:115:PRR_kwDOUevqks8AAAABOUtlhw;github-pr:116;github-actions:35447197605;github-review:116:PRR_kwDOUevqks8AAAABOUdBsw",
+        "passed": true
+      },
+      {
+        "check_id": "future-schema-preservation-pass",
+        "detail": "Unknown future schema rejects without modifying original database bytes.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g",
+        "passed": true
+      },
+      {
+        "check_id": "grant-reference-boundary-pass",
+        "detail": "Issued Grant persistence is immutable metadata/reference state and does not evaluate authority.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q",
+        "passed": true
+      },
+      {
+        "check_id": "immutable-record-pass",
+        "detail": "Run/AgentSession/Evidence/Grant are insert-once and Events are append-only with no public in-place mutation.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-pr:115;github-actions:35446921457",
+        "passed": true
+      },
+      {
+        "check_id": "integrity-check-pass",
+        "detail": "Explicit integrity_check and foreign_key_check accept valid databases and fail closed on violations.",
+        "evidence_ref": "github-pr:117;github-actions:35452434061;github-actions:35452549806",
+        "passed": true
+      },
+      {
+        "check_id": "migration-rollback-pass",
+        "detail": "Deliberately failing migration transaction leaves user_version and schema uncommitted.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-actions:35444651248",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba Delegation Mode accounted for every slice; exclusions were manually reviewed completely and no direct LLM OCR success is claimed.",
+        "evidence_ref": "github-review:108:PRR_kwDOUevqks8AAAABOUU7Cg;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q;github-review:112:PRR_kwDOUevqks8AAAABOUXx-A;github-review:114:PRR_kwDOUevqks8AAAABOUYtwg;github-review:115:PRR_kwDOUevqks8AAAABOUtlhw;github-review:116:PRR_kwDOUevqks8AAAABOUdBsw;github-review:117:PRR_kwDOUevqks8AAAABOUvX3Q;local:d165ccc2099f62ded33a3d73f58f414ec5910d7b:ocr-delegation-manual-accounting-pass",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Final SG-000021 implementation main passes all six jobs before closeout proof.",
+        "evidence_ref": "github-actions:35452549806;git:3bf286402b70790beb997bd555cdf1b064f0492d",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Real pre-proof closeout PR #118 exact head passed all five protected jobs plus native Windows before native proof creation.",
+        "evidence_ref": "github-pr:118;github-actions:35452855198;git:d165ccc2099f62ded33a3d73f58f414ec5910d7b",
+        "passed": true
+      },
+      {
+        "check_id": "protocol-auth-identity-regression-pass",
+        "detail": "Final full qualification keeps KRP generated/compat/adversarial, T02 auth/transport, and SG20 identity suites passing.",
+        "evidence_ref": "github-actions:35452549806;git:3bf286402b70790beb997bd555cdf1b064f0492d",
+        "passed": true
+      },
+      {
+        "check_id": "revision-cas-pass",
+        "detail": "Exact expected-revision CAS, stale conflict, positive u32 validation, and no-wrap behavior pass.",
+        "evidence_ref": "github-pr:110;github-actions:35444938082;github-review:110:PRR_kwDOUevqks8AAAABOUW11Q",
+        "passed": true
+      },
+      {
+        "check_id": "schema-migration-pass",
+        "detail": "Exact schema-v1 IMMEDIATE migration plus version/ledger drift handling pass.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-actions:35444651248",
+        "passed": true
+      },
+      {
+        "check_id": "schema-surface-pass",
+        "detail": "Exact authorized v1 table set is enforced; forbidden table families are absent.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g",
+        "passed": true
+      },
+      {
+        "check_id": "scope-boundary-pass",
+        "detail": "Independently observed implementation range contains exactly 11 authorized paths and excludes KRP/auth/identity/CAS/policy/secrets/daemon wiring.",
+        "evidence_ref": "git-range:8cbb06b08657cf6e7e66d22ab5a65165168e00e6..3bf286402b70790beb997bd555cdf1b064f0492d:11-authorized-paths;repo:docs/evidence/P02-S03-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "secret-nonpersistence-pass",
+        "detail": "Schema/API/source review contains no credential/token/password/private-key plaintext or generic secret-value persistence surface.",
+        "evidence_ref": "github-pr:112;github-actions:35445347306;github-review:112:PRR_kwDOUevqks8AAAABOUXx-A;github-pr:117;github-actions:35452434061",
+        "passed": true
+      },
+      {
+        "check_id": "sqlite-open-policy-pass",
+        "detail": "Filesystem Store::open establishes and verifies exact busy/WAL/FK/FULL/trusted-schema/autocheckpoint policy.",
+        "evidence_ref": "github-pr:109;github-actions:35444547301;github-review:109:PRR_kwDOUevqks8AAAABOUWF_g",
+        "passed": true
+      },
+      {
+        "check_id": "transaction-rollback-pass",
+        "detail": "Uncommitted IMMEDIATE transaction does not survive close/reopen.",
+        "evidence_ref": "github-pr:117;github-actions:35452434061;github-actions:35452549806",
+        "passed": true
+      },
+      {
+        "check_id": "u64-stream-sequence-pass",
+        "detail": "Fixed 8-byte big-endian BLOB encoding round-trips and orders the full positive u64 domain without signed narrowing.",
+        "evidence_ref": "github-pr:115;github-actions:35446921457;github-review:115:PRR_kwDOUevqks8AAAABOUtlhw",
+        "passed": true
+      },
+      {
+        "check_id": "wal-reopen-pass",
+        "detail": "Committed metadata under WAL is visible after close/reopen.",
+        "evidence_ref": "github-pr:117;github-actions:35452434061;github-actions:35452549806",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:3bf286402b70790beb997bd555cdf1b064f0492d",
+    "issues": [],
+    "observed_changed_paths": [
+      ".github/workflows/ci.yml",
+      "Cargo.lock",
+      "Cargo.toml",
+      "crates/kernux-store/Cargo.toml",
+      "crates/kernux-store/src/artifact.rs",
+      "crates/kernux-store/src/event.rs",
+      "crates/kernux-store/src/lib.rs",
+      "crates/kernux-store/src/metadata.rs",
+      "crates/kernux-store/src/recovery.rs",
+      "docs/evidence/P02-S03-T01-DEPENDENCY-GATE.md",
+      "third_party/dependencies/approved.json"
+    ],
+    "packet_digest": "sha256:ef1e49bb4c083ecd84c63991276cd9bcf588fa49340587b6824134ed3d21a379",
+    "result_digest": "sha256:55d8f02b0054a8ce16e90c0be8d1c75cb18cd86b4875e8a76d4668c5fd3004b8",
+    "spec_id": "SG-000021",
+    "spec_revision": "sha256:5134113af17675a96bcf16f2fb6b25ac0cdc05792cb0eb04e63fa460e5142268",
+    "verification_version": 1,
+    "verified": true
+  }
+}
