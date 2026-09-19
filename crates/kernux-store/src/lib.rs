@@ -14,6 +14,9 @@ use std::time::Duration;
 
 use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 
+mod metadata;
+pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
+
 const SCHEMA_VERSION: i64 = 1;
 const MIGRATION_V1_NAME: &str = "metadata-v1";
 const BUSY_TIMEOUT_MS: u64 = 5_000;
@@ -124,6 +127,12 @@ pub enum StoreError {
     Configuration,
     FutureSchema,
     SchemaDrift,
+    InvalidCanonicalId,
+    InvalidRevision,
+    NotFound,
+    RevisionConflict,
+    RevisionOverflow,
+    DuplicateConflict,
 }
 
 impl fmt::Display for StoreError {
@@ -134,6 +143,12 @@ impl fmt::Display for StoreError {
             Self::Configuration => "metadata store configuration is invalid",
             Self::FutureSchema => "metadata store schema is newer than this build",
             Self::SchemaDrift => "metadata store schema does not match the expected version",
+            Self::InvalidCanonicalId => "metadata store canonical identifier is invalid",
+            Self::InvalidRevision => "metadata store revision is invalid",
+            Self::NotFound => "metadata store record was not found",
+            Self::RevisionConflict => "metadata store revision expectation does not match",
+            Self::RevisionOverflow => "metadata store revision cannot advance",
+            Self::DuplicateConflict => "metadata store identity already exists",
         })
     }
 }
@@ -367,13 +382,13 @@ mod tests {
 
     static PATH_COUNTER: AtomicU64 = AtomicU64::new(0);
 
-    struct TestDb {
-        directory: std::path::PathBuf,
-        path: std::path::PathBuf,
+    pub(super) struct TestDb {
+        pub(super) directory: std::path::PathBuf,
+        pub(super) path: std::path::PathBuf,
     }
 
     impl TestDb {
-        fn new(name: &str) -> Self {
+        pub(super) fn new(name: &str) -> Self {
             let counter = PATH_COUNTER.fetch_add(1, Ordering::Relaxed);
             let directory = std::env::temp_dir().join(format!(
                 "kernux-store-{}-{}-{counter}",
