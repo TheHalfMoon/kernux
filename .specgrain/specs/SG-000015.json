@@ -1,0 +1,76 @@
+{
+  "acceptance": [
+    "After an SG-000014 schema revision, core.json.schema_sha256 equals the exact authoritative schema SHA-256 and no other semantic fixture content changes.",
+    "Generated packages/contracts/src/conformance.ts embeds the exact new schema digest and exact new core fixture digest and remains generator-derived with the do-not-edit header.",
+    "The eight existing core cases retain identical names, definitions, and semantic JSON values relative to the pre-change fixture except for the envelope schema_sha256 field.",
+    "Node shared conformance, TypeScript compilation, Rust shared-fixture round trips, generator determinism/--check, pnpm check, git diff --check, Diffcipline R2, protected exact-head CI, and post-merge main qualification pass.",
+    "No S05-T03 negative/adversarial scenario is added or preempted."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000015.json",
+    "protocol/fixtures/v1/core.json",
+    "packages/contracts/src/conformance.ts"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 4000,
+    "estimated_tokens": 2200
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "sg-000014-authority-bound",
+      "core-fixture-semantic-identity-pass",
+      "schema-digest-binding-pass",
+      "generated-fixture-digest-binding-pass",
+      "shared-node-conformance-pass",
+      "shared-rust-roundtrip-pass",
+      "generator-check-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000015",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Use the existing tracked core fixture source and existing generator derivative. This Grain only closes two omitted change-surface paths required by the already-authorized schema digest change."
+      },
+      "safety": {
+        "requirements": [
+          "Digest propagation must not change fixture semantics or introduce a new compatibility/adversarial scenario.",
+          "Generated conformance.ts must be regenerated, never hand-edited."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "KRP v1 schema revisions authorized by SG-000014 may update the existing shared core fixture schema digest and its generated TypeScript conformance derivative without changing fixture semantics or absorbing S05-T03 corpus ownership.",
+  "parent_id": null,
+  "rationale": "SG-000014 authorizes T02 schema version binding, which necessarily changes the authoritative schema SHA-256. The existing core fixture source binds that digest and the generated TypeScript fixture derivative embeds both schema and fixture digests, but those two paths were omitted from SG-000014 change_surface. This corrective Grain closes that exact authorization gap before implementation.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the schema-digest binding in core.json, regenerate the TypeScript conformance derivative from the prior authoritative bytes, and revert this corrective closeout. No production wire or persisted runtime data is involved."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Authorize protocol/fixtures/v1/core.json to change only its schema_sha256 binding when the SG-000014-authorized KRP v1 schema bytes change.",
+    "Authorize packages/contracts/src/conformance.ts to be regenerated from the unchanged semantic core fixture cases so its embedded schema SHA-256 and fixture SHA-256 match the new authoritative bytes.",
+    "Require the eight existing core fixture case names, definitions, and semantic values to remain unchanged by this corrective work.",
+    "Require generator --check, shared Node conformance, TypeScript compile-time fixture assertions, and Rust shared-fixture round trips to remain green after digest propagation.",
+    "Preserve S05-T03 ownership of new adversarial/negative fixture cases; this corrective Grain adds no new protocol scenario."
+  ],
+  "scope_out": [
+    "Do not change the authoritative KRP schema, generator logic, compatibility policy, Rust generated contracts, or canonical docs under this corrective Grain; SG-000014 owns those changes.",
+    "Do not add, delete, rename, or semantically alter any existing core fixture case.",
+    "Do not create the S05-T03 adversarial corpus or compatibility matrix."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S05-T02 corrective — Authorize schema-digest propagation to shared fixture derivatives"
+}
