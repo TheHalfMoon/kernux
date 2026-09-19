@@ -246,6 +246,7 @@ name = "kernux-store"
 version = "0.0.0"
 dependencies = [
  "rusqlite",
+ "sha2",
  "uuid",
 ]
 
