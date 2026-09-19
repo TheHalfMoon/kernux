@@ -37,6 +37,8 @@ Maintainers administer repository access and merge decisions; contributors and a
 
 Changes to governance, security policy, licensing, provenance, CI gates, or architecture are themselves governed work. They must state the authority, rationale, migration/recovery impact, and exact verification. Gates must not be weakened solely to make a failing change mergeable.
 
+Dependency and lockfile changes are admitted only when the branch-protected Provenance job validates the exact direct dependency registry, manifest declarations, locked Cargo resolution when applicable, and canonical license posture. Diffcipline may report these files as ordinary allowed diff surfaces because the required dependency-specific judgment lives in Provenance; this is a gate transfer, not a waiver. Removing or weakening that dependency validator requires restoring a conservative Diffcipline dependency/lockfile decision first.
+
 ## Data and public collaboration
 
 Public issues and pull requests are not secret stores. Do not post credentials, tokens, private keys, personal data, PHI, unpublished vulnerability details, or proprietary material that is not authorized for public disclosure.

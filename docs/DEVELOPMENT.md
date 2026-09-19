@@ -48,7 +48,7 @@ Baseline CI currently proves:
 - Rust smoke tests;
 - pinned SpecGrain store validation.
 
-GitHub Actions installs pnpm dependencies from the committed lockfile with --frozen-lockfile and keys the pnpm cache from that lockfile. Rust currently has no external crates, so a separate dependency cache would add complexity without measurable value; revisit this when the Rust dependency graph becomes non-empty. Python is not a Kernux product runtime dependency; it is required only for pinned repository-governance tooling such as SpecGrain.
+GitHub Actions installs pnpm dependencies from the committed lockfile with --frozen-lockfile and keys the pnpm cache from that lockfile. Rust currently has no external crates, so a separate dependency cache would add complexity without measurable value; revisit this when the Rust dependency graph becomes non-empty. The branch-protected Provenance job also runs the repository dependency-admission validator. Every direct external npm or Cargo dependency must have one exact approval in `third_party/dependencies/approved.json`; Cargo registry dependencies must use exact `=x.y.z` requirements and are checked against `cargo metadata --locked` once present. Python is not a Kernux product runtime dependency; it is required only for pinned repository-governance tooling such as SpecGrain and dependency/provenance validation.
 
 ## Formatting baseline
 
