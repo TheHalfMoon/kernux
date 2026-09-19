@@ -1,0 +1,103 @@
+{
+  "acceptance": [
+    "A tracked dependency approval registry exists and every current root npm direct external dependency has exactly one exact-version approval with purpose and license posture; there are no stale/duplicate approvals.",
+    "The validator fails closed for unapproved external direct dependency, exact-version mismatch, semver/range/floating declaration, malformed approval, duplicate approval, stale approval, unsupported ecosystem, and missing purpose/license posture.",
+    "Cargo path/workspace dependencies are distinguishable from external registry/git dependencies. Any external direct Cargo dependency requires an approval; registry dependencies require an exact pinned version; cargo metadata --locked evidence is checked when a real external Rust graph is present.",
+    "Current LICENSE_POLICY is not silently broadened. MIT and Apache-2.0 posture is accepted per policy; other expressions require an explicit separately governed policy exception rather than an agent guess.",
+    "Dependency validator conformance suite contains negative fixtures for unapproved npm/Cargo dependencies, version/range drift, lock-resolution mismatch, stale/duplicate approvals, and license-policy mismatch and those negatives demonstrably fail validation.",
+    "The existing branch-protected Provenance workflow runs the dependency validator tests and repository check on pull_request and main before any Diffcipline policy migration occurs.",
+    "Slice A merges and its post-merge Provenance job is SUCCESS while .diffcipline.toml still says dependency/lockfile REVIEW.",
+    "Only after Slice A post-merge qualification, Slice B changes Diffcipline dependency_manifest_changes and lockfile_changes to allow, with governance docs explaining that executable dependency judgment moved to the already-required Provenance gate rather than being removed.",
+    "After Slice B, an ordinary non-dependency PR still receives the same Diffcipline size/scope/untracked/verification enforcement, while an unapproved dependency fixture fails the required Provenance dependency validator.",
+    "Branch protection required-check set remains JavaScript / TypeScript, Rust, SpecGrain, Diffcipline R1, and Provenance; enforce_admins remains enabled; no bypass evidence is used.",
+    "PR #54 remains unmerged during this prerequisite. Its prior Diffcipline REVIEW/failing required job is preserved as negative evidence, not rerun or rewritten into PASS.",
+    "Exact implementation passes validator tests, repository dependency check, project/provenance checks, pnpm check, git diff --check, Diffcipline R2 for each non-dependency governance slice, protected exact-head CI, and post-merge qualification."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000013.json",
+    "third_party/dependencies/approved.json",
+    "third_party/dependencies/README.md",
+    "tools/dependencies/validate.py",
+    "tools/dependencies/test_validate.py",
+    ".github/workflows/ci.yml",
+    ".diffcipline.toml",
+    "docs/governance/DEPENDENCIES.md",
+    "docs/governance/DIFFCIPLINE.md",
+    "docs/governance/REPOSITORY_GOVERNANCE.md",
+    "docs/DEVELOPMENT.md",
+    "docs/evidence/P01-S05-DEPENDENCY-GATE.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 10000,
+    "estimated_tokens": 7500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "governance-deadlock-reproduced",
+      "dependency-registry-validation-pass",
+      "dependency-negative-fixtures-pass",
+      "cargo-lock-resolution-review-pass",
+      "license-policy-bound-pass",
+      "provenance-gate-integration-pass",
+      "slice-a-post-merge-ci-pass",
+      "diffcipline-policy-migration-review-pass",
+      "branch-protection-unchanged-pass",
+      "pr54-remains-unmerged-pass",
+      "diffcipline-r2-proof-pass",
+      "post-migration-ci-pass"
+    ]
+  },
+  "id": "SG-000013",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "stdlib",
+        "rationale": "Use Python stdlib plus existing package/Cargo tooling inside the already-required Provenance job; do not add a dependency merely to review dependencies, and do not add a new protected-check name when the existing Provenance gate can own this repository-governance concern."
+      },
+      "safety": {
+        "requirements": [
+          "Never merge or bypass a dependency change while Diffcipline REVIEW is still a required failing check.",
+          "Never change Diffcipline dependency/lockfile policy to allow before the required Provenance dependency gate is merged and post-merge green.",
+          "Never remove a required branch-protection check or disable enforce_admins as part of this repair.",
+          "Never silently broaden license admission beyond canonical LICENSE_POLICY.",
+          "Never represent dependency admission validation as vulnerability, SBOM, signature, or release-security proof."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux can admit legitimate npm/Cargo dependency and lockfile changes only when an already-required Provenance gate deterministically validates exact approved direct dependencies, lock consistency, bounded purpose, and license posture; only after that gate is proven does Diffcipline stop treating dependency files as an unconditionally unmergeable REVIEW.",
+  "parent_id": null,
+  "rationale": "The first Rust contract dependency exposed a governance deadlock: Diffcipline v1 intentionally returns REVIEW for any dependency manifest/lockfile change, its Action preserves exit 1, and protected main requires that job with enforce_admins=true. Diffcipline v1 has no review-approval hook and enterprise policy is monotonic, so a legitimate reviewed dependency cannot currently merge. Bypassing branch protection or relabeling REVIEW is forbidden. The safe repair is to establish a deterministic dependency-admission check inside the already-required Provenance job first, prove it on main, then migrate Diffcipline dependency/lockfile handling to ALLOW because judgment has moved into an executable required gate rather than disappeared.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Before policy migration, revert the validator/gate slice normally. After migration, recovery restores Diffcipline dependency/lockfile REVIEW before removing or weakening the Provenance dependency gate. No product runtime or user data is created."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Create a machine-readable dependency approval registry covering direct external npm and Cargo dependencies with ecosystem, package name, exact admitted version, scope/purpose, license posture, and approval rationale. Internal workspace/path dependencies are not external approvals.",
+    "Create a dependency-free Python 3.11+ validator using stdlib JSON/tomllib/subprocess that reads package.json, the Cargo workspace/member manifests, lock state, and the approval registry. It must fail closed on unapproved external direct dependency, version drift, non-exact direct version, malformed approval, duplicate approval, stale approval, unsupported ecosystem, or missing purpose/license posture.",
+    "For npm, require root direct dependency/devDependency versions to be exact and match approvals. Bind pnpm lock consistency through frozen installation in existing CI; validator must still prove every declared direct external npm package has exactly one matching approval.",
+    "For Cargo, recognize registry/git external direct dependencies versus workspace/path/internal dependencies; require exact registry versions for approved direct external crates, match approvals, and use cargo metadata --locked when an external Rust graph exists to verify the committed lock resolves the direct package/version and expose resolved license metadata.",
+    "Apply current LICENSE_POLICY admission: MIT and Apache-2.0 are permitted subject to provenance/notice obligations; any other SPDX expression/class remains explicit review unless a dependency approval records a separately governed license-policy exception. Do not silently broaden LICENSE_POLICY.",
+    "Add focused conformance tests for valid npm baseline, unapproved dependency, version mismatch, floating/range version, duplicate/stale approval, malformed registry, internal path dependency, Cargo locked resolution mismatch, and non-approved license posture using bounded temporary fixtures rather than changing real manifests.",
+    "Integrate dependency validation and its test suite into the existing required Provenance CI job while leaving .diffcipline.toml dependency_manifest_changes=review and lockfile_changes=review unchanged in the first implementation slice.",
+    "After the dependency-admission gate is merged and post-merge qualified on protected main, perform a separate policy-migration slice changing only Diffcipline dependency/lockfile decisions from review to allow and updating governance docs to state that dependency judgment is now enforced by the required Provenance dependency gate.",
+    "Prove the migration does not weaken net governance: required Provenance remains branch-protected; dependency validator rejects a deliberate unapproved dependency fixture; Diffcipline continues enforcing size/scope/untracked/verification rules; no branch protection bypass or required-check removal occurs.",
+    "Document the current first-Rust-dependency blocker and recovery path so PR #54 remains unmerged until this prerequisite is proven and its branch is updated from canonical main without rebase/force-push."
+  ],
+  "scope_out": [
+    "Do not merge, bypass, or relabel PR #54 while Diffcipline returns REVIEW.",
+    "Do not add serde/serde_json or any new product dependency in this governance prerequisite.",
+    "Do not change project licensing, donor-import rules, branch protection required checks, or Provenance semantics unrelated to dependency admission.",
+    "Do not treat automated dependency approval as security/vulnerability/SBOM/release qualification; later security/release phases own those stronger controls."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S05-T01 prerequisite — Replace unmergeable dependency REVIEW with enforced dependency admission"
+}
