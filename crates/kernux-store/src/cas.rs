@@ -6,7 +6,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use sha2::{Digest, Sha256};
 
-use crate::Sha256Digest;
+use crate::{CanonicalId, Revision, Sha256Digest, Store, StoreError};
 
 const BUFFER_BYTES: usize = 64 * 1024;
 const MAX_ARTIFACT_BYTES: u64 = i64::MAX as u64;
@@ -43,6 +43,35 @@ impl fmt::Display for CasError {
 }
 
 impl std::error::Error for CasError {}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ArtifactBindingError {
+    Cas(CasError),
+    Store(StoreError),
+}
+
+impl fmt::Display for ArtifactBindingError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Cas(_) => "artifact binding failed during CAS verification",
+            Self::Store(_) => "artifact binding failed during metadata update",
+        })
+    }
+}
+
+impl std::error::Error for ArtifactBindingError {}
+
+impl From<CasError> for ArtifactBindingError {
+    fn from(value: CasError) -> Self {
+        Self::Cas(value)
+    }
+}
+
+impl From<StoreError> for ArtifactBindingError {
+    fn from(value: StoreError) -> Self {
+        Self::Store(value)
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CasBlob {
@@ -158,6 +187,34 @@ impl ArtifactCas {
         fs::remove_file(&shard_temp).map_err(|_| CasError::Io)?;
         shard_guard.disarm();
         Ok(CasBlob { digest, size_bytes })
+    }
+
+    pub fn bind_artifact(
+        &self,
+        store: &mut Store,
+        id: CanonicalId,
+        expected: Revision,
+        blob: &CasBlob,
+    ) -> Result<Revision, ArtifactBindingError> {
+        let verified = self.open_verified(blob.digest(), blob.size_bytes())?;
+        if verified.size_bytes() != blob.size_bytes() {
+            return Err(CasError::CorruptBlob.into());
+        }
+
+        let current = store.artifact_metadata(id)?;
+        if current.revision() != expected {
+            return Err(StoreError::RevisionConflict.into());
+        }
+        store
+            .compare_and_swap_artifact_metadata(
+                id,
+                expected,
+                Some(blob.digest()),
+                Some(blob.size_bytes()),
+                current.media_type(),
+                current.retention_ref(),
+            )
+            .map_err(ArtifactBindingError::from)
     }
 
     pub fn open_verified(
@@ -338,8 +395,11 @@ impl Drop for TempGuard {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::TestDb;
     use std::io::{Cursor, Read};
 
+    const ARTIFACT_A: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f607190";
+    const ARTIFACT_B: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f607192";
     const ABC_SHA256: &str = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
     const EMPTY_SHA256: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
@@ -434,6 +494,302 @@ mod tests {
             cas.open_verified(&digest, 3),
             Err(CasError::BlobNotFound)
         ));
+    }
+
+    #[test]
+    fn multi_chunk_exact_boundary_round_trips() {
+        let root = TestRoot::new("multi-chunk");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let bytes = vec![0x5a; BUFFER_BYTES * 2 + 17];
+        let blob = cas
+            .ingest(Cursor::new(&bytes), bytes.len() as u64, None)
+            .unwrap();
+        assert_eq!(blob.size_bytes(), bytes.len() as u64);
+        let mut verified = cas
+            .open_verified(blob.digest(), bytes.len() as u64)
+            .unwrap();
+        let mut round_trip = Vec::new();
+        verified.read_to_end(&mut round_trip).unwrap();
+        assert_eq!(round_trip, bytes);
+    }
+
+    #[test]
+    fn corrupt_existing_blob_is_not_overwritten_or_repaired() {
+        let root = TestRoot::new("corrupt-existing");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+        let path = cas.blob_path(blob.digest());
+        fs::write(&path, b"xyz").unwrap();
+
+        assert_eq!(
+            cas.ingest(Cursor::new(b"abc"), 3, None),
+            Err(CasError::CorruptBlob)
+        );
+        assert_eq!(fs::read(path).unwrap(), b"xyz");
+    }
+
+    #[test]
+    fn tampered_and_truncated_blobs_fail_verified_read() {
+        for (label, replacement) in [
+            ("tampered", b"xyz".as_slice()),
+            ("truncated", b"ab".as_slice()),
+        ] {
+            let root = TestRoot::new(label);
+            let cas = ArtifactCas::open(&root.0).unwrap();
+            let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+            fs::write(cas.blob_path(blob.digest()), replacement).unwrap();
+            assert_eq!(
+                cas.open_verified(blob.digest(), 3).err(),
+                Some(CasError::DigestMismatch)
+            );
+        }
+    }
+
+    #[test]
+    fn non_regular_final_entry_is_rejected() {
+        let root = TestRoot::new("non-regular");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let digest = Sha256Digest::parse(ABC_SHA256).unwrap();
+        let shard = root.0.join("sha256").join("ba");
+        fs::create_dir(&shard).unwrap();
+        fs::create_dir(shard.join(ABC_SHA256)).unwrap();
+
+        assert!(matches!(
+            cas.open_verified(&digest, 3),
+            Err(CasError::InvalidEntry)
+        ));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn symbolic_link_root_is_rejected() {
+        use std::os::unix::fs::symlink;
+
+        let target = TestRoot::new("symlink-target");
+        let links = TestRoot::new("symlink-parent");
+        let link = links.0.join("cas-link");
+        symlink(&target.0, &link).unwrap();
+        assert!(matches!(
+            ArtifactCas::open(&link),
+            Err(CasError::InvalidRoot)
+        ));
+    }
+
+    #[test]
+    fn invalid_root_namespace_and_limit_fail_closed() {
+        let root = TestRoot::new("invalid-boundaries");
+        let file_root = root.0.join("not-a-directory");
+        fs::write(&file_root, b"x").unwrap();
+        assert!(matches!(
+            ArtifactCas::open(&file_root),
+            Err(CasError::InvalidRoot)
+        ));
+
+        let bad_namespace = TestRoot::new("bad-namespace");
+        fs::write(bad_namespace.0.join("sha256"), b"x").unwrap();
+        assert!(matches!(
+            ArtifactCas::open(&bad_namespace.0),
+            Err(CasError::InvalidEntry)
+        ));
+
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let digest = Sha256Digest::parse(ABC_SHA256).unwrap();
+        assert_eq!(
+            cas.ingest(Cursor::new(b"abc"), u64::MAX, None),
+            Err(CasError::InvalidLimit)
+        );
+        assert_eq!(
+            cas.open_verified(&digest, u64::MAX).err(),
+            Some(CasError::InvalidLimit)
+        );
+    }
+
+    #[test]
+    fn ordinary_success_and_failure_leave_no_temp_names() {
+        fn temp_names(root: &Path) -> Vec<PathBuf> {
+            let mut pending = vec![root.to_path_buf()];
+            let mut found = Vec::new();
+            while let Some(directory) = pending.pop() {
+                for entry in fs::read_dir(directory).unwrap() {
+                    let entry = entry.unwrap();
+                    let path = entry.path();
+                    if entry.file_type().unwrap().is_dir() {
+                        pending.push(path);
+                    } else if entry.file_name().to_string_lossy().starts_with('.') {
+                        found.push(path);
+                    }
+                }
+            }
+            found
+        }
+
+        let root = TestRoot::new("temp-cleanup");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+        assert!(temp_names(&root.0).is_empty());
+
+        assert_eq!(
+            cas.ingest(Cursor::new(b"abcd"), 3, None),
+            Err(CasError::SizeLimitExceeded)
+        );
+        assert!(temp_names(&root.0).is_empty());
+    }
+
+    #[test]
+    fn artifact_binding_preserves_media_retention_and_revision_cas() {
+        let root = TestRoot::new("binding");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+        let db = TestDb::new("cas-binding");
+        let mut store = Store::open(&db.path).unwrap();
+        let id = CanonicalId::parse(ARTIFACT_A).unwrap();
+        store
+            .insert_artifact(id, None, None, Some("text/plain"), Some("retention/pinned"))
+            .unwrap();
+
+        let revision = cas
+            .bind_artifact(&mut store, id, Revision::INITIAL, &blob)
+            .unwrap();
+        assert_eq!(revision.get(), 2);
+        let metadata = store.artifact_metadata(id).unwrap();
+        assert_eq!(metadata.revision(), revision);
+        assert_eq!(metadata.sha256(), Some(blob.digest()));
+        assert_eq!(metadata.size_bytes(), Some(3));
+        assert_eq!(metadata.media_type(), Some("text/plain"));
+        assert_eq!(metadata.retention_ref(), Some("retention/pinned"));
+    }
+
+    #[test]
+    fn binding_reverifies_blob_before_any_metadata_mutation() {
+        let root = TestRoot::new("binding-reverify");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+        fs::write(cas.blob_path(blob.digest()), b"xyz").unwrap();
+
+        let db = TestDb::new("binding-reverify");
+        let mut store = Store::open(&db.path).unwrap();
+        let id = CanonicalId::parse(ARTIFACT_A).unwrap();
+        store.insert_artifact(id, None, None, None, None).unwrap();
+
+        assert_eq!(
+            cas.bind_artifact(&mut store, id, Revision::INITIAL, &blob),
+            Err(ArtifactBindingError::Cas(CasError::DigestMismatch))
+        );
+        let metadata = store.artifact_metadata(id).unwrap();
+        assert_eq!(metadata.revision(), Revision::INITIAL);
+        assert_eq!(metadata.sha256(), None);
+        assert_eq!(metadata.size_bytes(), None);
+    }
+
+    #[test]
+    fn digest_identity_conflict_leaves_blob_and_metadata_unchanged() {
+        let root = TestRoot::new("binding-digest-conflict");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+
+        let db = TestDb::new("binding-digest-conflict");
+        let mut store = Store::open(&db.path).unwrap();
+        let id = CanonicalId::parse(ARTIFACT_A).unwrap();
+        let existing = Sha256Digest::parse(EMPTY_SHA256).unwrap();
+        store
+            .insert_artifact(
+                id,
+                Some(&existing),
+                Some(0),
+                None,
+                Some("retention/original"),
+            )
+            .unwrap();
+
+        assert_eq!(
+            cas.bind_artifact(&mut store, id, Revision::INITIAL, &blob),
+            Err(ArtifactBindingError::Store(
+                StoreError::ArtifactDigestConflict
+            ))
+        );
+        assert!(cas.open_verified(blob.digest(), 3).is_ok());
+        let metadata = store.artifact_metadata(id).unwrap();
+        assert_eq!(metadata.revision(), Revision::INITIAL);
+        assert_eq!(metadata.sha256(), Some(&existing));
+        assert_eq!(metadata.size_bytes(), Some(0));
+        assert_eq!(metadata.retention_ref(), Some("retention/original"));
+    }
+
+    #[test]
+    fn stale_metadata_conflict_leaves_published_blob_intact() {
+        let root = TestRoot::new("binding-conflict");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+
+        let db = TestDb::new("binding-conflict");
+        let mut store = Store::open(&db.path).unwrap();
+        let id = CanonicalId::parse(ARTIFACT_A).unwrap();
+        store.insert_artifact(id, None, None, None, None).unwrap();
+        let revision_two = store
+            .compare_and_swap_artifact_metadata(
+                id,
+                Revision::INITIAL,
+                None,
+                None,
+                Some("text/plain"),
+                Some("retention/changed"),
+            )
+            .unwrap();
+
+        assert_eq!(
+            cas.bind_artifact(&mut store, id, Revision::INITIAL, &blob),
+            Err(ArtifactBindingError::Store(StoreError::RevisionConflict))
+        );
+        assert!(cas.open_verified(blob.digest(), 3).is_ok());
+        let metadata = store.artifact_metadata(id).unwrap();
+        assert_eq!(metadata.revision(), revision_two);
+        assert_eq!(metadata.sha256(), None);
+        assert_eq!(metadata.retention_ref(), Some("retention/changed"));
+    }
+
+    #[test]
+    fn two_logical_artifacts_share_bytes_without_merging_metadata() {
+        let root = TestRoot::new("logical-identity");
+        let cas = ArtifactCas::open(&root.0).unwrap();
+        let blob = cas.ingest(Cursor::new(b"abc"), 3, None).unwrap();
+
+        let db = TestDb::new("logical-identity");
+        let mut store = Store::open(&db.path).unwrap();
+        let first_id = CanonicalId::parse(ARTIFACT_A).unwrap();
+        let second_id = CanonicalId::parse(ARTIFACT_B).unwrap();
+        store
+            .insert_artifact(
+                first_id,
+                None,
+                None,
+                Some("text/plain"),
+                Some("retention/short"),
+            )
+            .unwrap();
+        store
+            .insert_artifact(
+                second_id,
+                None,
+                None,
+                Some("application/octet-stream"),
+                Some("retention/long"),
+            )
+            .unwrap();
+
+        cas.bind_artifact(&mut store, first_id, Revision::INITIAL, &blob)
+            .unwrap();
+        cas.bind_artifact(&mut store, second_id, Revision::INITIAL, &blob)
+            .unwrap();
+
+        let first = store.artifact_metadata(first_id).unwrap();
+        let second = store.artifact_metadata(second_id).unwrap();
+        assert_ne!(first.id(), second.id());
+        assert_eq!(first.sha256(), second.sha256());
+        assert_eq!(first.size_bytes(), second.size_bytes());
+        assert_eq!(first.retention_ref(), Some("retention/short"));
+        assert_eq!(second.retention_ref(), Some("retention/long"));
+        assert_eq!(first.media_type(), Some("text/plain"));
+        assert_eq!(second.media_type(), Some("application/octet-stream"));
     }
 
     #[test]

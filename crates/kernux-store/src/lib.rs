@@ -20,7 +20,7 @@ mod event;
 mod metadata;
 mod recovery;
 pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
-pub use cas::{ArtifactCas, CasBlob, CasError, VerifiedBlob};
+pub use cas::{ArtifactBindingError, ArtifactCas, CasBlob, CasError, VerifiedBlob};
 pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
