@@ -79,19 +79,21 @@ No product code or founding-donor product code has been imported yet.
 
 **P01 EXIT STATUS:** `PROVEN`
 
-**P02 ENTRY AUTHORIZED:** `KX-P02-S03-T01 ONLY`
+**P02 ENTRY AUTHORIZED:** `KX-P02-S04-T01 ONLY`
 
-**NEXT CANONICAL FRONTIER:** `KX-P02-S03-T01 — Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures`
+**NEXT CANONICAL FRONTIER:** `KX-P02-S04-T01 — Implement SHA-256 artifact CAS with bounded streaming, digest verification and retention metadata`
 
-**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S02-T01 — Implement installation/device identity and key creation/rotation/recovery abstraction`
+**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S03-T01 — Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures`
 
-**P02 PROGRESS:** `3 / 9 macro tasks PROVEN`
+**P02 PROGRESS:** `4 / 9 macro tasks PROVEN`
 
 **KX-P02-S01-T01 QUALIFICATION:** `PROVEN`
 
 **KX-P02-S01-T02 QUALIFICATION:** `PROVEN`
 
 **KX-P02-S02-T01 QUALIFICATION:** `PROVEN`
+
+**KX-P02-S03-T01 QUALIFICATION:** `PROVEN`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -134,7 +136,7 @@ The adversarial corpus covers all twenty canonical runtime-operation invariants 
 
 No donor product source has been imported.
 
-KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria and native SG-000017 verification are PROVEN with immutable record `sha256:1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d`. Proof-bearing closeout PR #82 merged at `ab9ef10d15a2250b1e82eccaf9b91218bfd57a98`, and post-merge CI run `35424368459` passed all five protected jobs. P01 exit is PROVEN. KX-P02-S01-T01 is now PROVEN: implementation qualified on `main@e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42`; native SG-000018 verification produced immutable record `sha256:c4a424bc65aed750668e3d58d7339a7c56af6a449799b9d296511a23e53520e6`; proof-bearing PR #91 exact head `5138e8df65de27ab621a033c1105cbe8e66d6d61` passed run `35429680844` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOTkDww` with zero threads; PR #91 merged at `f2ea966b398e445e57af94ee7b25bfbe1af21f2b`; post-merge run `35429947987` passed all six jobs. Only KX-P02-S01-T02 is authorized as NEXT; later P02 tasks remain PLANNED and P02 phase exit remains unproven. KX-P02-S01-T02 is now PROVEN: implementation qualified on `main@74363207a63b532a237ff505e80c47b49ceca07f`; native SG-000019 verification produced immutable record `sha256:fb9c164cecf8a9c72b2fd47557161d0d17046656fa3ce08bfb2939e172066aa3`; proof-bearing PR #97 exact head `f1b744f97b7a7e84d2ae40dfb223199e9dece588` passed run `35435714668` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOTz3Bg` with zero threads; PR #97 merged at `78631b3095ce83ec39985f54c0ebc8e769ca4203`; post-merge run `35435786206` passed all six jobs. Only KX-P02-S02-T01 is authorized as NEXT; all other later P02 tasks remain PLANNED and P02 phase exit remains unproven. KX-P02-S02-T01 is now PROVEN: implementation qualified on `main@8f7a43361a0a0d44202e336358e64a47d7686cfc`; native SG-000020 verification produced immutable record `sha256:c4dc5233ff46ef728c3338182f48c1ff26cefb955b1048cf33097032b3327cb2`; proof-bearing PR #105 exact head `2fae11cd955cc3343a576753509f21df80c1b433` passed run `35442301123` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOUOGWg` with zero threads; PR #105 merged at `f0e457d55021e59799f898a51e634a1d8d284cdc`; post-merge run `35443098538` passed all six jobs. Only KX-P02-S03-T01 is authorized as NEXT; all later P02 tasks remain PLANNED and P02 phase exit remains unproven.
+KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria and native SG-000017 verification are PROVEN with immutable record `sha256:1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d`. Proof-bearing closeout PR #82 merged at `ab9ef10d15a2250b1e82eccaf9b91218bfd57a98`, and post-merge CI run `35424368459` passed all five protected jobs. P01 exit is PROVEN. KX-P02-S01-T01 is now PROVEN: implementation qualified on `main@e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42`; native SG-000018 verification produced immutable record `sha256:c4a424bc65aed750668e3d58d7339a7c56af6a449799b9d296511a23e53520e6`; proof-bearing PR #91 exact head `5138e8df65de27ab621a033c1105cbe8e66d6d61` passed run `35429680844` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOTkDww` with zero threads; PR #91 merged at `f2ea966b398e445e57af94ee7b25bfbe1af21f2b`; post-merge run `35429947987` passed all six jobs. Only KX-P02-S01-T02 is authorized as NEXT; later P02 tasks remain PLANNED and P02 phase exit remains unproven. KX-P02-S01-T02 is now PROVEN: implementation qualified on `main@74363207a63b532a237ff505e80c47b49ceca07f`; native SG-000019 verification produced immutable record `sha256:fb9c164cecf8a9c72b2fd47557161d0d17046656fa3ce08bfb2939e172066aa3`; proof-bearing PR #97 exact head `f1b744f97b7a7e84d2ae40dfb223199e9dece588` passed run `35435714668` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOTz3Bg` with zero threads; PR #97 merged at `78631b3095ce83ec39985f54c0ebc8e769ca4203`; post-merge run `35435786206` passed all six jobs. Only KX-P02-S02-T01 is authorized as NEXT; all other later P02 tasks remain PLANNED and P02 phase exit remains unproven. KX-P02-S02-T01 is now PROVEN: implementation qualified on `main@8f7a43361a0a0d44202e336358e64a47d7686cfc`; native SG-000020 verification produced immutable record `sha256:c4dc5233ff46ef728c3338182f48c1ff26cefb955b1048cf33097032b3327cb2`; proof-bearing PR #105 exact head `2fae11cd955cc3343a576753509f21df80c1b433` passed run `35442301123` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOUOGWg` with zero threads; PR #105 merged at `f0e457d55021e59799f898a51e634a1d8d284cdc`; post-merge run `35443098538` passed all six jobs. Only KX-P02-S03-T01 is authorized as NEXT; all later P02 tasks remain PLANNED and P02 phase exit remains unproven. KX-P02-S03-T01 is now PROVEN: implementation qualified on `main@3bf286402b70790beb997bd555cdf1b064f0492d`; native SG-000021 verification produced immutable record `sha256:e7136d88dd6ec7444054fb0a21103630c296975f0a68ad8f35c996802f9229ef`; proof-bearing retry PR #119 exact head `77f9b3395f38693f9d635acffbcf0338e9fff6f3` passed run `35453792735` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOU39BQ` with zero threads; PR #119 merged at `ec252919e243c2e815dd878eb2d9bd17077f11d8`; post-merge run `35454187226` passed all six jobs. Only KX-P02-S04-T01 is authorized as NEXT; all later P02 tasks remain PLANNED and P02 phase exit remains unproven.
 
 Proof for the current frontier includes:
 
@@ -150,6 +152,7 @@ Proof for the current frontier includes:
 - `docs/evidence/P02-S01-T01.md` — PROVEN T01 implementation, native SG-000018 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S01-T02.md` — PROVEN T02 implementation, native SG-000019 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S02-T01.md` — PROVEN local-identity implementation, native SG-000020 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-S03-T01.md` — PROVEN metadata-store implementation, native SG-000021 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 
 ## Dependency rule
 
