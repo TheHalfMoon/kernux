@@ -144,3 +144,21 @@ fn rotation_preserves_installation_id_and_advances_public_generation_once() {
     );
     assert_ne!(rotation.current().verifying_key(), before.verifying_key());
 }
+
+#[test]
+fn source_keeps_recovery_seed_secret_zeroizing_and_signing_narrow() {
+    let source = include_str!("../src/lib.rs");
+
+    assert!(source.contains("impl Zeroize for RecoverySeed"));
+    assert!(source.contains("impl Drop for RecoverySeed"));
+    assert!(source.contains("self.zeroize();"));
+    assert!(!source.contains("impl fmt::Debug for RecoverySeed"));
+    assert!(!source.contains("impl fmt::Display for RecoverySeed"));
+    assert!(!source.contains("pub fn secret"));
+    assert!(!source.contains("pub fn signing_key"));
+    assert!(!source.contains("pub fn private_key"));
+    assert!(!source.contains("pub fn sign("));
+    assert!(!source.contains("signing_key.to_bytes()"));
+    assert!(!source.contains("signing_key.as_bytes()"));
+    assert!(!source.contains("serde"));
+}
