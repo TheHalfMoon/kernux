@@ -11,7 +11,7 @@ use std::{
     fmt,
     io::{self, Read, Write},
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 #[cfg(unix)]
@@ -287,18 +287,23 @@ impl DaemonServer {
     }
 
     fn handle_connection(&self, mut stream: Stream) -> Result<(), TransportError> {
-        stream.set_nonblocking(false)?;
-        stream.set_recv_timeout(Some(self.config.io_timeout))?;
-        stream.set_send_timeout(Some(self.config.io_timeout))?;
+        configure_stream(&stream, self.config.io_timeout)?;
 
-        let frame = read_frame(&mut stream, self.config.max_frame_bytes)?;
+        let frame = read_frame(
+            &mut stream,
+            self.config.max_frame_bytes,
+            self.config.io_timeout,
+        )?;
         let request: DaemonProbeRequest =
             serde_json::from_slice(&frame).map_err(TransportError::InvalidRequest)?;
         let response = self.lifecycle.probe_response(request.request_id);
         let payload = serde_json::to_vec(&response).map_err(TransportError::EncodeResponse)?;
-        write_payload_frame(&mut stream, &payload, self.config.max_frame_bytes)?;
-        stream.flush()?;
-        Ok(())
+        write_payload_frame(
+            &mut stream,
+            &payload,
+            self.config.max_frame_bytes,
+            self.config.io_timeout,
+        )
     }
 }
 
@@ -328,17 +333,42 @@ pub fn probe_once(
 ) -> Result<DaemonProbeResponse, TransportError> {
     let config = config.validate()?;
     let mut stream = endpoint.connect_stream()?;
-    stream.set_recv_timeout(Some(config.io_timeout))?;
-    stream.set_send_timeout(Some(config.io_timeout))?;
+    configure_stream(&stream, config.io_timeout)?;
     let payload = serde_json::to_vec(request).map_err(TransportError::EncodeResponse)?;
-    write_payload_frame(&mut stream, &payload, config.max_frame_bytes)?;
-    stream.flush()?;
+    write_payload_frame(
+        &mut stream,
+        &payload,
+        config.max_frame_bytes,
+        config.io_timeout,
+    )?;
 
-    let frame = read_frame(&mut stream, config.max_frame_bytes)?;
+    let frame = read_frame(&mut stream, config.max_frame_bytes, config.io_timeout)?;
     serde_json::from_slice(&frame).map_err(TransportError::InvalidResponse)
 }
 
-fn read_frame(reader: &mut impl Read, max_frame_bytes: usize) -> Result<Vec<u8>, TransportError> {
+#[cfg(unix)]
+fn configure_stream(stream: &Stream, io_timeout: Duration) -> Result<(), TransportError> {
+    stream.set_nonblocking(false)?;
+    stream.set_recv_timeout(Some(io_timeout))?;
+    stream.set_send_timeout(Some(io_timeout))?;
+    Ok(())
+}
+
+#[cfg(windows)]
+fn configure_stream(stream: &Stream, _io_timeout: Duration) -> Result<(), TransportError> {
+    // interprocess synchronous Windows named pipes do not expose socket-style
+    // I/O timeouts. Keep the handle nonblocking and enforce the same finite
+    // deadline in the bounded read/write loops below.
+    stream.set_nonblocking(true)?;
+    Ok(())
+}
+
+fn read_frame(
+    reader: &mut impl Read,
+    max_frame_bytes: usize,
+    io_timeout: Duration,
+) -> Result<Vec<u8>, TransportError> {
+    let deadline = io_deadline(io_timeout)?;
     let mut frame = Vec::with_capacity(max_frame_bytes.min(1024));
     let mut byte = [0_u8; 1];
 
@@ -354,6 +384,12 @@ fn read_frame(reader: &mut impl Read, max_frame_bytes: usize) -> Result<Vec<u8>,
                 }
                 frame.push(byte[0]);
             }
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => {
+                wait_for_io(deadline, "receiving local control frame")?;
+            }
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                wait_for_io(deadline, "receiving local control frame")?;
+            }
             Err(error) => return Err(TransportError::Io(error)),
         }
     }
@@ -363,14 +399,67 @@ fn write_payload_frame(
     writer: &mut impl Write,
     payload: &[u8],
     max_frame_bytes: usize,
+    io_timeout: Duration,
 ) -> Result<(), TransportError> {
     if payload.len() > max_frame_bytes {
         return Err(TransportError::FrameTooLarge {
             limit: max_frame_bytes,
         });
     }
-    writer.write_all(payload)?;
-    writer.write_all(b"\n")?;
+
+    let deadline = io_deadline(io_timeout)?;
+    write_all_until(writer, payload, deadline)?;
+    write_all_until(writer, b"\n", deadline)
+}
+
+fn write_all_until(
+    writer: &mut impl Write,
+    mut bytes: &[u8],
+    deadline: Instant,
+) -> Result<(), TransportError> {
+    while !bytes.is_empty() {
+        match writer.write(bytes) {
+            Ok(0) => {
+                return Err(TransportError::Io(io::Error::new(
+                    io::ErrorKind::WriteZero,
+                    "local control frame write returned zero bytes",
+                )));
+            }
+            Ok(written) => bytes = &bytes[written..],
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => {
+                wait_for_io(deadline, "sending local control frame")?;
+            }
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                wait_for_io(deadline, "sending local control frame")?;
+            }
+            Err(error) => return Err(TransportError::Io(error)),
+        }
+    }
+    Ok(())
+}
+
+fn io_deadline(io_timeout: Duration) -> Result<Instant, TransportError> {
+    Instant::now()
+        .checked_add(io_timeout)
+        .ok_or(TransportError::InvalidConfiguration(
+            "io_timeout exceeds the supported deadline range",
+        ))
+}
+
+fn wait_for_io(deadline: Instant, operation: &'static str) -> Result<(), TransportError> {
+    let now = Instant::now();
+    if now >= deadline {
+        return Err(TransportError::Io(io::Error::new(
+            io::ErrorKind::TimedOut,
+            format!("timed out while {operation}"),
+        )));
+    }
+
+    thread::sleep(
+        deadline
+            .saturating_duration_since(now)
+            .min(Duration::from_millis(1)),
+    );
     Ok(())
 }
 
