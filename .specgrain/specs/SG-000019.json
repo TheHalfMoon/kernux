@@ -1,0 +1,113 @@
+{
+  "acceptance": [
+    "Every accepted connection obtains interprocess peer credentials before application payload processing. Unix authorization requires the expected euid and, where both configured and available, the expected PID; Windows authorization requires the expected peer PID. Missing/unavailable required credentials fail closed.",
+    "LaunchNonce accepts exactly 32 secret bytes and uses an exact 64-lowercase-hex external representation. Secret-revealing Debug/Display/serde output is absent, nonce bytes are never placed in argv, tracked evidence, errors, or persisted files, and repository tests/source assertions reject regressions.",
+    "kernuxd startup consumes a bounded launch-authorization bootstrap from inherited stdin before binding. Missing, malformed, oversized, duplicate/trailing, unsupported-version, or platform-incompatible bootstrap data fails before listener creation and never echoes the nonce.",
+    "Each client connection must present the exact supported authentication preamble before any KRP frame. The daemon validates peer identity and launch nonce before serde_json parsing or probe dispatch; unauthenticated callers receive no KRP response, health/version metadata, or authority signal.",
+    "Well-formed nonce comparison processes the full fixed-size secret rather than returning on the first mismatching byte. Wrong nonce, wrong peer, missing auth, malformed auth, unsupported auth version, and peer-credential errors all reject the session fail-closed without daemon death.",
+    "The authenticated probe path preserves existing KRP semantics: after successful session authentication the unchanged generated krp/1 health/version probe succeeds; frame bounds, finite I/O deadlines, one probe response per connection, closed JSON decoding, lifecycle truth, and owner-controlled shutdown remain intact.",
+    "The authoritative KRP schema, generated Rust/TypeScript contract outputs, compatibility matrix, and adversarial corpus remain byte/semantically unchanged by T02 unless an independently justified refinement revision explicitly reopens this criterion before implementation.",
+    "Executable Unix tests use real local-socket peer credentials and prove authorized success, wrong expected euid/PID behavior where supported, nonce failures, no-KRP-before-auth, daemon survival after unauthorized attempts, shutdown cleanup, and restart. Existing T01 Unix adversarial tests remain PASS after authentication adaptation.",
+    "The existing Windows kernuxd CI job executes native named-pipe session-auth tests proving exact peer-PID binding, correct nonce success, wrong/missing/malformed nonce rejection, wrong PID rejection, daemon survival, and restart. No non-Windows compile substitutes for this runtime evidence.",
+    "The implementation introduces no new direct runtime dependency unless the Grain is explicitly revised first with dependency-admission evidence. interprocess remains exactly 2.4.4 with default features disabled and serde_json remains exactly 1.0.151; dependency/provenance validation passes.",
+    "The exact implementation candidate passes git diff --check, full pnpm check, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode plus complete manual accounting for exclusions, all five protected exact-head checks, and the additive Windows kernuxd job.",
+    "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S01-T02 becomes PROVEN; later P02 tasks remain governed by the canonical dependency ledger and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000019.json",
+    "crates/kernuxd/src/auth.rs",
+    "crates/kernuxd/src/lib.rs",
+    "crates/kernuxd/src/main.rs",
+    "crates/kernuxd/src/transport.rs",
+    "crates/kernuxd/tests/auth.rs",
+    "crates/kernuxd/tests/transport_unix.rs",
+    "crates/kernuxd/tests/transport_windows.rs",
+    "docs/evidence/P02-S01-T02.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 16000,
+    "estimated_tokens": 12500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "session-auth-policy-pass",
+      "peer-credential-binding-pass",
+      "launch-nonce-validation-pass",
+      "stdin-bootstrap-fail-closed-pass",
+      "pre-krp-auth-rejection-pass",
+      "constant-time-nonce-compare-pass",
+      "no-secret-leak-pass",
+      "transport-regression-pass",
+      "krp-contract-unchanged-pass",
+      "dependency-stability-pass",
+      "unix-session-auth-runtime-pass",
+      "windows-session-auth-runtime-pass",
+      "scope-boundary-pass",
+      "baseline-ci-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000019",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the already admitted interprocess 2.4.4 peer_creds API, existing bounded synchronous local transport, current serde_json KRP frames, current Unix/Windows test paths, and existing Windows CI job. Add only a small kernuxd-private authentication preamble/policy layer; do not add an async runtime, OS API crate, cryptography framework, persistence layer, or second protocol stack."
+      },
+      "safety": {
+        "requirements": [
+          "Authentication must complete before any KRP payload is parsed or any KRP response/health metadata is emitted.",
+          "Launch nonce material must never be passed in argv, persisted, logged, included in error text, or written to evidence; well-formed secret comparison must not early-exit by matching prefix.",
+          "Peer-credential lookup failure, missing required identity fields, wrong nonce, wrong peer, malformed bootstrap/auth frames, and unsupported auth versions must fail closed without killing kernuxd.",
+          "Unix must use actual local-socket peer credentials and Windows must use native named-pipe peer PID evidence from the existing Windows CI path; tests may not substitute synthetic credentials for the platform integration criterion.",
+          "No authenticated session in T02 may imply policy Grant, privileged host-operation authority, device identity, secret access, or P02 phase completion."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Bind each accepted kernuxd local client connection to a launch nonce and operating-system peer credentials before any KRP payload is processed, reject unauthorized local callers fail-closed, and preserve T01 local-only transport and lifecycle guarantees without advancing identity, persistence, policy, secrets, host operations, or remote transport.",
+  "parent_id": null,
+  "rationale": "KX-P02-S01-T01 is PROVEN and post-merge-qualified. T02 is now the only authorized frontier and exclusively owns launch nonce, peer identity binding, caller authentication, and rejection of unauthorized local callers. interprocess 2.4.4 already exposes cross-platform peer_creds(), so the bounded implementation can reuse the admitted transport dependency without adding a new OS API dependency.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only the bounded SG-000019 refinement/implementation/closeout changes, restore the T01 unauthenticated probe implementation at the prior qualified revision, keep KX-P02-S01-T02 at NEXT, and preserve SG-000018/T01 proof. Do not advance any later P02 authority after rollback."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Reuse the already admitted interprocess 2.4.4 local-socket Stream::peer_creds() API to capture operating-system peer credentials on every accepted connection before reading any authentication or KRP application payload; do not add a second IPC stack or new OS-identity dependency.",
+    "Introduce a private kernuxd LaunchNonce value with an exact 32-byte secret payload and strict 64-lowercase-hex bootstrap/wire representation. The value must not implement secret-revealing Debug/Display serialization, must never be persisted, and must never appear in errors, logs, evidence, or command-line arguments.",
+    "Require daemon-owner SessionAuthConfig at bind time. The config binds the launch nonce to an expected platform peer identity: Unix requires exact effective-user identity and may additionally require exact peer PID when that platform exposes a PID; Windows requires the exact client PID exposed by interprocess peer credentials.",
+    "Keep the public kernuxd binary endpoint argument unchanged and ingest the bounded owner-supplied launch authorization from inherited standard input before binding. The launch nonce must not be accepted through argv or a filesystem secret file; malformed, missing, trailing, or oversized bootstrap input fails closed before listener creation.",
+    "Add a small private pre-KRP authentication preamble on each accepted connection with an exact version token and fixed-size nonce encoding. Authenticate peer credentials and nonce before parsing, dispatching, or responding to any KRP probe frame. The accepted transport connection itself is the authenticated local session for this bounded task.",
+    "Compare valid fixed-size launch nonces without early-exit secret-byte comparison. Malformed encoding may fail immediately, but a well-formed wrong nonce must not disclose a matching prefix or any secret material.",
+    "On authentication failure, close the connection fail-closed without a KRP response or health/version metadata. Wrong nonce, missing auth, wrong expected peer, unsupported auth version, malformed preamble, and peer-credential lookup failure must never grant a session or terminate the daemon.",
+    "Update the existing local probe client path to present the launch nonce before its unchanged generated KRP probe request. Preserve the T01 maximum KRP frame size, I/O deadlines, one-probe-per-connection behavior, local-only Unix-domain socket / Windows named-pipe transport, and owner-controlled shutdown semantics.",
+    "Prove the session-auth policy separately from transport using deterministic unit tests, then prove actual peer-credential binding with Unix runtime tests and the existing native Windows kernuxd CI job. Include authorized success, wrong/missing/malformed nonce, wrong peer identity, unsupported auth version, unauthorized flood/recovery, no-KRP-before-auth, and no-secret-leak assertions.",
+    "Preserve the authoritative KRP v1 schema and generated Rust/TypeScript contract bytes unchanged in T02; authentication is a transport/session precondition, not a silent change to existing KRP object meanings or protocol-version negotiation.",
+    "After native verification and protected closeout, mark only KX-P02-S01-T02 PROVEN. Do not automatically authorize a later P02 task unless the canonical dependency ledger identifies exactly one next frontier at closeout time."
+  ],
+  "scope_out": [
+    "Do not implement installation/device identity, device keys, key generation/rotation/recovery, OS credential-store integration, or durable identity. KX-P02-S02-T01 owns those semantics.",
+    "Do not implement SQLite or any durable metadata store, artifact CAS, policy evaluation, Grant issuance/enforcement, permission profiles, secret brokering, security-audit persistence, or any later P02 task.",
+    "Do not implement filesystem/process/PTY privileged operations, sandbox lifecycle, browser/computer control, remote/cloud transport, HTTP, TCP, UDP, or network listeners.",
+    "Do not introduce a reusable bearer session token, remote token exchange, refresh token, durable credential, or cross-restart session. In this task the authenticated local transport connection is the session boundary.",
+    "Do not expose shutdown or any privileged mutation over IPC in T02. Shutdown remains owner-controlled and in-process until a later explicitly authorized contract adds privileged operations.",
+    "Do not add a random-number dependency or claim launch-nonce generation. T02 consumes an owner-supplied 32-byte cryptographically random launch nonce; generation belongs to the launching component and is outside this bounded Grain.",
+    "Do not weaken T01 endpoint privacy, stale-path safety, frame bounds, timeouts, closed decoding, existing five protected contexts, or the additive Windows evidence job.",
+    "Do not mark P02 phase exit or any later P02 task PROVEN through this Grain."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S01-T02 — Bind authenticated local client sessions"
+}
