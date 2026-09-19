@@ -12,7 +12,13 @@
     },
     "ConsequenceClass": {
       "type": "string",
-      "enum": ["C0", "C1", "C2", "C3"]
+      "enum": [
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ]
     },
     "ContactState": {
       "type": "string",
@@ -42,17 +48,100 @@
       "type": "string",
       "enum": ["project", "task", "run", "runtime"]
     },
+    "UuidV7": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "Sha256Digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ResourceMatch": {
+      "type": "string",
+      "enum": [
+        "exact",
+        "subtree"
+      ]
+    },
+    "CancellationOutcome": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "already_terminal",
+        "not_cancellable",
+        "unknown_operation",
+        "denied",
+        "unverifiable"
+      ]
+    },
+    "ErrorCategory": {
+      "type": "string",
+      "enum": [
+        "invalid_request",
+        "protocol_mismatch",
+        "capability_unavailable",
+        "authorization_denied",
+        "resource_invalid",
+        "operation_conflict",
+        "operation_unknown",
+        "operation_unverifiable",
+        "operation_not_cancellable",
+        "runtime_unavailable",
+        "runtime_revoked",
+        "timeout",
+        "internal"
+      ]
+    },
+    "SubjectScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run"
+      ],
+      "properties": {
+        "run": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "agent_session": {
+          "$ref": "#/$defs/CanonicalRef"
+        }
+      }
+    },
+    "DiagnosticField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
     "CanonicalRef": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "id"],
+      "required": [
+        "kind",
+        "id"
+      ],
       "properties": {
-        "kind": { "$ref": "#/$defs/EntityKind" },
-        "id": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        "kind": {
+          "$ref": "#/$defs/EntityKind"
         },
-        "revision": { "type": "integer", "minimum": 1, "maximum": 4294967295 }
+        "id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        }
       }
     },
     "ConstraintSet": {
@@ -70,109 +159,403 @@
     "CapabilityRequest": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["request_id", "subject", "action", "resource_uri", "runtime", "consequence", "constraints"],
+      "required": [
+        "request_id",
+        "subject_scope",
+        "action",
+        "resource_uri",
+        "runtime",
+        "requested_constraints",
+        "provenance_event_ids"
+      ],
       "properties": {
-        "request_id": { "type": "string" },
-        "subject": { "$ref": "#/$defs/CanonicalRef" },
-        "action": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$" },
-        "resource_uri": { "type": "string", "pattern": "^kernux://" },
-        "runtime": { "$ref": "#/$defs/CanonicalRef" },
-        "consequence": { "$ref": "#/$defs/ConsequenceClass" },
-        "constraints": { "$ref": "#/$defs/ConstraintSet" }
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "subject_scope": {
+          "$ref": "#/$defs/SubjectScope"
+        },
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+        },
+        "resource_uri": {
+          "type": "string",
+          "pattern": "^kernux://"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "requested_constraints": {
+          "$ref": "#/$defs/ConstraintSet"
+        },
+        "provenance_event_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UuidV7"
+          }
+        },
+        "reason": {
+          "type": "string"
+        }
       }
     },
     "Grant": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["grant_id", "request_id", "subject", "action", "resource_uri", "runtime", "consequence", "constraints", "expires_at", "max_uses", "issuer_policy_revision"],
+      "required": [
+        "grant_id",
+        "subject_scope",
+        "action",
+        "resource_uri",
+        "resource_match",
+        "runtime",
+        "constraints",
+        "consequence_ceiling",
+        "issuer_authority",
+        "policy_revision",
+        "issued_at",
+        "not_before",
+        "expires_at",
+        "max_uses",
+        "delegation_depth"
+      ],
       "properties": {
-        "grant_id": { "type": "string" },
-        "request_id": { "type": "string" },
-        "subject": { "$ref": "#/$defs/CanonicalRef" },
-        "action": { "type": "string" },
-        "resource_uri": { "type": "string" },
-        "runtime": { "$ref": "#/$defs/CanonicalRef" },
-        "consequence": { "$ref": "#/$defs/ConsequenceClass" },
-        "constraints": { "$ref": "#/$defs/ConstraintSet" },
-        "expires_at": { "type": "string" },
-        "max_uses": { "type": "integer", "minimum": 1 },
-        "issuer_policy_revision": { "type": "integer", "minimum": 1 }
+        "grant_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "subject_scope": {
+          "$ref": "#/$defs/SubjectScope"
+        },
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+        },
+        "resource_uri": {
+          "type": "string",
+          "pattern": "^kernux://"
+        },
+        "resource_match": {
+          "$ref": "#/$defs/ResourceMatch"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "constraints": {
+          "$ref": "#/$defs/ConstraintSet"
+        },
+        "consequence_ceiling": {
+          "$ref": "#/$defs/ConsequenceClass"
+        },
+        "issuer_authority": {
+          "type": "string"
+        },
+        "policy_revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "issued_at": {
+          "type": "string"
+        },
+        "not_before": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "max_uses": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "delegation_depth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent_grant_id": {
+          "$ref": "#/$defs/UuidV7"
+        }
       }
     },
-    "CapabilityVersion": {
+    "RuntimeCapability": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["action", "version", "features"],
+      "required": [
+        "action",
+        "version",
+        "features"
+      ],
       "properties": {
-        "action": { "type": "string" },
-        "version": { "type": "string" },
-        "features": { "type": "array", "items": { "type": "string" } }
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+        },
+        "version": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "RuntimeDescriptor": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["runtime", "contract_version", "capabilities", "observation_generation", "observed_at"],
+      "required": [
+        "runtime",
+        "protocol_contract",
+        "capabilities",
+        "features",
+        "observation_generation",
+        "observed_at"
+      ],
       "properties": {
-        "runtime": { "$ref": "#/$defs/CanonicalRef" },
-        "contract_version": { "type": "string" },
-        "capabilities": { "type": "array", "items": { "$ref": "#/$defs/CapabilityVersion" } },
-        "observation_generation": { "type": "integer", "minimum": 1 },
-        "observed_at": { "type": "string" }
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "protocol_contract": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeCapability"
+          }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "observation_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "observed_at": {
+          "type": "string"
+        }
+      }
+    },
+    "RuntimeContactObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime",
+        "contact_state",
+        "observation_generation",
+        "observed_at"
+      ],
+      "properties": {
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "contact_state": {
+          "$ref": "#/$defs/ContactState"
+        },
+        "observation_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "observed_at": {
+          "type": "string"
+        }
       }
     },
     "OperationStart": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["request_id", "operation_id", "subject", "action", "resource_uri", "runtime", "constraints", "payload_sha256"],
+      "required": [
+        "request_id",
+        "operation_id",
+        "subject_scope",
+        "action",
+        "resource_uri",
+        "runtime",
+        "constraints",
+        "payload_sha256",
+        "protocol_contract",
+        "capability_version"
+      ],
       "properties": {
-        "request_id": { "type": "string" },
-        "operation_id": { "type": "string" },
-        "subject": { "$ref": "#/$defs/CanonicalRef" },
-        "action": { "type": "string" },
-        "resource_uri": { "type": "string" },
-        "runtime": { "$ref": "#/$defs/CanonicalRef" },
-        "constraints": { "$ref": "#/$defs/ConstraintSet" },
-        "payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "subject_scope": {
+          "$ref": "#/$defs/SubjectScope"
+        },
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+        },
+        "resource_uri": {
+          "type": "string",
+          "pattern": "^kernux://"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "constraints": {
+          "$ref": "#/$defs/ConstraintSet"
+        },
+        "payload_sha256": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "protocol_contract": {
+          "type": "string"
+        },
+        "capability_version": {
+          "type": "string"
+        }
       }
     },
     "OperationObservation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["operation_id", "runtime", "observation_generation", "execution_state", "observed_at"],
+      "required": [
+        "operation_id",
+        "runtime",
+        "observation_generation",
+        "execution_state",
+        "observed_at"
+      ],
       "properties": {
-        "operation_id": { "type": "string" },
-        "runtime": { "$ref": "#/$defs/CanonicalRef" },
-        "observation_generation": { "type": "integer", "minimum": 1 },
-        "execution_state": { "$ref": "#/$defs/ExecutionState" },
-        "termination_cause": { "type": "string" },
-        "observed_at": { "type": "string" }
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "observation_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "execution_state": {
+          "$ref": "#/$defs/ExecutionState"
+        },
+        "termination_cause": {
+          "type": "string"
+        },
+        "observed_at": {
+          "type": "string"
+        }
+      }
+    },
+    "CancelRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "operation_id"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "CancelResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "operation_id",
+        "outcome"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "outcome": {
+          "$ref": "#/$defs/CancellationOutcome"
+        }
       }
     },
     "RuntimeError": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["code", "category", "message", "request_id", "retry_guidance", "side_effect_certainty"],
+      "required": [
+        "code",
+        "category",
+        "message",
+        "request_id",
+        "retry_guidance",
+        "side_effect_certainty"
+      ],
       "properties": {
-        "code": { "type": "string" },
-        "category": { "type": "string" },
-        "message": { "type": "string" },
-        "request_id": { "type": "string" },
-        "operation_id": { "type": "string" },
-        "retry_guidance": { "$ref": "#/$defs/RetryGuidance" },
-        "side_effect_certainty": { "$ref": "#/$defs/SideEffectCertainty" }
+        "code": {
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/ErrorCategory"
+        },
+        "message": {
+          "type": "string"
+        },
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "retry_guidance": {
+          "$ref": "#/$defs/RetryGuidance"
+        },
+        "side_effect_certainty": {
+          "$ref": "#/$defs/SideEffectCertainty"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DiagnosticField"
+          }
+        },
+        "provider_diagnostic": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DiagnosticField"
+          }
+        }
       }
     },
     "ArtifactRef": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["artifact", "role"],
+      "required": [
+        "artifact",
+        "role"
+      ],
       "properties": {
-        "artifact": { "$ref": "#/$defs/CanonicalRef" },
-        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-        "role": { "type": "string" },
-        "media_type": { "type": "string" },
-        "size_bytes": { "type": "integer", "minimum": 0 }
+        "artifact": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "role": {
+          "type": "string"
+        },
+        "media_type": {
+          "type": "string"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "StreamRef": {
