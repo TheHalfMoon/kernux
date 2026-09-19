@@ -12,8 +12,7 @@ use std::fs;
 use std::path::Path;
 use std::time::Duration;
 
-use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
-use uuid::{Uuid, Variant, Version};
+use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 
 mod metadata;
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
@@ -147,182 +146,14 @@ impl fmt::Display for StoreError {
             Self::InvalidCanonicalId => "metadata store canonical identifier is invalid",
             Self::InvalidRevision => "metadata store revision is invalid",
             Self::NotFound => "metadata store record was not found",
-            Self::Conflict => "metadata store record conflicts with existing state",
             Self::RevisionConflict => "metadata store revision expectation does not match",
             Self::RevisionOverflow => "metadata store revision cannot advance",
-            Self::InvalidDigest => "metadata store digest is invalid",
-            Self::InvalidMetadata => "metadata store metadata is invalid",
-            Self::InvalidEventType => "metadata store event type is invalid",
-            Self::EventPredecessorMismatch => "metadata store event predecessor does not match",
-            Self::EventSequenceOverflow => "metadata store event sequence cannot advance",
-            Self::InvalidCanonicalId => "canonical identifier is invalid",
-            Self::InvalidRevision => "metadata revision is invalid",
-            Self::NotFound => "metadata record was not found",
-            Self::RevisionConflict => "metadata revision conflict",
-            Self::RevisionOverflow => "metadata revision cannot advance",
-            Self::DuplicateConflict => "metadata identity already exists",
+            Self::DuplicateConflict => "metadata store identity already exists",
         })
     }
 }
 
 impl std::error::Error for StoreError {}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct CanonicalId(String);
-
-impl CanonicalId {
-    pub fn parse(value: &str) -> Result<Self, StoreError> {
-        if value.len() != 36 || value.trim() != value {
-            return Err(StoreError::InvalidCanonicalId);
-        }
-        let uuid = Uuid::parse_str(value).map_err(|_| StoreError::InvalidCanonicalId)?;
-        if uuid.get_version() != Some(Version::SortRand)
-            || uuid.get_variant() != Variant::RFC4122
-            || uuid.hyphenated().to_string() != value
-        {
-            return Err(StoreError::InvalidCanonicalId);
-        }
-        Ok(Self(value.to_owned()))
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for CanonicalId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.0)
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Revision(u32);
-
-impl Revision {
-    pub const INITIAL: Self = Self(1);
-
-    pub fn new(value: u32) -> Result<Self, StoreError> {
-        if value == 0 {
-            Err(StoreError::InvalidRevision)
-        } else {
-            Ok(Self(value))
-        }
-    }
-
-    pub const fn get(self) -> u32 {
-        self.0
-    }
-
-    pub fn checked_next(self) -> Result<Self, StoreError> {
-        self.0
-            .checked_add(1)
-            .map(Self)
-            .ok_or(StoreError::RevisionOverflow)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Sha256Digest(String);
-
-impl Sha256Digest {
-    pub fn parse(value: &str) -> Result<Self, StoreError> {
-        if value.len() != 64
-            || !value
-                .bytes()
-                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-        {
-            return Err(StoreError::InvalidDigest);
-        }
-        Ok(Self(value.to_owned()))
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RevisionedEntityKind {
-    Project,
-    Task,
-    WorkUnit,
-    Runtime,
-}
-
-impl RevisionedEntityKind {
-    const fn table(self) -> &'static str {
-        match self {
-            Self::Project => "projects",
-            Self::Task => "tasks",
-            Self::WorkUnit => "work_units",
-            Self::Runtime => "runtimes",
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum ImmutableEntityKind {
-    Run,
-    AgentSession,
-    Evidence,
-    Grant,
-}
-
-impl ImmutableEntityKind {
-    const fn table(self) -> &'static str {
-        match self {
-            Self::Run => "runs",
-            Self::AgentSession => "agent_sessions",
-            Self::Evidence => "evidence",
-            Self::Grant => "grants",
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum StreamOwnerKind {
-    Project,
-    Task,
-    Run,
-    Runtime,
-}
-
-impl StreamOwnerKind {
-    const fn as_str(self) -> &'static str {
-        match self {
-            Self::Project => "project",
-            Self::Task => "task",
-            Self::Run => "run",
-            Self::Runtime => "runtime",
-        }
-    }
-}
-
-pub struct EventAppend<'a> {
-    pub event_id: &'a CanonicalId,
-    pub event_type: &'a str,
-    pub owner_kind: StreamOwnerKind,
-    pub owner_id: &'a CanonicalId,
-    pub owner_revision: Option<Revision>,
-    pub expected_previous_event_id: Option<&'a CanonicalId>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct EventPosition {
-    sequence: u64,
-    previous_event_id: Option<CanonicalId>,
-}
-
-impl EventPosition {
-    pub const fn sequence(&self) -> u64 {
-        self.sequence
-    }
-
-    pub fn previous_event_id(&self) -> Option<&CanonicalId> {
-        self.previous_event_id.as_ref()
-    }
-}
 
 pub struct Store {
     connection: Connection,
