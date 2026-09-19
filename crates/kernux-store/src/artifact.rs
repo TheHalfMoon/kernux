@@ -182,6 +182,7 @@ impl Store {
         }
         let next = expected.checked_next()?;
         enforce_digest_invariance(current.sha256.as_ref(), sha256)?;
+        enforce_size_invariance(current.size_bytes, size_bytes)?;
         let size_bytes = validate_artifact_metadata(size_bytes, media_type, retention_ref)?;
 
         let changed = self
@@ -321,6 +322,14 @@ fn enforce_digest_invariance(
     }
 }
 
+fn enforce_size_invariance(current: Option<u64>, proposed: Option<u64>) -> Result<(), StoreError> {
+    match (current, proposed) {
+        (Some(current), Some(proposed)) if current == proposed => Ok(()),
+        (Some(_), _) => Err(StoreError::ArtifactSizeConflict),
+        (None, _) => Ok(()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -425,6 +434,31 @@ mod tests {
         let persisted = store.artifact_metadata(id).unwrap();
         assert_eq!(persisted.revision(), revision_two);
         assert_eq!(persisted.sha256(), Some(&digest_a));
+    }
+
+    #[test]
+    fn artifact_size_can_be_learned_once_but_never_changed_or_cleared() {
+        let db = TestDb::new("artifact-size");
+        let mut store = Store::open(&db.path).unwrap();
+        let id = CanonicalId::parse(ARTIFACT_A).unwrap();
+        store.insert_artifact(id, None, None, None, None).unwrap();
+
+        let revision_two = store
+            .compare_and_swap_artifact_metadata(id, Revision::INITIAL, None, Some(100), None, None)
+            .unwrap();
+        assert_eq!(revision_two.get(), 2);
+        assert_eq!(
+            store
+                .compare_and_swap_artifact_metadata(id, revision_two, None, Some(101), None, None,),
+            Err(StoreError::ArtifactSizeConflict)
+        );
+        assert_eq!(
+            store.compare_and_swap_artifact_metadata(id, revision_two, None, None, None, None,),
+            Err(StoreError::ArtifactSizeConflict)
+        );
+        let persisted = store.artifact_metadata(id).unwrap();
+        assert_eq!(persisted.revision(), revision_two);
+        assert_eq!(persisted.size_bytes(), Some(100));
     }
 
     #[test]

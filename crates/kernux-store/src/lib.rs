@@ -138,6 +138,7 @@ pub enum StoreError {
     InvalidDigest,
     InvalidMetadata,
     ArtifactDigestConflict,
+    ArtifactSizeConflict,
 }
 
 impl fmt::Display for StoreError {
@@ -158,6 +159,9 @@ impl fmt::Display for StoreError {
             Self::InvalidMetadata => "metadata store metadata is invalid",
             Self::ArtifactDigestConflict => {
                 "metadata store artifact digest conflicts with existing byte identity"
+            }
+            Self::ArtifactSizeConflict => {
+                "metadata store artifact size conflicts with existing byte identity"
             }
         })
     }
