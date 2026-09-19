@@ -1,0 +1,208 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:fb9c164cecf8a9c72b2fd47557161d0d17046656fa3ce08bfb2939e172066aa3",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S01-T02 becomes PROVEN; later P02 tasks remain governed by the canonical dependency ledger and P02 phase exit remains unproven.",
+        "detail": "The closeout state machine is enforced: the real pre-proof PR #97 exact head passed 6/6 before native verification; T02 remains NEXT until proof-bearing protected merge, post-merge qualification and separate canonical transition.",
+        "evidence_ref": "github-pr:97;github-actions:35435029317;git:6062e4935e755974deb222ca65c2a1d07ea547c4",
+        "passed": true
+      },
+      {
+        "check_id": "Each client connection must present the exact supported authentication preamble before any KRP frame. The daemon validates peer identity and launch nonce before serde_json parsing or probe dispatch; unauthenticated callers receive no KRP response, health/version metadata, or authority signal.",
+        "detail": "kxa/1 authentication and OS peer identity are verified before serde_json KRP parsing/dispatch; unauthorized raw KRP and invalid auth receive no KRP response.",
+        "evidence_ref": "github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "Every accepted connection obtains interprocess peer credentials before application payload processing. Unix authorization requires the expected euid and, where both configured and available, the expected PID; Windows authorization requires the expected peer PID. Missing/unavailable required credentials fail closed.",
+        "detail": "Transport enforcement obtains Stream::peer_creds() before auth/KRP processing; Unix real euid and Linux exact/wrong PID tests pass, and Windows native exact/wrong peer PID tests pass.",
+        "evidence_ref": "github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "Executable Unix tests use real local-socket peer credentials and prove authorized success, wrong expected euid/PID behavior where supported, nonce failures, no-KRP-before-auth, daemon survival after unauthorized attempts, shutdown cleanup, and restart. Existing T01 Unix adversarial tests remain PASS after authentication adaptation.",
+        "detail": "macOS runtime tests pass 10/10 plus auth 9/9; Ubuntu Rust CI passes 11/11 Unix transport tests including real exact/wrong peer PID binding, while T01 endpoint and restart guarantees remain covered.",
+        "evidence_ref": "local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass",
+        "passed": true
+      },
+      {
+        "check_id": "LaunchNonce accepts exactly 32 secret bytes and uses an exact 64-lowercase-hex external representation. Secret-revealing Debug/Display/serde output is absent, nonce bytes are never placed in argv, tracked evidence, errors, or persisted files, and repository tests/source assertions reject regressions.",
+        "detail": "Auth-core tests prove exact 32-byte nonce storage, strict 64-lowercase-hex external form, absent secret-revealing Debug/Display/serde surface, and generic errors without secret material.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606",
+        "passed": true
+      },
+      {
+        "check_id": "The authenticated probe path preserves existing KRP semantics: after successful session authentication the unchanged generated krp/1 health/version probe succeeds; frame bounds, finite I/O deadlines, one probe response per connection, closed JSON decoding, lifecycle truth, and owner-controlled shutdown remain intact.",
+        "detail": "Authorized probes preserve unchanged krp/1 framing and response semantics, finite deadlines, one-response connection closure, lifecycle truth, owner shutdown, cleanup and restart.",
+        "evidence_ref": "github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f;git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:krp-contract-unchanged;local:74363207a63b532a237ff505e80c47b49ceca07f:pnpm-protocol-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The authoritative KRP schema, generated Rust/TypeScript contract outputs, compatibility matrix, and adversarial corpus remain byte/semantically unchanged by T02 unless an independently justified refinement revision explicitly reopens this criterion before implementation.",
+        "detail": "No KRP schema/generated contract path changed across the SG-000019 implementation range; generation, fixture conformance, compatibility and adversarial checks pass on final main.",
+        "evidence_ref": "git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:krp-contract-unchanged;local:74363207a63b532a237ff505e80c47b49ceca07f:pnpm-protocol-pass",
+        "passed": true
+      },
+      {
+        "check_id": "The exact implementation candidate passes git diff --check, full pnpm check, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode plus complete manual accounting for exclusions, all five protected exact-head checks, and the additive Windows kernuxd job.",
+        "detail": "Each bounded implementation candidate passed required diff/baseline/R3/OCR accounting and exact-head CI; final main is 6/6 green, and the real pre-proof closeout head independently passed 6/6 before native verification.",
+        "evidence_ref": "local:74363207a63b532a237ff505e80c47b49ceca07f:pnpm-check-pass;github-actions:35433713763;github-actions:35434369656;local:fcda89510b29d144efabf9f1bf1cd337abca447e:diffcipline-r3-pass;local:f0bb775cb76b4a2e51d808a1d35484b7d873d4f7:diffcipline-r3-pass;local:e5745fa1afca50455b1825d8d45d64cbe7e6106a:diffcipline-r3-pass;local:6062e4935e755974deb222ca65c2a1d07ea547c4:diffcipline-r3-pass;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;local:6062e4935e755974deb222ca65c2a1d07ea547c4:ocr-delegation-manual-accounting-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "The existing Windows kernuxd CI job executes native named-pipe session-auth tests proving exact peer-PID binding, correct nonce success, wrong/missing/malformed nonce rejection, wrong PID rejection, daemon survival, and restart. No non-Windows compile substitutes for this runtime evidence.",
+        "detail": "Native windows-latest evidence passes auth 8/8, lifecycle 5/5 and transport 6/6, including exact/wrong peer PID, correct nonce, missing/malformed/wrong nonce rejection, survival and restart.",
+        "evidence_ref": "github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "The implementation introduces no new direct runtime dependency unless the Grain is explicitly revised first with dependency-admission evidence. interprocess remains exactly 2.4.4 with default features disabled and serde_json remains exactly 1.0.151; dependency/provenance validation passes.",
+        "detail": "No dependency manifest/lock/admission file changed in the T02 implementation range; existing interprocess 2.4.4 and serde_json 1.0.151 admission remains intact and Provenance passes.",
+        "evidence_ref": "git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:no-dependency-file-change;github-actions:35434369656:provenance-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Well-formed nonce comparison processes the full fixed-size secret rather than returning on the first mismatching byte. Wrong nonce, wrong peer, missing auth, malformed auth, unsupported auth version, and peer-credential errors all reject the session fail-closed without daemon death.",
+        "detail": "The auth-core source/test invariant verifies full fixed-size mismatch accumulation; wrong nonce, wrong peer, missing/malformed/version-invalid auth reject without daemon death on Unix and native Windows.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "kernuxd startup consumes a bounded launch-authorization bootstrap from inherited stdin before binding. Missing, malformed, oversized, duplicate/trailing, unsupported-version, or platform-incompatible bootstrap data fails before listener creation and never echoes the nonce.",
+        "detail": "Owner bootstrap is consumed from inherited stdin before bind; malformed/missing/trailing/platform-invalid input fails before endpoint creation and binary regression asserts no nonce echo.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606;github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Final implementation main passes full local pnpm check and all six CI jobs; corrected bounded exact heads also passed their required workflows.",
+        "evidence_ref": "local:74363207a63b532a237ff505e80c47b49ceca07f:pnpm-check-pass;github-actions:35433713763;github-actions:35434369656",
+        "passed": true
+      },
+      {
+        "check_id": "constant-time-nonce-compare-pass",
+        "detail": "Well-formed nonce comparison traverses the complete fixed-size secret without an early mismatch return; source assertion and behavior tests pass.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-stability-pass",
+        "detail": "T02 introduces no dependency-file change; existing pinned interprocess/serde_json admission and Provenance remain green.",
+        "evidence_ref": "git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:no-dependency-file-change;github-actions:35434369656:provenance-pass",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Diffcipline R3 passed for each bounded implementation slice and for the real pre-proof closeout candidate; the aggregate implementation range is not misrepresented as one R3 candidate.",
+        "evidence_ref": "local:fcda89510b29d144efabf9f1bf1cd337abca447e:diffcipline-r3-pass;local:f0bb775cb76b4a2e51d808a1d35484b7d873d4f7:diffcipline-r3-pass;local:e5745fa1afca50455b1825d8d45d64cbe7e6106a:diffcipline-r3-pass;local:6062e4935e755974deb222ca65c2a1d07ea547c4:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "krp-contract-unchanged-pass",
+        "detail": "KRP schema and generated Rust/TypeScript contract surfaces are unchanged across T02 implementation; protocol generation, conformance, compatibility and adversarial checks pass.",
+        "evidence_ref": "git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:krp-contract-unchanged;local:74363207a63b532a237ff505e80c47b49ceca07f:pnpm-protocol-pass",
+        "passed": true
+      },
+      {
+        "check_id": "launch-nonce-validation-pass",
+        "detail": "LaunchNonce exact length/external encoding and strict parser tests pass, including uppercase/non-hex/wrong-length rejection.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606",
+        "passed": true
+      },
+      {
+        "check_id": "no-secret-leak-pass",
+        "detail": "No secret-revealing Debug/Display/serde/log/persistence surface exists; argv remains endpoint-only and evidence contains no launch nonce value.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606;github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:7-authorized-paths;repo:docs/evidence/P02-S01-T02.md",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview Delegation Mode accounted for implementation slices; the closeout Markdown exclusion was manually reviewed completely. No direct LLM OCR result or competing reviewer evidence is claimed.",
+        "evidence_ref": "github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;local:6062e4935e755974deb222ca65c2a1d07ea547c4:ocr-delegation-manual-accounting-pass",
+        "passed": true
+      },
+      {
+        "check_id": "peer-credential-binding-pass",
+        "detail": "Real Unix local-socket and native Windows named-pipe peer credentials are exercised; euid and exact/wrong PID behavior pass on platforms that expose those fields.",
+        "evidence_ref": "local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Final T02 implementation merge 74363207a63b532a237ff505e80c47b49ceca07f passed all six main-push jobs in workflow 35434369656. Final closeout post-merge qualification remains future and is not claimed here.",
+        "evidence_ref": "github-actions:35434369656;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "pre-krp-auth-rejection-pass",
+        "detail": "Peer credentials and kxa/1 auth are validated before any KRP frame parse/dispatch/response; unauthenticated KRP receives no KRP response.",
+        "evidence_ref": "github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Real pre-proof closeout PR #97 exact head 6062e4935e755974deb222ca65c2a1d07ea547c4 passed workflow 35435029317 with all five protected jobs plus Windows kernuxd SUCCESS before native verification.",
+        "evidence_ref": "github-pr:97;github-actions:35435029317;git:6062e4935e755974deb222ca65c2a1d07ea547c4",
+        "passed": true
+      },
+      {
+        "check_id": "scope-boundary-pass",
+        "detail": "Exact seven-path implementation range is within SG-000019 authorized surface and excludes identity/keys, persistence, CAS, policy/grants, secrets, privileged host operations, sandbox/browser control and remote transport.",
+        "evidence_ref": "git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:7-authorized-paths;repo:docs/evidence/P02-S01-T02.md",
+        "passed": true
+      },
+      {
+        "check_id": "session-auth-policy-pass",
+        "detail": "Auth policy and transport enforcement bind launch nonce plus expected platform peer identity, with fail-closed typed errors and no authority before successful authorization.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606;github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a",
+        "passed": true
+      },
+      {
+        "check_id": "stdin-bootstrap-fail-closed-pass",
+        "detail": "Owner launch authorization is read from inherited stdin before bind; invalid bootstrap variants fail before listener creation and never echo nonce material.",
+        "evidence_ref": "github-pr:94;github-actions:35432849429;github-actions:35432933109;github-review:94:PRR_kwDOUevqks8AAAABOTsoDQ;git:33a13300e655c2ac4a52427242079929d9ea0606;github-pr:95;github-actions:35433425600;github-actions:35433562616;github-review:95:PRR_kwDOUevqks8AAAABOTucOg;git:27173f218e48f9d7b870bbaa2ef536c579f84f2a;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass",
+        "passed": true
+      },
+      {
+        "check_id": "transport-regression-pass",
+        "detail": "T01 framing/deadline/one-probe/endpoint/shutdown/restart/adversarial invariants remain executable and passing after authentication integration.",
+        "evidence_ref": "local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass;github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f;git-range:18792a7962c6330467b2e21c321a0157b3aee457..74363207a63b532a237ff505e80c47b49ceca07f:krp-contract-unchanged;local:74363207a63b532a237ff505e80c47b49ceca07f:pnpm-protocol-pass",
+        "passed": true
+      },
+      {
+        "check_id": "unix-session-auth-runtime-pass",
+        "detail": "Real Unix runtime evidence passes: macOS 10/10 transport plus 9/9 auth, and Ubuntu 11/11 transport including exact/wrong peer PID.",
+        "evidence_ref": "local:74363207a63b532a237ff505e80c47b49ceca07f:macos-auth-9-of-9-pass;local:74363207a63b532a237ff505e80c47b49ceca07f:macos-transport-unix-10-of-10-pass;github-actions:35434369656:ubuntu-transport-unix-11-of-11-pass",
+        "passed": true
+      },
+      {
+        "check_id": "windows-session-auth-runtime-pass",
+        "detail": "Native Windows job passes auth 8/8, lifecycle 5/5 and transport 6/6 with required auth rejection, peer PID, survival and restart cases.",
+        "evidence_ref": "github-pr:96;github-actions:35433713763;github-actions:35434369656;github-review:96:PRR_kwDOUevqks8AAAABOTvfow;git:74363207a63b532a237ff505e80c47b49ceca07f",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:74363207a63b532a237ff505e80c47b49ceca07f",
+    "issues": [],
+    "observed_changed_paths": [
+      "crates/kernuxd/src/auth.rs",
+      "crates/kernuxd/src/lib.rs",
+      "crates/kernuxd/src/main.rs",
+      "crates/kernuxd/src/transport.rs",
+      "crates/kernuxd/tests/auth.rs",
+      "crates/kernuxd/tests/transport_unix.rs",
+      "crates/kernuxd/tests/transport_windows.rs"
+    ],
+    "packet_digest": "sha256:b5aaf9cdae2b41e32359b481e5aae0fab69757fec6306bddc2c9de0de616cc4a",
+    "result_digest": "sha256:7512b3fc86398ce0c66de0dc207c0cbf59f5e7dee01d3cc58377a1ce6b77553f",
+    "spec_id": "SG-000019",
+    "spec_revision": "sha256:394714abee8073b931a6b61d8b429c9a11838549823be952567481102f07f198",
+    "verification_version": 1,
+    "verified": true
+  }
+}

@@ -68,6 +68,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 **KX-P02-S01-T01 closeout: PROVEN.** Native SG-000018 verification, proof-bearing PR #91 exact-head qualification/review, ordinary merge `f2ea966b398e445e57af94ee7b25bfbe1af21f2b`, and six-job post-merge run `35429947987` are all PROVEN. Only KX-P02-S01-T02 is NEXT; later P02 tasks remain PLANNED.
 
+**KX-P02-S01-T02 closeout:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`. The immutable SG-000019 record `sha256:fb9c164cecf8a9c72b2fd47557161d0d17046656fa3ce08bfb2939e172066aa3` is verified, but T02 remains canonically `NEXT` and later P02 tasks remain `PLANNED` until proof-bearing protected closeout merge, post-merge qualification, and separate canonical transition succeed.
+
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
 
 ---
