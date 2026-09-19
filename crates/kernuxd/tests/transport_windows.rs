@@ -9,6 +9,7 @@ use kernuxd::{
     SessionAuthConfig, probe_once,
 };
 use std::{
+    io::Write,
     sync::{
         atomic::{AtomicU64, Ordering},
         mpsc,
@@ -144,6 +145,85 @@ fn remote_or_path_named_pipe_forms_are_rejected() {
     }
 
     assert!(DaemonEndpoint::windows_pipe("kernuxd.local_1-test").is_ok());
+}
+
+#[test]
+fn missing_malformed_and_wrong_nonce_auth_are_rejected_and_daemon_survives() {
+    let endpoint = DaemonEndpoint::windows_pipe(pipe_name("unauthorized")).expect("endpoint");
+    let config = short_config();
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("bind daemon");
+    let worker = thread::spawn(move || server.serve());
+
+    let name = endpoint
+        .pipe_name()
+        .to_ns_name::<GenericNamespaced>()
+        .expect("local namespaced pipe");
+    let missing = Stream::connect(name).expect("connect missing-auth client");
+    thread::sleep(config.io_timeout + Duration::from_millis(50));
+    drop(missing);
+
+    let name = endpoint
+        .pipe_name()
+        .to_ns_name::<GenericNamespaced>()
+        .expect("local namespaced pipe");
+    let mut malformed = Stream::connect(name).expect("connect malformed-auth client");
+    malformed
+        .write_all(b"not-auth\n")
+        .expect("write malformed authentication frame");
+    drop(malformed);
+    thread::sleep(Duration::from_millis(25));
+
+    assert!(
+        probe_once(
+            &endpoint,
+            &LaunchNonce::from_bytes([0x7b; 32]),
+            &request("01890f00-0000-7000-8000-000000000203"),
+            config,
+        )
+        .is_err(),
+        "wrong launch nonce must reject the Windows session"
+    );
+
+    let response = probe_once(
+        &endpoint,
+        &launch_nonce(),
+        &request("01890f00-0000-7000-8000-000000000204"),
+        config,
+    )
+    .expect("daemon survives rejected Windows callers");
+    assert_eq!(response.health, DaemonHealthState::Healthy);
+
+    assert!(shutdown.request_shutdown());
+    worker.join().expect("worker join").expect("clean shutdown");
+}
+
+#[test]
+fn wrong_named_pipe_peer_pid_fails_closed() {
+    let endpoint = DaemonEndpoint::windows_pipe(pipe_name("wrong-pid")).expect("endpoint");
+    let config = short_config();
+    let wrong_pid = std::process::id()
+        .checked_add(1)
+        .expect("test process id has headroom");
+    let auth = SessionAuthConfig::new(launch_nonce(), ExpectedPeerIdentity::windows(wrong_pid));
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint.clone(), metadata(), auth, config).expect("bind daemon");
+    let worker = thread::spawn(move || server.serve());
+
+    assert!(
+        probe_once(
+            &endpoint,
+            &launch_nonce(),
+            &request("01890f00-0000-7000-8000-000000000205"),
+            config,
+        )
+        .is_err(),
+        "wrong Windows peer pid must reject the session"
+    );
+
+    assert!(shutdown.request_shutdown());
+    worker.join().expect("worker join").expect("clean shutdown");
 }
 
 #[test]
