@@ -96,6 +96,27 @@
       "license_expression": "Apache-2.0 OR MIT",
       "license_posture": "exception-reviewed",
       "license_policy_exception": "docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rusqlite",
+      "source": "registry",
+      "version": "0.40.2",
+      "scope": "runtime",
+      "purpose": "Provide the exact synchronous SQLite wrapper for the bounded local metadata store using bundled SQLite with default features disabled.",
+      "license_expression": "MIT",
+      "license_posture": "permitted-by-LICENSE_POLICY"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "uuid",
+      "source": "registry",
+      "version": "1.26.1",
+      "scope": "runtime",
+      "purpose": "Parse and validate canonical RFC 9562 UUIDv7 metadata identifiers at the store API boundary without enabling UUID generation or serde support.",
+      "license_expression": "Apache-2.0 OR MIT",
+      "license_posture": "exception-reviewed",
+      "license_policy_exception": "docs/evidence/P02-S03-T01-DEPENDENCY-GATE.md"
     }
   ]
 }
