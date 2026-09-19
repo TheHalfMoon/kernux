@@ -1,0 +1,122 @@
+{
+  "schema": "kernux.krp.compatibility/v1",
+  "protocol_contract": "krp/1",
+  "capability_version": "1",
+  "payload_cases": [
+    {
+      "name": "exact_v1_operation_start",
+      "source_case": "operation_start",
+      "set_fields": {},
+      "remove_fields": [],
+      "expected": "accept",
+      "assert_fields": {
+        "protocol_contract": "krp/1",
+        "capability_version": "1"
+      },
+      "assert_absent": []
+    },
+    {
+      "name": "unknown_operation_start_field",
+      "source_case": "operation_start",
+      "set_fields": {
+        "future_hint": "unnegotiated"
+      },
+      "remove_fields": [],
+      "expected": "reject",
+      "assert_fields": {},
+      "assert_absent": []
+    },
+    {
+      "name": "unsupported_protocol_contract",
+      "source_case": "operation_start",
+      "set_fields": {
+        "protocol_contract": "krp/2"
+      },
+      "remove_fields": [],
+      "expected": "reject",
+      "assert_fields": {},
+      "assert_absent": []
+    },
+    {
+      "name": "unsupported_capability_version",
+      "source_case": "operation_start",
+      "set_fields": {
+        "capability_version": "2"
+      },
+      "remove_fields": [],
+      "expected": "reject",
+      "assert_fields": {},
+      "assert_absent": []
+    },
+    {
+      "name": "unsupported_event_contract_version",
+      "source_case": "operation_event",
+      "set_fields": {
+        "contract_version": "krp/2"
+      },
+      "remove_fields": [],
+      "expected": "reject",
+      "assert_fields": {},
+      "assert_absent": []
+    },
+    {
+      "name": "missing_required_protocol_contract",
+      "source_case": "operation_start",
+      "set_fields": {},
+      "remove_fields": ["protocol_contract"],
+      "expected": "reject",
+      "assert_fields": {},
+      "assert_absent": ["protocol_contract"]
+    },
+    {
+      "name": "optional_diagnostic_omission_preserves_side_effect_truth",
+      "source_case": "runtime_error_ambiguous_side_effect",
+      "set_fields": {},
+      "remove_fields": ["provider_diagnostic"],
+      "expected": "accept",
+      "assert_fields": {
+        "side_effect_certainty": "may_have_started",
+        "retry_guidance": "reconcile_operation"
+      },
+      "assert_absent": ["provider_diagnostic"]
+    }
+  ],
+  "truth_cases": [
+    {
+      "name": "protocol_mismatch_preserves_unverifiable_operation_truth",
+      "protocol_contract": "krp/2",
+      "contact_state": "disconnected",
+      "execution_state": "unverifiable",
+      "side_effect_certainty": "may_have_started",
+      "expected_admission": "reject",
+      "expected_execution_state": "unverifiable",
+      "expected_side_effect_certainty": "may_have_started"
+    }
+  ],
+  "feature_gate_cases": [
+    {
+      "name": "peer_did_not_advertise_additive_feature",
+      "feature": "operation.trace_context",
+      "field": "trace_context",
+      "sender_features": ["operation.trace_context"],
+      "peer_features": [],
+      "expected_emit": false
+    },
+    {
+      "name": "sender_did_not_advertise_additive_feature",
+      "feature": "operation.trace_context",
+      "field": "trace_context",
+      "sender_features": [],
+      "peer_features": ["operation.trace_context"],
+      "expected_emit": false
+    },
+    {
+      "name": "both_peers_advertise_additive_feature",
+      "feature": "operation.trace_context",
+      "field": "trace_context",
+      "sender_features": ["operation.trace_context"],
+      "peer_features": ["operation.trace_context"],
+      "expected_emit": true
+    }
+  ]
+}

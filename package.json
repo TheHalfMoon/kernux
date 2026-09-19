@@ -14,7 +14,7 @@
     "check:rust": "cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace --all-targets",
     "specgrain": "node tools/specgrain/run.mjs",
     "specgrain:check": "node tools/specgrain/run.mjs check .",
-    "check:protocol": "node tools/protocol/generate.mjs --check && node tools/protocol/conformance.mjs"
+    "check:protocol": "node tools/protocol/generate.mjs --check && node tools/protocol/conformance.mjs && node tools/protocol/compatibility.mjs"
   },
   "devDependencies": {
     "oxfmt": "0.68.0",
