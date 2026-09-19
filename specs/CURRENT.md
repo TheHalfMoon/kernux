@@ -73,13 +73,13 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S05-T01 — Generated cross-language KRP contracts and conformance`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S05-T02 — KRP compatibility/versioning and unknown/additive-field behavior`
 
-**P01 PROGRESS:** `5 / 7 macro tasks PROVEN`
+**P01 PROGRESS:** `6 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S05-T02 — Define compatibility/versioning rules and unknown/additive-field behavior`
+**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S05-T03 — Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch`
 
-The identity/revision, capability/Grant, runtime-operation, Event/Evidence, and generated-contract tasks are PROVEN.
+The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, and compatibility/versioning tasks are PROVEN.
 
 Canonical generated-contract proof:
 
@@ -94,9 +94,21 @@ Final S05-T01 implementation merged at `a1ee7a16339302152324155357c6f96d1314fd6c
 
 Generated KRP truth is provider-neutral and schema-bound: one JSON Schema 2020-12 source, deterministic Rust/TypeScript generation, exact schema-digest constants, one shared fixture source consumed across languages, semantic JSON round trips, generated-output drift rejection, and governed dependency admission.
 
+KRP v1 compatibility is now canonically frozen and natively proven:
+
+- compatibility policy: `docs/canonical/KRP_COMPATIBILITY.md`;
+- schema SHA-256: `7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9`;
+- evidence packet: `docs/evidence/P01-S05-T02.md`;
+- primary native record: `sha256:a022dc5a6c2c52bf1dfcd988a29384d6eadd2d0c23553162ed4fe2f7ee0613b4`;
+- corrective digest-propagation native record: `sha256:82b6cc51af7b85bcd416bfcf44d3c3f2e4e0b930b8612e89ef162192f8c1203a`;
+- final implementation merge: `5f805fc014da24a17c1fe330c45c284384deb400`;
+- final implementation post-merge CI: `35418918294`, five protected jobs PASS.
+
+The focused T02 matrix covers exact-v1 success, closed decoding, required/optional behavior, protocol/runtime truth separation, Event nonprojection, capability-admission exact matching, and feature-negotiated additive sending. S05-T03 retains the full adversarial protocol corpus.
+
 No donor product source has been imported.
 
-KX-P01-S05-T02 is now authorized. KX-P01-S05-T03 remains dependency-ordered behind it.
+KX-P01-S05-T02 is PROVEN. KX-P01-S05-T03 is now dependency-authorized.
 
 Proof for the current frontier includes:
 
@@ -105,7 +117,8 @@ Proof for the current frontier includes:
 - `docs/evidence/P01-S02-T01.md`;
 - `docs/evidence/P01-S03-T01.md`;
 - `docs/evidence/P01-S04-T01.md`;
-- `docs/evidence/P01-S05-T01.md`.
+- `docs/evidence/P01-S05-T01.md`;
+- `docs/evidence/P01-S05-T02.md`.
 
 ## Dependency rule
 

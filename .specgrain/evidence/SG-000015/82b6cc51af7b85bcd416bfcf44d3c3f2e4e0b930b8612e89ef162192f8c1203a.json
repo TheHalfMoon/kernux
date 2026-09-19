@@ -1,0 +1,113 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:82b6cc51af7b85bcd416bfcf44d3c3f2e4e0b930b8612e89ef162192f8c1203a",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "After an SG-000014 schema revision, core.json.schema_sha256 equals the exact authoritative schema SHA-256 and no other semantic fixture content changes.",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "Generated packages/contracts/src/conformance.ts embeds the exact new schema digest and exact new core fixture digest and remains generator-derived with the do-not-edit header.",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "No S05-T03 negative/adversarial scenario is added or preempted.",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "Node shared conformance, TypeScript compilation, Rust shared-fixture round trips, generator determinism/--check, pnpm check, git diff --check, Diffcipline R2, protected exact-head CI, and post-merge main qualification pass.",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "The eight existing core cases retain identical names, definitions, and semantic JSON values relative to the pre-change fixture except for the envelope schema_sha256 field.",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "core-fixture-semantic-identity-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "generated-fixture-digest-binding-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "generator-check-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "schema-digest-binding-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "sg-000014-authority-bound",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "shared-node-conformance-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      },
+      {
+        "check_id": "shared-rust-roundtrip-pass",
+        "detail": "Independently rechecked against the corrective digest-propagation slice, semantic fixture identity, generated digest bindings, cross-language conformance, bounded Diffcipline R2 proof, protected exact-head CI, and post-merge qualification.",
+        "evidence_ref": "github-pr:66;github-actions:35416156937;github-pr:67;github-actions:35417157846;github-pr:68;github-actions:35417387938;github-actions:35417459665;local:5f805fc014da24a17c1fe330c45c284384deb400:core-fixture-semantic-identity-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:schema-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generated-fixture-digest-binding-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:generator-check-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-node-conformance-pass;local:5f805fc014da24a17c1fe330c45c284384deb400:shared-rust-roundtrip-pass;local:3a972070f913c9ef6279f326b8bb664ddf88714f:diffcipline-r2-pass;git:713112dcf6bd07d9b6150ff098c997841e647c59",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:713112dcf6bd07d9b6150ff098c997841e647c59",
+    "issues": [],
+    "observed_changed_paths": [
+      "packages/contracts/src/conformance.ts",
+      "protocol/fixtures/v1/core.json"
+    ],
+    "packet_digest": "sha256:dfd2eb11836d264a2989a80057f3c90b2b02d004f8712eafb8a807b32e38c9b5",
+    "result_digest": "sha256:aab28173f3701d3a84879b81e93863b11fb3ab7af856bfbd0f6fc16f8f68eb0e",
+    "spec_id": "SG-000015",
+    "spec_revision": "sha256:fab5a58540c28cf7ff8e6059e7b16c28855318f4d594c4f0cfeb19fbc9eccad8",
+    "verification_version": 1,
+    "verified": true
+  }
+}
