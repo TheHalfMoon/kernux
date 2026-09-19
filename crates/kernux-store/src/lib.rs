@@ -2,8 +2,8 @@
 //!
 //! This crate owns the bounded SG-000021 SQLite metadata layer: filesystem
 //! database opening, deterministic schema-v1 migration, revisioned metadata,
-//! and append-safe Event stream indexing. Artifact bytes, policy evaluation,
-//! secret plaintext, and daemon state-root wiring remain out of scope.
+//! append-safe Event stream indexing, and bounded filesystem Artifact CAS bytes.
+//! Policy evaluation, secret plaintext, and daemon state-root wiring remain out of scope.
 
 #![forbid(unsafe_code)]
 
@@ -15,10 +15,12 @@ use std::time::Duration;
 use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 
 mod artifact;
+mod cas;
 mod event;
 mod metadata;
 mod recovery;
 pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
+pub use cas::{ArtifactCas, CasBlob, CasError, VerifiedBlob};
 pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
