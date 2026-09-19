@@ -117,6 +117,17 @@
       "license_expression": "Apache-2.0 OR MIT",
       "license_posture": "exception-reviewed",
       "license_policy_exception": "docs/evidence/P02-S03-T01-DEPENDENCY-GATE.md"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "sha2",
+      "source": "registry",
+      "version": "0.11.0",
+      "scope": "runtime",
+      "purpose": "Compute and verify SHA-256 content digests for bounded filesystem Artifact CAS ingest and verified reads, with default features disabled and no optional features enabled.",
+      "license_expression": "MIT OR Apache-2.0",
+      "license_posture": "exception-reviewed",
+      "license_policy_exception": "docs/evidence/P02-S04-T01-DEPENDENCY-GATE.md"
     }
   ]
 }
