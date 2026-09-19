@@ -138,6 +138,7 @@ exactKeys(
     "capability_version",
     "payload_cases",
     "truth_cases",
+    "event_projection_cases",
     "feature_gate_cases",
   ],
   "matrix",
@@ -266,6 +267,33 @@ for (const entry of matrix.truth_cases) {
   }
 }
 
+if (!Array.isArray(matrix.event_projection_cases) || matrix.event_projection_cases.length === 0) {
+  fail("event_projection_cases must be a non-empty array");
+}
+
+for (const entry of matrix.event_projection_cases) {
+  exactKeys(
+    entry,
+    ["name", "event_type", "negotiated_event_types", "expected_projection"],
+    "event projection case",
+  );
+  validateValue(
+    schema,
+    schema.$defs.Event.properties.event_type,
+    entry.event_type,
+    `${entry.name}.event_type`,
+  );
+  if (!Array.isArray(entry.negotiated_event_types)) {
+    fail(`${entry.name}.negotiated_event_types must be an array`);
+  }
+  const projection = entry.negotiated_event_types.includes(entry.event_type)
+    ? "eligible"
+    : "opaque_only";
+  if (projection !== entry.expected_projection) {
+    fail(`${entry.name} projection policy mismatch`);
+  }
+}
+
 if (!Array.isArray(matrix.feature_gate_cases) || matrix.feature_gate_cases.length === 0) {
   fail("feature_gate_cases must be a non-empty array");
 }
@@ -287,5 +315,5 @@ for (const entry of matrix.feature_gate_cases) {
 }
 
 console.log(
-  `KRP compatibility matrix: PASS (${matrix.payload_cases.length} payload, ${matrix.truth_cases.length} truth, ${matrix.feature_gate_cases.length} feature-gate cases)`,
+  `KRP compatibility matrix: PASS (${matrix.payload_cases.length} payload, ${matrix.truth_cases.length} truth, ${matrix.event_projection_cases.length} event-projection, ${matrix.feature_gate_cases.length} feature-gate cases)`,
 );

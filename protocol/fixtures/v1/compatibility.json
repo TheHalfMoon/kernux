@@ -93,6 +93,20 @@
       "expected_side_effect_certainty": "may_have_started"
     }
   ],
+  "event_projection_cases": [
+    {
+      "name": "negotiated_event_type_is_projection_eligible",
+      "event_type": "operation.observed",
+      "negotiated_event_types": ["operation.observed"],
+      "expected_projection": "eligible"
+    },
+    {
+      "name": "unnegotiated_event_type_is_opaque_only",
+      "event_type": "extension.future_observation",
+      "negotiated_event_types": ["operation.observed"],
+      "expected_projection": "opaque_only"
+    }
+  ],
   "feature_gate_cases": [
     {
       "name": "peer_did_not_advertise_additive_feature",
