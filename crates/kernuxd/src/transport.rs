@@ -1,4 +1,8 @@
-use crate::{DaemonLifecycle, LifecycleError, LifecycleState, ProbeMetadata, ShutdownHandle};
+use crate::{
+    AUTH_PREAMBLE_BYTES, AuthError, DaemonLifecycle, LaunchNonce, LifecycleError, LifecycleState,
+    ObservedPeerIdentity, ProbeMetadata, SessionAuthConfig, ShutdownHandle, authorize_session,
+    encode_auth_preamble, parse_auth_preamble,
+};
 #[cfg(unix)]
 use interprocess::local_socket::GenericFilePath;
 #[cfg(windows)]
@@ -221,12 +225,12 @@ impl DaemonEndpoint {
 /// The listener accepts at most one probe request per connection. Malformed
 /// client traffic closes that connection without granting authority or
 /// terminating the daemon.
-#[derive(Debug)]
 pub struct DaemonServer {
     listener: Listener,
     endpoint: DaemonEndpoint,
     lifecycle: DaemonLifecycle,
     shutdown: ShutdownHandle,
+    auth: SessionAuthConfig,
     config: ServerConfig,
 }
 
@@ -235,6 +239,7 @@ impl DaemonServer {
     pub fn bind(
         endpoint: DaemonEndpoint,
         metadata: ProbeMetadata,
+        auth: SessionAuthConfig,
         config: ServerConfig,
     ) -> Result<(Self, ShutdownHandle), TransportError> {
         let config = config.validate()?;
@@ -246,6 +251,7 @@ impl DaemonServer {
                 endpoint,
                 lifecycle,
                 shutdown: shutdown.clone(),
+                auth,
                 config,
             },
             shutdown,
@@ -289,6 +295,15 @@ impl DaemonServer {
     fn handle_connection(&self, mut stream: Stream) -> Result<(), TransportError> {
         configure_stream(&stream, self.config.io_timeout)?;
 
+        let observed_peer = observed_peer_identity(&stream)?;
+        let mut auth_frame =
+            read_frame(&mut stream, AUTH_PREAMBLE_BYTES - 1, self.config.io_timeout)?;
+        auth_frame.push(b'\n');
+        let presented_nonce =
+            parse_auth_preamble(&auth_frame).map_err(TransportError::Authentication)?;
+        authorize_session(&self.auth, observed_peer, &presented_nonce)
+            .map_err(TransportError::Authentication)?;
+
         let frame = read_frame(
             &mut stream,
             self.config.max_frame_bytes,
@@ -328,12 +343,19 @@ fn verify_endpoint_released(_endpoint: &DaemonEndpoint) -> Result<(), TransportE
 /// Send one bounded read-only probe to a running local daemon.
 pub fn probe_once(
     endpoint: &DaemonEndpoint,
+    launch_nonce: &LaunchNonce,
     request: &DaemonProbeRequest,
     config: ServerConfig,
 ) -> Result<DaemonProbeResponse, TransportError> {
     let config = config.validate()?;
     let mut stream = endpoint.connect_stream()?;
     configure_stream(&stream, config.io_timeout)?;
+    let auth_deadline = io_deadline(config.io_timeout)?;
+    write_all_until(
+        &mut stream,
+        &encode_auth_preamble(launch_nonce),
+        auth_deadline,
+    )?;
     let payload = serde_json::to_vec(request).map_err(TransportError::EncodeResponse)?;
     write_payload_frame(
         &mut stream,
@@ -344,6 +366,29 @@ pub fn probe_once(
 
     let frame = read_frame(&mut stream, config.max_frame_bytes, config.io_timeout)?;
     serde_json::from_slice(&frame).map_err(TransportError::InvalidResponse)
+}
+
+fn observed_peer_identity(stream: &Stream) -> Result<ObservedPeerIdentity, TransportError> {
+    let credentials = stream.peer_creds()?;
+
+    #[cfg(unix)]
+    {
+        let pid = credentials
+            .pid()
+            .and_then(|value| u32::try_from(value).ok());
+        Ok(ObservedPeerIdentity {
+            euid: credentials.euid(),
+            pid,
+        })
+    }
+
+    #[cfg(windows)]
+    {
+        Ok(ObservedPeerIdentity {
+            euid: None,
+            pid: credentials.pid(),
+        })
+    }
 }
 
 #[cfg(unix)]
@@ -560,6 +605,7 @@ pub enum TransportError {
         limit: usize,
     },
     IncompleteFrame,
+    Authentication(AuthError),
     InvalidRequest(serde_json::Error),
     InvalidResponse(serde_json::Error),
     EncodeResponse(serde_json::Error),
@@ -586,6 +632,9 @@ impl fmt::Display for TransportError {
             Self::IncompleteFrame => {
                 f.write_str("local control frame ended before newline terminator")
             }
+            Self::Authentication(error) => {
+                write!(f, "local session authentication failed: {error}")
+            }
             Self::InvalidRequest(error) => write!(f, "invalid daemon probe request: {error}"),
             Self::InvalidResponse(error) => write!(f, "invalid daemon probe response: {error}"),
             Self::EncodeResponse(error) => write!(f, "cannot encode local control frame: {error}"),
@@ -598,6 +647,7 @@ impl std::error::Error for TransportError {
         match self {
             Self::Io(error) => Some(error),
             Self::Lifecycle(error) => Some(error),
+            Self::Authentication(error) => Some(error),
             Self::InvalidRequest(error)
             | Self::InvalidResponse(error)
             | Self::EncodeResponse(error) => Some(error),

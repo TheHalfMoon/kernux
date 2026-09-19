@@ -12,6 +12,10 @@ pub const LAUNCH_NONCE_BYTES: usize = 32;
 pub const LAUNCH_NONCE_HEX_BYTES: usize = LAUNCH_NONCE_BYTES * 2;
 /// Version token for the private pre-KRP authentication preamble.
 pub const AUTH_PROTOCOL_VERSION: &str = "kxa/1";
+/// Version token for the owner-to-daemon stdin bootstrap.
+pub const BOOTSTRAP_PROTOCOL_VERSION: &str = "kxb/1";
+/// Maximum complete bootstrap bytes accepted from inherited stdin, including newline.
+pub const MAX_AUTH_BOOTSTRAP_BYTES: usize = 128;
 const AUTH_PREAMBLE_PREFIX: &[u8] = b"kxa/1 ";
 /// Exact authentication preamble size: version + space + nonce hex + newline.
 pub const AUTH_PREAMBLE_BYTES: usize = AUTH_PREAMBLE_PREFIX.len() + LAUNCH_NONCE_HEX_BYTES + 1;
@@ -128,6 +132,8 @@ pub enum AuthError {
     InvalidNonceEncoding,
     /// The pre-KRP authentication frame was malformed or used another version.
     InvalidPreamble,
+    /// The owner bootstrap was malformed, duplicated, or incompatible with this platform.
+    InvalidBootstrap,
     /// The observed peer or launch nonce did not match the owner policy.
     Unauthorized,
     /// Required operating-system peer credentials were unavailable.
@@ -139,6 +145,7 @@ impl fmt::Display for AuthError {
         formatter.write_str(match self {
             Self::InvalidNonceEncoding => "invalid launch nonce encoding",
             Self::InvalidPreamble => "invalid session authentication preamble",
+            Self::InvalidBootstrap => "invalid owner session bootstrap",
             Self::Unauthorized => "local session authentication rejected",
             Self::PeerCredentialsUnavailable => "required local peer credentials unavailable",
         })
@@ -146,6 +153,83 @@ impl fmt::Display for AuthError {
 }
 
 impl Error for AuthError {}
+
+/// Parse the exact owner-supplied bootstrap content after its single trailing newline is removed.
+///
+/// Unix format: `kxb/1 unix <nonce-hex> <euid> <pid-or-dash>`
+/// Windows format: `kxb/1 windows <nonce-hex> <pid>`
+pub fn parse_owner_bootstrap(value: &str) -> Result<SessionAuthConfig, AuthError> {
+    if value.is_empty()
+        || value
+            .bytes()
+            .any(|byte| matches!(byte, b'\n' | b'\r' | b'\t'))
+        || value.starts_with(' ')
+        || value.ends_with(' ')
+        || value.contains("  ")
+    {
+        return Err(AuthError::InvalidBootstrap);
+    }
+
+    let mut fields = value.split(' ');
+    if fields.next() != Some(BOOTSTRAP_PROTOCOL_VERSION) {
+        return Err(AuthError::InvalidBootstrap);
+    }
+    let platform = fields.next().ok_or(AuthError::InvalidBootstrap)?;
+    let nonce = LaunchNonce::parse_lower_hex(fields.next().ok_or(AuthError::InvalidBootstrap)?)
+        .map_err(|_| AuthError::InvalidBootstrap)?;
+
+    #[cfg(unix)]
+    {
+        if platform != "unix" {
+            return Err(AuthError::InvalidBootstrap);
+        }
+        let euid = parse_decimal_u32(fields.next().ok_or(AuthError::InvalidBootstrap)?, true)?;
+        let pid_text = fields.next().ok_or(AuthError::InvalidBootstrap)?;
+        let pid = if pid_text == "-" {
+            None
+        } else {
+            Some(parse_decimal_u32(pid_text, false)?)
+        };
+        if fields.next().is_some() {
+            return Err(AuthError::InvalidBootstrap);
+        }
+        Ok(SessionAuthConfig::new(
+            nonce,
+            ExpectedPeerIdentity::unix(euid, pid),
+        ))
+    }
+
+    #[cfg(windows)]
+    {
+        if platform != "windows" {
+            return Err(AuthError::InvalidBootstrap);
+        }
+        let pid = parse_decimal_u32(fields.next().ok_or(AuthError::InvalidBootstrap)?, false)?;
+        if fields.next().is_some() {
+            return Err(AuthError::InvalidBootstrap);
+        }
+        Ok(SessionAuthConfig::new(
+            nonce,
+            ExpectedPeerIdentity::windows(pid),
+        ))
+    }
+}
+
+fn parse_decimal_u32(value: &str, allow_zero: bool) -> Result<u32, AuthError> {
+    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+        return Err(AuthError::InvalidBootstrap);
+    }
+    if value.len() > 1 && value.starts_with('0') {
+        return Err(AuthError::InvalidBootstrap);
+    }
+    let parsed = value
+        .parse::<u32>()
+        .map_err(|_| AuthError::InvalidBootstrap)?;
+    if !allow_zero && parsed == 0 {
+        return Err(AuthError::InvalidBootstrap);
+    }
+    Ok(parsed)
+}
 
 /// Encode the exact private authentication preamble written before any KRP frame.
 pub fn encode_auth_preamble(nonce: &LaunchNonce) -> [u8; AUTH_PREAMBLE_BYTES] {
