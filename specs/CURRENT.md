@@ -73,13 +73,13 @@ No product code or founding-donor product code has been imported yet.
 
 **LATEST PROVEN PHASE:** `P00 — Repository and governance foundation`
 
-**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S05-T02 — KRP compatibility/versioning and unknown/additive-field behavior`
+**LATEST PROVEN P01 MACRO TASK:** `KX-P01-S05-T03 — Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch`
 
-**P01 PROGRESS:** `6 / 7 macro tasks PROVEN`
+**P01 PROGRESS:** `7 / 7 macro tasks PROVEN`
 
-**NEXT AUTHORIZED MACRO TASK:** `KX-P01-S05-T03 — Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch`
+**NEXT CANONICAL FRONTIER:** `P01 exit-gate assessment — macro-task count does not itself prove the phase gate`
 
-The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, and compatibility/versioning tasks are PROVEN.
+The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
 Canonical generated-contract proof:
 
@@ -104,11 +104,23 @@ KRP v1 compatibility is now canonically frozen and natively proven:
 - final implementation merge: `5f805fc014da24a17c1fe330c45c284384deb400`;
 - final implementation post-merge CI: `35418918294`, five protected jobs PASS.
 
-The focused T02 matrix covers exact-v1 success, closed decoding, required/optional behavior, protocol/runtime truth separation, Event nonprojection, capability-admission exact matching, and feature-negotiated additive sending. S05-T03 retains the full adversarial protocol corpus.
+The focused T02 matrix covers exact-v1 success, closed decoding, required/optional behavior, protocol/runtime truth separation, Event nonprojection, capability-admission exact matching, and feature-negotiated additive sending.
+
+KRP adversarial conformance is now natively proven:
+
+- shared adversarial corpus: `protocol/fixtures/v1/adversarial.json`;
+- Node adversarial gate: `tools/protocol/adversarial.mjs`;
+- Rust same-byte mirror: `crates/kernux-contracts/tests/adversarial.rs`;
+- evidence packet: `docs/evidence/P01-S05-T03.md`;
+- native SG-000016 evidence record: `sha256:d0f0200aec1f62a725add036579ce70808ac54cfb83a31df998f69f75a6c0e74`;
+- final implementation merge: `986b0fd6754411885f88f544c63718a9467b3382`;
+- final implementation post-merge CI: `35422072516`, five protected jobs PASS.
+
+The adversarial corpus covers all twenty canonical runtime-operation invariants plus thirteen malformed/version wire cases while preserving the explicit boundary between fixture conformance and unimplemented live runtime behavior.
 
 No donor product source has been imported.
 
-KX-P01-S05-T02 is PROVEN. KX-P01-S05-T03 is now dependency-authorized.
+KX-P01-S05-T03 is PROVEN after native verification and this protected closeout. P01 now has 7 / 7 macro tasks PROVEN. P01 exit remains separately gated and P02 is not yet authorized.
 
 Proof for the current frontier includes:
 
@@ -118,7 +130,8 @@ Proof for the current frontier includes:
 - `docs/evidence/P01-S03-T01.md`;
 - `docs/evidence/P01-S04-T01.md`;
 - `docs/evidence/P01-S05-T01.md`;
-- `docs/evidence/P01-S05-T02.md`.
+- `docs/evidence/P01-S05-T02.md`;
+- `docs/evidence/P01-S05-T03.md`.
 
 ## Dependency rule
 
