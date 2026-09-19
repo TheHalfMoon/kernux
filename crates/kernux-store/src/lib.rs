@@ -1,9 +1,9 @@
 //! Local SQLite metadata-store foundation.
 //!
-//! This slice owns filesystem database opening, required connection policy,
-//! deterministic schema-v1 migration, and fail-closed schema validation for
-//! SG-000021. Metadata CRUD, Event append, CAS, policy, and secrets remain out
-//! of scope.
+//! This crate owns the bounded SG-000021 SQLite metadata layer: filesystem
+//! database opening, deterministic schema-v1 migration, revisioned metadata,
+//! and append-safe Event stream indexing. Artifact bytes, policy evaluation,
+//! secret plaintext, and daemon state-root wiring remain out of scope.
 
 #![forbid(unsafe_code)]
 
@@ -15,8 +15,10 @@ use std::time::Duration;
 use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 
 mod artifact;
+mod event;
 mod metadata;
 pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
+pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
 const SCHEMA_VERSION: i64 = 1;
@@ -139,6 +141,11 @@ pub enum StoreError {
     InvalidMetadata,
     ArtifactDigestConflict,
     ArtifactSizeConflict,
+    InvalidEventType,
+    InvalidStreamOwner,
+    EventPredecessorMismatch,
+    EventSequenceOverflow,
+    EventStreamCorrupt,
 }
 
 impl fmt::Display for StoreError {
@@ -163,6 +170,13 @@ impl fmt::Display for StoreError {
             Self::ArtifactSizeConflict => {
                 "metadata store artifact size conflicts with existing byte identity"
             }
+            Self::InvalidEventType => "metadata store event type is invalid",
+            Self::InvalidStreamOwner => "metadata store event stream owner is invalid",
+            Self::EventPredecessorMismatch => {
+                "metadata store event predecessor does not match the stream tip"
+            }
+            Self::EventSequenceOverflow => "metadata store event sequence cannot advance",
+            Self::EventStreamCorrupt => "metadata store event stream is inconsistent",
         })
     }
 }
