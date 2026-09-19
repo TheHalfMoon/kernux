@@ -3,6 +3,17 @@
   "approvals": [
     {
       "ecosystem": "cargo",
+      "name": "interprocess",
+      "source": "registry",
+      "version": "2.4.4",
+      "scope": "runtime",
+      "purpose": "Provide synchronous cross-platform local IPC primitives for kernuxd using Unix-domain sockets on Unix and local named pipes on Windows, with default features disabled.",
+      "license_expression": "0BSD OR Apache-2.0",
+      "license_posture": "exception-reviewed",
+      "license_policy_exception": "docs/evidence/P02-S01-T01-DEPENDENCY-GATE.md"
+    },
+    {
+      "ecosystem": "cargo",
       "name": "serde",
       "source": "registry",
       "version": "1.0.229",
@@ -17,11 +28,11 @@
       "name": "serde_json",
       "source": "registry",
       "version": "1.0.151",
-      "scope": "dev",
-      "purpose": "Consume the shared JSON conformance fixtures in Rust round-trip tests for generated protocol contracts.",
+      "scope": "dev+runtime",
+      "purpose": "Consume shared JSON conformance fixtures in Rust tests and encode/decode bounded kernuxd local control frames at runtime.",
       "license_expression": "MIT OR Apache-2.0",
       "license_posture": "exception-reviewed",
-      "license_policy_exception": "docs/evidence/P01-S05-DEPENDENCY-GATE.md"
+      "license_policy_exception": "docs/evidence/P02-S01-T01-DEPENDENCY-GATE.md"
     },
     {
       "ecosystem": "npm",
