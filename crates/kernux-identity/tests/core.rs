@@ -1,5 +1,6 @@
 use kernux_identity::{
     DeviceVerifyingKey, IdentityError, InstallationId, InstanceId, KeyGeneration, LocalIdentity,
+    SessionChallenge,
 };
 
 #[test]
@@ -161,4 +162,32 @@ fn source_keeps_recovery_seed_secret_zeroizing_and_signing_narrow() {
     assert!(!source.contains("signing_key.to_bytes()"));
     assert!(!source.contains("signing_key.as_bytes()"));
     assert!(!source.contains("serde"));
+}
+
+#[test]
+fn exact_session_binding_round_trips_and_exposes_only_public_material() {
+    let identity = LocalIdentity::generate().expect("OS entropy must be available");
+    let instance_id = InstanceId::generate().expect("OS entropy must be available");
+    let challenge = SessionChallenge::new([0xa5; 32]);
+    let binding = identity.bind_session(instance_id, challenge);
+
+    binding.verify().expect("exact binding must verify");
+    assert_eq!(binding.descriptor(), identity.descriptor());
+    assert_eq!(binding.instance_id(), instance_id);
+    assert_eq!(binding.challenge(), challenge);
+    assert_eq!(binding.signature_bytes().len(), 64);
+    assert_eq!(challenge.as_bytes(), &[0xa5; 32]);
+}
+
+#[test]
+fn source_keeps_session_signing_domain_separated_and_narrow() {
+    let source = include_str!("../src/lib.rs");
+
+    assert!(source.contains("kernux.identity.session/v1\\0"));
+    assert!(source.contains("pub fn bind_session("));
+    assert!(source.contains("pub fn verify(&self) -> Result<(), IdentityError>"));
+    assert!(!source.contains("pub fn sign("));
+    assert!(!source.contains("pub fn signing_key"));
+    assert!(!source.contains("pub fn private_key"));
+    assert!(!source.contains("pub fn verify_message"));
 }

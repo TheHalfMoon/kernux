@@ -16,7 +16,10 @@ const LOCAL_ID_BYTES: usize = 16;
 const VERIFYING_KEY_BYTES: usize = 32;
 const SECRET_KEY_BYTES: usize = 32;
 const RECOVERY_SIGNATURE_BYTES: usize = 64;
+const SESSION_CHALLENGE_BYTES: usize = 32;
+const SESSION_SIGNATURE_BYTES: usize = 64;
 const RECOVERY_DOMAIN: &[u8] = b"kernux.identity.recovery/v1\0";
+const SESSION_DOMAIN: &[u8] = b"kernux.identity.session/v1\0";
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum IdentityError {
@@ -26,6 +29,7 @@ pub enum IdentityError {
     GenerationOverflow,
     InvalidVerifyingKey,
     RecoveryMismatch,
+    SessionBindingMismatch,
 }
 
 impl fmt::Debug for IdentityError {
@@ -37,6 +41,7 @@ impl fmt::Debug for IdentityError {
             Self::GenerationOverflow => "GenerationOverflow",
             Self::InvalidVerifyingKey => "InvalidVerifyingKey",
             Self::RecoveryMismatch => "RecoveryMismatch",
+            Self::SessionBindingMismatch => "SessionBindingMismatch",
         })
     }
 }
@@ -50,6 +55,7 @@ impl fmt::Display for IdentityError {
             Self::GenerationOverflow => "identity key generation cannot advance",
             Self::InvalidVerifyingKey => "identity verifying key is invalid",
             Self::RecoveryMismatch => "identity recovery material does not match",
+            Self::SessionBindingMismatch => "identity session binding does not match",
         })
     }
 }
@@ -280,6 +286,57 @@ impl KeyRotation {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct SessionChallenge([u8; SESSION_CHALLENGE_BYTES]);
+
+impl SessionChallenge {
+    pub const fn new(bytes: [u8; SESSION_CHALLENGE_BYTES]) -> Self {
+        Self(bytes)
+    }
+
+    pub const fn as_bytes(&self) -> &[u8; SESSION_CHALLENGE_BYTES] {
+        &self.0
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct IdentitySessionBinding {
+    descriptor: IdentityPublicDescriptor,
+    instance_id: InstanceId,
+    challenge: SessionChallenge,
+    signature: [u8; SESSION_SIGNATURE_BYTES],
+}
+
+impl IdentitySessionBinding {
+    pub const fn descriptor(&self) -> IdentityPublicDescriptor {
+        self.descriptor
+    }
+
+    pub const fn instance_id(&self) -> InstanceId {
+        self.instance_id
+    }
+
+    pub const fn challenge(&self) -> SessionChallenge {
+        self.challenge
+    }
+
+    pub const fn signature_bytes(&self) -> &[u8; SESSION_SIGNATURE_BYTES] {
+        &self.signature
+    }
+
+    pub fn verify(&self) -> Result<(), IdentityError> {
+        let verifying_key = VerifyingKey::from_bytes(self.descriptor.verifying_key.as_bytes())
+            .map_err(|_| IdentityError::SessionBindingMismatch)?;
+        let signature = Signature::from_bytes(&self.signature);
+        verifying_key
+            .verify_strict(
+                &session_binding_message(self.descriptor, self.instance_id, self.challenge),
+                &signature,
+            )
+            .map_err(|_| IdentityError::SessionBindingMismatch)
+    }
+}
+
 pub struct LocalIdentity {
     installation_id: InstallationId,
     generation: KeyGeneration,
@@ -338,6 +395,24 @@ impl LocalIdentity {
         })
     }
 
+    pub fn bind_session(
+        &self,
+        instance_id: InstanceId,
+        challenge: SessionChallenge,
+    ) -> IdentitySessionBinding {
+        let descriptor = self.descriptor();
+        let signature = self
+            .signing_key
+            .sign(&session_binding_message(descriptor, instance_id, challenge))
+            .to_bytes();
+        IdentitySessionBinding {
+            descriptor,
+            instance_id,
+            challenge,
+            signature,
+        }
+    }
+
     pub fn rotate(&mut self) -> Result<KeyRotation, IdentityError> {
         let next_generation = self.generation.checked_next()?;
         let replacement = generate_signing_key()?;
@@ -384,6 +459,28 @@ fn recovery_message(descriptor: IdentityPublicDescriptor) -> Vec<u8> {
     message.extend_from_slice(descriptor.installation_id.as_bytes());
     message.extend_from_slice(&descriptor.generation.get().to_be_bytes());
     message.extend_from_slice(descriptor.verifying_key.as_bytes());
+    message
+}
+
+fn session_binding_message(
+    descriptor: IdentityPublicDescriptor,
+    instance_id: InstanceId,
+    challenge: SessionChallenge,
+) -> Vec<u8> {
+    let mut message = Vec::with_capacity(
+        SESSION_DOMAIN.len()
+            + LOCAL_ID_BYTES
+            + core::mem::size_of::<u32>()
+            + VERIFYING_KEY_BYTES
+            + LOCAL_ID_BYTES
+            + SESSION_CHALLENGE_BYTES,
+    );
+    message.extend_from_slice(SESSION_DOMAIN);
+    message.extend_from_slice(descriptor.installation_id.as_bytes());
+    message.extend_from_slice(&descriptor.generation.get().to_be_bytes());
+    message.extend_from_slice(descriptor.verifying_key.as_bytes());
+    message.extend_from_slice(instance_id.as_bytes());
+    message.extend_from_slice(challenge.as_bytes());
     message
 }
 
@@ -583,5 +680,77 @@ mod tests {
             LocalIdentity::recover(RecoverySeed::new(seed_bytes), wrong_signature).map(|_| ()),
             Err(IdentityError::RecoveryMismatch)
         );
+    }
+
+    #[test]
+    fn session_binding_rejects_every_tampered_bound_field() {
+        let identity = LocalIdentity::generate().expect("OS entropy");
+        let instance_id =
+            InstanceId::from_hex("11223344556677889900aabbccddeeff").expect("valid instance id");
+        let challenge = SessionChallenge::new([0x5a; SESSION_CHALLENGE_BYTES]);
+        let binding = identity.bind_session(instance_id, challenge);
+        binding.verify().expect("exact session binding verifies");
+
+        let mut wrong_installation = binding;
+        wrong_installation.descriptor.installation_id =
+            InstallationId::from_hex("21223344556677889900aabbccddeeff").expect("valid id");
+        assert_eq!(
+            wrong_installation.verify(),
+            Err(IdentityError::SessionBindingMismatch)
+        );
+
+        let mut wrong_generation = binding;
+        wrong_generation.descriptor.generation = KeyGeneration::try_from(2).expect("positive");
+        assert_eq!(
+            wrong_generation.verify(),
+            Err(IdentityError::SessionBindingMismatch)
+        );
+
+        let mut wrong_key = binding;
+        let other_key = SigningKey::from_bytes(&[0x61; SECRET_KEY_BYTES]);
+        wrong_key.descriptor.verifying_key =
+            DeviceVerifyingKey::from_verifying_key(other_key.verifying_key());
+        assert_eq!(
+            wrong_key.verify(),
+            Err(IdentityError::SessionBindingMismatch)
+        );
+
+        let mut wrong_instance = binding;
+        wrong_instance.instance_id =
+            InstanceId::from_hex("21223344556677889900aabbccddeeff").expect("valid instance id");
+        assert_eq!(
+            wrong_instance.verify(),
+            Err(IdentityError::SessionBindingMismatch)
+        );
+
+        let mut wrong_challenge = binding;
+        wrong_challenge.challenge = SessionChallenge::new([0x5b; SESSION_CHALLENGE_BYTES]);
+        assert_eq!(
+            wrong_challenge.verify(),
+            Err(IdentityError::SessionBindingMismatch)
+        );
+
+        let mut wrong_signature = binding;
+        wrong_signature.signature[0] ^= 0x01;
+        assert_eq!(
+            wrong_signature.verify(),
+            Err(IdentityError::SessionBindingMismatch)
+        );
+    }
+
+    #[test]
+    fn session_binding_rejects_signature_from_wrong_domain_version() {
+        let identity = LocalIdentity::generate().expect("OS entropy");
+        let instance_id =
+            InstanceId::from_hex("11223344556677889900aabbccddeeff").expect("valid instance id");
+        let challenge = SessionChallenge::new([0x5a; SESSION_CHALLENGE_BYTES]);
+        let mut binding = identity.bind_session(instance_id, challenge);
+
+        let mut wrong_message = session_binding_message(binding.descriptor, instance_id, challenge);
+        assert!(wrong_message.starts_with(SESSION_DOMAIN));
+        wrong_message[SESSION_DOMAIN.len() - 2] = b'2';
+        binding.signature = identity.signing_key.sign(&wrong_message).to_bytes();
+
+        assert_eq!(binding.verify(), Err(IdentityError::SessionBindingMismatch));
     }
 }
