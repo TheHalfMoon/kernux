@@ -572,15 +572,73 @@
       "additionalProperties": false,
       "required": [],
       "properties": {
-        "project": { "$ref": "#/$defs/CanonicalRef" },
-        "task": { "$ref": "#/$defs/CanonicalRef" },
-        "work_unit": { "$ref": "#/$defs/CanonicalRef" },
-        "run": { "$ref": "#/$defs/CanonicalRef" },
-        "agent_session": { "$ref": "#/$defs/CanonicalRef" },
-        "runtime": { "$ref": "#/$defs/CanonicalRef" },
-        "grant_id": { "type": "string" },
-        "request_id": { "type": "string" },
-        "operation_id": { "type": "string" }
+        "project": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "task": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "work_unit": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "run": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "agent_session": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "artifact": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "evidence": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "grant_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "capability_request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "protocol_request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        }
+      }
+    },
+    "EventLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caused_by",
+        "derived_from"
+      ],
+      "properties": {
+        "caused_by": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UuidV7"
+          }
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UuidV7"
+          }
+        },
+        "supersedes": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "forked_from": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "checkpoint_of": {
+          "$ref": "#/$defs/UuidV7"
+        }
       }
     },
     "Redaction": {
@@ -600,41 +658,145 @@
     "Event": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["event_id", "event_type", "contract_version", "stream", "stream_seq", "producer", "recorded_at", "correlations", "artifact_refs", "redaction"],
+      "required": [
+        "event_id",
+        "event_type",
+        "contract_version",
+        "stream",
+        "stream_seq",
+        "producer",
+        "recorded_at",
+        "correlations",
+        "lineage",
+        "artifact_refs",
+        "sensitivity",
+        "redaction"
+      ],
       "properties": {
-        "event_id": { "type": "string" },
-        "event_type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$" },
-        "contract_version": { "type": "string" },
-        "stream": { "$ref": "#/$defs/StreamRef" },
-        "stream_seq": { "type": "integer", "minimum": 1 },
-        "previous_event_id": { "type": "string" },
-        "producer": { "type": "string" },
-        "occurred_at": { "type": "string" },
-        "recorded_at": { "type": "string" },
-        "correlations": { "$ref": "#/$defs/EventCorrelations" },
-        "artifact_refs": { "type": "array", "items": { "$ref": "#/$defs/ArtifactRef" } },
-        "redaction": { "$ref": "#/$defs/Redaction" }
+        "event_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "event_type": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
+        "contract_version": {
+          "type": "string"
+        },
+        "stream": {
+          "$ref": "#/$defs/StreamRef"
+        },
+        "stream_seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "previous_event_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "producer": {
+          "type": "string"
+        },
+        "occurred_at": {
+          "type": "string"
+        },
+        "recorded_at": {
+          "type": "string"
+        },
+        "correlations": {
+          "$ref": "#/$defs/EventCorrelations"
+        },
+        "lineage": {
+          "$ref": "#/$defs/EventLineage"
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ArtifactRef"
+          }
+        },
+        "sensitivity": {
+          "type": "string"
+        },
+        "redaction": {
+          "$ref": "#/$defs/Redaction"
+        }
       }
     },
     "Evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["evidence_id", "claim", "subject_bindings", "source_class", "observer", "observed_event_ids", "artifact_refs", "result", "limitations", "recorded_by_event_id", "redaction"],
+      "required": [
+        "evidence_id",
+        "claim",
+        "subject_bindings",
+        "source_class",
+        "observer",
+        "observed_event_ids",
+        "artifact_refs",
+        "result",
+        "limitations",
+        "recorded_by_event_id",
+        "sensitivity",
+        "redaction"
+      ],
       "properties": {
-        "evidence_id": { "type": "string" },
-        "claim": { "type": "string" },
-        "subject_bindings": { "type": "array", "items": { "$ref": "#/$defs/CanonicalRef" } },
-        "source_class": { "$ref": "#/$defs/EvidenceSourceClass" },
-        "observer": { "type": "string" },
-        "observed_event_ids": { "type": "array", "items": { "type": "string" } },
-        "artifact_refs": { "type": "array", "items": { "$ref": "#/$defs/ArtifactRef" } },
-        "runtime_context": { "$ref": "#/$defs/CanonicalRef" },
-        "operation_id": { "type": "string" },
-        "implementation_revision": { "type": "string" },
-        "result": { "type": "string" },
-        "limitations": { "type": "array", "items": { "type": "string" } },
-        "recorded_by_event_id": { "type": "string" },
-        "redaction": { "$ref": "#/$defs/Redaction" }
+        "evidence_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "claim": {
+          "type": "string"
+        },
+        "subject_bindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CanonicalRef"
+          }
+        },
+        "source_class": {
+          "$ref": "#/$defs/EvidenceSourceClass"
+        },
+        "observer": {
+          "type": "string"
+        },
+        "observed_event_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UuidV7"
+          }
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ArtifactRef"
+          }
+        },
+        "runtime_context": {
+          "$ref": "#/$defs/CanonicalRef"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "implementation_revision": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recorded_by_event_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "sensitivity": {
+          "type": "string"
+        },
+        "redaction": {
+          "$ref": "#/$defs/Redaction"
+        }
       }
     }
   }
