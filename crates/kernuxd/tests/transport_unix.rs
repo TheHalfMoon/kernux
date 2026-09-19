@@ -4,16 +4,19 @@ use kernux_contracts::{
     DaemonHealthState, DaemonLifecycleState, DaemonProbeKind, DaemonProbeRequest, ProtocolContract,
 };
 use kernuxd::{
-    DaemonEndpoint, DaemonServer, ProbeMetadata, ServerConfig, TransportError, probe_once,
+    DaemonEndpoint, DaemonServer, ExpectedPeerIdentity, LaunchNonce, MAX_AUTH_BOOTSTRAP_BYTES,
+    ProbeMetadata, ServerConfig, SessionAuthConfig, TransportError, encode_auth_preamble,
+    probe_once,
 };
 use std::{
     fs,
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, Read, Write},
     os::unix::{
-        fs::{PermissionsExt, symlink},
+        fs::{MetadataExt, PermissionsExt, symlink},
         net::{UnixListener, UnixStream},
     },
     path::{Path, PathBuf},
+    process::{Command, Stdio},
     sync::atomic::{AtomicU64, Ordering},
     thread,
     time::{Duration, Instant},
@@ -50,6 +53,51 @@ fn short_config() -> ServerConfig {
     }
 }
 
+fn launch_nonce() -> LaunchNonce {
+    LaunchNonce::from_bytes([0x5a; 32])
+}
+
+fn current_euid() -> u32 {
+    let probe_path = temp_runtime_dir("euid-probe");
+    fs::write(&probe_path, b"").expect("create euid probe");
+    let euid = fs::metadata(&probe_path)
+        .expect("euid probe metadata")
+        .uid();
+    fs::remove_file(&probe_path).expect("remove euid probe");
+    euid
+}
+
+fn auth_config() -> SessionAuthConfig {
+    SessionAuthConfig::new(
+        launch_nonce(),
+        ExpectedPeerIdentity::unix(current_euid(), None),
+    )
+}
+
+fn authenticate_raw(stream: &mut UnixStream) {
+    stream
+        .write_all(&encode_auth_preamble(&launch_nonce()))
+        .expect("write auth preamble");
+}
+
+fn assert_connection_closes_without_response(mut stream: UnixStream) {
+    let mut byte = [0_u8; 1];
+    match stream.read(&mut byte) {
+        Ok(0) => {}
+        Ok(read) => panic!("unauthorized connection received {read} response bytes"),
+        Err(error) => assert!(
+            matches!(
+                error.kind(),
+                std::io::ErrorKind::ConnectionReset
+                    | std::io::ErrorKind::BrokenPipe
+                    | std::io::ErrorKind::NotConnected
+                    | std::io::ErrorKind::ConnectionAborted
+            ),
+            "unauthorized connection failed for unexpected reason: {error}"
+        ),
+    }
+}
+
 fn wait_until(path: &Path, exists: bool) {
     let deadline = Instant::now() + Duration::from_secs(2);
     while path.exists() != exists {
@@ -70,6 +118,52 @@ fn connect_raw(path: &Path) -> UnixStream {
 }
 
 #[test]
+fn binary_rejects_invalid_bootstrap_before_listener_creation_without_secret_echo() {
+    let secret = "9d".repeat(32);
+    let malformed = format!("kxb/1 unix {secret} {} - extra\n", current_euid());
+    let oversized = vec![b'x'; MAX_AUTH_BOOTSTRAP_BYTES + 1];
+    let cases: Vec<(&str, Vec<u8>)> = vec![
+        ("missing", Vec::new()),
+        ("malformed", malformed.into_bytes()),
+        ("oversized", oversized),
+    ];
+
+    for (label, input) in cases {
+        let runtime_dir = temp_runtime_dir(&format!("bootstrap-{label}"));
+        let mut child = Command::new(env!("CARGO_BIN_EXE_kernuxd"))
+            .arg(&runtime_dir)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("spawn kernuxd bootstrap probe");
+        if !input.is_empty() {
+            child
+                .stdin
+                .as_mut()
+                .expect("bootstrap stdin")
+                .write_all(&input)
+                .expect("write bootstrap input");
+        }
+        drop(child.stdin.take());
+        let output = child.wait_with_output().expect("collect kernuxd result");
+        assert!(
+            !output.status.success(),
+            "invalid bootstrap must fail: {label}"
+        );
+        assert!(
+            !runtime_dir.exists(),
+            "listener runtime directory must not be created before bootstrap validates: {label}"
+        );
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            !stderr.contains(&secret),
+            "bootstrap error leaked launch nonce: {label}"
+        );
+    }
+}
+
+#[test]
 fn startup_probe_shutdown_cleanup_and_restart_are_deterministic() {
     let runtime_dir = temp_runtime_dir("restart");
     let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
@@ -77,7 +171,8 @@ fn startup_probe_shutdown_cleanup_and_restart_are_deterministic() {
     let config = short_config();
 
     let (server, shutdown) =
-        DaemonServer::bind(endpoint.clone(), metadata(), config).expect("bind daemon");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("bind daemon");
     assert_eq!(
         fs::metadata(&runtime_dir)
             .expect("runtime metadata")
@@ -100,6 +195,7 @@ fn startup_probe_shutdown_cleanup_and_restart_are_deterministic() {
 
     let response = probe_once(
         &endpoint,
+        &launch_nonce(),
         &request("01890f00-0000-7000-8000-000000000101"),
         config,
     )
@@ -117,10 +213,12 @@ fn startup_probe_shutdown_cleanup_and_restart_are_deterministic() {
     wait_until(&socket_path, false);
 
     let (server, shutdown) =
-        DaemonServer::bind(endpoint.clone(), metadata(), config).expect("restart bind");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("restart bind");
     let worker = thread::spawn(move || server.serve());
     let response = probe_once(
         &endpoint,
+        &launch_nonce(),
         &request("01890f00-0000-7000-8000-000000000102"),
         config,
     )
@@ -140,9 +238,10 @@ fn second_bind_conflicts_without_displacing_live_listener() {
     let runtime_dir = temp_runtime_dir("collision");
     let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
     let (server, _) =
-        DaemonServer::bind(endpoint.clone(), metadata(), short_config()).expect("first bind");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), short_config())
+            .expect("first bind");
 
-    let second = DaemonServer::bind(endpoint, metadata(), short_config());
+    let second = DaemonServer::bind(endpoint, metadata(), auth_config(), short_config());
     assert!(matches!(second, Err(TransportError::EndpointInUse)));
 
     drop(server);
@@ -161,14 +260,14 @@ fn verified_stale_socket_is_recovered_but_non_socket_path_is_rejected() {
     assert!(socket_path.exists());
 
     let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
-    let (server, _) =
-        DaemonServer::bind(endpoint, metadata(), short_config()).expect("recover stale socket");
+    let (server, _) = DaemonServer::bind(endpoint, metadata(), auth_config(), short_config())
+        .expect("recover stale socket");
     drop(server);
     assert!(!socket_path.exists());
 
     fs::write(&socket_path, b"not a socket").expect("create unsafe file");
     let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
-    let result = DaemonServer::bind(endpoint, metadata(), short_config());
+    let result = DaemonServer::bind(endpoint, metadata(), auth_config(), short_config());
     assert!(matches!(result, Err(TransportError::UnsafeEndpointPath(_))));
 
     fs::remove_file(&socket_path).expect("remove unsafe path");
@@ -182,7 +281,7 @@ fn non_private_or_symlink_runtime_directory_fails_closed() {
     fs::set_permissions(&runtime_dir, fs::Permissions::from_mode(0o755)).expect("public mode");
 
     let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
-    let result = DaemonServer::bind(endpoint, metadata(), short_config());
+    let result = DaemonServer::bind(endpoint, metadata(), auth_config(), short_config());
     assert!(matches!(
         result,
         Err(TransportError::UnsafeRuntimeDirectory(_))
@@ -198,7 +297,7 @@ fn non_private_or_symlink_runtime_directory_fails_closed() {
     symlink(&real_dir, &link_dir).expect("create runtime symlink");
 
     let endpoint = DaemonEndpoint::unix_runtime_dir(&link_dir).expect("endpoint");
-    let result = DaemonServer::bind(endpoint, metadata(), short_config());
+    let result = DaemonServer::bind(endpoint, metadata(), auth_config(), short_config());
     assert!(matches!(
         result,
         Err(TransportError::UnsafeRuntimeDirectory(_))
@@ -215,14 +314,17 @@ fn malformed_oversized_unknown_version_and_idle_clients_do_not_kill_server() {
     let socket_path = endpoint.socket_path().to_owned();
     let config = short_config();
     let (server, shutdown) =
-        DaemonServer::bind(endpoint.clone(), metadata(), config).expect("bind daemon");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("bind daemon");
     let worker = thread::spawn(move || server.serve());
 
     let mut malformed = connect_raw(&socket_path);
+    authenticate_raw(&mut malformed);
     malformed.write_all(b"{\n").expect("send malformed");
     drop(malformed);
 
     let mut unknown = connect_raw(&socket_path);
+    authenticate_raw(&mut unknown);
     unknown
         .write_all(
             br#"{"request_id":"01890f00-0000-7000-8000-000000000103","contract_version":"krp/1","probe":"health_version","extra":true}
@@ -232,6 +334,7 @@ fn malformed_oversized_unknown_version_and_idle_clients_do_not_kill_server() {
     drop(unknown);
 
     let mut version = connect_raw(&socket_path);
+    authenticate_raw(&mut version);
     version
         .write_all(
             br#"{"request_id":"01890f00-0000-7000-8000-000000000104","contract_version":"krp/2","probe":"health_version"}
@@ -241,6 +344,7 @@ fn malformed_oversized_unknown_version_and_idle_clients_do_not_kill_server() {
     drop(version);
 
     let mut oversized = connect_raw(&socket_path);
+    authenticate_raw(&mut oversized);
     oversized
         .write_all(&vec![b'x'; config.max_frame_bytes + 1])
         .expect("send oversized frame");
@@ -255,6 +359,7 @@ fn malformed_oversized_unknown_version_and_idle_clients_do_not_kill_server() {
 
     let response = probe_once(
         &endpoint,
+        &launch_nonce(),
         &request("01890f00-0000-7000-8000-000000000105"),
         config,
     )
@@ -267,12 +372,146 @@ fn malformed_oversized_unknown_version_and_idle_clients_do_not_kill_server() {
 }
 
 #[test]
+fn unauthenticated_and_wrong_nonce_callers_get_no_krp_response_and_daemon_survives() {
+    let runtime_dir = temp_runtime_dir("unauthorized");
+    let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
+    let socket_path = endpoint.socket_path().to_owned();
+    let config = short_config();
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("bind daemon");
+    let worker = thread::spawn(move || server.serve());
+    wait_until(&socket_path, true);
+
+    let payload =
+        serde_json::to_vec(&request("01890f00-0000-7000-8000-000000000108")).expect("encode");
+    let mut unauthenticated = connect_raw(&socket_path);
+    unauthenticated
+        .write_all(&payload)
+        .expect("write unauthenticated KRP");
+    unauthenticated.write_all(b"\n").expect("terminate KRP");
+    unauthenticated.flush().expect("flush unauthenticated KRP");
+    assert_connection_closes_without_response(unauthenticated);
+
+    let mut wrong_nonce = connect_raw(&socket_path);
+    wrong_nonce
+        .write_all(&encode_auth_preamble(&LaunchNonce::from_bytes([0x6a; 32])))
+        .expect("write wrong nonce");
+    wrong_nonce
+        .write_all(&payload)
+        .expect("write KRP after wrong nonce");
+    wrong_nonce.write_all(b"\n").expect("terminate KRP");
+    wrong_nonce.flush().expect("flush wrong nonce KRP");
+    assert_connection_closes_without_response(wrong_nonce);
+
+    let response = probe_once(
+        &endpoint,
+        &launch_nonce(),
+        &request("01890f00-0000-7000-8000-000000000109"),
+        config,
+    )
+    .expect("daemon survives unauthorized callers");
+    assert_eq!(response.health, DaemonHealthState::Healthy);
+
+    assert!(shutdown.request_shutdown());
+    worker.join().expect("worker join").expect("clean shutdown");
+    fs::remove_dir(&runtime_dir).expect("remove runtime");
+}
+
+#[test]
+fn actual_unix_peer_euid_mismatch_fails_closed() {
+    let runtime_dir = temp_runtime_dir("wrong-euid");
+    let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
+    let socket_path = endpoint.socket_path().to_owned();
+    let config = short_config();
+    let actual_euid = current_euid();
+    let wrong_euid = if actual_euid == u32::MAX {
+        actual_euid - 1
+    } else {
+        actual_euid + 1
+    };
+    let auth = SessionAuthConfig::new(launch_nonce(), ExpectedPeerIdentity::unix(wrong_euid, None));
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint.clone(), metadata(), auth, config).expect("bind daemon");
+    let worker = thread::spawn(move || server.serve());
+    wait_until(&socket_path, true);
+
+    assert!(
+        probe_once(
+            &endpoint,
+            &launch_nonce(),
+            &request("01890f00-0000-7000-8000-000000000110"),
+            config,
+        )
+        .is_err(),
+        "peer euid mismatch must reject the session"
+    );
+
+    assert!(shutdown.request_shutdown());
+    worker.join().expect("worker join").expect("clean shutdown");
+    fs::remove_dir(&runtime_dir).expect("remove runtime");
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_peer_pid_binding_accepts_exact_pid_and_rejects_wrong_pid() {
+    let runtime_dir = temp_runtime_dir("peer-pid");
+    let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
+    let socket_path = endpoint.socket_path().to_owned();
+    let config = short_config();
+    let euid = current_euid();
+    let exact = SessionAuthConfig::new(
+        launch_nonce(),
+        ExpectedPeerIdentity::unix(euid, Some(std::process::id())),
+    );
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint.clone(), metadata(), exact, config).expect("bind daemon");
+    let worker = thread::spawn(move || server.serve());
+    wait_until(&socket_path, true);
+    probe_once(
+        &endpoint,
+        &launch_nonce(),
+        &request("01890f00-0000-7000-8000-000000000111"),
+        config,
+    )
+    .expect("exact Linux peer pid authenticates");
+    assert!(shutdown.request_shutdown());
+    worker.join().expect("worker join").expect("clean shutdown");
+    wait_until(&socket_path, false);
+
+    let wrong_pid = std::process::id()
+        .checked_add(1)
+        .expect("test pid has headroom");
+    let wrong = SessionAuthConfig::new(
+        launch_nonce(),
+        ExpectedPeerIdentity::unix(euid, Some(wrong_pid)),
+    );
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint.clone(), metadata(), wrong, config).expect("rebind daemon");
+    let worker = thread::spawn(move || server.serve());
+    assert!(
+        probe_once(
+            &endpoint,
+            &launch_nonce(),
+            &request("01890f00-0000-7000-8000-000000000112"),
+            config,
+        )
+        .is_err(),
+        "wrong Linux peer pid must reject the session"
+    );
+    assert!(shutdown.request_shutdown());
+    worker.join().expect("worker join").expect("clean shutdown");
+    fs::remove_dir(&runtime_dir).expect("remove runtime");
+}
+
+#[test]
 fn connection_processes_only_one_probe_then_closes() {
     let runtime_dir = temp_runtime_dir("one-request");
     let endpoint = DaemonEndpoint::unix_runtime_dir(&runtime_dir).expect("endpoint");
     let socket_path = endpoint.socket_path().to_owned();
     let config = short_config();
-    let (server, shutdown) = DaemonServer::bind(endpoint, metadata(), config).expect("bind daemon");
+    let (server, shutdown) =
+        DaemonServer::bind(endpoint, metadata(), auth_config(), config).expect("bind daemon");
     let worker = thread::spawn(move || server.serve());
 
     let first =
@@ -280,6 +519,7 @@ fn connection_processes_only_one_probe_then_closes() {
     let second = serde_json::to_vec(&request("01890f00-0000-7000-8000-000000000107"))
         .expect("encode second");
     let mut stream = connect_raw(&socket_path);
+    authenticate_raw(&mut stream);
     let reader_stream = stream.try_clone().expect("clone client stream");
     let mut reader = BufReader::new(reader_stream);
 

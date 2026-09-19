@@ -4,7 +4,10 @@ use interprocess::local_socket::{GenericNamespaced, Stream, prelude::*};
 use kernux_contracts::{
     DaemonHealthState, DaemonLifecycleState, DaemonProbeKind, DaemonProbeRequest, ProtocolContract,
 };
-use kernuxd::{DaemonEndpoint, DaemonServer, ProbeMetadata, ServerConfig, probe_once};
+use kernuxd::{
+    DaemonEndpoint, DaemonServer, ExpectedPeerIdentity, LaunchNonce, ProbeMetadata, ServerConfig,
+    SessionAuthConfig, probe_once,
+};
 use std::{
     sync::{
         atomic::{AtomicU64, Ordering},
@@ -45,6 +48,17 @@ fn short_config() -> ServerConfig {
     }
 }
 
+fn launch_nonce() -> LaunchNonce {
+    LaunchNonce::from_bytes([0x6b; 32])
+}
+
+fn auth_config() -> SessionAuthConfig {
+    SessionAuthConfig::new(
+        launch_nonce(),
+        ExpectedPeerIdentity::windows(std::process::id()),
+    )
+}
+
 #[test]
 fn local_named_pipe_probe_shutdown_and_restart_are_deterministic() {
     let token = pipe_name("restart");
@@ -53,11 +67,13 @@ fn local_named_pipe_probe_shutdown_and_restart_are_deterministic() {
 
     let config = short_config();
     let (server, shutdown) =
-        DaemonServer::bind(endpoint.clone(), metadata(), config).expect("bind daemon");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("bind daemon");
     let worker = thread::spawn(move || server.serve());
 
     let response = probe_once(
         &endpoint,
+        &launch_nonce(),
         &request("01890f00-0000-7000-8000-000000000201"),
         config,
     )
@@ -74,10 +90,12 @@ fn local_named_pipe_probe_shutdown_and_restart_are_deterministic() {
     worker.join().expect("worker join").expect("clean shutdown");
 
     let (server, shutdown) =
-        DaemonServer::bind(endpoint.clone(), metadata(), config).expect("restart bind");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("restart bind");
     let worker = thread::spawn(move || server.serve());
     let response = probe_once(
         &endpoint,
+        &launch_nonce(),
         &request("01890f00-0000-7000-8000-000000000202"),
         config,
     )
@@ -94,14 +112,15 @@ fn local_named_pipe_probe_shutdown_and_restart_are_deterministic() {
 fn second_bind_conflicts_and_listener_release_allows_rebind() {
     let endpoint = DaemonEndpoint::windows_pipe(pipe_name("collision")).expect("endpoint");
     let (first, _) =
-        DaemonServer::bind(endpoint.clone(), metadata(), short_config()).expect("first bind");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), short_config())
+            .expect("first bind");
 
-    let second = DaemonServer::bind(endpoint.clone(), metadata(), short_config());
+    let second = DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), short_config());
     assert!(second.is_err(), "second named-pipe listener must conflict");
 
     drop(first);
 
-    let third = DaemonServer::bind(endpoint, metadata(), short_config());
+    let third = DaemonServer::bind(endpoint, metadata(), auth_config(), short_config());
     assert!(
         third.is_ok(),
         "dropping the listener must release the pipe name"
@@ -132,7 +151,8 @@ fn idle_named_pipe_client_cannot_block_owner_shutdown_past_io_deadline() {
     let endpoint = DaemonEndpoint::windows_pipe(pipe_name("idle")).expect("endpoint");
     let config = short_config();
     let (server, shutdown) =
-        DaemonServer::bind(endpoint.clone(), metadata(), config).expect("bind daemon");
+        DaemonServer::bind(endpoint.clone(), metadata(), auth_config(), config)
+            .expect("bind daemon");
 
     let (done_tx, done_rx) = mpsc::channel();
     thread::spawn(move || {

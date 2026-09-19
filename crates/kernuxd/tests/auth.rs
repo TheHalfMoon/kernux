@@ -1,6 +1,7 @@
 use kernuxd::{
     AUTH_PREAMBLE_BYTES, AuthError, ExpectedPeerIdentity, LaunchNonce, ObservedPeerIdentity,
     SessionAuthConfig, authorize_session, encode_auth_preamble, parse_auth_preamble,
+    parse_owner_bootstrap,
 };
 
 fn nonce(byte: u8) -> LaunchNonce {
@@ -200,4 +201,90 @@ fn source_keeps_nonce_non_debuggable_and_comparison_full_length() {
     assert!(!source.contains("Serialize for LaunchNonce"));
     assert!(source.contains("difference |= left ^ right;"));
     assert!(!source.contains("if left != right {\n                return false;"));
+}
+
+#[cfg(unix)]
+#[test]
+fn unix_owner_bootstrap_is_strict_and_binds_nonce_to_peer_policy() {
+    let nonce_hex = "7c".repeat(32);
+    let bootstrap = format!("kxb/1 unix {nonce_hex} 501 -");
+    let config = parse_owner_bootstrap(&bootstrap).expect("canonical Unix bootstrap parses");
+    assert_eq!(
+        authorize_session(
+            &config,
+            ObservedPeerIdentity {
+                euid: Some(501),
+                pid: None,
+            },
+            &LaunchNonce::from_bytes([0x7c; 32]),
+        ),
+        Ok(())
+    );
+    assert_eq!(
+        authorize_session(
+            &config,
+            ObservedPeerIdentity {
+                euid: Some(502),
+                pid: None,
+            },
+            &LaunchNonce::from_bytes([0x7c; 32]),
+        ),
+        Err(AuthError::Unauthorized)
+    );
+}
+
+#[cfg(windows)]
+#[test]
+fn windows_owner_bootstrap_is_strict_and_binds_nonce_to_peer_pid() {
+    let nonce_hex = "7c".repeat(32);
+    let bootstrap = format!("kxb/1 windows {nonce_hex} 7001");
+    let config = parse_owner_bootstrap(&bootstrap).expect("canonical Windows bootstrap parses");
+    assert_eq!(
+        authorize_session(
+            &config,
+            ObservedPeerIdentity {
+                euid: None,
+                pid: Some(7001),
+            },
+            &LaunchNonce::from_bytes([0x7c; 32]),
+        ),
+        Ok(())
+    );
+}
+
+#[test]
+fn owner_bootstrap_rejects_spacing_trailing_fields_bad_nonce_and_platform_mismatch() {
+    let nonce_hex = "7c".repeat(32);
+    #[cfg(unix)]
+    let canonical = format!("kxb/1 unix {nonce_hex} 501 -");
+    #[cfg(windows)]
+    let canonical = format!("kxb/1 windows {nonce_hex} 7001");
+
+    let mut cases = vec![
+        format!(" {canonical}"),
+        format!("{canonical} "),
+        canonical.replace(' ', "  "),
+        format!("{canonical} extra"),
+        canonical.replace(&nonce_hex, &"A".repeat(64)),
+        canonical.replace("kxb/1", "kxb/2"),
+    ];
+    #[cfg(unix)]
+    {
+        cases.push(format!("kxb/1 windows {nonce_hex} 7001"));
+        cases.push(format!("kxb/1 unix {nonce_hex} 0501 -"));
+        cases.push(format!("kxb/1 unix {nonce_hex} 501 0"));
+    }
+    #[cfg(windows)]
+    {
+        cases.push(format!("kxb/1 unix {nonce_hex} 501 -"));
+        cases.push(format!("kxb/1 windows {nonce_hex} 0"));
+    }
+
+    for value in cases {
+        assert_eq!(
+            parse_owner_bootstrap(&value).map(|_| ()),
+            Err(AuthError::InvalidBootstrap),
+            "bootstrap should fail closed: {value:?}"
+        );
+    }
 }

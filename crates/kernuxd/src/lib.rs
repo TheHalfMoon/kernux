@@ -1,8 +1,8 @@
 //! Privileged Kernux daemon lifecycle foundation.
 //!
 //! This slice defines deterministic daemon lifecycle state and an owner-controlled
-//! in-process shutdown handle. It intentionally does not expose IPC shutdown,
-//! caller authentication, privileged operations, persistence, or remote transport.
+//! in-process shutdown handle plus authenticated local control transport. It intentionally
+//! does not expose IPC shutdown, privileged operations, persistence, or remote transport.
 
 #![forbid(unsafe_code)]
 
@@ -20,9 +20,10 @@ mod auth;
 mod transport;
 
 pub use auth::{
-    AUTH_PREAMBLE_BYTES, AUTH_PROTOCOL_VERSION, AuthError, ExpectedPeerIdentity, LaunchNonce,
-    ObservedPeerIdentity, SessionAuthConfig, authorize_session, encode_auth_preamble,
-    parse_auth_preamble,
+    AUTH_PREAMBLE_BYTES, AUTH_PROTOCOL_VERSION, AuthError, BOOTSTRAP_PROTOCOL_VERSION,
+    ExpectedPeerIdentity, LaunchNonce, MAX_AUTH_BOOTSTRAP_BYTES, ObservedPeerIdentity,
+    SessionAuthConfig, authorize_session, encode_auth_preamble, parse_auth_preamble,
+    parse_owner_bootstrap,
 };
 pub use transport::{
     DEFAULT_ACCEPT_POLL_INTERVAL, DEFAULT_IO_TIMEOUT, DEFAULT_MAX_FRAME_BYTES, DaemonEndpoint,
