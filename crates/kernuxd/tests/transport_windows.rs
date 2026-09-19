@@ -11,7 +11,7 @@ use std::{
         mpsc,
     },
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 static NEXT_PIPE_ID: AtomicU64 = AtomicU64::new(0);
@@ -146,10 +146,16 @@ fn idle_named_pipe_client_cannot_block_owner_shutdown_past_io_deadline() {
     let idle_client = Stream::connect(name).expect("connect idle client");
     thread::sleep(Duration::from_millis(25));
 
+    let shutdown_started = Instant::now();
     assert!(shutdown.request_shutdown());
     let result = done_rx
         .recv_timeout(Duration::from_secs(2))
         .expect("owner shutdown must remain bounded with an idle client");
+    let shutdown_elapsed = shutdown_started.elapsed();
+    assert!(
+        shutdown_elapsed >= Duration::from_millis(100),
+        "idle client must exercise the finite I/O deadline instead of causing an immediate close: {shutdown_elapsed:?}"
+    );
     result.expect("daemon must stop cleanly after idle-client timeout");
 
     drop(idle_client);

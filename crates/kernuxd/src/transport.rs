@@ -374,7 +374,16 @@ fn read_frame(
 
     loop {
         match reader.read(&mut byte) {
-            Ok(0) => return Err(TransportError::IncompleteFrame),
+            Ok(0) => {
+                #[cfg(windows)]
+                {
+                    wait_for_io(deadline, "receiving local control frame")?;
+                }
+                #[cfg(unix)]
+                {
+                    return Err(TransportError::IncompleteFrame);
+                }
+            }
             Ok(_) if byte[0] == b'\n' => return Ok(frame),
             Ok(_) => {
                 if frame.len() == max_frame_bytes {
@@ -420,10 +429,17 @@ fn write_all_until(
     while !bytes.is_empty() {
         match writer.write(bytes) {
             Ok(0) => {
-                return Err(TransportError::Io(io::Error::new(
-                    io::ErrorKind::WriteZero,
-                    "local control frame write returned zero bytes",
-                )));
+                #[cfg(windows)]
+                {
+                    wait_for_io(deadline, "sending local control frame")?;
+                }
+                #[cfg(unix)]
+                {
+                    return Err(TransportError::Io(io::Error::new(
+                        io::ErrorKind::WriteZero,
+                        "local control frame write returned zero bytes",
+                    )));
+                }
             }
             Ok(written) => bytes = &bytes[written..],
             Err(error) if error.kind() == io::ErrorKind::Interrupted => {
