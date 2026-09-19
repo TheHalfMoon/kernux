@@ -77,7 +77,13 @@ No product code or founding-donor product code has been imported yet.
 
 **P01 PROGRESS:** `7 / 7 macro tasks PROVEN`
 
-**NEXT CANONICAL FRONTIER:** `P01 exit-gate assessment — macro-task count does not itself prove the phase gate`
+**P01 EXIT QUALIFICATION:** `QUALIFIED_PENDING_NATIVE_CLOSEOUT`
+
+**P01 EXIT PROVEN:** `FALSE`
+
+**P02 AUTHORIZED:** `FALSE`
+
+**NEXT CANONICAL FRONTIER:** `Native SG-000017 verification after protected P01 exit qualification merge and post-merge main qualification`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -120,7 +126,7 @@ The adversarial corpus covers all twenty canonical runtime-operation invariants 
 
 No donor product source has been imported.
 
-KX-P01-S05-T03 is PROVEN after native verification and this protected closeout. P01 now has 7 / 7 macro tasks PROVEN. P01 exit remains separately gated and P02 is not yet authorized.
+KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria are independently qualified in `docs/evidence/P01-EXIT.md`, but P01 exit remains `QUALIFIED_PENDING_NATIVE_CLOSEOUT`; native SG-000017 verification and a final protected closeout are still required. P02 is not authorized.
 
 Proof for the current frontier includes:
 
@@ -131,7 +137,8 @@ Proof for the current frontier includes:
 - `docs/evidence/P01-S04-T01.md`;
 - `docs/evidence/P01-S05-T01.md`;
 - `docs/evidence/P01-S05-T02.md`;
-- `docs/evidence/P01-S05-T03.md`.
+- `docs/evidence/P01-S05-T03.md`;
+- `docs/evidence/P01-EXIT.md` — qualification evidence only; phase exit not yet PROVEN.
 
 ## Dependency rule
 
