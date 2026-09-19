@@ -1,6 +1,6 @@
 {
   "schema": "kernux.krp.conformance/v1",
-  "schema_sha256": "7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9",
+  "schema_sha256": "904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94",
   "cases": [
     {
       "name": "capability_request",
@@ -8,8 +8,14 @@
       "value": {
         "request_id": "01890f00-0000-7000-8000-000000000001",
         "subject_scope": {
-          "run": { "kind": "run", "id": "01890f00-0000-7000-8000-000000000002" },
-          "agent_session": { "kind": "agent_session", "id": "01890f00-0000-7000-8000-000000000003" }
+          "run": {
+            "kind": "run",
+            "id": "01890f00-0000-7000-8000-000000000002"
+          },
+          "agent_session": {
+            "kind": "agent_session",
+            "id": "01890f00-0000-7000-8000-000000000003"
+          }
         },
         "action": "files.write",
         "resource_uri": "kernux://project/01890f00-0000-7000-8000-000000000004/fs/src/main.rs",
@@ -18,7 +24,10 @@
           "id": "01890f00-0000-7000-8000-000000000005",
           "revision": 2
         },
-        "requested_constraints": { "allowed_roots": ["src"], "max_bytes": 4096 },
+        "requested_constraints": {
+          "allowed_roots": ["src"],
+          "max_bytes": 4096
+        },
         "provenance_event_ids": ["01890f00-0000-7000-8000-000000000006"],
         "reason": "Update one bounded source file."
       }
@@ -28,7 +37,12 @@
       "definition": "Grant",
       "value": {
         "grant_id": "01890f00-0000-7000-8000-000000000007",
-        "subject_scope": { "run": { "kind": "run", "id": "01890f00-0000-7000-8000-000000000002" } },
+        "subject_scope": {
+          "run": {
+            "kind": "run",
+            "id": "01890f00-0000-7000-8000-000000000002"
+          }
+        },
         "action": "files.write",
         "resource_uri": "kernux://project/01890f00-0000-7000-8000-000000000004/fs/src",
         "resource_match": "subtree",
@@ -37,7 +51,11 @@
           "id": "01890f00-0000-7000-8000-000000000005",
           "revision": 2
         },
-        "constraints": { "allowed_roots": ["src"], "max_bytes": 4096, "max_uses": 1 },
+        "constraints": {
+          "allowed_roots": ["src"],
+          "max_bytes": 4096,
+          "max_uses": 1
+        },
         "consequence_ceiling": "C2",
         "issuer_authority": "local-user",
         "policy_revision": 4,
@@ -68,7 +86,12 @@
       "value": {
         "request_id": "01890f00-0000-7000-8000-000000000008",
         "operation_id": "01890f00-0000-7000-8000-000000000009",
-        "subject_scope": { "run": { "kind": "run", "id": "01890f00-0000-7000-8000-000000000002" } },
+        "subject_scope": {
+          "run": {
+            "kind": "run",
+            "id": "01890f00-0000-7000-8000-000000000002"
+          }
+        },
         "action": "files.write",
         "resource_uri": "kernux://project/01890f00-0000-7000-8000-000000000004/fs/src/main.rs",
         "runtime": {
@@ -76,7 +99,10 @@
           "id": "01890f00-0000-7000-8000-000000000005",
           "revision": 2
         },
-        "constraints": { "allowed_roots": ["src"], "max_bytes": 4096 },
+        "constraints": {
+          "allowed_roots": ["src"],
+          "max_bytes": 4096
+        },
         "payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "protocol_contract": "krp/1",
         "capability_version": "1"
@@ -108,8 +134,18 @@
         "operation_id": "01890f00-0000-7000-8000-000000000009",
         "retry_guidance": "reconcile_operation",
         "side_effect_certainty": "may_have_started",
-        "details": [{ "key": "observation_generation", "value": "8" }],
-        "provider_diagnostic": [{ "key": "foreign_code", "value": "transport-reset" }]
+        "details": [
+          {
+            "key": "observation_generation",
+            "value": "8"
+          }
+        ],
+        "provider_diagnostic": [
+          {
+            "key": "foreign_code",
+            "value": "transport-reset"
+          }
+        ]
       }
     },
     {
@@ -121,14 +157,20 @@
         "contract_version": "krp/1",
         "stream": {
           "owner_kind": "run",
-          "owner": { "kind": "run", "id": "01890f00-0000-7000-8000-000000000002" }
+          "owner": {
+            "kind": "run",
+            "id": "01890f00-0000-7000-8000-000000000002"
+          }
         },
         "stream_seq": 12,
         "previous_event_id": "01890f00-0000-7000-8000-000000000011",
         "producer": "kernux-runtime-controller",
         "recorded_at": "2026-09-19T01:01:02Z",
         "correlations": {
-          "run": { "kind": "run", "id": "01890f00-0000-7000-8000-000000000002" },
+          "run": {
+            "kind": "run",
+            "id": "01890f00-0000-7000-8000-000000000002"
+          },
           "runtime": {
             "kind": "runtime",
             "id": "01890f00-0000-7000-8000-000000000005",
@@ -137,10 +179,16 @@
           "protocol_request_id": "01890f00-0000-7000-8000-000000000008",
           "operation_id": "01890f00-0000-7000-8000-000000000009"
         },
-        "lineage": { "caused_by": ["01890f00-0000-7000-8000-000000000006"], "derived_from": [] },
+        "lineage": {
+          "caused_by": ["01890f00-0000-7000-8000-000000000006"],
+          "derived_from": []
+        },
         "artifact_refs": [],
         "sensitivity": "internal",
-        "redaction": { "state": "none", "affected_roles": [] }
+        "redaction": {
+          "state": "none",
+          "affected_roles": []
+        }
       }
     },
     {
@@ -149,7 +197,12 @@
       "value": {
         "evidence_id": "01890f00-0000-7000-8000-000000000012",
         "claim": "The operation remains unverifiable after runtime contact loss.",
-        "subject_bindings": [{ "kind": "run", "id": "01890f00-0000-7000-8000-000000000002" }],
+        "subject_bindings": [
+          {
+            "kind": "run",
+            "id": "01890f00-0000-7000-8000-000000000002"
+          }
+        ],
         "source_class": "machine",
         "observer": "kernux-runtime-controller",
         "observed_event_ids": ["01890f00-0000-7000-8000-000000000010"],
@@ -165,7 +218,32 @@
         "limitations": ["No authoritative exit observation was available."],
         "recorded_by_event_id": "01890f00-0000-7000-8000-000000000010",
         "sensitivity": "internal",
-        "redaction": { "state": "none", "affected_roles": [] }
+        "redaction": {
+          "state": "none",
+          "affected_roles": []
+        }
+      }
+    },
+    {
+      "name": "daemon_probe_request",
+      "definition": "DaemonProbeRequest",
+      "value": {
+        "request_id": "01890f00-0000-7000-8000-000000000013",
+        "contract_version": "krp/1",
+        "probe": "health_version"
+      }
+    },
+    {
+      "name": "daemon_probe_response",
+      "definition": "DaemonProbeResponse",
+      "value": {
+        "request_id": "01890f00-0000-7000-8000-000000000013",
+        "contract_version": "krp/1",
+        "lifecycle_state": "serving",
+        "health": "healthy",
+        "daemon_version": "0.0.0",
+        "implementation_revision": "1111111111111111111111111111111111111111",
+        "schema_sha256": "904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94"
       }
     }
   ]

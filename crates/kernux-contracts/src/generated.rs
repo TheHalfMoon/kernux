@@ -1,11 +1,11 @@
 // @generated from protocol/schema/krp.v1.schema.json
-// Schema SHA-256: 7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9
+// Schema SHA-256: 904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94
 // DO NOT EDIT. Change the schema and regenerate.
 
 use serde::{Deserialize, Serialize};
 
 pub const KRP_SCHEMA_SHA256: &str =
-    "7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9";
+    "904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -119,6 +119,52 @@ pub enum ContactState {
     Degraded,
     #[serde(rename = "disconnected")]
     Disconnected,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DaemonHealthState {
+    #[serde(rename = "healthy")]
+    Healthy,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DaemonLifecycleState {
+    #[serde(rename = "starting")]
+    Starting,
+    #[serde(rename = "serving")]
+    Serving,
+    #[serde(rename = "shutting_down")]
+    ShuttingDown,
+    #[serde(rename = "stopped")]
+    Stopped,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DaemonProbeKind {
+    #[serde(rename = "health_version")]
+    HealthVersion,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DaemonProbeRequest {
+    pub contract_version: ProtocolContract,
+    pub probe: DaemonProbeKind,
+    pub request_id: UuidV7,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DaemonProbeResponse {
+    pub contract_version: ProtocolContract,
+    pub daemon_version: String,
+    pub health: DaemonHealthState,
+    pub implementation_revision: String,
+    pub lifecycle_state: DaemonLifecycleState,
+    pub request_id: UuidV7,
+    pub schema_sha256: Sha256Digest,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
