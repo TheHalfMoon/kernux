@@ -1,0 +1,15 @@
+[package]
+name = "kernux-contracts"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+serde = { version = "=1.0.229", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "=1.0.151"
+
+[lib]
+path = "src/lib.rs"
