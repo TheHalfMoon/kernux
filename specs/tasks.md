@@ -48,7 +48,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P01-S05-T02 | PROVEN | R2 | Define compatibility/versioning rules and unknown/additive-field behavior. | generated contracts |
 | KX-P01-S05-T03 | PROVEN | R2 | Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch. | generated contracts |
 
-**P01 gate: NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE.** Cross-language contracts executable; provider names absent from core; disconnect cannot imply exit; grants structurally bounded. Native SG-000017 proof is verified; the proof-bearing protected closeout merge and successful five-job post-merge qualification are still required before P01 exit is PROVEN or P02 is authorized.
+**P01 gate: PROVEN.** Cross-language contracts executable; provider names absent from core; disconnect cannot imply exit; grants structurally bounded. Native SG-000017 verification, proof-bearing protected closeout, ordinary merge, and five-job post-merge qualification are all PROVEN.
 
 ---
 
@@ -56,7 +56,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | ID | State | Risk | Macro outcome | Depends |
 | --- | --- | --- | --- | --- |
-| KX-P02-S01-T01 | PLANNED | R3 | Create `kernuxd` lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown. | P01 |
+| KX-P02-S01-T01 | NEXT | R3 | Create `kernuxd` lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown. | P01 |
 | KX-P02-S01-T02 | PLANNED | R3 | Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers. | daemon transport |
 | KX-P02-S02-T01 | PLANNED | R3 | Implement installation/device identity and key creation/rotation/recovery abstraction. | daemon transport |
 | KX-P02-S03-T01 | PLANNED | R3 | Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures. | P01 events/IDs |
