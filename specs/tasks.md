@@ -66,6 +66,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P02-S06-T01 | PLANNED | R3 | Implement secret-provider abstraction and first OS credential-store adapters with handle-based use. | identity + policy |
 | KX-P02-S06-T02 | PLANNED | R3 | Add redaction-safe security audit events and secret-leak tests. | secret broker + events |
 
+**KX-P02-S01-T01 closeout:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`. The immutable SG-000018 record is verified, but T01 remains canonically `NEXT` and T02 remains `PLANNED` until the proof-bearing protected closeout merges and post-merge qualification succeeds.
+
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
 
 ---
