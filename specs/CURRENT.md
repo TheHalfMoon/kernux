@@ -79,11 +79,15 @@ No product code or founding-donor product code has been imported yet.
 
 **P01 EXIT STATUS:** `PROVEN`
 
-**P02 ENTRY AUTHORIZED:** `KX-P02-S01-T01 ONLY`
+**P02 ENTRY AUTHORIZED:** `KX-P02-S01-T02 ONLY`
 
-**NEXT CANONICAL FRONTIER:** `KX-P02-S01-T01 — Create kernuxd lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown`
+**NEXT CANONICAL FRONTIER:** `KX-P02-S01-T02 — Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers`
 
-**KX-P02-S01-T01 QUALIFICATION:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`
+**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S01-T01 — Create kernuxd lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown`
+
+**P02 PROGRESS:** `1 / 9 macro tasks PROVEN`
+
+**KX-P02-S01-T01 QUALIFICATION:** `PROVEN`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -126,7 +130,7 @@ The adversarial corpus covers all twenty canonical runtime-operation invariants 
 
 No donor product source has been imported.
 
-KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria and native SG-000017 verification are PROVEN with immutable record `sha256:1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d`. Proof-bearing closeout PR #82 merged at `ab9ef10d15a2250b1e82eccaf9b91218bfd57a98`, and post-merge CI run `35424368459` passed all five protected jobs. P01 exit is PROVEN. Only `KX-P02-S01-T01` is authorized as NEXT; later P02 tasks remain PLANNED. KX-P02-S01-T01 implementation is qualified on `main@e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42`, and native SG-000018 verification is complete with immutable record `sha256:c4a424bc65aed750668e3d58d7339a7c56af6a449799b9d296511a23e53520e6`. The proof-bearing protected closeout merge and post-merge qualification remain required before T01 becomes canonically PROVEN or T02 becomes NEXT.
+KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P01 has 7 / 7 macro tasks PROVEN. The four frozen P01 exit criteria and native SG-000017 verification are PROVEN with immutable record `sha256:1a56e457ab012d82b6dbe7cd362c2834670a04600fb8e4380cc4c53f0e66931d`. Proof-bearing closeout PR #82 merged at `ab9ef10d15a2250b1e82eccaf9b91218bfd57a98`, and post-merge CI run `35424368459` passed all five protected jobs. P01 exit is PROVEN. KX-P02-S01-T01 is now PROVEN: implementation qualified on `main@e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42`; native SG-000018 verification produced immutable record `sha256:c4a424bc65aed750668e3d58d7339a7c56af6a449799b9d296511a23e53520e6`; proof-bearing PR #91 exact head `5138e8df65de27ab621a033c1105cbe8e66d6d61` passed run `35429680844` 6/6 and exact-head review `PRR_kwDOUevqks8AAAABOTkDww` with zero threads; PR #91 merged at `f2ea966b398e445e57af94ee7b25bfbe1af21f2b`; post-merge run `35429947987` passed all six jobs. Only KX-P02-S01-T02 is authorized as NEXT; later P02 tasks remain PLANNED and P02 phase exit remains unproven.
 
 Proof for the current frontier includes:
 
@@ -139,7 +143,7 @@ Proof for the current frontier includes:
 - `docs/evidence/P01-S05-T02.md`;
 - `docs/evidence/P01-S05-T03.md`;
 - `docs/evidence/P01-EXIT.md` — P01 phase-exit proof, native SG-000017 record, protected closeout, and post-merge qualification.
-- `docs/evidence/P02-S01-T01.md` — qualified T01 implementation plus native SG-000018 proof; protected proof-bearing closeout still pending.
+- `docs/evidence/P02-S01-T01.md` — PROVEN T01 implementation, native SG-000018 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 
 ## Dependency rule
 

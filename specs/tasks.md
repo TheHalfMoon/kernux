@@ -56,8 +56,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | ID | State | Risk | Macro outcome | Depends |
 | --- | --- | --- | --- | --- |
-| KX-P02-S01-T01 | NEXT | R3 | Create `kernuxd` lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown. | P01 |
-| KX-P02-S01-T02 | PLANNED | R3 | Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers. | daemon transport |
+| KX-P02-S01-T01 | PROVEN | R3 | Create `kernuxd` lifecycle, private UDS/named-pipe transport, health/version and graceful shutdown. | P01 |
+| KX-P02-S01-T02 | NEXT | R3 | Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers. | daemon transport |
 | KX-P02-S02-T01 | PLANNED | R3 | Implement installation/device identity and key creation/rotation/recovery abstraction. | daemon transport |
 | KX-P02-S03-T01 | PLANNED | R3 | Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures. | P01 events/IDs |
 | KX-P02-S04-T01 | PLANNED | R2 | Implement SHA-256 artifact CAS with bounded streaming, digest verification and retention metadata. | metadata store |
@@ -66,7 +66,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P02-S06-T01 | PLANNED | R3 | Implement secret-provider abstraction and first OS credential-store adapters with handle-based use. | identity + policy |
 | KX-P02-S06-T02 | PLANNED | R3 | Add redaction-safe security audit events and secret-leak tests. | secret broker + events |
 
-**KX-P02-S01-T01 closeout:** `NATIVE_VERIFIED_PENDING_PROTECTED_CLOSEOUT_MERGE`. The immutable SG-000018 record is verified, but T01 remains canonically `NEXT` and T02 remains `PLANNED` until the proof-bearing protected closeout merges and post-merge qualification succeeds.
+**KX-P02-S01-T01 closeout: PROVEN.** Native SG-000018 verification, proof-bearing PR #91 exact-head qualification/review, ordinary merge `f2ea966b398e445e57af94ee7b25bfbe1af21f2b`, and six-job post-merge run `35429947987` are all PROVEN. Only KX-P02-S01-T02 is NEXT; later P02 tasks remain PLANNED.
 
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
 
