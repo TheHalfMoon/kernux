@@ -17,6 +17,7 @@ use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 mod artifact;
 mod event;
 mod metadata;
+mod recovery;
 pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
 pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
@@ -146,6 +147,7 @@ pub enum StoreError {
     EventPredecessorMismatch,
     EventSequenceOverflow,
     EventStreamCorrupt,
+    IntegrityFailure,
 }
 
 impl fmt::Display for StoreError {
@@ -177,6 +179,7 @@ impl fmt::Display for StoreError {
             }
             Self::EventSequenceOverflow => "metadata store event sequence cannot advance",
             Self::EventStreamCorrupt => "metadata store event stream is inconsistent",
+            Self::IntegrityFailure => "metadata store integrity validation failed",
         })
     }
 }
@@ -203,6 +206,7 @@ impl Store {
 
         verify_connection_policy(&connection)?;
         validate_schema_v1(&connection)?;
+        recovery::verify_integrity_connection(&connection)?;
         Ok(Self { connection })
     }
 
@@ -245,7 +249,9 @@ fn preflight_existing(path: &Path) -> Result<ExistingState, StoreError> {
 
     let connection = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)
         .map_err(|_| StoreError::Database)?;
-    let version = user_version(&connection)?;
+    let version = connection
+        .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
+        .map_err(|_| StoreError::IntegrityFailure)?;
 
     match version {
         0 => {
@@ -257,6 +263,8 @@ fn preflight_existing(path: &Path) -> Result<ExistingState, StoreError> {
         }
         SCHEMA_VERSION => {
             validate_migration_ledger(&connection)?;
+            validate_schema_v1(&connection)?;
+            recovery::verify_integrity_connection(&connection)?;
             Ok(ExistingState::VersionOne)
         }
         version if version > SCHEMA_VERSION => Err(StoreError::FutureSchema),
