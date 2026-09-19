@@ -1,0 +1,231 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:6c358678f4b2225543637212a36cda613d9a914f4e4e93fc2cebf7813ec2e9cb",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Adversarial fixtures cover exact layout, empty/multi-chunk/boundary streams, over-limit rejection, expected mismatch, identical dedup, corrupt preexisting blob, no-overwrite behavior, temp cleanup, non-regular entry rejection, tamper/truncation detection, metadata conflict/invariance, independent retention metadata, and close/reopen verification.",
+        "detail": "The qualified corpus covers exact layout, empty and multi-chunk/boundary streams, over-limit and expected-digest rejection, identical-content reuse, corrupt existing content, no-overwrite behavior, temp cleanup, non-regular entries, tamper/truncation, metadata conflicts, independent retention metadata and reopen verification.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032;github-actions:35458083510",
+        "passed": true
+      },
+      {
+        "check_id": "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S04-T01 becomes PROVEN; only KX-P02-S05-T01 may become NEXT if canonical live truth still confirms it, KX-P02-S05-T02/S06 remain PLANNED, progress becomes 5/9, and P02 phase exit remains unproven.",
+        "detail": "The required closeout state machine is preserved: pre-proof PR #125 has passed 6/6 and exact-head review with zero threads, while S04 remains NEXT, S05/S06 remain PLANNED and progress remains 4/9 until native proof, proof-bearing merge/post-merge qualification, and a separate canonical transition.",
+        "evidence_ref": "github-pr:125;github-actions:35458418222;github-review:125:5256755830;repo:docs/evidence/P02-S04-T01.md;repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "ArtifactCas uses exactly the deterministic digest-derived layout root/sha256/xx/64hex, rejects invalid root/entry types within the bounded API, never accepts caller-controlled blob-relative path components, and exposes no public mutable-final-path primitive.",
+        "detail": "CAS core and adversarial coverage prove root/sha256/xx/64hex digest-derived paths, invalid/non-regular root and entry rejection, Unix symlink-root rejection, and absence of a public caller-controlled final-path primitive.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-actions:35457290248;github-review:123:5256640183;github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "Binding CAS content to Artifact metadata requires exact expected revision, preserves existing media_type and retention_ref, writes the verified digest/size through existing invariants only after blob publication, never creates metadata referring to absent/unverified bytes, and leaves any immutable orphan blob untouched if metadata CAS fails.",
+        "detail": "Binding re-verifies the published CAS blob before any SQLite mutation, requires exact expected revision, preserves current media_type and retention_ref, reuses existing digest/size invariants, and stale/digest conflicts leave the immutable blob intact.",
+        "evidence_ref": "github-pr:124;github-actions:35457951032;github-actions:35458083510;github-review:124:5256716555",
+        "passed": true
+      },
+      {
+        "check_id": "Dependency admission precedes CAS implementation: crates/kernux-store/Cargo.toml pins sha2 = 0.11.0 exactly with default features disabled and no optional features; third_party/dependencies/approved.json records the exact runtime purpose and MIT OR Apache-2.0 exception evidence; dependency validation passes; direct admission introduces no new external package version; and no CAS semantics land before dependency post-merge qualification.",
+        "detail": "Dependency-only PR #122 admitted exact sha2 0.11.0 with defaults disabled and no optional features before CAS code. Validation passed, the lock graph added no external package/version/source identity, and post-merge qualification completed before PR #123 began.",
+        "evidence_ref": "github-pr:122;github-actions:35456712517;github-actions:35456827510;github-review:122:5256594202;repo:docs/evidence/P02-S04-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "Every bounded candidate passes git diff --check, full pnpm check, dependency/provenance validation where applicable, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with complete manual accounting for exclusions, all five protected exact-head checks plus Windows kernuxd, exact-head review, zero unresolved threads, ordinary merge, and exact post-merge six-job qualification before dependent work begins.",
+        "detail": "Dependency, CAS core, binding/adversarial, and pre-proof closeout candidates passed bounded local checks including R3 and OpenCodeReview accounting, exact-head six-job CI/review with zero blocking threads, and every completed dependent implementation merge passed exact six-job post-merge qualification before dependent work began.",
+        "evidence_ref": "github-actions:35456712517;github-actions:35456827510;github-actions:35457182974;github-actions:35457290248;github-actions:35457951032;github-actions:35458083510;github-actions:35458418222;github-review:122:5256594202;github-review:123:5256640183;github-review:124:5256716555;github-review:125:5256755830",
+        "passed": true
+      },
+      {
+        "check_id": "Every ingest API requires an explicit maximum size, streams through a bounded fixed buffer, accepts valid empty content, rejects over-limit input without final publication, computes exact SHA-256 and size, and rejects supplied expected-digest mismatch before publication.",
+        "detail": "Ingest uses an explicit bounded size, fixed 64 KiB buffer, valid empty content, multi-chunk boundary coverage, incremental SHA-256, over-limit rejection, and expected-digest rejection before publication.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032;github-actions:35458083510",
+        "passed": true
+      },
+      {
+        "check_id": "Final publication is no-overwrite and fail-closed: temporary bytes are synced before publication; an existing final path is never replaced; identical existing content verifies and succeeds without revealing dedup status; corrupt/mismatched/non-regular existing content fails; ordinary failure/success removes the current temp name.",
+        "detail": "Temporary bytes are flushed and sync_all completes before hard-link publication. Existing final content is never replaced; identical content is reverified, corrupt/non-regular content fails, and ordinary success/failure temp cleanup is covered.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-review:123:5256640183;github-pr:124;github-actions:35457951032;github-review:124:5256716555",
+        "passed": true
+      },
+      {
+        "check_id": "Local macOS, Ubuntu Rust CI, and native Windows kernux-store CI execute the CAS corpus successfully. Native Windows runtime evidence is required; cross-compilation is not a substitute.",
+        "detail": "The final corpus passes 65/65 locally on macOS and in Ubuntu Rust CI. Native windows-latest passes 64/64; the one-test count difference is the intentionally Unix-only symbolic-link-root fixture, not missing Windows CAS coverage.",
+        "evidence_ref": "local:114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e:macos-kernux-store-65-of-65-pass;github-actions:35458083510:ubuntu-kernux-store-65-of-65-pass;github-actions:35458083510:windows-kernux-store-64-of-64-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Multiple logical Artifact IDs may reference one identical content digest without merging logical identity, revision, metadata, retention_ref, provenance, or authority. CAS code does not evaluate retention policy and provides no final blob deletion/GC API.",
+        "detail": "Executable coverage binds two distinct Artifact IDs to one identical digest while retaining independent revisions, media types and retention references. CAS exposes no retention evaluator or final blob deletion/GC API.",
+        "evidence_ref": "github-pr:124;github-actions:35457951032;github-actions:35458083510;github-review:124:5256716555",
+        "passed": true
+      },
+      {
+        "check_id": "SQLite schema/version remains unchanged and ordinary SQLite rows contain metadata/reference fields only; KRP/generated contracts, authentication/transport, identity semantics, Event semantics, policy, secret-provider, daemon configuration, and later P02 surfaces remain unchanged.",
+        "detail": "The independently observed implementation range changes only six authorized dependency/CAS/evidence paths. SQLite schema/version and KRP, auth/transport, identity, Event, policy, secret-provider, daemon configuration and later P02 surfaces remain unchanged.",
+        "evidence_ref": "git-range:24868e7949ffb93f098ff3215a1ec0a5bb1faef8..114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e:6-authorized-paths;github-actions:35458083510;repo:docs/evidence/P02-S04-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "open_verified enforces an explicit byte bound, verifies the entire same read-only file handle against the requested digest before returning it, rewinds that same handle, and rejects missing, oversized, non-regular, truncated, or tampered content with typed generic errors that do not embed payload bytes or filesystem paths.",
+        "detail": "open_verified enforces an explicit bound, requires a regular final entry, hashes the complete same read-only file handle, compares the requested digest, rewinds it, and rejects missing, oversized, tampered and truncated content with generic typed errors.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032;github-actions:35458083510",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "artifact-metadata-binding-pass",
+        "detail": "Binding re-verifies bytes, requires exact revision, preserves media/retention metadata and reuses established digest/size invariants.",
+        "evidence_ref": "github-pr:124;github-actions:35457951032;github-review:124:5256716555",
+        "passed": true
+      },
+      {
+        "check_id": "atomic-no-overwrite-publication-pass",
+        "detail": "sync-before-hard-link publication and corrupt-existing no-overwrite behavior pass.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "All implementation exact heads, final implementation main, and pre-proof closeout exact head pass required repository CI.",
+        "evidence_ref": "github-actions:35456712517;github-actions:35457182974;github-actions:35457951032;github-actions:35458083510;github-actions:35458418222",
+        "passed": true
+      },
+      {
+        "check_id": "bounded-stream-ingest-pass",
+        "detail": "Fixed-buffer explicitly bounded ingest covers empty, multi-chunk, boundary and over-limit behavior.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "cas-layout-boundary-pass",
+        "detail": "Deterministic digest-only layout and invalid/non-regular/symlink boundary fixtures pass.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "cross-platform-cas-runtime-pass",
+        "detail": "CAS corpus executes successfully on macOS, Ubuntu and native Windows; the Unix-only symlink fixture accounts exactly for the Windows count difference.",
+        "evidence_ref": "local:114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e:macos-kernux-store-65-of-65-pass;github-actions:35458083510:ubuntu-kernux-store-65-of-65-pass;github-actions:35458083510:windows-kernux-store-64-of-64-pass",
+        "passed": true
+      },
+      {
+        "check_id": "dedup-integrity-pass",
+        "detail": "Identical existing content is reverified, corrupt existing content fails, and no public dedup-hit signal exists.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-admission-pass",
+        "detail": "Exact sha2 dependency admission, license exception, feature minimality and zero external package-identity delta passed before CAS implementation.",
+        "evidence_ref": "github-pr:122;github-actions:35456712517;github-actions:35456827510;github-review:122:5256594202;repo:docs/evidence/P02-S04-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Every dependency/implementation/pre-proof candidate used as qualification passed the repository R3 policy without weakening limits.",
+        "evidence_ref": "local:6d5f61db36fb5b876668b6ee8de4208bc42b6417:diffcipline-r3-pass;local:8ba37902230ac01480c2d7442e24f0a872fd1fdc:diffcipline-r3-pass;local:00f9603c197afa4e2a2195746bf1c62c1ae21bfd:diffcipline-r3-pass;local:5ddefeb63a8eb65a02539546fe996804c93f58f8:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "logical-identity-retention-independence-pass",
+        "detail": "Two logical Artifact IDs share one content digest without merging metadata or retention references.",
+        "evidence_ref": "github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "no-final-delete-api-pass",
+        "detail": "Manual API/source review and qualified code expose no final blob delete, GC or public mutable final-path API.",
+        "evidence_ref": "github-pr:123;github-review:123:5256640183;github-pr:124;github-review:124:5256716555",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba Delegation Mode accounted for each bounded candidate and every exclusion received complete manual review; no direct LLM OCR success is claimed.",
+        "evidence_ref": "local:6d5f61db36fb5b876668b6ee8de4208bc42b6417:ocr-delegation-manual-accounting-pass;local:8ba37902230ac01480c2d7442e24f0a872fd1fdc:ocr-delegation-manual-accounting-pass;local:00f9603c197afa4e2a2195746bf1c62c1ae21bfd:ocr-delegation-manual-accounting-pass;local:5ddefeb63a8eb65a02539546fe996804c93f58f8:ocr-delegation-manual-accounting-pass",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Final SG22 implementation main passes all six jobs before closeout proof.",
+        "evidence_ref": "github-actions:35458083510;git:114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Real pre-proof closeout PR #125 exact head passed all five protected jobs plus native Windows and exact-head review with zero review threads before native proof creation.",
+        "evidence_ref": "github-pr:125;github-actions:35458418222;github-review:125:5256755830;git:5ddefeb63a8eb65a02539546fe996804c93f58f8",
+        "passed": true
+      },
+      {
+        "check_id": "protocol-auth-identity-event-regression-pass",
+        "detail": "Final full qualification keeps KRP generated/conformance/adversarial, T02 auth/transport, SG20 identity and Event/store regression suites passing.",
+        "evidence_ref": "github-actions:35458083510;git:114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e",
+        "passed": true
+      },
+      {
+        "check_id": "reopen-verification-pass",
+        "detail": "CAS reopen verifies and reads previously published immutable bytes.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-actions:35457290248",
+        "passed": true
+      },
+      {
+        "check_id": "scope-boundary-pass",
+        "detail": "Independently observed implementation range contains exactly six SG22-authorized paths and excludes later policy/secret/daemon/KRP surfaces.",
+        "evidence_ref": "git-range:24868e7949ffb93f098ff3215a1ec0a5bb1faef8..114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e:6-authorized-paths;repo:docs/evidence/P02-S04-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "sha256-ingest-verification-pass",
+        "detail": "Incremental SHA-256 and expected-digest-before-publication verification pass.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-actions:35457290248",
+        "passed": true
+      },
+      {
+        "check_id": "sqlite-no-blob-regression-pass",
+        "detail": "SQLite schema is unchanged and existing metadata-only Artifact schema tests remain passing; CAS bytes live only on the filesystem.",
+        "evidence_ref": "github-actions:35458083510;git-range:24868e7949ffb93f098ff3215a1ec0a5bb1faef8..114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e:6-authorized-paths",
+        "passed": true
+      },
+      {
+        "check_id": "tamper-detection-pass",
+        "detail": "Tampered and truncated final blobs are detected before a verified read or metadata binding succeeds.",
+        "evidence_ref": "github-pr:124;github-actions:35457951032;github-actions:35458083510",
+        "passed": true
+      },
+      {
+        "check_id": "temp-cleanup-pass",
+        "detail": "Ordinary success and failure leave no current temporary names.",
+        "evidence_ref": "github-pr:124;github-actions:35457951032",
+        "passed": true
+      },
+      {
+        "check_id": "verified-read-pass",
+        "detail": "Same-handle complete hash/verify/rewind read behavior passes.",
+        "evidence_ref": "github-pr:123;github-actions:35457182974;github-pr:124;github-actions:35457951032",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:114ac49cf6d8bb154e3cb1c52627ab9fcf6d9a7e",
+    "issues": [],
+    "observed_changed_paths": [
+      "Cargo.lock",
+      "crates/kernux-store/Cargo.toml",
+      "crates/kernux-store/src/cas.rs",
+      "crates/kernux-store/src/lib.rs",
+      "docs/evidence/P02-S04-T01-DEPENDENCY-GATE.md",
+      "third_party/dependencies/approved.json"
+    ],
+    "packet_digest": "sha256:0daec71f48641ef10b45664f57c79ab7cb771399f68281d8691b436ac17d8851",
+    "result_digest": "sha256:916987fb19932892f4543aa1e3b7017244594409a63d4ac1e6420a8bf474f5d6",
+    "spec_id": "SG-000022",
+    "spec_revision": "sha256:7c75dba3fcaccee8e1ebcf88a1dbd9603e00ccd465fc4dfb84f8fb8133f72abb",
+    "verification_version": 1,
+    "verified": true
+  }
+}
