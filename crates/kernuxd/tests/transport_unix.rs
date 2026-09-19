@@ -8,7 +8,7 @@ use kernuxd::{
 };
 use std::{
     fs,
-    io::{Read, Write},
+    io::{BufRead, BufReader, Write},
     os::unix::{
         fs::{PermissionsExt, symlink},
         net::{UnixListener, UnixStream},
@@ -280,21 +280,56 @@ fn connection_processes_only_one_probe_then_closes() {
     let second = serde_json::to_vec(&request("01890f00-0000-7000-8000-000000000107"))
         .expect("encode second");
     let mut stream = connect_raw(&socket_path);
+    let reader_stream = stream.try_clone().expect("clone client stream");
+    let mut reader = BufReader::new(reader_stream);
+
     stream.write_all(&first).expect("write first");
     stream.write_all(b"\n").expect("newline first");
-    stream.write_all(&second).expect("write second");
-    stream.write_all(b"\n").expect("newline second");
+    stream.flush().expect("flush first request");
 
-    let mut received = String::new();
-    stream
-        .read_to_string(&mut received)
-        .expect("read response and EOF");
-    let lines: Vec<_> = received.lines().collect();
-    assert_eq!(
-        lines.len(),
-        1,
-        "only one request may be processed per connection"
-    );
+    let mut first_response = String::new();
+    let first_bytes = reader
+        .read_line(&mut first_response)
+        .expect("read first response");
+    assert!(first_bytes > 0, "first probe must receive one response");
+    let response: kernux_contracts::DaemonProbeResponse =
+        serde_json::from_str(first_response.trim_end()).expect("decode first response");
+    assert_eq!(response.request_id, "01890f00-0000-7000-8000-000000000106");
+
+    let second_write = (|| -> std::io::Result<()> {
+        stream.write_all(&second)?;
+        stream.write_all(b"\n")?;
+        stream.flush()
+    })();
+
+    match second_write {
+        Err(error) => assert!(
+            matches!(
+                error.kind(),
+                std::io::ErrorKind::BrokenPipe
+                    | std::io::ErrorKind::ConnectionReset
+                    | std::io::ErrorKind::NotConnected
+            ),
+            "second request failed for unexpected reason: {error}"
+        ),
+        Ok(()) => {
+            let mut second_response = String::new();
+            match reader.read_line(&mut second_response) {
+                Ok(0) => {}
+                Ok(_) => panic!("connection produced a second response: {second_response}"),
+                Err(error) => assert!(
+                    matches!(
+                        error.kind(),
+                        std::io::ErrorKind::ConnectionReset
+                            | std::io::ErrorKind::BrokenPipe
+                            | std::io::ErrorKind::NotConnected
+                            | std::io::ErrorKind::UnexpectedEof
+                    ),
+                    "connection failed for unexpected reason after first response: {error}"
+                ),
+            }
+        }
+    }
 
     assert!(shutdown.request_shutdown());
     worker.join().expect("worker join").expect("clean shutdown");
