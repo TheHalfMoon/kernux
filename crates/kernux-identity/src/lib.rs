@@ -9,12 +9,14 @@
 use core::fmt;
 use core::str::FromStr;
 
-use ed25519_dalek::{SigningKey, VerifyingKey};
+use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use zeroize::Zeroize;
 
 const LOCAL_ID_BYTES: usize = 16;
 const VERIFYING_KEY_BYTES: usize = 32;
 const SECRET_KEY_BYTES: usize = 32;
+const RECOVERY_SIGNATURE_BYTES: usize = 64;
+const RECOVERY_DOMAIN: &[u8] = b"kernux.identity.recovery/v1\0";
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum IdentityError {
@@ -23,6 +25,7 @@ pub enum IdentityError {
     InvalidGeneration,
     GenerationOverflow,
     InvalidVerifyingKey,
+    RecoveryMismatch,
 }
 
 impl fmt::Debug for IdentityError {
@@ -33,6 +36,7 @@ impl fmt::Debug for IdentityError {
             Self::InvalidGeneration => "InvalidGeneration",
             Self::GenerationOverflow => "GenerationOverflow",
             Self::InvalidVerifyingKey => "InvalidVerifyingKey",
+            Self::RecoveryMismatch => "RecoveryMismatch",
         })
     }
 }
@@ -45,6 +49,7 @@ impl fmt::Display for IdentityError {
             Self::InvalidGeneration => "identity key generation is invalid",
             Self::GenerationOverflow => "identity key generation cannot advance",
             Self::InvalidVerifyingKey => "identity verifying key is invalid",
+            Self::RecoveryMismatch => "identity recovery material does not match",
         })
     }
 }
@@ -227,6 +232,38 @@ impl IdentityPublicDescriptor {
     }
 }
 
+pub struct RecoverySeed([u8; SECRET_KEY_BYTES]);
+
+impl RecoverySeed {
+    pub const fn new(bytes: [u8; SECRET_KEY_BYTES]) -> Self {
+        Self(bytes)
+    }
+}
+
+impl Zeroize for RecoverySeed {
+    fn zeroize(&mut self) {
+        self.0.zeroize();
+    }
+}
+
+impl Drop for RecoverySeed {
+    fn drop(&mut self) {
+        self.zeroize();
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct RecoveryReference {
+    descriptor: IdentityPublicDescriptor,
+    signature: [u8; RECOVERY_SIGNATURE_BYTES],
+}
+
+impl RecoveryReference {
+    pub const fn descriptor(&self) -> IdentityPublicDescriptor {
+        self.descriptor
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct KeyRotation {
     previous: IdentityPublicDescriptor,
@@ -247,40 +284,107 @@ pub struct LocalIdentity {
     installation_id: InstallationId,
     generation: KeyGeneration,
     signing_key: SigningKey,
+    recovery_reference: RecoveryReference,
 }
 
 impl LocalIdentity {
     pub fn generate() -> Result<Self, IdentityError> {
         let installation_id = InstallationId::generate()?;
+        let generation = KeyGeneration::INITIAL;
         let signing_key = generate_signing_key()?;
+        let descriptor = public_descriptor(installation_id, generation, &signing_key);
+        let recovery_reference = build_recovery_reference(descriptor, &signing_key);
         Ok(Self {
             installation_id,
-            generation: KeyGeneration::INITIAL,
+            generation,
             signing_key,
+            recovery_reference,
         })
     }
 
     pub fn descriptor(&self) -> IdentityPublicDescriptor {
-        IdentityPublicDescriptor {
-            installation_id: self.installation_id,
-            generation: self.generation,
-            verifying_key: DeviceVerifyingKey::from_verifying_key(self.signing_key.verifying_key()),
+        public_descriptor(self.installation_id, self.generation, &self.signing_key)
+    }
+
+    pub const fn recovery_reference(&self) -> RecoveryReference {
+        self.recovery_reference
+    }
+
+    pub fn recover(
+        recovery_seed: RecoverySeed,
+        reference: RecoveryReference,
+    ) -> Result<Self, IdentityError> {
+        let signing_key = SigningKey::from_bytes(&recovery_seed.0);
+        let descriptor = public_descriptor(
+            reference.descriptor.installation_id,
+            reference.descriptor.generation,
+            &signing_key,
+        );
+        if descriptor.verifying_key != reference.descriptor.verifying_key {
+            return Err(IdentityError::RecoveryMismatch);
         }
+
+        let signature = Signature::from_bytes(&reference.signature);
+        signing_key
+            .verifying_key()
+            .verify_strict(&recovery_message(reference.descriptor), &signature)
+            .map_err(|_| IdentityError::RecoveryMismatch)?;
+
+        Ok(Self {
+            installation_id: reference.descriptor.installation_id,
+            generation: reference.descriptor.generation,
+            signing_key,
+            recovery_reference: reference,
+        })
     }
 
     pub fn rotate(&mut self) -> Result<KeyRotation, IdentityError> {
         let next_generation = self.generation.checked_next()?;
         let replacement = generate_signing_key()?;
         let previous = self.descriptor();
+        let current = public_descriptor(self.installation_id, next_generation, &replacement);
+        let recovery_reference = build_recovery_reference(current, &replacement);
 
         self.signing_key = replacement;
         self.generation = next_generation;
+        self.recovery_reference = recovery_reference;
 
-        Ok(KeyRotation {
-            previous,
-            current: self.descriptor(),
-        })
+        Ok(KeyRotation { previous, current })
     }
+}
+
+fn public_descriptor(
+    installation_id: InstallationId,
+    generation: KeyGeneration,
+    signing_key: &SigningKey,
+) -> IdentityPublicDescriptor {
+    IdentityPublicDescriptor {
+        installation_id,
+        generation,
+        verifying_key: DeviceVerifyingKey::from_verifying_key(signing_key.verifying_key()),
+    }
+}
+
+fn build_recovery_reference(
+    descriptor: IdentityPublicDescriptor,
+    signing_key: &SigningKey,
+) -> RecoveryReference {
+    let signature = signing_key.sign(&recovery_message(descriptor)).to_bytes();
+    RecoveryReference {
+        descriptor,
+        signature,
+    }
+}
+
+fn recovery_message(descriptor: IdentityPublicDescriptor) -> Vec<u8> {
+    let mut message = Vec::with_capacity(
+        RECOVERY_DOMAIN.len() + LOCAL_ID_BYTES + core::mem::size_of::<u32>() + VERIFYING_KEY_BYTES,
+    );
+    message.extend_from_slice(RECOVERY_DOMAIN);
+    message.extend_from_slice(descriptor.installation_id.as_bytes());
+    message.extend_from_slice(&descriptor.generation.get().to_be_bytes());
+    message.extend_from_slice(descriptor.verifying_key.as_bytes());
+    message
 }
 
 fn random_local_id() -> Result<[u8; LOCAL_ID_BYTES], IdentityError> {
@@ -348,10 +452,13 @@ mod tests {
         let seed = [0x42; SECRET_KEY_BYTES];
         let signing_key = SigningKey::from_bytes(&seed);
         let expected = DeviceVerifyingKey::from_verifying_key(signing_key.verifying_key());
+        let descriptor = public_descriptor(installation_id, KeyGeneration::INITIAL, &signing_key);
+        let recovery_reference = build_recovery_reference(descriptor, &signing_key);
         let identity = LocalIdentity {
             installation_id,
             generation: KeyGeneration::INITIAL,
             signing_key,
+            recovery_reference,
         };
 
         let descriptor = identity.descriptor();
@@ -392,14 +499,89 @@ mod tests {
         let installation_id = InstallationId::from_hex("00112233445566778899aabbccddeeff")
             .expect("valid installation id");
         let identity_key = SigningKey::from_bytes(&[0x24; SECRET_KEY_BYTES]);
+        let generation = KeyGeneration::try_from(u32::MAX).expect("max generation is valid");
+        let descriptor = public_descriptor(installation_id, generation, &identity_key);
+        let recovery_reference = build_recovery_reference(descriptor, &identity_key);
         let mut identity = LocalIdentity {
             installation_id,
-            generation: KeyGeneration::try_from(u32::MAX).expect("max generation is valid"),
+            generation,
             signing_key: identity_key,
+            recovery_reference,
         };
         let before = identity.descriptor();
 
         assert_eq!(identity.rotate(), Err(IdentityError::GenerationOverflow));
         assert_eq!(identity.descriptor(), before);
+    }
+
+    #[test]
+    fn recovery_seed_zeroizes_without_exposing_formatting_surface() {
+        let mut seed = RecoverySeed::new([0x5a; SECRET_KEY_BYTES]);
+        seed.zeroize();
+        assert_eq!(seed.0, [0u8; SECRET_KEY_BYTES]);
+    }
+
+    #[test]
+    fn exact_recovery_seed_restores_bound_identity() {
+        let seed_bytes = [0x37; SECRET_KEY_BYTES];
+        let installation_id = InstallationId::from_hex("102132435465768798a9bacbdcedfe0f")
+            .expect("valid installation id");
+        let generation = KeyGeneration::try_from(9).expect("positive generation");
+        let signing_key = SigningKey::from_bytes(&seed_bytes);
+        let descriptor = public_descriptor(installation_id, generation, &signing_key);
+        let reference = build_recovery_reference(descriptor, &signing_key);
+
+        let recovered = LocalIdentity::recover(RecoverySeed::new(seed_bytes), reference)
+            .expect("matching recovery material");
+        assert_eq!(recovered.descriptor(), descriptor);
+        assert_eq!(recovered.recovery_reference(), reference);
+    }
+
+    #[test]
+    fn recovery_rejects_wrong_seed_and_tampered_bound_metadata() {
+        let seed_bytes = [0x37; SECRET_KEY_BYTES];
+        let installation_id = InstallationId::from_hex("102132435465768798a9bacbdcedfe0f")
+            .expect("valid installation id");
+        let generation = KeyGeneration::try_from(9).expect("positive generation");
+        let signing_key = SigningKey::from_bytes(&seed_bytes);
+        let descriptor = public_descriptor(installation_id, generation, &signing_key);
+        let reference = build_recovery_reference(descriptor, &signing_key);
+
+        assert_eq!(
+            LocalIdentity::recover(RecoverySeed::new([0x38; SECRET_KEY_BYTES]), reference)
+                .map(|_| ()),
+            Err(IdentityError::RecoveryMismatch)
+        );
+
+        let mut wrong_installation = reference;
+        wrong_installation.descriptor.installation_id =
+            InstallationId::from_hex("202132435465768798a9bacbdcedfe0f").expect("valid id");
+        assert_eq!(
+            LocalIdentity::recover(RecoverySeed::new(seed_bytes), wrong_installation).map(|_| ()),
+            Err(IdentityError::RecoveryMismatch)
+        );
+
+        let mut wrong_generation = reference;
+        wrong_generation.descriptor.generation = KeyGeneration::try_from(10).expect("positive");
+        assert_eq!(
+            LocalIdentity::recover(RecoverySeed::new(seed_bytes), wrong_generation).map(|_| ()),
+            Err(IdentityError::RecoveryMismatch)
+        );
+
+        let other_key = SigningKey::from_bytes(&[0x39; SECRET_KEY_BYTES]);
+        let mut wrong_key = reference;
+        wrong_key.descriptor.verifying_key =
+            DeviceVerifyingKey::from_verifying_key(other_key.verifying_key());
+        assert_eq!(
+            LocalIdentity::recover(RecoverySeed::new(seed_bytes), wrong_key).map(|_| ()),
+            Err(IdentityError::RecoveryMismatch)
+        );
+
+        let mut wrong_signature = reference;
+        wrong_signature.signature[0] ^= 0x01;
+        assert_eq!(
+            LocalIdentity::recover(RecoverySeed::new(seed_bytes), wrong_signature).map(|_| ()),
+            Err(IdentityError::RecoveryMismatch)
+        );
     }
 }
