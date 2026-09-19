@@ -79,6 +79,44 @@
         "retry_guidance": "reconcile_operation"
       },
       "assert_absent": ["provider_diagnostic"]
+    },
+    {
+      "name": "optional_parent_grant_omission_preserves_bounded_authority",
+      "source_case": "bounded_grant",
+      "set_fields": {},
+      "remove_fields": ["parent_grant_id"],
+      "expected": "accept",
+      "assert_fields": {
+        "action": "files.write",
+        "consequence_ceiling": "C2",
+        "delegation_depth": 0,
+        "max_uses": 1,
+        "resource_match": "subtree"
+      },
+      "assert_absent": ["parent_grant_id"]
+    },
+    {
+      "name": "optional_termination_cause_omission_preserves_unverifiable_execution",
+      "source_case": "operation_unverifiable",
+      "set_fields": {},
+      "remove_fields": ["termination_cause"],
+      "expected": "accept",
+      "assert_fields": {
+        "execution_state": "unverifiable",
+        "observation_generation": 8
+      },
+      "assert_absent": ["termination_cause"]
+    },
+    {
+      "name": "unknown_error_category_rejected",
+      "source_case": "runtime_error_ambiguous_side_effect",
+      "set_fields": {
+        "category": "future_unknown_category"
+      },
+      "remove_fields": [],
+      "expected": "reject",
+      "assert_fields": {},
+      "assert_absent": []
     }
   ],
   "truth_cases": [
@@ -131,6 +169,47 @@
       "sender_features": ["operation.trace_context"],
       "peer_features": ["operation.trace_context"],
       "expected_emit": true
+    }
+  ],
+  "capability_admission_cases": [
+    {
+      "name": "exact_action_and_version_satisfy_admission",
+      "advertised_capabilities": [
+        {
+          "action": "files.write",
+          "version": "1",
+          "features": []
+        }
+      ],
+      "requested_action": "files.write",
+      "requested_version": "1",
+      "expected_admission": "accept"
+    },
+    {
+      "name": "unknown_requested_action_does_not_fall_back",
+      "advertised_capabilities": [
+        {
+          "action": "files.write",
+          "version": "1",
+          "features": []
+        }
+      ],
+      "requested_action": "future.magic",
+      "requested_version": "1",
+      "expected_admission": "reject"
+    },
+    {
+      "name": "unknown_advertised_action_does_not_satisfy_known_request",
+      "advertised_capabilities": [
+        {
+          "action": "future.magic",
+          "version": "1",
+          "features": []
+        }
+      ],
+      "requested_action": "files.write",
+      "requested_version": "1",
+      "expected_admission": "reject"
     }
   ]
 }

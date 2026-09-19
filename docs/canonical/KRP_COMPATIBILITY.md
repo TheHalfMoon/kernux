@@ -212,6 +212,7 @@ The focused matrix proves:
 - unsupported protocol/capability/Event-version rejection;
 - required-field rejection;
 - known optional-field omission without semantic defaulting;
+- exact capability action/version admission with unknown-action non-fallback;
 - protocol mismatch without execution/side-effect truth rewriting;
 - negotiated additive-field sender gating;
 - unnegotiated Event types remain non-projecting.
