@@ -39,11 +39,15 @@ Kernux starts with a conservative small-repository policy:
 
 - maximum changed files: 12;
 - maximum added lines: 600;
-- dependency-manifest changes: REVIEW;
-- lockfile changes: REVIEW;
+- dependency-manifest changes: ALLOW in Diffcipline because dependency admission is enforced independently by the required Provenance job;
+- lockfile changes: ALLOW in Diffcipline because locked dependency resolution is enforced independently by the required Provenance job;
 - untracked files: FAIL.
 
 These limits are review boundaries, not correctness metrics. A larger legitimate change must be refined or explicitly reviewed; code must never be split in a way that makes correctness, security, accessibility, or maintainability worse merely to satisfy a size threshold.
+
+Dependency admission is not relaxed by the ALLOW setting above. Diffcipline v1 has no approval hook for its REVIEW verdict, and the GitHub Action preserves REVIEW as exit 1. Protected main requires Diffcipline R1 with enforce_admins=true, so leaving dependency-manifest and lockfile decisions at REVIEW made every legitimate dependency change permanently unmergeable. Kernux therefore moved dependency judgment into the separately required Provenance job before changing these two Diffcipline signals to ALLOW.
+
+The required Provenance job now runs `tools/dependencies/validate.py` and its conformance suite. That gate fails closed on unapproved direct dependencies, non-exact direct versions, approval/version/source/scope drift, stale or duplicate approvals, unsupported ecosystems, Cargo locked-resolution drift, and license-posture mismatch. Diffcipline still enforces exact diff size, workspace cleanliness, intent/scope rules, risk profile, and configured verification. Neither tool replaces the other.
 
 ## Risk profiles
 
