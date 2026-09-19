@@ -223,17 +223,36 @@ Rust tests independently prove strict generated decoding and optional-absence be
 
 These are focused compatibility proofs, not the full adversarial protocol corpus.
 
-## 11. S05-T03 boundary
+## 11. S05-T03 adversarial evidence
 
-KX-P01-S05-T03 remains authoritative for the full negative/adversarial protocol corpus, including dependency-ordered coverage for:
+KX-P01-S05-T03 owns the full negative/adversarial protocol corpus.
 
-- disconnect behavior;
-- duplicate/replayed operation behavior;
-- general malformed payloads;
-- broader version-mismatch cases;
-- other protocol adversarial paths required by the P01 exit gate.
+The canonical shared corpus is:
 
-T02 does not claim that corpus complete.
+`protocol/fixtures/v1/adversarial.json`
+
+The normal Node protocol gate executes:
+
+`tools/protocol/adversarial.mjs`
+
+Rust independently consumes the same tracked adversarial fixture bytes through:
+
+`crates/kernux-contracts/tests/adversarial.rs`
+
+Together these executable checks cover:
+
+- all twenty adversarial invariants in `RUNTIME_OPERATION_MODEL.md` section 28;
+- disconnect, timeout, cancellation, restart/cache-loss, and observation-ordering truth preservation;
+- duplicate/replayed OperationId plus canonical request-fingerprint behavior;
+- side-effect ambiguity and reconcile/no-blind-retry discipline;
+- authority/capability intersection and trust-identity continuity;
+- malformed unknown/missing/nested/closed-enum payloads;
+- RuntimeDescriptor, RuntimeCapability, OperationStart, and Event version mismatch;
+- the explicit boundary where JSON Schema string-pattern checks are stricter than generated Rust serde.
+
+This evidence proves contract and policy-fixture conformance only. It does not prove exactly-once runtime execution, durable replay protection, cancellation delivery, reconnect persistence, or live runtime transport behavior.
+
+T02 remains the focused compatibility-policy proof. T03 supplies the broader adversarial corpus without changing the frozen KRP v1 compatibility rules.
 
 ## 12. Change rule
 
