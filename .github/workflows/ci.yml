@@ -175,7 +175,7 @@ jobs:
           components: clippy
 
       - name: Run Windows kernuxd Clippy
-        run: cargo clippy --locked -p kernuxd -p kernux-identity --all-targets -- -D warnings
+        run: cargo clippy --locked -p kernuxd -p kernux-identity -p kernux-store --all-targets -- -D warnings
 
       - name: Run Windows kernuxd tests
-        run: cargo test --locked -p kernuxd -p kernux-identity --all-targets
+        run: cargo test --locked -p kernuxd -p kernux-identity -p kernux-store --all-targets
