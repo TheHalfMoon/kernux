@@ -65,8 +65,11 @@ function validateSchema(schema) {
   }
   scanKeywords(schema);
   for (const [name, def] of Object.entries(schema.$defs)) {
-    if (def.type === "string" && Array.isArray(def.enum)) continue;
-    if (def.type !== "object") fail(`${name} must be an object or string enum`);
+    if (def.type === "string") {
+      if (def.enum !== undefined && !Array.isArray(def.enum)) fail(`${name} enum must be an array`);
+      continue;
+    }
+    if (def.type !== "object") fail(`${name} must be an object or string definition`);
     if (def.additionalProperties !== false) fail(`${name} must set additionalProperties=false`);
     if (!def.properties || typeof def.properties !== "object")
       fail(`${name} must define properties`);
@@ -125,6 +128,10 @@ function generateTypeScript(schema, digest) {
   const lines = [header("//", digest)];
   for (const name of Object.keys(schema.$defs).sort()) {
     const def = schema.$defs[name];
+    if (def.type === "string" && !def.enum) {
+      lines.push(`export type ${name} = string;`, "");
+      continue;
+    }
     if (def.type === "string" && def.enum) {
       const members = def.enum.map((value) => JSON.stringify(value));
       const singleLine = `export type ${name} = ${members.join(" | ")};`;
@@ -154,6 +161,10 @@ function generateRust(schema, digest) {
   const lines = [header("//", digest), "use serde::{Deserialize, Serialize};", ""];
   for (const name of Object.keys(schema.$defs).sort()) {
     const def = schema.$defs[name];
+    if (def.type === "string" && !def.enum) {
+      lines.push(`pub type ${name} = String;`, "");
+      continue;
+    }
     if (def.type === "string" && def.enum) {
       lines.push(
         "#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]",

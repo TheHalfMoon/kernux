@@ -1,38 +1,53 @@
 // @generated from protocol/schema/krp.v1.schema.json
-// Schema SHA-256: b720977df2afa7c74c69bc28d545430260b0998e715aa0400048996d0887a062
+// Schema SHA-256: e1fbe682c4a824c8a09619481277cd12cb9c544c1604badec2240b6aa50fe04b
 // DO NOT EDIT. Change the schema and regenerate.
 
 export interface ArtifactRef {
   artifact: CanonicalRef;
   media_type?: string;
   role: string;
-  sha256?: string;
+  sha256?: Sha256Digest;
   size_bytes?: number;
 }
 
+export interface CancelRequest {
+  operation_id: UuidV7;
+  reason?: string;
+  request_id: UuidV7;
+}
+
+export interface CancelResult {
+  operation_id: UuidV7;
+  outcome: CancellationOutcome;
+  request_id: UuidV7;
+}
+
+export type CancellationOutcome =
+  | "accepted"
+  | "already_terminal"
+  | "not_cancellable"
+  | "unknown_operation"
+  | "denied"
+  | "unverifiable";
+
 export interface CanonicalRef {
-  id: string;
+  id: UuidV7;
   kind: EntityKind;
   revision?: number;
 }
 
 export interface CapabilityRequest {
   action: string;
-  consequence: ConsequenceClass;
-  constraints: ConstraintSet;
-  request_id: string;
+  provenance_event_ids: Array<UuidV7>;
+  reason?: string;
+  request_id: UuidV7;
+  requested_constraints: ConstraintSet;
   resource_uri: string;
   runtime: CanonicalRef;
-  subject: CanonicalRef;
+  subject_scope: SubjectScope;
 }
 
-export interface CapabilityVersion {
-  action: string;
-  features: Array<string>;
-  version: string;
-}
-
-export type ConsequenceClass = "C0" | "C1" | "C2" | "C3";
+export type ConsequenceClass = "C0" | "C1" | "C2" | "C3" | "C4";
 
 export interface ConstraintSet {
   allowed_roots?: Array<string>;
@@ -44,6 +59,11 @@ export interface ConstraintSet {
 
 export type ContactState = "connected" | "degraded" | "disconnected";
 
+export interface DiagnosticField {
+  key: string;
+  value: string;
+}
+
 export type EntityKind =
   | "project"
   | "task"
@@ -54,6 +74,21 @@ export type EntityKind =
   | "artifact"
   | "evidence"
   | "event";
+
+export type ErrorCategory =
+  | "invalid_request"
+  | "protocol_mismatch"
+  | "capability_unavailable"
+  | "authorization_denied"
+  | "resource_invalid"
+  | "operation_conflict"
+  | "operation_unknown"
+  | "operation_unverifiable"
+  | "operation_not_cancellable"
+  | "runtime_unavailable"
+  | "runtime_revoked"
+  | "timeout"
+  | "internal";
 
 export interface Event {
   artifact_refs: Array<ArtifactRef>;
@@ -110,36 +145,43 @@ export type ExecutionState = "live" | "exited" | "unverifiable";
 
 export interface Grant {
   action: string;
-  consequence: ConsequenceClass;
+  consequence_ceiling: ConsequenceClass;
   constraints: ConstraintSet;
+  delegation_depth: number;
   expires_at: string;
-  grant_id: string;
-  issuer_policy_revision: number;
+  grant_id: UuidV7;
+  issued_at: string;
+  issuer_authority: string;
   max_uses: number;
-  request_id: string;
+  not_before: string;
+  parent_grant_id?: UuidV7;
+  policy_revision: number;
+  resource_match: ResourceMatch;
   resource_uri: string;
   runtime: CanonicalRef;
-  subject: CanonicalRef;
+  subject_scope: SubjectScope;
 }
 
 export interface OperationObservation {
   execution_state: ExecutionState;
   observation_generation: number;
   observed_at: string;
-  operation_id: string;
+  operation_id: UuidV7;
   runtime: CanonicalRef;
   termination_cause?: string;
 }
 
 export interface OperationStart {
   action: string;
+  capability_version: string;
   constraints: ConstraintSet;
-  operation_id: string;
-  payload_sha256: string;
-  request_id: string;
+  operation_id: UuidV7;
+  payload_sha256: Sha256Digest;
+  protocol_contract: string;
+  request_id: UuidV7;
   resource_uri: string;
   runtime: CanonicalRef;
-  subject: CanonicalRef;
+  subject_scope: SubjectScope;
 }
 
 export interface Redaction {
@@ -154,29 +196,49 @@ export interface Redaction {
 
 export type RedactionState = "none" | "excluded" | "transformed";
 
+export type ResourceMatch = "exact" | "subtree";
+
 export type RetryGuidance =
   | "retry_request"
   | "reconcile_operation"
   | "new_operation_if_still_authorized"
   | "do_not_retry";
 
-export interface RuntimeDescriptor {
-  capabilities: Array<CapabilityVersion>;
-  contract_version: string;
+export interface RuntimeCapability {
+  action: string;
+  features: Array<string>;
+  version: string;
+}
+
+export interface RuntimeContactObservation {
+  contact_state: ContactState;
   observation_generation: number;
   observed_at: string;
   runtime: CanonicalRef;
 }
 
+export interface RuntimeDescriptor {
+  capabilities: Array<RuntimeCapability>;
+  features: Array<string>;
+  observation_generation: number;
+  observed_at: string;
+  protocol_contract: string;
+  runtime: CanonicalRef;
+}
+
 export interface RuntimeError {
-  category: string;
+  category: ErrorCategory;
   code: string;
+  details?: Array<DiagnosticField>;
   message: string;
-  operation_id?: string;
-  request_id: string;
+  operation_id?: UuidV7;
+  provider_diagnostic?: Array<DiagnosticField>;
+  request_id: UuidV7;
   retry_guidance: RetryGuidance;
   side_effect_certainty: SideEffectCertainty;
 }
+
+export type Sha256Digest = string;
 
 export type SideEffectCertainty =
   | "definitely_not_started"
@@ -190,3 +252,10 @@ export interface StreamRef {
   owner: CanonicalRef;
   owner_kind: StreamOwnerKind;
 }
+
+export interface SubjectScope {
+  agent_session?: CanonicalRef;
+  run: CanonicalRef;
+}
+
+export type UuidV7 = string;
