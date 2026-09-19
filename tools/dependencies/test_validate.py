@@ -132,7 +132,7 @@ class DependencyValidationTests(unittest.TestCase):
             "serde",
             "1.0.229",
             scope="runtime",
-            license_expression="MIT OR Apache-2.0",
+            license_expression="MIT",
         )
         root = self.make_repo(
             approvals=[approval],
@@ -143,7 +143,7 @@ class DependencyValidationTests(unittest.TestCase):
                 {
                     "name": "serde",
                     "version": "1.0.229",
-                    "license": "MIT OR Apache-2.0",
+                    "license": "MIT",
                     "source": "registry+https://github.com/rust-lang/crates.io-index",
                 }
             ]
@@ -165,7 +165,7 @@ class DependencyValidationTests(unittest.TestCase):
             "serde",
             "1.0.229",
             scope="runtime",
-            license_expression="MIT OR Apache-2.0",
+            license_expression="MIT",
         )
         root = self.make_repo(
             approvals=[approval],
@@ -176,7 +176,7 @@ class DependencyValidationTests(unittest.TestCase):
                 {
                     "name": "serde",
                     "version": "1.0.228",
-                    "license": "MIT OR Apache-2.0",
+                    "license": "MIT",
                     "source": "registry+https://github.com/rust-lang/crates.io-index",
                 }
             ]
@@ -193,7 +193,7 @@ class DependencyValidationTests(unittest.TestCase):
             "serde",
             "1.0.229",
             scope="runtime",
-            license_expression="MIT OR Apache-2.0",
+            license_expression="MIT",
         )
         root = self.make_repo(
             approvals=[approval],
@@ -214,6 +214,79 @@ class DependencyValidationTests(unittest.TestCase):
             "license mismatch",
             cargo_metadata_override=metadata,
         )
+
+
+    def test_compound_permitted_ids_still_require_explicit_exception(self) -> None:
+        approval = self.approval(
+            "npm",
+            "example",
+            "1.0.0",
+            license_expression="MIT OR Apache-2.0",
+        )
+        root = self.make_repo(npm={"example": "1.0.0"}, approvals=[approval])
+        self.assert_invalid(root, "requires separately governed policy exception")
+
+    def test_exception_reviewed_compound_license_passes_registry_load(self) -> None:
+        approval = self.approval(
+            "npm",
+            "example",
+            "1.0.0",
+            license_expression="MIT OR Apache-2.0",
+        )
+        approval["license_posture"] = "exception-reviewed"
+        approval["license_policy_exception"] = "docs/evidence/license-review.md"
+        root = self.make_repo(npm={"example": "1.0.0"}, approvals=[approval])
+        (root / "docs/evidence").mkdir(parents=True)
+        (root / "docs/evidence/license-review.md").write_text(
+            "# Bounded fixture license review\n", encoding="utf-8"
+        )
+        deps = validate_repository(root)
+        self.assertEqual(deps[0].name, "example")
+
+    def test_git_approval_requires_source_url(self) -> None:
+        approval = self.approval(
+            "cargo",
+            "agent",
+            "a" * 40,
+            scope="runtime",
+            source="git",
+        )
+        root = self.make_repo(approvals=[approval])
+        self.assert_invalid(root, "git approval must bind source_url")
+
+    def test_git_source_url_mismatch_fails_before_metadata(self) -> None:
+        revision = "a" * 40
+        approval = self.approval(
+            "cargo",
+            "agent",
+            revision,
+            scope="runtime",
+            source="git",
+        )
+        approval["source_url"] = "https://example.invalid/approved.git"
+        root = self.make_repo(
+            approvals=[approval],
+            cargo_member=(
+                "\n[dependencies]\n"
+                f'agent = {{ git = "https://example.invalid/other.git", rev = "{revision}" }}\n'
+            ),
+        )
+        self.assert_invalid(
+            root,
+            "source_url mismatch",
+            cargo_metadata_override={"packages": []},
+        )
+
+    def test_npm_git_source_is_not_admitted_by_v1(self) -> None:
+        approval = self.approval(
+            "npm",
+            "example",
+            "a" * 40,
+            source="git",
+        )
+        approval["source_url"] = "https://example.invalid/example.git"
+        root = self.make_repo(approvals=[approval])
+        self.assert_invalid(root, "npm v1 supports registry dependencies only")
 
     def test_unpermitted_license_requires_exception(self) -> None:
         approval = self.approval(

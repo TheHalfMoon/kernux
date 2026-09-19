@@ -29,7 +29,6 @@ EXACT_SEMVER = re.compile(
 )
 FULL_GIT_REV = re.compile(r"^[0-9a-fA-F]{40}$")
 PERMITTED_LICENSE_IDS = {"MIT", "Apache-2.0"}
-SPDX_TOKEN = re.compile(r"MIT|Apache-2\.0|AND|OR|\(|\)|\s+")
 
 
 class ValidationError(RuntimeError):
@@ -44,6 +43,7 @@ class DirectDependency:
     version: str
     scopes: tuple[str, ...]
     manifest: str
+    source_url: str | None = None
 
     @property
     def scope(self) -> str:
@@ -61,6 +61,7 @@ class Approval:
     license_expression: str
     license_posture: str
     license_policy_exception: str | None = None
+    source_url: str | None = None
 
 
 def _load_json(path: Path) -> Any:
@@ -84,13 +85,7 @@ def _nonempty_string(value: Any, field: str) -> str:
 
 
 def _license_is_permitted(expression: str) -> bool:
-    compact = re.sub(r"\s+", "", expression)
-    if expression in PERMITTED_LICENSE_IDS:
-        return True
-    # Permit compound expressions only when every license identifier is already
-    # permitted by canonical LICENSE_POLICY. Operators do not expand the set.
-    stripped = SPDX_TOKEN.sub("", expression)
-    return not stripped and "MIT" in expression or not stripped and "Apache-2.0" in expression
+    return expression in PERMITTED_LICENSE_IDS
 
 
 def _validate_license(approval: Approval, root: Path) -> None:
@@ -99,6 +94,11 @@ def _validate_license(approval: Approval, root: Path) -> None:
             raise ValidationError(
                 f"{approval.ecosystem}:{approval.name} permitted license must use "
                 "license_posture=permitted-by-LICENSE_POLICY"
+            )
+        if approval.license_policy_exception is not None:
+            raise ValidationError(
+                f"{approval.ecosystem}:{approval.name} permitted license must not carry "
+                "license_policy_exception"
             )
         return
 
@@ -141,7 +141,7 @@ def load_approvals(root: Path) -> dict[tuple[str, str], Approval]:
         "license_expression",
         "license_posture",
     }
-    allowed = required | {"license_policy_exception"}
+    allowed = required | {"license_policy_exception", "source_url"}
     for index, entry in enumerate(entries):
         if not isinstance(entry, dict):
             raise ValidationError(f"approval[{index}] must be an object")
@@ -158,6 +158,10 @@ def load_approvals(root: Path) -> dict[tuple[str, str], Approval]:
         source = _nonempty_string(entry["source"], f"approval[{index}].source")
         if source not in {"registry", "git"}:
             raise ValidationError(f"approval[{index}] unsupported source {source!r}")
+        if ecosystem == "npm" and source != "registry":
+            raise ValidationError(
+                f"approval[{index}] npm v1 supports registry dependencies only"
+            )
 
         approval = Approval(
             ecosystem=ecosystem,
@@ -172,19 +176,43 @@ def load_approvals(root: Path) -> dict[tuple[str, str], Approval]:
             license_posture=_nonempty_string(
                 entry["license_posture"], f"approval[{index}].license_posture"
             ),
-            license_policy_exception=entry.get("license_policy_exception"),
+            license_policy_exception=(
+                _nonempty_string(
+                    entry["license_policy_exception"],
+                    f"approval[{index}].license_policy_exception",
+                )
+                if "license_policy_exception" in entry
+                else None
+            ),
+            source_url=(
+                _nonempty_string(
+                    entry["source_url"], f"approval[{index}].source_url"
+                )
+                if "source_url" in entry
+                else None
+            ),
         )
         key = (approval.ecosystem, approval.name)
         if key in result:
             raise ValidationError(f"duplicate approval for {approval.ecosystem}:{approval.name}")
-        if approval.source == "registry" and not EXACT_SEMVER.fullmatch(approval.version):
-            raise ValidationError(
-                f"{approval.ecosystem}:{approval.name} approval version must be exact semver"
-            )
-        if approval.source == "git" and not FULL_GIT_REV.fullmatch(approval.version):
-            raise ValidationError(
-                f"{approval.ecosystem}:{approval.name} git approval version must be full commit"
-            )
+        if approval.source == "registry":
+            if not EXACT_SEMVER.fullmatch(approval.version):
+                raise ValidationError(
+                    f"{approval.ecosystem}:{approval.name} approval version must be exact semver"
+                )
+            if approval.source_url is not None:
+                raise ValidationError(
+                    f"{approval.ecosystem}:{approval.name} registry approval must not carry source_url"
+                )
+        if approval.source == "git":
+            if not FULL_GIT_REV.fullmatch(approval.version):
+                raise ValidationError(
+                    f"{approval.ecosystem}:{approval.name} git approval version must be full commit"
+                )
+            if approval.source_url is None:
+                raise ValidationError(
+                    f"{approval.ecosystem}:{approval.name} git approval must bind source_url"
+                )
         _validate_license(approval, root)
         result[key] = approval
     return result
@@ -239,7 +267,7 @@ def _cargo_external_spec(
     name: str,
     spec: Any,
     workspace_dependencies: dict[str, Any],
-) -> tuple[str, str, str] | None:
+) -> tuple[str, str, str, str | None] | None:
     if isinstance(spec, str):
         requirement = spec
         source = "registry"
@@ -258,7 +286,10 @@ def _cargo_external_spec(
             rev = spec.get("rev")
             if not isinstance(rev, str) or not FULL_GIT_REV.fullmatch(rev):
                 raise ValidationError(f"cargo:{package} git dependency must pin a full rev")
-            return package, "git", rev.lower()
+            git_url = spec.get("git")
+            if not isinstance(git_url, str) or not git_url.strip():
+                raise ValidationError(f"cargo:{package} git dependency must bind a git URL")
+            return package, "git", rev.lower(), git_url.strip()
         requirement = spec.get("version")
         source = "registry"
     else:
@@ -271,7 +302,7 @@ def _cargo_external_spec(
     version = requirement[1:]
     if not EXACT_SEMVER.fullmatch(version):
         raise ValidationError(f"cargo:{package} exact registry version is invalid: {requirement}")
-    return package, source, version
+    return package, source, version, None
 
 
 def _iter_cargo_tables(doc: dict[str, Any]) -> Iterable[tuple[str, dict[str, Any]]]:
@@ -305,7 +336,7 @@ def discover_cargo(root: Path) -> list[DirectDependency]:
     if workspace_dependencies and not isinstance(workspace_dependencies, dict):
         raise ValidationError("[workspace.dependencies] must be a table")
 
-    aggregate: dict[tuple[str, str, str], set[str]] = {}
+    aggregate: dict[tuple[str, str, str, str | None], set[str]] = {}
     manifests = _workspace_member_manifests(root, root_doc)
     for manifest in manifests:
         doc = _load_toml(manifest)
@@ -314,18 +345,19 @@ def discover_cargo(root: Path) -> list[DirectDependency]:
                 external = _cargo_external_spec(key, spec, workspace_dependencies)
                 if external is None:
                     continue
-                name, source, version = external
-                aggregate.setdefault((name, source, version), set()).add(scope)
+                name, source, version, source_url = external
+                aggregate.setdefault((name, source, version, source_url), set()).add(scope)
 
-    by_name: dict[str, tuple[str, str, set[str]]] = {}
-    for (name, source, version), scopes in aggregate.items():
+    by_name: dict[str, tuple[str, str, str | None, set[str]]] = {}
+    for (name, source, version, source_url), scopes in aggregate.items():
         previous = by_name.get(name)
-        if previous and (previous[0], previous[1]) != (source, version):
+        identity = (source, version, source_url)
+        if previous and previous[:3] != identity:
             raise ValidationError(f"cargo:{name} resolves to multiple direct sources/versions")
         if previous:
-            previous[2].update(scopes)
+            previous[3].update(scopes)
         else:
-            by_name[name] = (source, version, set(scopes))
+            by_name[name] = (source, version, source_url, set(scopes))
 
     return [
         DirectDependency(
@@ -335,8 +367,9 @@ def discover_cargo(root: Path) -> list[DirectDependency]:
             version=version,
             scopes=tuple(sorted(scopes)),
             manifest="Cargo workspace members",
+            source_url=source_url,
         )
-        for name, (source, version, scopes) in sorted(by_name.items())
+        for name, (source, version, source_url, scopes) in sorted(by_name.items())
     ]
 
 
@@ -418,6 +451,11 @@ def validate_repository(
             raise ValidationError(
                 f"{dep.ecosystem}:{dep.name} version mismatch: "
                 f"approval={approval.version} manifest={dep.version}"
+            )
+        if approval.source_url != dep.source_url:
+            raise ValidationError(
+                f"{dep.ecosystem}:{dep.name} source_url mismatch: "
+                f"approval={approval.source_url!r} manifest={dep.source_url!r}"
             )
         if approval.scope != dep.scope:
             raise ValidationError(
