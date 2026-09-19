@@ -1,0 +1,182 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:6d3caf7c146995e76228ec4d10ede1b2b1e440a8873b40079313d7d427d475e4",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Canonical documentation states JSON Schema 2020-12 as the single source and clearly defers compatibility/unknown-field rules to S05-T02 and the full adversarial corpus to S05-T03.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Exact implementation passes generator determinism/drift checks, shared-fixture Rust+TypeScript conformance, provider-name scan, pnpm check, git diff --check, Diffcipline R2, protected exact-head CI, and post-merge main qualification.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Exactly one authoritative v1 schema source exists for the generated core contract and is valid JSON Schema Draft 2020-12. Rust/TypeScript generated outputs declare that source plus exact schema SHA-256.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Generated Rust and TypeScript expose equivalent provider-neutral type/enum shapes for canonical references, capability/grant, runtime/operation/error, ArtifactRef, Event, and Evidence core messages.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Generated files are derived outputs and contain an explicit do-not-edit header. No critical core wire type is separately hand-maintained in Rust or TypeScript.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Generator is deterministic and fail-closed: unsupported schema construct/type/reference fails; two generations from identical input are byte-identical; --check reports clean on the committed candidate and fails on deliberate drift.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Normal pnpm check covers generator drift plus TypeScript contract/fixture conformance and cargo check covers the Rust contracts/fixtures. Existing CI remains green.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Provider/donor names are absent from the authoritative core schema and generated public contract identifiers. Foreign provider metadata remains bounded generic diagnostic data only where the semantic contract permits it.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Rust serde/serde_json fixture tests deserialize and serialize every shared fixture and preserve semantic JSON value equality. TypeScript/Node conformance checks parse every fixture, validate required generated contract shape/schema-supported constraints, and preserve semantic JSON value equality.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Schema/generated contract preserves prior semantic distinctions including UUID/revision references, RequestId versus OperationId, contact versus execution state, side-effect certainty/retry guidance, stream_seq/previous_event_id, Artifact digest binding, Evidence source class, and redaction state.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      },
+      {
+        "check_id": "Shared fixtures include at least one capability/grant message, one runtime-operation message, and one Event/Evidence message; both languages consume the same tracked fixture bytes.",
+        "detail": "Independently rechecked against the authoritative schema, deterministic generator, generated Rust/TypeScript outputs, shared fixture bytes, cross-language conformance, protected exact-head CI, and final post-merge qualification.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234;github-pr:50;github-actions:35342577641;github-actions:35342649503;github-pr:51;github-actions:35342857711;github-actions:35409768678;github-pr:52;github-actions:35410047196;github-actions:35410121367;github-pr:53;github-actions:35410196519;github-actions:35410248851;github-pr:60;github-actions:35412720968;github-actions:35412793989;github-pr:61;github-actions:35412866407;github-actions:35412957733;github-pr:62;github-actions:35413154449;github-actions:35413536843;github-pr:63;github-actions:35413911244;github-actions:35414046602;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;git:a1ee7a16339302152324155357c6f96d1314fd6c",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-actions:35342154783;github-actions:35342577641;github-actions:35342857711;github-actions:35410047196;github-actions:35410196519;github-actions:35412720968;github-actions:35412866407;github-actions:35413154449;github-actions:35413911244",
+        "passed": true
+      },
+      {
+        "check_id": "canonical-doc-consistency-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:49;git:a1ee7a16339302152324155357c6f96d1314fd6c:docs/canonical/PROTOCOL_STRATEGY.md;git:a1ee7a16339302152324155357c6f96d1314fd6c:docs/canonical/ARCHITECTURE_DECISIONS.md",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:49;github-pr:50;github-pr:51;github-pr:52;github-pr:53;github-pr:60;github-pr:61;github-pr:62;github-pr:63",
+        "passed": true
+      },
+      {
+        "check_id": "generated-rust-compile-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:61;github-actions:35412866407;github-actions:35412957733;github-actions:35414046602",
+        "passed": true
+      },
+      {
+        "check_id": "generated-typescript-compile-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:51;github-actions:35342857711;github-actions:35409768678;github-actions:35414046602",
+        "passed": true
+      },
+      {
+        "check_id": "generator-determinism-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-determinism-pass;github-pr:63",
+        "passed": true
+      },
+      {
+        "check_id": "generator-drift-negative-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "local:6a17307a21381d4f2d04b7eac131b57889680bca:generator-drift-negative-pass;github-pr:63",
+        "passed": true
+      },
+      {
+        "check_id": "json-schema-source-selection-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:49;github-actions:35342154783;github-actions:35342237234",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-actions:35414046602",
+        "passed": true
+      },
+      {
+        "check_id": "prior-p01-contracts-proven",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "git:a1ee7a16339302152324155357c6f96d1314fd6c:docs/evidence/P01-S01-T01.md;git:a1ee7a16339302152324155357c6f96d1314fd6c:docs/evidence/P01-S02-T01.md;git:a1ee7a16339302152324155357c6f96d1314fd6c:docs/evidence/P01-S03-T01.md;git:a1ee7a16339302152324155357c6f96d1314fd6c:docs/evidence/P01-S04-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "provider-neutral-core-scan-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "local:6a17307a21381d4f2d04b7eac131b57889680bca:provider-neutral-core-scan-pass;github-pr:63",
+        "passed": true
+      },
+      {
+        "check_id": "shared-fixture-rust-roundtrip-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:63;github-actions:35413911244;github-actions:35414046602",
+        "passed": true
+      },
+      {
+        "check_id": "shared-fixture-typescript-conformance-pass",
+        "detail": "Required SG-000012 evidence independently rechecked.",
+        "evidence_ref": "github-pr:62;github-pr:63;github-actions:35413154449;github-actions:35413911244;github-actions:35414046602",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:a1ee7a16339302152324155357c6f96d1314fd6c",
+    "issues": [],
+    "observed_changed_paths": [
+      "Cargo.lock",
+      "Cargo.toml",
+      "crates/kernux-contracts/Cargo.toml",
+      "crates/kernux-contracts/src/generated.rs",
+      "crates/kernux-contracts/src/lib.rs",
+      "crates/kernux-contracts/tests/fixtures.rs",
+      "docs/DEVELOPMENT.md",
+      "docs/canonical/ARCHITECTURE_DECISIONS.md",
+      "docs/canonical/PROTOCOL_STRATEGY.md",
+      "package.json",
+      "packages/contracts/src/conformance.ts",
+      "packages/contracts/src/generated.ts",
+      "protocol/fixtures/v1/core.json",
+      "protocol/schema/krp.v1.schema.json",
+      "tools/protocol/conformance.mjs",
+      "tools/protocol/generate.mjs",
+      "tsconfig.json"
+    ],
+    "packet_digest": "sha256:398a09aa4d2f520ce8ee087156097180427a2e71c518423b9ec85025240f284d",
+    "result_digest": "sha256:2a3454db5d22e014e4c8b2f1166e281729d740934c4df2469b52a4b6ef3ba6a7",
+    "spec_id": "SG-000012",
+    "spec_revision": "sha256:e70b76e1f20a1663cefea55a435c280bbf8643254ff1f1ac726add76731ebafa",
+    "verification_version": 1,
+    "verified": true
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:41d657f718ec18d70bca33d5c73e5decff5a51e7f6ad46066f8509b2883db800",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "A tracked dependency approval registry exists and every current root npm direct external dependency has exactly one exact-version approval with purpose and license posture; there are no stale/duplicate approvals.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "After Slice B, an ordinary non-dependency PR still receives the same Diffcipline size/scope/untracked/verification enforcement, while an unapproved dependency fixture fails the required Provenance dependency validator.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Branch protection required-check set remains JavaScript / TypeScript, Rust, SpecGrain, Diffcipline R1, and Provenance; enforce_admins remains enabled; no bypass evidence is used.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Cargo path/workspace dependencies are distinguishable from external registry/git dependencies. Any external direct Cargo dependency requires an approval; registry dependencies require an exact pinned version; cargo metadata --locked evidence is checked when a real external Rust graph is present.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Current LICENSE_POLICY is not silently broadened. MIT and Apache-2.0 posture is accepted per policy; other expressions require an explicit separately governed policy exception rather than an agent guess.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Dependency validator conformance suite contains negative fixtures for unapproved npm/Cargo dependencies, version/range drift, lock-resolution mismatch, stale/duplicate approvals, and license-policy mismatch and those negatives demonstrably fail validation.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Exact implementation passes validator tests, repository dependency check, project/provenance checks, pnpm check, git diff --check, Diffcipline R2 for each non-dependency governance slice, protected exact-head CI, and post-merge qualification.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Only after Slice A post-merge qualification, Slice B changes Diffcipline dependency_manifest_changes and lockfile_changes to allow, with governance docs explaining that executable dependency judgment moved to the already-required Provenance gate rather than being removed.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "PR #54 remains unmerged during this prerequisite. Its prior Diffcipline REVIEW/failing required job is preserved as negative evidence, not rerun or rewritten into PASS.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "Slice A merges and its post-merge Provenance job is SUCCESS while .diffcipline.toml still says dependency/lockfile REVIEW.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "The existing branch-protected Provenance workflow runs the dependency validator tests and repository check on pull_request and main before any Diffcipline policy migration occurs.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      },
+      {
+        "check_id": "The validator fails closed for unapproved external direct dependency, exact-version mismatch, semver/range/floating declaration, malformed approval, duplicate approval, stale approval, unsupported ecosystem, and missing purpose/license posture.",
+        "detail": "Independently rechecked against the preserved dependency deadlock, bounded gate construction/migration, required protected CI, hardening, and the first successful real Cargo dependency change.",
+        "evidence_ref": "github-pr:54:closed-unmerged;github-pr:56;github-actions:35410944987;github-actions:35410994555;github-pr:57;github-actions:35411096147;github-actions:35411135338;github-pr:58;github-actions:35411950111;github-actions:35412372896;github-pr:59;github-actions:35412467936;github-actions:35412537556;github-pr:60;github-actions:35412720968;github-actions:35412793989;git:d309f7f4328507415d80037645f6d595ed78d369",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "branch-protection-unchanged-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github:main-protection-required-5-enforce-admins;github-actions:35412372896;github-actions:35412537556",
+        "passed": true
+      },
+      {
+        "check_id": "cargo-lock-resolution-review-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-pr:60;github-actions:35412720968;github-actions:35412793989",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-negative-fixtures-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "git:d309f7f4328507415d80037645f6d595ed78d369:tools/dependencies/test_validate.py;github-actions:35412467936",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-registry-validation-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "git:d309f7f4328507415d80037645f6d595ed78d369:third_party/dependencies/approved.json;github-actions:35412537556",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-policy-migration-review-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-pr:58;github-actions:35411950111;github-actions:35412372896",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-pr:56;github-pr:57;github-pr:58;github-pr:59",
+        "passed": true
+      },
+      {
+        "check_id": "governance-deadlock-reproduced",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-pr:54;github-actions:35410413890",
+        "passed": true
+      },
+      {
+        "check_id": "license-policy-bound-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "git:d309f7f4328507415d80037645f6d595ed78d369:tools/dependencies/validate.py;github-pr:60",
+        "passed": true
+      },
+      {
+        "check_id": "post-migration-ci-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-actions:35412372896;github-actions:35412537556;github-actions:35412793989",
+        "passed": true
+      },
+      {
+        "check_id": "pr54-remains-unmerged-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-pr:54:closed-unmerged",
+        "passed": true
+      },
+      {
+        "check_id": "provenance-gate-integration-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-pr:57;github-actions:35411096147;github-actions:35411135338",
+        "passed": true
+      },
+      {
+        "check_id": "slice-a-post-merge-ci-pass",
+        "detail": "Required SG-000013 evidence independently rechecked.",
+        "evidence_ref": "github-actions:35411135338",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:d309f7f4328507415d80037645f6d595ed78d369",
+    "issues": [],
+    "observed_changed_paths": [
+      ".diffcipline.toml",
+      ".github/workflows/ci.yml",
+      "docs/DEVELOPMENT.md",
+      "docs/governance/DEPENDENCIES.md",
+      "docs/governance/DIFFCIPLINE.md",
+      "docs/governance/REPOSITORY_GOVERNANCE.md",
+      "third_party/dependencies/README.md",
+      "third_party/dependencies/approved.json",
+      "tools/dependencies/test_validate.py",
+      "tools/dependencies/validate.py"
+    ],
+    "packet_digest": "sha256:24e46f3454f199cde77e33f131a083f7cfef8e5bc6ecd0dabcc581b85f4bf510",
+    "result_digest": "sha256:df44da2978819cddf90b15c25332e1d7ebe9ba4ee0fb6e6802ce8234a70cf324",
+    "spec_id": "SG-000013",
+    "spec_revision": "sha256:ad439f9bf15b318df7dbab23fab29d5e3f979345b76b15904c0a4b862572e53f",
+    "verification_version": 1,
+    "verified": true
+  }
+}
