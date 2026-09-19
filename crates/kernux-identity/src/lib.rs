@@ -227,6 +227,22 @@ impl IdentityPublicDescriptor {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct KeyRotation {
+    previous: IdentityPublicDescriptor,
+    current: IdentityPublicDescriptor,
+}
+
+impl KeyRotation {
+    pub const fn previous(&self) -> IdentityPublicDescriptor {
+        self.previous
+    }
+
+    pub const fn current(&self) -> IdentityPublicDescriptor {
+        self.current
+    }
+}
+
 pub struct LocalIdentity {
     installation_id: InstallationId,
     generation: KeyGeneration,
@@ -250,6 +266,20 @@ impl LocalIdentity {
             generation: self.generation,
             verifying_key: DeviceVerifyingKey::from_verifying_key(self.signing_key.verifying_key()),
         }
+    }
+
+    pub fn rotate(&mut self) -> Result<KeyRotation, IdentityError> {
+        let next_generation = self.generation.checked_next()?;
+        let replacement = generate_signing_key()?;
+        let previous = self.descriptor();
+
+        self.signing_key = replacement;
+        self.generation = next_generation;
+
+        Ok(KeyRotation {
+            previous,
+            current: self.descriptor(),
+        })
     }
 }
 
@@ -328,5 +358,48 @@ mod tests {
         assert_eq!(descriptor.installation_id(), installation_id);
         assert_eq!(descriptor.generation(), KeyGeneration::INITIAL);
         assert_eq!(descriptor.verifying_key(), expected);
+    }
+
+    #[test]
+    fn rotation_replaces_secret_key_and_new_key_signs_and_verifies() {
+        use ed25519_dalek::{Signer, Verifier};
+
+        let mut identity = LocalIdentity::generate().expect("OS entropy");
+        let previous_key = identity.signing_key.verifying_key();
+        let previous_descriptor = identity.descriptor();
+
+        let rotation = identity.rotate().expect("rotation succeeds");
+        let current_key = identity.signing_key.verifying_key();
+        let message = b"kernux/identity/rotation-test/v1";
+        let signature = identity.signing_key.sign(message);
+
+        assert_eq!(rotation.previous(), previous_descriptor);
+        assert_eq!(rotation.current(), identity.descriptor());
+        assert_eq!(rotation.current().generation().get(), 2);
+        assert_eq!(
+            rotation.previous().installation_id(),
+            rotation.current().installation_id()
+        );
+        assert_ne!(previous_key, current_key);
+        current_key
+            .verify(message, &signature)
+            .expect("new key verifies");
+        assert!(previous_key.verify(message, &signature).is_err());
+    }
+
+    #[test]
+    fn rotation_overflow_fails_before_mutating_identity() {
+        let installation_id = InstallationId::from_hex("00112233445566778899aabbccddeeff")
+            .expect("valid installation id");
+        let identity_key = SigningKey::from_bytes(&[0x24; SECRET_KEY_BYTES]);
+        let mut identity = LocalIdentity {
+            installation_id,
+            generation: KeyGeneration::try_from(u32::MAX).expect("max generation is valid"),
+            signing_key: identity_key,
+        };
+        let before = identity.descriptor();
+
+        assert_eq!(identity.rotate(), Err(IdentityError::GenerationOverflow));
+        assert_eq!(identity.descriptor(), before);
     }
 }
