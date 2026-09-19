@@ -16,8 +16,14 @@ use std::sync::{
     atomic::{AtomicU8, Ordering},
 };
 
+mod auth;
 mod transport;
 
+pub use auth::{
+    AUTH_PREAMBLE_BYTES, AUTH_PROTOCOL_VERSION, AuthError, ExpectedPeerIdentity, LaunchNonce,
+    ObservedPeerIdentity, SessionAuthConfig, authorize_session, encode_auth_preamble,
+    parse_auth_preamble,
+};
 pub use transport::{
     DEFAULT_ACCEPT_POLL_INTERVAL, DEFAULT_IO_TIMEOUT, DEFAULT_MAX_FRAME_BYTES, DaemonEndpoint,
     DaemonServer, ServerConfig, TransportError, probe_once,
