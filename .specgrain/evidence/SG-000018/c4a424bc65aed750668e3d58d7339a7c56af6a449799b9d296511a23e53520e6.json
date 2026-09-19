@@ -1,0 +1,213 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:c4a424bc65aed750668e3d58d7339a7c56af6a449799b9d296511a23e53520e6",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "A successful probe returns honest daemon health plus daemon build/version and KRP contract/provenance metadata; probe success does not imply caller authorization, privileged-operation readiness, persistence readiness, or P02 phase completion.",
+        "detail": "Generated krp/1 probe responses expose lifecycle-derived health, daemon version, implementation revision, and schema provenance; lifecycle tests explicitly prove probe health does not imply caller authority.",
+        "evidence_ref": "github-pr:86;github-actions:35425635587;github-actions:35425681770;repo:protocol/schema/krp.v1.schema.json;repo:protocol/fixtures/v1/core.json;github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "After native SpecGrain proof and protected closeout merge, KX-P02-S01-T01 becomes PROVEN and only KX-P02-S01-T02 becomes NEXT; later P02 tasks remain PLANNED and P02 phase exit remains unproven.",
+        "detail": "The protected closeout sequence is enforced: the pre-proof head qualified 6/6, native proof is appended only afterward, and canonical T01->PROVEN / T02->NEXT transition remains contingent on proof-bearing protected merge and post-merge qualification.",
+        "evidence_ref": "github-pr:91;github-actions:35429396472;git:0a09489bf5bddd14e06157162c0205740fdaee8f",
+        "passed": true
+      },
+      {
+        "check_id": "Control framing is bounded and fail-closed: at most one probe request per connection, a fixed documented maximum frame size, finite receive/send timeouts, malformed/oversized/unknown-field/unsupported-version inputs rejected, and no implicit downgrade or authority inference.",
+        "detail": "Runtime tests cover one request per connection, fixed frame limits, finite I/O deadlines, malformed and oversized JSON, unknown fields, unsupported krp/2, and fail-closed connection handling.",
+        "evidence_ref": "github-pr:88;github-actions:35426800474;github-actions:35426845321;git:7e9059718d0e76b9bf4082d1c7beaface81c10b3;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "Dependency governance passes before implementation admission: interprocess is pinned exactly at 2.4.4 with default features disabled and an explicit reviewed license/dependency evidence packet; serde_json remains pinned at 1.0.151 and its approval scope/purpose exactly matches dev+runtime use; the repository dependency validator and Provenance job pass.",
+        "detail": "Dependency admission completed before runtime implementation: interprocess is exactly 2.4.4 with default features disabled, serde_json is exactly 1.0.151 for dev+runtime, and repository dependency/provenance gates pass.",
+        "evidence_ref": "github-pr:85;github-actions:35425385008;github-actions:35425432914;git:c81dafebdac8cee27d10d440cbeea40e1ef4ff0d;repo:docs/evidence/P02-S01-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "Executable tests prove startup/probe/shutdown/restart, second-bind conflict, safe stale endpoint recovery and unsafe-path rejection, timeout/oversize/malformed/version-mismatch rejection, endpoint cleanup, and an explicit no-network-listener invariant.",
+        "detail": "Independent final-main lifecycle 5/5 and Unix 7/7 pass; Windows native CI passes probe/restart, second-bind/rebind, remote/path rejection, and bounded idle-client shutdown.",
+        "evidence_ref": "github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "Graceful shutdown is owner-controlled rather than IPC-authorized: shutdown stops new accepts, bounds completion of active probes, releases the local endpoint, reaches stopped state, and permits clean restart. No unauthenticated shutdown-over-IPC surface exists.",
+        "detail": "Shutdown authority remains an in-process owner handle; no shutdown-over-IPC command exists. Runtime tests prove bounded active-client completion, endpoint release, Stopped state, and clean restart.",
+        "evidence_ref": "github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass;github-pr:88;github-actions:35426800474;github-actions:35426845321;git:7e9059718d0e76b9bf4082d1c7beaface81c10b3;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "The exact implementation candidate passes git diff --check, full pnpm check, Diffcipline R3, OpenCodeReview-assisted exact-range review with complete manual accounting for excluded files, the five protected exact-head checks, and the additional Windows evidence job.",
+        "detail": "Qualified implementation passed diff/baseline, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with manual accounting, all five protected checks, and the additive Windows job on corrected exact head 0eb5f2c5e89543b105b39b9c8d15e46fa4388e43.",
+        "evidence_ref": "local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:pnpm-check-pass;github-actions:35428586300;github-actions:35428742009;local:0eb5f2c5e89543b105b39b9c8d15e46fa4388e43:diffcipline-r3-pass;local:0a09489bf5bddd14e06157162c0205740fdaee8f:diffcipline-r3-pass;github-review:90:PRR_kwDOUevqks8AAAABOThfcA;local:0a09489bf5bddd14e06157162c0205740fdaee8f:ocr-delegation-manual-accounting-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "The implementation contains no KX-P02-S01-T02 caller/session binding, no identity/keys, no durable store, no artifact CAS, no policy/grant engine, no secret broker, no privileged host-operation implementation, and no remote transport.",
+        "detail": "Independent review of the exact 18-path implementation range confirms T02 caller/session binding, identity/keys, durable store, CAS, policy/grant engine, secret broker, privileged host operations, and remote transport remain outside this implementation.",
+        "evidence_ref": "git-range:dbbf4e170cdd0b2c4913dbcb276e7af0fa8a5bc8..e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:18-authorized-paths;repo:docs/evidence/P02-S01-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "The local transport is cross-platform by construction: Unix uses a filesystem Unix-domain socket under a private endpoint directory and Windows uses a local named pipe. Unix permission and stale-path rules fail closed; Windows remote-host pipe names are rejected. No caller-authentication claim is made.",
+        "detail": "Unix uses a private filesystem UDS with owner/permission/stale-path checks; Windows uses a validated local namespaced pipe token and rejects remote/path forms. No caller-authentication claim is made.",
+        "evidence_ref": "github-pr:88;github-actions:35426800474;github-actions:35426845321;git:7e9059718d0e76b9bf4082d1c7beaface81c10b3;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "The reusable daemon probe wire contract is derived from the authoritative KRP schema and deterministic generator, is additive without changing existing KRP v1 object meanings, binds exact krp/1 semantics, updates required schema-digest derivatives, and passes shared Rust/TypeScript conformance/drift checks.",
+        "detail": "The authoritative KRP schema and deterministic generator produce Rust/TypeScript probe types, exact krp/1 semantics and schema digest derivatives; shared conformance/drift/compatibility/adversarial checks pass.",
+        "evidence_ref": "github-pr:86;github-actions:35425635587;github-actions:35425681770;repo:protocol/schema/krp.v1.schema.json;repo:protocol/fixtures/v1/core.json",
+        "passed": true
+      },
+      {
+        "check_id": "Unix behavior is exercised by the normal Rust/local test path and Windows named-pipe behavior is exercised by a dedicated Windows GitHub Actions job. The original five protected contexts remain required and unchanged; the additional Windows job is evidence, not a substitute.",
+        "detail": "Unix final-main execution is 7/7 PASS and Windows named-pipe behavior passed the dedicated windows-latest job on both corrected exact head and implementation post-merge. Original protected job names remain unchanged.",
+        "evidence_ref": "github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "kernuxd exists as a Rust workspace library/binary with deterministic start, serving, shutting-down, and stopped lifecycle behavior; the crate contains no TCP/UDP/HTTP listener path and no remote-network bind.",
+        "detail": "kernuxd library/binary and deterministic lifecycle are present; final-main static scan plus executable Unix source invariant found no TCP/UDP/HTTP listener path or remote-network bind.",
+        "evidence_ref": "github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass;github-pr:88;github-actions:35426800474;github-actions:35426845321;git:7e9059718d0e76b9bf4082d1c7beaface81c10b3;git-range:dbbf4e170cdd0b2c4913dbcb276e7af0fa8a5bc8..e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:18-authorized-paths;repo:docs/evidence/P02-S01-T01.md",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "Full repository pnpm check passed on final implementation main; corrected PR #90 exact-head and implementation post-merge CI each completed 6/6 SUCCESS.",
+        "evidence_ref": "local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:pnpm-check-pass;github-actions:35428586300;github-actions:35428742009",
+        "passed": true
+      },
+      {
+        "check_id": "bounded-control-frame-pass",
+        "detail": "Bounded one-request framing, maximum frame size, finite I/O deadlines, malformed/oversized/unknown/version rejection, and fail-closed handling are executable across Unix and Windows evidence.",
+        "evidence_ref": "github-pr:88;github-actions:35426800474;github-actions:35426845321;git:7e9059718d0e76b9bf4082d1c7beaface81c10b3;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-admission-pass",
+        "detail": "Pinned dependency admission and Provenance validation pass with reviewed license evidence and exact feature policy.",
+        "evidence_ref": "github-pr:85;github-actions:35425385008;github-actions:35425432914;git:c81dafebdac8cee27d10d440cbeea40e1ef4ff0d;repo:docs/evidence/P02-S01-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Diffcipline R3 passed for the corrected Windows implementation range and for the real pre-proof closeout commit, with no scope violations.",
+        "evidence_ref": "local:0eb5f2c5e89543b105b39b9c8d15e46fa4388e43:diffcipline-r3-pass;local:0a09489bf5bddd14e06157162c0205740fdaee8f:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "endpoint-adversarial-pass",
+        "detail": "Unix adversarial endpoint corpus passes and Windows native runtime rejects unsafe pipe forms and active second binds.",
+        "evidence_ref": "github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "generated-probe-contract-pass",
+        "detail": "Generated Rust/TypeScript daemon probe contracts, schema digest derivatives, drift checks, and shared fixture conformance pass.",
+        "evidence_ref": "github-pr:86;github-actions:35425635587;github-actions:35425681770;repo:protocol/schema/krp.v1.schema.json;repo:protocol/fixtures/v1/core.json",
+        "passed": true
+      },
+      {
+        "check_id": "health-version-probe-pass",
+        "detail": "Probe responses truthfully bind health, lifecycle, version, implementation revision, krp/1 and schema provenance in executable tests.",
+        "evidence_ref": "github-pr:86;github-actions:35425635587;github-actions:35425681770;repo:protocol/schema/krp.v1.schema.json;repo:protocol/fixtures/v1/core.json;github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "kernuxd-lifecycle-pass",
+        "detail": "Final-main lifecycle corpus passes 5/5 for deterministic Starting/Serving/ShuttingDown/Stopped behavior and fail-closed transitions.",
+        "evidence_ref": "github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass",
+        "passed": true
+      },
+      {
+        "check_id": "no-network-listener-pass",
+        "detail": "Executable source invariant and independent final-main static scan find no TCP/UDP/HTTP/std::net listener path in kernuxd.",
+        "evidence_ref": "github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;git-range:dbbf4e170cdd0b2c4913dbcb276e7af0fa8a5bc8..e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:18-authorized-paths;repo:docs/evidence/P02-S01-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview Delegation Mode accounted for implementation files with applicable Rust/GitHub Actions rules; closeout Markdown exclusion was manually reviewed. No direct LLM OCR result or CodeRabbit evidence is claimed.",
+        "evidence_ref": "github-review:90:PRR_kwDOUevqks8AAAABOThfcA;local:0a09489bf5bddd14e06157162c0205740fdaee8f:ocr-delegation-manual-accounting-pass",
+        "passed": true
+      },
+      {
+        "check_id": "owner-graceful-shutdown-pass",
+        "detail": "Owner-controlled shutdown stops service, bounds active idle-client completion, releases the endpoint and permits restart; no unauthenticated shutdown IPC exists.",
+        "evidence_ref": "github-pr:87;github-actions:35425883624;github-actions:35425929316;git:50e1e04d813bb5f211a453a47d6c8b79d8e4f57a;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:lifecycle-5-of-5-pass;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Final implementation merge e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42 passed all six main-push jobs. Final closeout post-merge qualification remains future and is not claimed here.",
+        "evidence_ref": "github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42",
+        "passed": true
+      },
+      {
+        "check_id": "private-local-transport-pass",
+        "detail": "Unix private UDS and Windows local named-pipe implementations are qualified with fail-closed endpoint validation and no remote transport.",
+        "evidence_ref": "github-pr:88;github-actions:35426800474;github-actions:35426845321;git:7e9059718d0e76b9bf4082d1c7beaface81c10b3;github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass;github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Real closeout PR #91 pre-proof exact head 0a09489bf5bddd14e06157162c0205740fdaee8f passed workflow 35429396472 with all five protected jobs plus Windows kernuxd SUCCESS; no final closeout merge is claimed.",
+        "evidence_ref": "github-pr:91;github-actions:35429396472;git:0a09489bf5bddd14e06157162c0205740fdaee8f",
+        "passed": true
+      },
+      {
+        "check_id": "scope-boundary-pass",
+        "detail": "Exact 18-path implementation range is inside the SG-000018 authorized surface and preserves all later-P02 exclusions; P02 phase completion is not claimed.",
+        "evidence_ref": "git-range:dbbf4e170cdd0b2c4913dbcb276e7af0fa8a5bc8..e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:18-authorized-paths;repo:docs/evidence/P02-S01-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "unix-runtime-pass",
+        "detail": "Final-main Unix transport corpus passes 7/7 and covers lifecycle, probe, conflict, stale recovery, unsafe paths, malformed/oversize/version/idle cases, one-response closure and no-network invariant.",
+        "evidence_ref": "github-pr:89;github-actions:35427100017;github-actions:35427145457;git:0d7461bdf5e247d3a15701e0453b4538e5e6753b;local:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42:transport-unix-7-of-7-pass",
+        "passed": true
+      },
+      {
+        "check_id": "windows-named-pipe-ci-pass",
+        "detail": "Corrected PR #90 exact-head and implementation post-merge Windows kernuxd jobs pass natively on windows-latest; prior failed run 35428388019 remains preserved as failure evidence.",
+        "evidence_ref": "github-pr:90;github-actions:35428586300;github-actions:35428742009;git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42;github-review:90:PRR_kwDOUevqks8AAAABOThfcA",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:e7645d5e950c9f959f5bbe1c3c5e3ad36e339f42",
+    "issues": [],
+    "observed_changed_paths": [
+      ".github/workflows/ci.yml",
+      "Cargo.lock",
+      "Cargo.toml",
+      "crates/kernux-contracts/src/generated.rs",
+      "crates/kernux-contracts/tests/fixtures.rs",
+      "crates/kernuxd/Cargo.toml",
+      "crates/kernuxd/src/lib.rs",
+      "crates/kernuxd/src/main.rs",
+      "crates/kernuxd/src/transport.rs",
+      "crates/kernuxd/tests/lifecycle.rs",
+      "crates/kernuxd/tests/transport_unix.rs",
+      "crates/kernuxd/tests/transport_windows.rs",
+      "docs/evidence/P02-S01-T01-DEPENDENCY-GATE.md",
+      "packages/contracts/src/conformance.ts",
+      "packages/contracts/src/generated.ts",
+      "protocol/fixtures/v1/core.json",
+      "protocol/schema/krp.v1.schema.json",
+      "third_party/dependencies/approved.json"
+    ],
+    "packet_digest": "sha256:8ee3e890d95f077afde71956045076ff8c0442265697090ae20cbca6d73f776b",
+    "result_digest": "sha256:5fef1d72a220eba89be9c1dc7fcaecce7eb308d42789b813c71703d79f83f6f8",
+    "spec_id": "SG-000018",
+    "spec_revision": "sha256:9264a4dd586340d788ec0d5b06b1ef1d4833bc29b5dd29cf00d519d4fd56aa55",
+    "verification_version": 1,
+    "verified": true
+  }
+}
