@@ -1,0 +1,85 @@
+{
+  "acceptance": [
+    "All seven P01 macro tasks remain PROVEN and their canonical evidence packets/native records are present and internally consistent on the exact exit candidate.",
+    "Cross-language contracts are executable: generator drift checking, generated TypeScript type/conformance validation, Node core/compatibility/adversarial gates, Rust generated-contract conformance/compatibility/adversarial tests, and the full pnpm check baseline all PASS on the exact candidate.",
+    "Core KRP semantics are provider-neutral: the authoritative schema, generated public Rust/TypeScript contracts, shared core fixture, and adversarial fixture contain no provider/model-specific product names; explicit denylist strings inside validation tooling are not treated as public/core semantics.",
+    "Disconnect/contact loss cannot imply process exit: the canonical runtime-operation model keeps contact and execution states separate, and executable ADV-01, ADV-02, ADV-17, ADV-18 plus the shared Rust mirror preserve live/unverifiable execution rather than synthesizing exit.",
+    "Grants are structurally bounded: the authoritative Grant contract is closed and requires grant identity, subject scope, one exact action, canonical kernux resource and match mode, explicit runtime, typed constraints, consequence ceiling, issuer/policy revision, issued/not-before/expiry times, finite max uses, and delegation depth; the bounded Grant fixture conforms and authority still requires current policy/capability intersection.",
+    "The exit evidence does not overclaim live runtime behavior, exactly-once execution, durable replay protection, cancellation delivery, reconnect persistence, release readiness, or any P02 implementation.",
+    "The exit candidate passes git diff --check, the full repository baseline, the required Diffcipline profile, OpenCodeReview-assisted exact-range review with complete manual accounting for excluded files, and all five protected exact-head GitHub checks.",
+    "P01 exit becomes PROVEN and KX-P02-S01-T01 becomes NEXT only through the protected exit closeout merge followed by successful five-job post-merge main qualification; before that transition P02 remains unauthorized."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000017.json",
+    "docs/evidence/P01-EXIT.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 14000,
+    "estimated_tokens": 10500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "p01-macro-registry-complete-pass",
+      "cross-language-contract-execution-pass",
+      "provider-neutral-core-pass",
+      "disconnect-truth-preservation-pass",
+      "grant-structural-bounds-pass",
+      "no-runtime-overclaim-pass",
+      "baseline-ci-pass",
+      "diffcipline-r2-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000017",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the existing authoritative KRP schema, generated contracts, shared fixtures, executable Node/Rust gates, seven P01 evidence packets, native SpecGrain records, protected CI, and the established P00 exit-gate governance pattern. Add no product code or new dependency for phase qualification."
+      },
+      "safety": {
+        "requirements": [
+          "The phase gate must not convert fixture/contract evidence into claims about unimplemented live runtime transport, persistence, cancellation, reconnect, or exactly-once behavior.",
+          "P02 must remain unauthorized until the protected P01 exit closeout is merged and its post-merge qualification succeeds."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Independently prove the P01 phase exit gate from exact qualified repository evidence: cross-language contracts are executable, core protocol semantics remain provider-neutral, disconnect cannot imply exit, and Grants are structurally bounded; authorize no P02 work until protected closeout and post-merge qualification succeed.",
+  "parent_id": null,
+  "rationale": "All seven P01 macro tasks are now PROVEN on qualified main, but canonical governance explicitly requires a separate phase-exit assessment. The exit gate must reconcile the four frozen P01 criteria against executable evidence without inferring phase completion from task count.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded P01 exit refinement/evidence/frontier changes and keep P01 exit unproven with P02 unauthorized. No product runtime state is created by this gate assessment."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Assess the four frozen P01 exit criteria against exact qualified main and existing P01 evidence without changing product/runtime behavior.",
+    "Prove cross-language contract executability from the authoritative KRP schema and deterministic generator, generated TypeScript compile/conformance assertions, Node schema/conformance/compatibility/adversarial gates, and Rust same-byte conformance/compatibility/adversarial tests.",
+    "Prove provider-neutral core semantics by scanning the authoritative schema, generated public Rust/TypeScript contracts, shared core fixture, and adversarial fixture for provider-specific product/model names; checker denylist strings are enforcement implementation rather than public/core semantics.",
+    "Prove disconnect cannot imply exit using the canonical runtime-operation model plus executable ADV-01, ADV-02, ADV-17, ADV-18, and related Node/Rust adversarial evidence that preserves contact-state versus execution-state separation.",
+    "Prove Grants are structurally bounded from the authoritative Grant schema and canonical model: one exact action, canonical kernux resource plus resource-match rule, explicit subject and runtime, typed conjunctive constraints, consequence ceiling, policy revision, not-before/expiry window, finite max uses, and bounded delegation depth; advertisement or Grant identity alone never widens authority.",
+    "Bind all seven P01 macro-task evidence packets and native proof records to the exact exit assessment, preserving prior negative/corrective evidence.",
+    "Require exact-main baseline checks, Diffcipline qualification, protected exact-head CI, protected merge without bypass, and final post-merge five-job main qualification before marking P01 exit PROVEN.",
+    "After successful protected closeout only, advance KX-P02-S01-T01 to NEXT as the first P02 macro task; do not authorize any other P02 implementation through this Grain."
+  ],
+  "scope_out": [
+    "Do not implement kernuxd, UDS/named-pipe transport, SQLite persistence, process control, cancellation/reconnect runtime behavior, browser/computer adapters, UI, remote transport, or any P02+ product code.",
+    "Do not change the authoritative KRP schema, generated public contracts, capability/Grant semantics, protocol version tokens, or P01 evidence records unless a separately refined corrective Grain is required.",
+    "Do not weaken, remove, bypass, or substitute protected repository checks; do not infer runtime exactly-once, durable replay, cancellation delivery, reconnect persistence, or release readiness from contract/fixture evidence.",
+    "Do not mark P01 exit PROVEN or P02 authorized before this exit evidence passes exact-head protected CI, protected merge, and post-merge main qualification."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-EXIT — Prove the P01 core-contract and protocol-spine exit gate"
+}
