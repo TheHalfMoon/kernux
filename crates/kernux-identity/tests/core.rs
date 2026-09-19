@@ -125,3 +125,22 @@ fn verifying_key_parser_rejects_noncanonical_or_invalid_input() {
         Err(IdentityError::InvalidVerifyingKey)
     );
 }
+
+#[test]
+fn rotation_preserves_installation_id_and_advances_public_generation_once() {
+    let mut identity = LocalIdentity::generate().expect("OS entropy must be available");
+    let before = identity.descriptor();
+    let rotation = identity.rotate().expect("rotation must succeed");
+
+    assert_eq!(rotation.previous(), before);
+    assert_eq!(rotation.current(), identity.descriptor());
+    assert_eq!(
+        rotation.current().installation_id(),
+        before.installation_id()
+    );
+    assert_eq!(
+        rotation.current().generation().get(),
+        before.generation().get() + 1
+    );
+    assert_ne!(rotation.current().verifying_key(), before.verifying_key());
+}
