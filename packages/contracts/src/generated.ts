@@ -2,6 +2,8 @@
 // Schema SHA-256: 0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500
 // DO NOT EDIT. Change the schema and regenerate.
 
+export const KRP_SCHEMA_SHA256 = "0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500" as const;
+
 export interface ArtifactRef {
   artifact: CanonicalRef;
   media_type?: string;

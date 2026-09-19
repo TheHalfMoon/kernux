@@ -5,9 +5,11 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const schemaPath = resolve(root, "protocol/schema/krp.v1.schema.json");
+const fixturePath = resolve(root, "protocol/fixtures/v1/core.json");
 const outputs = {
   ts: resolve(root, "packages/contracts/src/generated.ts"),
   rust: resolve(root, "crates/kernux-contracts/src/generated.rs"),
+  fixtures: resolve(root, "packages/contracts/src/conformance.ts"),
 };
 
 const allowedKeywords = new Set([
@@ -125,7 +127,11 @@ function header(prefix, digest) {
 }
 
 function generateTypeScript(schema, digest) {
-  const lines = [header("//", digest)];
+  const lines = [
+    header("//", digest),
+    `export const KRP_SCHEMA_SHA256 = ${JSON.stringify(digest)} as const;`,
+    "",
+  ];
   for (const name of Object.keys(schema.$defs).sort()) {
     const def = schema.$defs[name];
     if (def.type === "string" && !def.enum) {
@@ -158,7 +164,14 @@ function generateTypeScript(schema, digest) {
 }
 
 function generateRust(schema, digest) {
-  const lines = [header("//", digest), "use serde::{Deserialize, Serialize};", ""];
+  const lines = [
+    header("//", digest),
+    "use serde::{Deserialize, Serialize};",
+    "",
+    "pub const KRP_SCHEMA_SHA256: &str =",
+    `    ${JSON.stringify(digest)};`,
+    "",
+  ];
   for (const name of Object.keys(schema.$defs).sort()) {
     const def = schema.$defs[name];
     if (def.type === "string" && !def.enum) {
@@ -197,8 +210,63 @@ function generateRust(schema, digest) {
   return `${lines.join("\n").trimEnd()}\n`;
 }
 
+function fixtureIdentifier(name) {
+  if (typeof name !== "string" || !/^[a-z][a-z0-9_]*$/.test(name)) {
+    fail(`invalid fixture case name ${String(name)}`);
+  }
+  const parts = name.split("_");
+  return `${parts[0]}${parts
+    .slice(1)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join("")}Fixture`;
+}
+
+function generateTypeScriptFixtures(schema, schemaDigest, fixtureBytes) {
+  const fixtureDigest = createHash("sha256").update(fixtureBytes).digest("hex");
+  const fixture = JSON.parse(fixtureBytes.toString("utf8"));
+  if (fixture.schema !== "kernux.krp.conformance/v1") fail("unsupported fixture schema");
+  if (fixture.schema_sha256 !== schemaDigest)
+    fail("fixture schema digest does not match authoritative schema");
+  if (!Array.isArray(fixture.cases) || fixture.cases.length === 0)
+    fail("fixture cases must be non-empty");
+
+  const imports = new Set();
+  const identifiers = new Set();
+  const entries = [];
+  for (const entry of fixture.cases) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry))
+      fail("fixture case must be an object");
+    if (typeof entry.definition !== "string" || !schema.$defs[entry.definition]) {
+      fail(`unknown fixture definition ${String(entry.definition)}`);
+    }
+    const identifier = fixtureIdentifier(entry.name);
+    if (identifiers.has(identifier)) fail(`duplicate fixture identifier ${identifier}`);
+    identifiers.add(identifier);
+    imports.add(entry.definition);
+    entries.push({ identifier, definition: entry.definition, value: entry.value });
+  }
+
+  const lines = [
+    "// @generated from protocol/fixtures/v1/core.json",
+    `// Fixture SHA-256: ${fixtureDigest}`,
+    `// Schema SHA-256: ${schemaDigest}`,
+    "// DO NOT EDIT. Change the shared fixture source and regenerate.",
+    "",
+    `import type { ${[...imports].sort().join(", ")} } from "./generated";`,
+    "",
+  ];
+  for (const entry of entries) {
+    const json = JSON.stringify(entry.value, null, 2)
+      .split("\n")
+      .map((line, index) => (index === 0 ? line : `  ${line}`))
+      .join("\n");
+    lines.push(`export const ${entry.identifier} = ${json} satisfies ${entry.definition};`, "");
+  }
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
 async function expectedOutputs() {
-  const raw = await readFile(schemaPath);
+  const [raw, fixtureBytes] = await Promise.all([readFile(schemaPath), readFile(fixturePath)]);
   const digest = createHash("sha256").update(raw).digest("hex");
   const schema = JSON.parse(raw.toString("utf8"));
   validateSchema(schema);
@@ -206,6 +274,7 @@ async function expectedOutputs() {
     digest,
     ts: generateTypeScript(schema, digest),
     rust: generateRust(schema, digest),
+    fixtures: generateTypeScriptFixtures(schema, digest, fixtureBytes),
   };
 }
 
@@ -231,13 +300,13 @@ function parseArgs(argv) {
       index += 1;
     } else fail(`unknown argument ${arg}`);
   }
-  if (!["all", "ts", "rust"].includes(target)) fail(`unknown target ${target}`);
+  if (!["all", "ts", "rust", "fixtures"].includes(target)) fail(`unknown target ${target}`);
   return { mode, target };
 }
 
 const { mode, target } = parseArgs(process.argv.slice(2));
 const generated = await expectedOutputs();
-const selected = target === "all" ? ["ts", "rust"] : [target];
+const selected = target === "all" ? ["ts", "rust", "fixtures"] : [target];
 
 if (mode === "dry-run") {
   console.log(`KRP schema: sha256:${generated.digest}`);

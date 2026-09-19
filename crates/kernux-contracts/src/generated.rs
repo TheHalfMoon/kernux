@@ -4,6 +4,9 @@
 
 use serde::{Deserialize, Serialize};
 
+pub const KRP_SCHEMA_SHA256: &str =
+    "0ec273c387cf8f344b178c66ae046f75af88945dc428f4a16601156f4e538500";
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ArtifactRef {
     pub artifact: CanonicalRef,
