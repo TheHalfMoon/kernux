@@ -44,6 +44,7 @@ name = "kernuxd"
 version = "0.0.0"
 dependencies = [
  "interprocess",
+ "kernux-contracts",
  "serde_json",
 ]
 
