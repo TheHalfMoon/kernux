@@ -1,0 +1,119 @@
+{
+  "acceptance": [
+    "Dependency governance passes before implementation admission: interprocess is pinned exactly at 2.4.4 with default features disabled and an explicit reviewed license/dependency evidence packet; serde_json remains pinned at 1.0.151 and its approval scope/purpose exactly matches dev+runtime use; the repository dependency validator and Provenance job pass.",
+    "kernuxd exists as a Rust workspace library/binary with deterministic start, serving, shutting-down, and stopped lifecycle behavior; the crate contains no TCP/UDP/HTTP listener path and no remote-network bind.",
+    "The local transport is cross-platform by construction: Unix uses a filesystem Unix-domain socket under a private endpoint directory and Windows uses a local named pipe. Unix permission and stale-path rules fail closed; Windows remote-host pipe names are rejected. No caller-authentication claim is made.",
+    "The reusable daemon probe wire contract is derived from the authoritative KRP schema and deterministic generator, is additive without changing existing KRP v1 object meanings, binds exact krp/1 semantics, updates required schema-digest derivatives, and passes shared Rust/TypeScript conformance/drift checks.",
+    "Control framing is bounded and fail-closed: at most one probe request per connection, a fixed documented maximum frame size, finite receive/send timeouts, malformed/oversized/unknown-field/unsupported-version inputs rejected, and no implicit downgrade or authority inference.",
+    "A successful probe returns honest daemon health plus daemon build/version and KRP contract/provenance metadata; probe success does not imply caller authorization, privileged-operation readiness, persistence readiness, or P02 phase completion.",
+    "Graceful shutdown is owner-controlled rather than IPC-authorized: shutdown stops new accepts, bounds completion of active probes, releases the local endpoint, reaches stopped state, and permits clean restart. No unauthenticated shutdown-over-IPC surface exists.",
+    "Executable tests prove startup/probe/shutdown/restart, second-bind conflict, safe stale endpoint recovery and unsafe-path rejection, timeout/oversize/malformed/version-mismatch rejection, endpoint cleanup, and an explicit no-network-listener invariant.",
+    "Unix behavior is exercised by the normal Rust/local test path and Windows named-pipe behavior is exercised by a dedicated Windows GitHub Actions job. The original five protected contexts remain required and unchanged; the additional Windows job is evidence, not a substitute.",
+    "The implementation contains no KX-P02-S01-T02 caller/session binding, no identity/keys, no durable store, no artifact CAS, no policy/grant engine, no secret broker, no privileged host-operation implementation, and no remote transport.",
+    "The exact implementation candidate passes git diff --check, full pnpm check, Diffcipline R3, OpenCodeReview-assisted exact-range review with complete manual accounting for excluded files, the five protected exact-head checks, and the additional Windows evidence job.",
+    "After native SpecGrain proof and protected closeout merge, KX-P02-S01-T01 becomes PROVEN and only KX-P02-S01-T02 becomes NEXT; later P02 tasks remain PLANNED and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000018.json",
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/kernuxd",
+    "protocol/schema/krp.v1.schema.json",
+    "protocol/fixtures/v1/core.json",
+    "tools/protocol/generate.mjs",
+    "packages/contracts/src/generated.ts",
+    "packages/contracts/src/conformance.ts",
+    "crates/kernux-contracts/src/generated.rs",
+    "crates/kernux-contracts/tests/fixtures.rs",
+    "third_party/dependencies/approved.json",
+    "docs/evidence/P02-S01-T01-DEPENDENCY-GATE.md",
+    "docs/canonical/LICENSE_POLICY.md",
+    ".github/workflows/ci.yml",
+    "docs/evidence/P02-S01-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 16000,
+    "estimated_tokens": 12500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "dependency-admission-pass",
+      "kernuxd-lifecycle-pass",
+      "private-local-transport-pass",
+      "generated-probe-contract-pass",
+      "bounded-control-frame-pass",
+      "health-version-probe-pass",
+      "owner-graceful-shutdown-pass",
+      "endpoint-adversarial-pass",
+      "no-network-listener-pass",
+      "unix-runtime-pass",
+      "windows-named-pipe-ci-pass",
+      "scope-boundary-pass",
+      "baseline-ci-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000018",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "Use the existing Rust workspace, generated KRP contracts, SpecGrain/Diffcipline/provenance gates, serde_json pin, and a single synchronous cross-platform local-socket dependency. Do not add an async runtime, web server, database, authentication subsystem, or separate protocol stack."
+      },
+      "safety": {
+        "requirements": [
+          "T01 must never convert transport reachability or probe success into caller authorization or privileged authority.",
+          "No unauthenticated IPC shutdown command is permitted before KX-P02-S01-T02 binds caller sessions.",
+          "Unix stale-endpoint cleanup must never unlink an arbitrary non-socket path, and transport code must not bind any TCP/UDP/network endpoint.",
+          "Windows named-pipe behavior requires Windows CI evidence; a non-Windows cross-compile alone cannot close that acceptance criterion."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Establish the first privileged Kernux daemon executable and library with a bounded lifecycle, non-network local IPC foundation that maps to Unix-domain sockets on Unix and local named pipes on Windows, generated KRP health/version probe contracts, fail-closed framing, and graceful owner-controlled shutdown, while explicitly deferring caller authentication/session binding to KX-P02-S01-T02.",
+  "parent_id": null,
+  "rationale": "P01 is PROVEN and KX-P02-S01-T01 is the only authorized P02 frontier. The first kernel slice must create a real cross-platform daemon and private local transport without preempting the next task that binds launch nonce and peer identity, and without introducing persistence, policy, secrets, process control, or remote networking.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert the bounded P02-S01-T01 refinement/implementation/closeout changes, remove the kernuxd workspace member and any newly admitted direct dependency entries, restore generated KRP derivatives to the prior qualified schema, and keep KX-P02-S01-T01 at NEXT. No later P02 authority is created by this Grain."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Create a Rust workspace crate and binary named kernuxd that owns the daemon lifecycle boundary but does not yet implement privileged host operations.",
+    "Use synchronous interprocess 2.4.4 local sockets with default features disabled as the bounded transport dependency, mapping to Unix-domain sockets on Unix and local Windows named pipes on Windows; do not add Tokio or a TCP listener.",
+    "Add a governed dependency-admission packet before manifest use for interprocess 2.4.4 with observed license expression 0BSD OR Apache-2.0, and expand the existing exact serde_json 1.0.151 approval from dev to dev+runtime only for bounded daemon control-frame encoding/decoding.",
+    "Use an explicit Unix filesystem socket endpoint rooted in a caller-supplied or Kernux-owned private runtime directory; create/verify private directory and socket permissions, reject unsafe pre-existing non-socket paths, and reclaim only a verified stale socket owned by the daemon endpoint policy.",
+    "Use only local Windows named-pipe names; reject remote-host pipe forms. Do not claim caller authentication, authorization, or peer binding in this task.",
+    "Introduce the minimal reusable daemon health/version probe wire types through the existing authoritative KRP schema and deterministic Rust/TypeScript generation path rather than hand-maintaining divergent public wire structs. Existing KRP v1 object meanings must remain unchanged.",
+    "Implement a bounded single-request local control frame using generated probe types, exact krp/1 contract metadata, a strict maximum frame size, bounded receive/send timeouts, structured fail-closed errors, and no permissive unknown-field or version fallback.",
+    "Expose a read-only health/version probe that reports daemon lifecycle health plus daemon build/version and KRP contract/provenance metadata without granting authority or implying downstream runtime readiness.",
+    "Implement graceful owner-controlled shutdown through an in-process daemon shutdown handle/state machine: stop accepting new work, allow or bound any active probe completion, release/reclaim the endpoint, and join cleanly. Do not expose shutdown-over-IPC before KX-P02-S01-T02 binds callers.",
+    "Prove endpoint collision behavior, safe stale-endpoint handling, malformed/oversized/version-mismatch rejection, bounded idle-client behavior, health/version success, graceful shutdown cleanup, restart after shutdown, and absence of network listeners.",
+    "Add a Windows CI evidence job that compiles and runs the Windows-relevant kernuxd tests on a Windows runner while preserving the existing five protected status contexts unchanged; Unix runtime tests must run on the normal Rust path and local qualification.",
+    "Preserve exact dependency governance, provenance checks, generated-contract drift checks, P01 compatibility/adversarial gates, and all existing protected checks.",
+    "After native verification and protected closeout, mark only KX-P02-S01-T01 PROVEN and advance only KX-P02-S01-T02 to NEXT."
+  ],
+  "scope_out": [
+    "Do not implement launch nonce, peer identity binding, caller authentication, caller authorization, credential checks, or rejection of unauthorized local callers; KX-P02-S01-T02 owns those semantics.",
+    "Do not expose a shutdown command over unauthenticated IPC in T01; graceful shutdown is owner-controlled until caller binding exists.",
+    "Do not implement installation/device identity, key generation/rotation/recovery, SQLite or other durable metadata storage, artifact CAS, policy evaluation, Grant issuance/enforcement, permission profiles, secret brokering, security audit persistence, or any later P02 task.",
+    "Do not implement filesystem/process/PTY privileged operations, sandbox lifecycle, browser/computer control, remote transport, cloud transport, HTTP, TCP, UDP, or network listeners.",
+    "Do not alter existing KRP v1 field meanings, loosen closed decoding, introduce implicit version downgrade, or treat daemon/application version as protocol authority.",
+    "Do not claim Windows named-pipe runtime proof from a non-Windows compile alone; Windows behavior requires the dedicated Windows CI evidence path.",
+    "Do not mark P02 phase exit or any later P02 task PROVEN through this Grain."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S01-T01 — Create kernuxd lifecycle, private local transport, health/version probe, and graceful shutdown"
+}
