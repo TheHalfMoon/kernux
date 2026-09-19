@@ -1,0 +1,105 @@
+{
+  "acceptance": [
+    "A tracked adversarial corpus covers all twenty minimum adversarial invariants enumerated in RUNTIME_OPERATION_MODEL section 28, with stable case IDs, explicit inputs, and explicit expected policy outcomes. A machine check fails if any required invariant ID is missing or duplicated.",
+    "Disconnect, heartbeat timeout, request timeout, and controller restart/cache loss never synthesize process exit. Cancellation acceptance never synthesizes exit, and cancellation transport loss never synthesizes cancelled state.",
+    "Observation ordering is fail-closed: stale generations cannot overwrite newer truth, and equal-generation contradictory states are classified as an invariant conflict rather than last-write-wins.",
+    "Duplicate/replay handling is explicit: same OperationId plus same canonical fingerprint resolves to the same logical operation without a second side effect; same OperationId plus a different fingerprint rejects as a conflict before execution; ambiguous or may-have-started paths preserve the original OperationId and require reconciliation.",
+    "Authority/capability adversarial cases prove advertisement alone does not authorize, Grant alone without negotiated capability does not authorize, provider/runtime type does not imply action availability, reconnect does not restore expired/revoked Grant authority, and changed trust identity is not treated as the same runtime.",
+    "Malformed payload cases reject unknown fields, missing required fields, malformed canonical identifiers/digests/resource URIs, invalid closed enum meanings, and malformed nested objects in both the authoritative Node/schema path and generated Rust serde path for the applicable generated types.",
+    "Version mismatch cases cover RuntimeDescriptor, RuntimeCapability, OperationStart, and Event version-bearing fields and reject unsupported protocol/capability tokens without downgrade or permissive fallback.",
+    "Unknown retry guidance or foreign/provider diagnostics cannot lower canonical side-effect uncertainty; unknown OperationId cannot become definitely-not-started unless an explicit persistence guarantee is present in the fixture input.",
+    "The same tracked adversarial fixture bytes are consumed by the Node checker and Rust adversarial tests; the normal pnpm check includes the Node adversarial checker and cargo workspace tests include the Rust mirror tests.",
+    "Existing generator determinism, shared core conformance, T02 compatibility matrix, provider-neutral contract posture, full pnpm check, git diff --check, Diffcipline R2, exact-head protected CI, and post-merge main qualification all remain PASS.",
+    "The corpus and evidence explicitly distinguish contract/policy conformance from future runtime/transport evidence and do not claim exactly-once execution, durable replay protection, cancellation delivery, or reconnect persistence.",
+    "After native SpecGrain proof and protected closeout merge, KX-P01-S05-T03 is PROVEN and P01 has 7/7 macro tasks PROVEN; P01 exit is assessed separately rather than inferred from task count."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000016.json",
+    "protocol/fixtures/v1/adversarial.json",
+    "tools/protocol/adversarial.mjs",
+    "crates/kernux-contracts/tests/adversarial.rs",
+    "package.json",
+    "docs/canonical/KRP_COMPATIBILITY.md",
+    "docs/canonical/RUNTIME_OPERATION_MODEL.md",
+    "docs/canonical/PROTOCOL_STRATEGY.md",
+    "docs/evidence/P01-S05-T03.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 16000,
+    "estimated_tokens": 11500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "s05-t02-proven",
+      "adversarial-invariant-coverage-pass",
+      "disconnect-truth-preservation-pass",
+      "cancellation-truth-preservation-pass",
+      "observation-ordering-pass",
+      "duplicate-replay-dedup-pass",
+      "fingerprint-conflict-rejection-pass",
+      "side-effect-reconciliation-pass",
+      "authority-capability-intersection-pass",
+      "trust-continuity-pass",
+      "malformed-node-rejection-pass",
+      "malformed-rust-rejection-pass",
+      "version-mismatch-rejection-pass",
+      "shared-adversarial-fixture-cross-language-pass",
+      "provider-neutral-adversarial-scan-pass",
+      "baseline-ci-pass",
+      "diffcipline-r2-proof-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000016",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the authoritative KRP schema, generated Rust contracts, existing core fixtures, T02 compatibility checker patterns, and current canonical runtime invariants. Add only the fixture/check surfaces needed to prove T03; introduce no production dependency or runtime implementation."
+      },
+      "safety": {
+        "requirements": [
+          "Adversarial fixtures must remain inert data and deterministic validation logic; they must not execute host actions, network calls, subprocess side effects, or privileged operations.",
+          "A passing fixture check must never be reported as evidence that unimplemented runtime transport, persistence, cancellation, reconnect, or exactly-once execution behavior works."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Create one provider-neutral, executable adversarial KRP v1 fixture corpus and cross-language contract checks for disconnect truth preservation, duplicate/replay identity, malformed payload rejection, and broad version mismatch without implementing transport or runtime execution.",
+  "parent_id": null,
+  "rationale": "P01 requires executable negative protocol evidence before its exit gate. T02 froze compatibility semantics; T03 must now encode the remaining adversarial contract cases without claiming unimplemented daemon behavior.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the S05-T03 adversarial fixture, checker, Rust mirror tests, protocol-baseline integration, bounded documentation links, native proof, and closeout state. No daemon, live transport, persisted runtime state, or production side effect depends on this corpus."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Create one canonical protocol/fixtures/v1/adversarial.json corpus that is provider-neutral, deterministic, human-reviewable, and consumed by both Node and Rust checks.",
+    "Cover every adversarial invariant currently enumerated in RUNTIME_OPERATION_MODEL section 28 at the contract/policy-fixture layer, including contact/execution separation, cancellation ambiguity, observation ordering, duplicate/replay identity, side-effect ambiguity, retry discipline, authority/capability intersection, trust continuity, and unknown-operation interpretation.",
+    "Add representative malformed wire cases across canonical KRP objects, including unknown fields, missing required fields, malformed UUID/digest/resource values, invalid closed enum meanings, and malformed nested objects; each case must fail closed under the authoritative schema/generated contract.",
+    "Add broad version-mismatch cases across RuntimeDescriptor.protocol_contract, OperationStart.protocol_contract, OperationStart.capability_version, RuntimeCapability.version, and Event.contract_version. Unsupported versions reject without implicit downgrade or application/provider-version inference.",
+    "Encode duplicate/replay fixtures using OperationId plus a deterministic canonical request fingerprint model: same OperationId plus same fingerprint is the same logical operation/reconcile path; same OperationId plus different fingerprint is a conflict rejected before execution.",
+    "Encode disconnect, timeout, restart/cache-loss, and cancellation cases as truth-preservation policy fixtures only. The checker must never translate those controller/contact facts into process exit, cancellation success, definitely-not-started, or fresh-operation authority without the required authoritative evidence.",
+    "Encode authority intersection cases proving that runtime advertisement alone is not authorization, Grant alone without negotiated capability is insufficient, provider/runtime type does not imply action support, and reconnect does not revive expired or revoked Grant authority.",
+    "Add a Node adversarial checker and Rust mirror tests that consume the same tracked adversarial fixture bytes. Node must validate wire mutation rejection and policy outcomes; Rust must independently prove generated serde rejection plus shared policy-fixture invariants.",
+    "Integrate the adversarial checker into the normal pnpm protocol baseline and preserve existing generator, core-conformance, T02 compatibility, provider-neutrality, and generated-contract behavior.",
+    "Produce native SpecGrain verification and a canonical evidence closeout only after exact-head protected CI and post-merge main qualification succeed."
+  ],
+  "scope_out": [
+    "Do not implement kernuxd, UDS/named-pipe transport, runtime process control, persistence/event store, real cancellation, real reconnect, browser/process execution, UI, remote transport, or P02 behavior.",
+    "Do not claim fixture-level policy simulation proves runtime exactly-once execution, durable deduplication, cryptographic replay defense, persistence guarantees, or transport recovery.",
+    "Do not change the authoritative KRP schema, generated Rust/TypeScript public contracts, T02 compatibility semantics, capability/Grant authority model, or protocol version tokens unless a separately refined corrective Grain proves such a change is necessary.",
+    "Do not accept malformed or unknown semantics by stripping fields, defaulting closed enum values, inferring authority, weakening side-effect uncertainty, or silently downgrading versions."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S05-T03 \u2014 Build the canonical KRP adversarial protocol corpus"
+}
