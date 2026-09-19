@@ -63,6 +63,39 @@
       "purpose": "Pinned strict TypeScript compiler for repository and generated-contract checks.",
       "license_expression": "Apache-2.0",
       "license_posture": "permitted-by-LICENSE_POLICY"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "ed25519-dalek",
+      "source": "registry",
+      "version": "3.0.0",
+      "scope": "runtime",
+      "purpose": "Provide the exact Ed25519 signing/verifying primitive for bounded local installation identity key lifecycle and session-binding signatures, with default features disabled and only zeroization support enabled.",
+      "license_expression": "BSD-3-Clause",
+      "license_posture": "exception-reviewed",
+      "license_policy_exception": "docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "getrandom",
+      "source": "registry",
+      "version": "0.4.3",
+      "scope": "runtime",
+      "purpose": "Obtain operating-system randomness for local installation IDs, instance IDs, and Ed25519 seed generation without adding a general RNG framework.",
+      "license_expression": "MIT OR Apache-2.0",
+      "license_posture": "exception-reviewed",
+      "license_policy_exception": "docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "zeroize",
+      "source": "registry",
+      "version": "1.9.0",
+      "scope": "runtime",
+      "purpose": "Provide explicit zeroization for bounded local recovery-seed secret wrappers and Ed25519 secret material handling.",
+      "license_expression": "Apache-2.0 OR MIT",
+      "license_posture": "exception-reviewed",
+      "license_policy_exception": "docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md"
     }
   ]
 }

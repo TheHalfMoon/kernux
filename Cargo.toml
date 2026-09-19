@@ -1,5 +1,5 @@
 [workspace]
-members = ["tools/rust-smoke", "crates/kernux-contracts", "crates/kernuxd"]
+members = ["tools/rust-smoke", "crates/kernux-contracts", "crates/kernuxd", "crates/kernux-identity"]
 resolver = "3"
 
 [workspace.package]
