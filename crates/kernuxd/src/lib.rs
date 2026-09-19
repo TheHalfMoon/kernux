@@ -16,6 +16,13 @@ use std::sync::{
     atomic::{AtomicU8, Ordering},
 };
 
+mod transport;
+
+pub use transport::{
+    DEFAULT_ACCEPT_POLL_INTERVAL, DEFAULT_IO_TIMEOUT, DEFAULT_MAX_FRAME_BYTES, DaemonEndpoint,
+    DaemonServer, ServerConfig, TransportError, probe_once,
+};
+
 const STARTING: u8 = 0;
 const SERVING: u8 = 1;
 const SHUTTING_DOWN: u8 = 2;
