@@ -196,12 +196,12 @@ impl Store {
     }
 }
 
-fn revision_from_sql(value: i64) -> Result<Revision, StoreError> {
+pub(crate) fn revision_from_sql(value: i64) -> Result<Revision, StoreError> {
     let value = u32::try_from(value).map_err(|_| StoreError::InvalidRevision)?;
     Revision::new(value)
 }
 
-fn map_insert_error(error: SqliteError) -> StoreError {
+pub(crate) fn map_insert_error(error: SqliteError) -> StoreError {
     if matches!(
         error,
         SqliteError::SqliteFailure(ref inner, _) if inner.code == ErrorCode::ConstraintViolation
