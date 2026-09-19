@@ -46,7 +46,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P01-S04-T01 | PROVEN | R2 | Define event envelope, lineage, artifact references, evidence binding and redaction metadata. | identities |
 | KX-P01-S05-T01 | PROVEN | R2 | Choose one schema source and generate Rust + TS contracts with round-trip/conformance fixtures. | prior P01 contracts |
 | KX-P01-S05-T02 | PROVEN | R2 | Define compatibility/versioning rules and unknown/additive-field behavior. | generated contracts |
-| KX-P01-S05-T03 | NEXT | R2 | Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch. | generated contracts |
+| KX-P01-S05-T03 | PROVEN | R2 | Build canonical protocol fixture corpus including disconnect, duplicate operation, malformed payload and version mismatch. | generated contracts |
 
 **P01 gate:** cross-language contracts executable; provider names absent from core; disconnect cannot imply exit; grants structurally bounded.
 
