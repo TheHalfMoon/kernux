@@ -1,0 +1,463 @@
+{
+  "schema": "kernux.krp.adversarial/v1",
+  "required_invariant_ids": [
+    "ADV-01",
+    "ADV-02",
+    "ADV-03",
+    "ADV-04",
+    "ADV-05",
+    "ADV-06",
+    "ADV-07",
+    "ADV-08",
+    "ADV-09",
+    "ADV-10",
+    "ADV-11",
+    "ADV-12",
+    "ADV-13",
+    "ADV-14",
+    "ADV-15",
+    "ADV-16",
+    "ADV-17",
+    "ADV-18",
+    "ADV-19",
+    "ADV-20"
+  ],
+  "policy_cases": [
+    {
+      "id": "ADV-01",
+      "rule": "contact_loss_preserves_execution",
+      "input": {
+        "contact_state": "disconnected",
+        "execution_state": "live"
+      },
+      "expected": {
+        "execution_state": "live"
+      }
+    },
+    {
+      "id": "ADV-02",
+      "rule": "timeout_preserves_execution",
+      "input": {
+        "timeout_kind": "heartbeat",
+        "execution_state": "live"
+      },
+      "expected": {
+        "execution_state": "live"
+      }
+    },
+    {
+      "id": "ADV-03",
+      "rule": "cancellation_acceptance_preserves_execution",
+      "input": {
+        "cancellation_outcome": "accepted",
+        "execution_state": "live"
+      },
+      "expected": {
+        "execution_state": "live"
+      }
+    },
+    {
+      "id": "ADV-04",
+      "rule": "cancellation_transport_loss_is_unverifiable",
+      "input": {
+        "cancellation_transport": "lost"
+      },
+      "expected": {
+        "cancellation_state": "unverifiable"
+      }
+    },
+    {
+      "id": "ADV-05",
+      "rule": "stale_observation_is_rejected",
+      "input": {
+        "current_generation": 9,
+        "current_state": "live",
+        "incoming_generation": 8,
+        "incoming_state": "exited"
+      },
+      "expected": {
+        "disposition": "stale_rejected",
+        "execution_state": "live"
+      }
+    },
+    {
+      "id": "ADV-06",
+      "rule": "same_fingerprint_deduplicates",
+      "input": {
+        "operation_id": "01890f00-0000-7000-8000-000000000009",
+        "stored_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "incoming_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected": {
+        "disposition": "reconcile_existing",
+        "execute": false
+      }
+    },
+    {
+      "id": "ADV-07",
+      "rule": "fingerprint_conflict_rejects",
+      "input": {
+        "operation_id": "01890f00-0000-7000-8000-000000000009",
+        "stored_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "incoming_fingerprint": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "expected": {
+        "disposition": "operation_conflict",
+        "execute": false
+      }
+    },
+    {
+      "id": "ADV-08",
+      "rule": "ambiguous_start_preserves_operation_id",
+      "input": {
+        "operation_id": "01890f00-0000-7000-8000-000000000009",
+        "side_effect_certainty": "may_have_started"
+      },
+      "expected": {
+        "operation_id": "01890f00-0000-7000-8000-000000000009",
+        "retry_guidance": "reconcile_operation"
+      }
+    },
+    {
+      "id": "ADV-09",
+      "rule": "may_have_started_forbids_fresh_operation",
+      "input": {
+        "operation_id": "01890f00-0000-7000-8000-000000000009",
+        "side_effect_certainty": "may_have_started"
+      },
+      "expected": {
+        "create_fresh_operation": false,
+        "operation_id": "01890f00-0000-7000-8000-000000000009"
+      }
+    },
+    {
+      "id": "ADV-10",
+      "rule": "unknown_retry_guidance_reconciles",
+      "input": {
+        "retry_guidance": "future_retry_mode",
+        "side_effect_certainty": "may_have_started"
+      },
+      "expected": {
+        "blind_retry": false,
+        "retry_guidance": "reconcile_operation"
+      }
+    },
+    {
+      "id": "ADV-11",
+      "rule": "authority_requires_intersection",
+      "input": {
+        "advertised_capability": true,
+        "grant": false,
+        "policy_allows": false,
+        "negotiated_capability": true
+      },
+      "expected": {
+        "authorized": false
+      }
+    },
+    {
+      "id": "ADV-12",
+      "rule": "authority_requires_intersection",
+      "input": {
+        "advertised_capability": true,
+        "grant": true,
+        "policy_allows": true,
+        "negotiated_capability": false
+      },
+      "expected": {
+        "authorized": false
+      }
+    },
+    {
+      "id": "ADV-13",
+      "rule": "runtime_type_does_not_imply_capability",
+      "input": {
+        "runtime_type": "local",
+        "requested_action": "files.write",
+        "advertised_actions": []
+      },
+      "expected": {
+        "authorized": false
+      }
+    },
+    {
+      "id": "ADV-14",
+      "rule": "reconnect_does_not_restore_grant",
+      "input": {
+        "reconnected": true,
+        "grant_status": "revoked"
+      },
+      "expected": {
+        "authorized": false
+      }
+    },
+    {
+      "id": "ADV-15",
+      "rule": "trust_identity_change_is_new_runtime",
+      "input": {
+        "enrolled_identity": "host-key-a",
+        "observed_identity": "host-key-b"
+      },
+      "expected": {
+        "same_runtime": false
+      }
+    },
+    {
+      "id": "ADV-16",
+      "rule": "provider_diagnostic_cannot_lower_uncertainty",
+      "input": {
+        "canonical_side_effect_certainty": "may_have_started",
+        "provider_diagnostic": "definitely_not_started"
+      },
+      "expected": {
+        "side_effect_certainty": "may_have_started"
+      }
+    },
+    {
+      "id": "ADV-17",
+      "rule": "request_timeout_is_not_operation_failure",
+      "input": {
+        "timeout_kind": "request",
+        "authoritative_execution_observation": null
+      },
+      "expected": {
+        "execution_state": "unverifiable"
+      }
+    },
+    {
+      "id": "ADV-18",
+      "rule": "controller_cache_loss_is_not_exit",
+      "input": {
+        "controller_cache": "lost",
+        "authoritative_exit_observation": false
+      },
+      "expected": {
+        "execution_state": "unverifiable"
+      }
+    },
+    {
+      "id": "ADV-19",
+      "rule": "equal_generation_conflict_fails",
+      "input": {
+        "current_generation": 9,
+        "current_state": "live",
+        "incoming_generation": 9,
+        "incoming_state": "exited"
+      },
+      "expected": {
+        "disposition": "invariant_conflict"
+      }
+    },
+    {
+      "id": "ADV-20",
+      "rule": "unknown_operation_preserves_uncertainty",
+      "input": {
+        "operation_lookup": "unknown",
+        "persistence_guarantee_definitely_not_started": false
+      },
+      "expected": {
+        "retry_guidance": "reconcile_operation",
+        "side_effect_certainty": "may_have_started"
+      }
+    }
+  ],
+  "wire_cases": [
+    {
+      "id": "WIRE-01",
+      "name": "unknown_operation_start_field",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["future_hint"],
+        "value": "unnegotiated"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-02",
+      "name": "missing_operation_start_protocol_contract",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "remove",
+        "path": ["protocol_contract"]
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-03",
+      "name": "malformed_operation_uuid",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["operation_id"],
+        "value": "not-a-uuid"
+      },
+      "expected_node": "reject",
+      "expected_rust": "schema_only"
+    },
+    {
+      "id": "WIRE-04",
+      "name": "malformed_payload_digest",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["payload_sha256"],
+        "value": "abc123"
+      },
+      "expected_node": "reject",
+      "expected_rust": "schema_only"
+    },
+    {
+      "id": "WIRE-05",
+      "name": "malformed_resource_uri",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["resource_uri"],
+        "value": "file:///tmp/outside"
+      },
+      "expected_node": "reject",
+      "expected_rust": "schema_only"
+    },
+    {
+      "id": "WIRE-06",
+      "name": "unknown_error_category",
+      "definition": "RuntimeError",
+      "source_case": "runtime_error_ambiguous_side_effect",
+      "mutation": {
+        "op": "set",
+        "path": ["category"],
+        "value": "future_error"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-07",
+      "name": "unknown_retry_guidance",
+      "definition": "RuntimeError",
+      "source_case": "runtime_error_ambiguous_side_effect",
+      "mutation": {
+        "op": "set",
+        "path": ["retry_guidance"],
+        "value": "future_retry_mode"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-08",
+      "name": "malformed_nested_runtime_revision",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["runtime", "revision"],
+        "value": "two"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-09",
+      "name": "runtime_descriptor_protocol_mismatch",
+      "definition": "RuntimeDescriptor",
+      "inline_value": {
+        "runtime": {
+          "kind": "runtime",
+          "id": "01890f00-0000-7000-8000-000000000005",
+          "revision": 2
+        },
+        "protocol_contract": "krp/2",
+        "capabilities": [
+          {
+            "action": "files.write",
+            "version": "1",
+            "features": []
+          }
+        ],
+        "features": [],
+        "observation_generation": 10,
+        "observed_at": "2026-09-19T01:02:00Z"
+      },
+      "mutation": {
+        "op": "none",
+        "path": []
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-10",
+      "name": "runtime_capability_version_mismatch",
+      "definition": "RuntimeCapability",
+      "inline_value": {
+        "action": "files.write",
+        "version": "2",
+        "features": []
+      },
+      "mutation": {
+        "op": "none",
+        "path": []
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-11",
+      "name": "operation_protocol_mismatch",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["protocol_contract"],
+        "value": "krp/2"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-12",
+      "name": "operation_capability_version_mismatch",
+      "definition": "OperationStart",
+      "source_case": "operation_start",
+      "mutation": {
+        "op": "set",
+        "path": ["capability_version"],
+        "value": "2"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    },
+    {
+      "id": "WIRE-13",
+      "name": "event_contract_version_mismatch",
+      "definition": "Event",
+      "source_case": "operation_event",
+      "mutation": {
+        "op": "set",
+        "path": ["contract_version"],
+        "value": "krp/2"
+      },
+      "expected_node": "reject",
+      "expected_rust": "reject"
+    }
+  ],
+  "evidence_boundary": {
+    "proves": "contract_and_policy_fixture_conformance",
+    "does_not_prove": [
+      "exactly_once_execution",
+      "durable_replay_protection",
+      "cancellation_delivery",
+      "reconnect_persistence",
+      "runtime_transport_behavior"
+    ]
+  }
+}
