@@ -1,0 +1,35 @@
+{
+  "schema": "kernux.dependency-approvals/v1",
+  "approvals": [
+    {
+      "ecosystem": "npm",
+      "name": "oxfmt",
+      "source": "registry",
+      "version": "0.68.0",
+      "scope": "dev",
+      "purpose": "Pinned JavaScript and TypeScript formatting for repository checks.",
+      "license_expression": "MIT",
+      "license_posture": "permitted-by-LICENSE_POLICY"
+    },
+    {
+      "ecosystem": "npm",
+      "name": "oxlint",
+      "source": "registry",
+      "version": "1.83.0",
+      "scope": "dev",
+      "purpose": "Pinned JavaScript and TypeScript linting for repository checks.",
+      "license_expression": "MIT",
+      "license_posture": "permitted-by-LICENSE_POLICY"
+    },
+    {
+      "ecosystem": "npm",
+      "name": "typescript",
+      "source": "registry",
+      "version": "7.0.2",
+      "scope": "dev",
+      "purpose": "Pinned strict TypeScript compiler for repository and generated-contract checks.",
+      "license_expression": "Apache-2.0",
+      "license_posture": "permitted-by-LICENSE_POLICY"
+    }
+  ]
+}
