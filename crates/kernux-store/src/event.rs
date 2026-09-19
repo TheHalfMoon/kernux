@@ -368,10 +368,12 @@ mod tests {
     use crate::tests::TestDb;
 
     const PROJECT_A: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071a0";
+    const PROJECT_B: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071a1";
     const RUN_A: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071a2";
     const EVENT_A: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071b0";
     const EVENT_B: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071b1";
     const EVENT_C: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071b2";
+    const EVENT_D: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f6071b3";
 
     fn id(value: &str) -> CanonicalId {
         CanonicalId::parse(value).unwrap()
@@ -567,5 +569,208 @@ mod tests {
             Err(StoreError::EventSequenceOverflow)
         );
         assert_eq!(next_stream_sequence(u64::MAX - 1).unwrap(), u64::MAX);
+    }
+
+    #[test]
+    fn owner_revision_is_exact_event_metadata_but_does_not_reset_owner_stream_sequence() {
+        let db = TestDb::new("event-owner-revision");
+        let mut store = Store::open(&db.path).unwrap();
+        let owner = id(PROJECT_A);
+        let revision_one =
+            StreamRef::new(StreamOwnerKind::Project, owner, Some(Revision::INITIAL)).unwrap();
+        let revision_two = StreamRef::new(
+            StreamOwnerKind::Project,
+            owner,
+            Some(Revision::new(2).unwrap()),
+        )
+        .unwrap();
+
+        store
+            .append_event(&append(EVENT_A, "task.created", revision_one, None))
+            .unwrap();
+        let second = store
+            .append_event(&append(
+                EVENT_B,
+                "task.updated",
+                revision_two,
+                Some(EVENT_A),
+            ))
+            .unwrap();
+
+        assert_eq!(second.stream_seq(), 2);
+        let stored_revision: i64 = store
+            .connection
+            .query_row(
+                "SELECT owner_revision FROM events WHERE id = ?1",
+                [EVENT_B],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(stored_revision, 2);
+    }
+
+    #[test]
+    fn first_event_rejects_any_predecessor_including_cross_stream_event() {
+        let db = TestDb::new("event-cross-stream");
+        let mut store = Store::open(&db.path).unwrap();
+        let stream_a = project_stream(PROJECT_A);
+        let stream_b = project_stream(PROJECT_B);
+        store
+            .append_event(&append(EVENT_A, "task.created", stream_a, None))
+            .unwrap();
+
+        assert_eq!(
+            store.append_event(&append(EVENT_B, "task.created", stream_b, Some(EVENT_A))),
+            Err(StoreError::EventPredecessorMismatch)
+        );
+        let count_b: i64 = store
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM events WHERE owner_id = ?1",
+                [PROJECT_B],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count_b, 0);
+    }
+
+    #[test]
+    fn duplicate_event_id_is_rejected_without_new_stream_position() {
+        let db = TestDb::new("event-duplicate");
+        let mut store = Store::open(&db.path).unwrap();
+        let stream = project_stream(PROJECT_A);
+        store
+            .append_event(&append(EVENT_A, "task.created", stream, None))
+            .unwrap();
+
+        assert_eq!(
+            store.append_event(&append(EVENT_A, "task.updated", stream, Some(EVENT_A))),
+            Err(StoreError::DuplicateConflict)
+        );
+        let count: i64 = store
+            .connection
+            .query_row("SELECT COUNT(*) FROM events", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn corrupted_gap_or_wrong_stored_predecessor_blocks_future_append() {
+        let db = TestDb::new("event-corrupt-chain");
+        let mut store = Store::open(&db.path).unwrap();
+        let stream = project_stream(PROJECT_A);
+        store
+            .append_event(&append(EVENT_A, "task.created", stream, None))
+            .unwrap();
+        store
+            .connection
+            .execute(
+                "INSERT INTO events(\
+                    id, revision, event_type, owner_kind, owner_id, owner_revision, stream_seq, previous_event_id\
+                 ) VALUES (?1, 1, 'task.updated', 'project', ?2, 1, ?3, ?4)",
+                (
+                    EVENT_B,
+                    PROJECT_A,
+                    3_u64.to_be_bytes().as_slice(),
+                    EVENT_A,
+                ),
+            )
+            .unwrap();
+
+        assert_eq!(
+            store.append_event(&append(EVENT_C, "task.updated", stream, Some(EVENT_B))),
+            Err(StoreError::EventStreamCorrupt)
+        );
+        let count: i64 = store
+            .connection
+            .query_row("SELECT COUNT(*) FROM events", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn stored_cross_stream_predecessor_blocks_future_append() {
+        let db = TestDb::new("event-cross-stream-corrupt");
+        let mut store = Store::open(&db.path).unwrap();
+        let stream_a = project_stream(PROJECT_A);
+        let stream_b = project_stream(PROJECT_B);
+        store
+            .append_event(&append(EVENT_A, "task.created", stream_a, None))
+            .unwrap();
+        store
+            .append_event(&append(EVENT_B, "task.created", stream_b, None))
+            .unwrap();
+
+        store
+            .connection
+            .execute(
+                "INSERT INTO events(                    id, revision, event_type, owner_kind, owner_id, owner_revision, stream_seq, previous_event_id                 ) VALUES (?1, 1, 'task.updated', 'project', ?2, 1, ?3, ?4)",
+                (
+                    EVENT_C,
+                    PROJECT_A,
+                    2_u64.to_be_bytes().as_slice(),
+                    EVENT_B,
+                ),
+            )
+            .unwrap();
+
+        assert_eq!(
+            store.append_event(&append(EVENT_D, "task.updated", stream_a, Some(EVENT_C))),
+            Err(StoreError::EventStreamCorrupt)
+        );
+        let count_a: i64 = store
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM events WHERE owner_id = ?1",
+                [PROJECT_A],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count_a, 2);
+    }
+
+    #[test]
+    fn malformed_persisted_event_metadata_blocks_future_append() {
+        let db = TestDb::new("event-malformed-existing");
+        let mut store = Store::open(&db.path).unwrap();
+        store
+            .connection
+            .execute(
+                "INSERT INTO events(\
+                    id, revision, event_type, owner_kind, owner_id, owner_revision, stream_seq, previous_event_id\
+                 ) VALUES (?1, 1, 'Task.created', 'project', ?2, 1, ?3, NULL)",
+                (EVENT_A, PROJECT_A, 1_u64.to_be_bytes().as_slice()),
+            )
+            .unwrap();
+
+        assert_eq!(
+            store.append_event(&append(
+                EVENT_B,
+                "task.updated",
+                project_stream(PROJECT_A),
+                Some(EVENT_A)
+            )),
+            Err(StoreError::EventStreamCorrupt)
+        );
+    }
+
+    #[test]
+    fn stream_sequence_never_uses_uuid_lexical_order_as_authority() {
+        let db = TestDb::new("event-uuid-order");
+        let mut store = Store::open(&db.path).unwrap();
+        let stream = project_stream(PROJECT_A);
+        store
+            .append_event(&append(EVENT_D, "task.created", stream, None))
+            .unwrap();
+        let accepted = store
+            .append_event(&append(EVENT_A, "task.updated", stream, Some(EVENT_D)))
+            .unwrap();
+
+        assert!(
+            EVENT_A < EVENT_D,
+            "fixture requires descending UUID text order"
+        );
+        assert_eq!(accepted.stream_seq(), 2);
+        assert_eq!(accepted.previous_event_id(), Some(id(EVENT_D)));
     }
 }
