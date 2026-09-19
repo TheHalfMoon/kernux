@@ -1,0 +1,125 @@
+{
+  "acceptance": [
+    "Dependency admission precedes CAS implementation: crates/kernux-store/Cargo.toml pins sha2 = 0.11.0 exactly with default features disabled and no optional features; third_party/dependencies/approved.json records the exact runtime purpose and MIT OR Apache-2.0 exception evidence; dependency validation passes; direct admission introduces no new external package version; and no CAS semantics land before dependency post-merge qualification.",
+    "ArtifactCas uses exactly the deterministic digest-derived layout root/sha256/xx/64hex, rejects invalid root/entry types within the bounded API, never accepts caller-controlled blob-relative path components, and exposes no public mutable-final-path primitive.",
+    "Every ingest API requires an explicit maximum size, streams through a bounded fixed buffer, accepts valid empty content, rejects over-limit input without final publication, computes exact SHA-256 and size, and rejects supplied expected-digest mismatch before publication.",
+    "Final publication is no-overwrite and fail-closed: temporary bytes are synced before publication; an existing final path is never replaced; identical existing content verifies and succeeds without revealing dedup status; corrupt/mismatched/non-regular existing content fails; ordinary failure/success removes the current temp name.",
+    "open_verified enforces an explicit byte bound, verifies the entire same read-only file handle against the requested digest before returning it, rewinds that same handle, and rejects missing, oversized, non-regular, truncated, or tampered content with typed generic errors that do not embed payload bytes or filesystem paths.",
+    "Binding CAS content to Artifact metadata requires exact expected revision, preserves existing media_type and retention_ref, writes the verified digest/size through existing invariants only after blob publication, never creates metadata referring to absent/unverified bytes, and leaves any immutable orphan blob untouched if metadata CAS fails.",
+    "Multiple logical Artifact IDs may reference one identical content digest without merging logical identity, revision, metadata, retention_ref, provenance, or authority. CAS code does not evaluate retention policy and provides no final blob deletion/GC API.",
+    "Adversarial fixtures cover exact layout, empty/multi-chunk/boundary streams, over-limit rejection, expected mismatch, identical dedup, corrupt preexisting blob, no-overwrite behavior, temp cleanup, non-regular entry rejection, tamper/truncation detection, metadata conflict/invariance, independent retention metadata, and close/reopen verification.",
+    "SQLite schema/version remains unchanged and ordinary SQLite rows contain metadata/reference fields only; KRP/generated contracts, authentication/transport, identity semantics, Event semantics, policy, secret-provider, daemon configuration, and later P02 surfaces remain unchanged.",
+    "Local macOS, Ubuntu Rust CI, and native Windows kernux-store CI execute the CAS corpus successfully. Native Windows runtime evidence is required; cross-compilation is not a substitute.",
+    "Every bounded candidate passes git diff --check, full pnpm check, dependency/provenance validation where applicable, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with complete manual accounting for exclusions, all five protected exact-head checks plus Windows kernuxd, exact-head review, zero unresolved threads, ordinary merge, and exact post-merge six-job qualification before dependent work begins.",
+    "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S04-T01 becomes PROVEN; only KX-P02-S05-T01 may become NEXT if canonical live truth still confirms it, KX-P02-S05-T02/S06 remain PLANNED, progress becomes 5/9, and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000022.json",
+    "Cargo.lock",
+    "crates/kernux-store/Cargo.toml",
+    "crates/kernux-store/src/lib.rs",
+    "crates/kernux-store/src/artifact.rs",
+    "crates/kernux-store/src/cas.rs",
+    "third_party/dependencies/approved.json",
+    "docs/evidence/P02-S04-T01-DEPENDENCY-GATE.md",
+    "docs/evidence/P02-S04-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 20000,
+    "estimated_tokens": 16500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "dependency-admission-pass",
+      "cas-layout-boundary-pass",
+      "bounded-stream-ingest-pass",
+      "sha256-ingest-verification-pass",
+      "atomic-no-overwrite-publication-pass",
+      "dedup-integrity-pass",
+      "verified-read-pass",
+      "tamper-detection-pass",
+      "temp-cleanup-pass",
+      "artifact-metadata-binding-pass",
+      "logical-identity-retention-independence-pass",
+      "sqlite-no-blob-regression-pass",
+      "no-final-delete-api-pass",
+      "reopen-verification-pass",
+      "cross-platform-cas-runtime-pass",
+      "protocol-auth-identity-event-regression-pass",
+      "scope-boundary-pass",
+      "baseline-ci-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000022",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "installed-dependency",
+        "rationale": "Reuse the existing kernux-store Artifact metadata boundary and the exact sha2 0.11.0 version already present in the locked graph through ed25519-dalek. Add only the direct sha2 edge needed to call the hash API. Use std::fs/std::io for bounded filesystem streaming and publication; do not add another crate, async runtime, hex package, temp-file package, storage framework, or object-store abstraction."
+      },
+      "safety": {
+        "requirements": [
+          "Final digest paths are immutable: no accepted operation may overwrite, truncate, replace, silently repair, or delete an existing published blob.",
+          "CAS paths after the trusted root are digest-derived only. Do not accept arbitrary relative path components or wire the CAS root to untrusted KRP/renderer/browser/model/remote input in S04.",
+          "Every ingest/read is explicitly byte-bounded and streaming uses a fixed-size buffer; no API may allocate or accumulate an unbounded Artifact based on input size.",
+          "Digest verification is machine-computed over bytes. Caller/model claims, filenames, Artifact IDs, metadata size/media fields, or prior digest text do not substitute for hashing the relevant bytes.",
+          "SHA-256 digests are byte identities, not authorization tokens and not automatically non-sensitive. Do not add logs/errors or dedup-hit results that unnecessarily expose content existence or payload/path data.",
+          "Blob publication precedes metadata binding. Metadata must never be advanced to a digest/size whose final blob was not successfully published and verified; a metadata conflict leaves the immutable blob rather than deleting it as rollback.",
+          "Retention references remain metadata only. S04 must not infer deletion authority or remove final blobs; reference-aware GC/deletion remains separately governed later work.",
+          "Do not claim encryption at rest, crash-power-loss durability beyond evidence actually executed, hardened arbitrary host path authorization, cross-project authorization, or secret-safe storage beyond the explicit S04 boundaries."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Extend repository-owned kernux-store with a filesystem-backed SHA-256 content-addressed artifact store that performs bounded streaming ingest/read, verifies immutable byte identity, publishes blobs without overwrite, safely deduplicates identical content, and binds digest/size to existing Artifact metadata while preserving logical Artifact identity and deferring policy, deletion/GC, secrets, export, and daemon state-root wiring.",
+  "parent_id": null,
+  "rationale": "KX-P02-S03-T01 is PROVEN and post-merge-qualified, making KX-P02-S04-T01 the only authorized frontier. Canonical architecture separates SQLite metadata from a filesystem CAS keyed by SHA-256, P01 freezes Artifact ID versus digest semantics, and the existing kernux-store Artifact metadata already provides the correct logical binding. Reuse that crate and the exact sha2 version already present transitively rather than introducing another storage framework or crate.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only bounded SG-000022 refinement/implementation/closeout changes, remove the direct sha2 approval/manifest edge if introduced solely by S04, and keep KX-P02-S04-T01 at NEXT. Never delete, rewrite, repair, or mutate a previously published final digest blob as rollback automation; preserve any user bytes for explicit later lifecycle handling. Do not downgrade SG-000021 metadata schema or its proof."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Extend crates/kernux-store with a dedicated cas module for filesystem Artifact bytes while keeping SQLite artifact metadata and blob bytes physically separate. Do not create a second storage crate or generic storage framework.",
+    "Before CAS semantics, separately admit sha2 = 0.11.0 as an exact direct runtime dependency with default-features = false and no optional features. Reuse the version already resolved transitively in Cargo.lock, document its MIT OR Apache-2.0 license exception, exact feature graph, and prove no new external package version is introduced by direct admission.",
+    "Define ArtifactCas over a caller-selected trusted local root. The root is not sourced from KRP, renderer, browser, model, or remote input in this task. Reject empty roots, non-directory roots, and symbolic-link roots where the platform exposes them; all blob/shard names are derived only from validated lowercase SHA-256 digests, never caller path segments.",
+    "Use deterministic filesystem layout <root>/sha256/<first-two-lowercase-hex>/<full-64-lowercase-hex-digest>. Final blob filenames are immutable content identities. The public API must not expose a writable final-blob handle or an arbitrary relative path join primitive.",
+    "Implement bounded streaming ingest using a fixed-size buffer and an explicit caller-supplied maximum byte count no larger than the existing SQLite Artifact size domain. Empty blobs are valid. Reading beyond the bound fails before publication and cleans the current temporary file; there is no unbounded ingest entry point.",
+    "Compute SHA-256 incrementally during ingest and return a CasBlob descriptor containing the exact Sha256Digest and size only after the stream completes successfully. When an expected digest is supplied, a mismatch fails before publication. Digest bytes are encoded as exact lowercase 64-hex using repository-owned code; do not add a hex dependency.",
+    "Publish only from a create-new temporary file in the destination shard after flush/sync_all, using same-filesystem atomic create semantics that cannot overwrite an existing final digest path. Prefer hard-link publication so an existing destination is never replaced on Unix or Windows. Remove the temporary name after successful publication or ordinary failure.",
+    "If the final digest path already exists, verify that existing regular-file bytes and size exactly match the computed digest/size before treating the ingest as successful deduplication. A missing/mismatched/corrupt/non-regular existing entry fails closed; never overwrite, replace, repair, truncate, or silently quarantine the final blob. The public result does not disclose whether deduplication occurred.",
+    "Implement bounded verified read as open_verified(digest, max_bytes): open the exact digest-derived regular file read-only, enforce the byte bound, hash the complete same file handle, compare with the requested digest, seek the same handle back to offset zero, and only then return a readable VerifiedBlob descriptor with exact size. Missing, oversized, non-regular, truncated, or digest-mismatched blobs fail with typed non-secret errors.",
+    "Bind a published CasBlob to an existing logical Artifact through the existing kernux-store revision CAS rules: require Artifact ID plus expected revision, set exact digest and size while preserving media_type and retention_ref, and preserve existing digest/size invariants. Filesystem publication occurs before metadata binding; a metadata conflict may leave an unreferenced immutable blob but must never create metadata pointing to absent/unverified bytes or delete a preexisting blob as rollback.",
+    "Prove deduplication does not merge logical Artifact identity: two Artifact IDs may bind the same content digest while preserving independent revisions, provenance-owned metadata, media metadata, and retention_ref values. The CAS does not interpret retention_ref or make retention decisions.",
+    "Prove normal ingest failures remove their current temporary file, final names are either absent or complete, and reopen after process-local close can verify/read previously published blobs. Crash-left temporary names are non-authoritative and must never be mistaken for final blobs; general stale-temp cleanup/GC is deferred.",
+    "Extend the existing kernux-store test corpus with adversarial coverage for exact layout, empty content, multi-chunk content, boundary size, over-limit streams, expected-digest mismatch, existing-identical dedup, corrupt-existing destination, final non-overwrite, temp cleanup, non-regular entries, tampered/truncated blobs, metadata binding conflicts, independent retention metadata, and reopen verification.",
+    "Use the existing Ubuntu Rust workspace job and existing native Windows kernux-store coverage without renaming protected contexts. Local macOS, Ubuntu CI, and native Windows CI must execute the CAS corpus; cross-compilation is not a substitute for Windows runtime evidence.",
+    "Keep KRP/generated contracts, T02 authentication/local transport, SG-000020 identity, SG-000021 SQLite schema version, Event semantics, policy/grants, secret providers, daemon state-root wiring, runtime-host filesystem authority, and remote/cloud behavior unchanged.",
+    "Split implementation into dependency admission followed by bounded CAS implementation/adversarial slices as required by Diffcipline R3, then native proof/closeout. Every dependent slice requires exact-head and post-merge qualification before the next begins.",
+    "After native verification and protected closeout, mark only KX-P02-S04-T01 PROVEN and advance only KX-P02-S05-T01 to NEXT if live canonical truth still confirms that dependency-ordered frontier. Keep KX-P02-S05-T02 and all S06 tasks PLANNED; P02 phase exit remains unproven."
+  ],
+  "scope_out": [
+    "Do not implement reference-aware garbage collection, logical Artifact deletion, blob deletion, quota enforcement, largest-artifact UI, stale crash-temp sweeping, retention expiry execution, backup/export/import/checkpoint bundles, or deletion-integrity workflows. Later lifecycle/export work owns those behaviors.",
+    "Do not implement policy evaluation, Grant matching/admission, expiry/revocation/use accounting, permission profiles, consequence classification, delegation enforcement, or cross-project authorization. S05 owns policy; this CAS remains an internal primitive not wired directly to untrusted clients.",
+    "Do not store secret plaintext, credentials, private keys, tokens, cookies, or provider secrets in Artifact metadata or CAS-specific metadata. Do not implement Keychain, DPAPI/Credential Manager, libsecret, TPM/HSM, SQLCipher, per-blob encryption, or claim CAS encryption at rest; S06 and later encrypted modes own those semantics.",
+    "Do not accept arbitrary destination filenames/relative paths, recursively import a caller filesystem path, expose direct renderer/KRP/browser/model filesystem access, or implement a hardened general-purpose host path resolver. Runtime-host path authorization is later work; S04 only uses a trusted local CAS root and digest-derived internal names.",
+    "Do not change the SQLite schema/version or add blob bytes to SQLite. Do not put large Artifact payloads into relational rows.",
+    "Do not add async runtimes, hashing frameworks beyond exact sha2, mmap, compression, archive formats, content-defined chunking, multi-hash support, cloud/object-store backends, remote replication, filesystem watchers, or a generic virtual filesystem abstraction.",
+    "Do not expose whether a content digest was already present as a public dedup-hit signal, and do not claim SHA-256 digests are non-sensitive or authorization tokens."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S04-T01 — Establish SHA-256 artifact content-addressed store"
+}
