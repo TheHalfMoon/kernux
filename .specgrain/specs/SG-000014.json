@@ -1,0 +1,114 @@
+{
+  "acceptance": [
+    "Canonical documentation distinguishes krp/1 compatibility-family identity from the exact schema SHA-256 provenance identity, and declares schema digest mismatch alone neither a compatible nor incompatible wire-version verdict.",
+    "The authoritative schema/generated public contracts use one exact v1 ProtocolContract representation for RuntimeDescriptor.protocol_contract, OperationStart.protocol_contract, and Event.contract_version, and one exact v1 CapabilityVersion representation for RuntimeCapability.version and OperationStart.capability_version.",
+    "Generated Rust object types fail serde deserialization on unknown fields, matching the existing closed-object Node/schema contract. A focused test proves the same unknown-field payload is rejected in both language paths.",
+    "Missing required fields fail closed. Missing known optional fields remain valid only as absence and focused checks prove absence cannot fabricate authorization, successful execution, side-effect certainty, or negotiated feature support.",
+    "A documented evolution table separates editorial, additive-optional, and breaking/semantic changes. Additive optional fields are allowed inside krp/1 only when feature-negotiated and sender-suppressed for peers lacking the feature; otherwise the change requires a new contract family.",
+    "Unknown enum values, required discriminators, actions, protocol contracts, and capability versions never fall back to a known permissive meaning. Unsupported advertised capabilities can be unavailable/ignored for discovery but cannot satisfy operation admission.",
+    "Protocol incompatibility cannot be translated into runtime exit, cancellation success, definitely-not-started, or retry-safe side-effect certainty. Existing contact/execution separation remains intact.",
+    "Unsupported durable Event contract versions/types cannot mutate canonical privileged projections. Any future opaque retention is explicitly non-interpreting and does not confer authority.",
+    "A focused compatibility checker/matrix covers exact-v1 success, unsupported contract/version rejection, unknown-field rejection, optional-field omission, and feature-gated additive sending without absorbing the full S05-T03 adversarial corpus.",
+    "Generator determinism and generated-output drift checks remain PASS; generated outputs are regenerated only from the authoritative schema/generator and remain provider-neutral.",
+    "Normal pnpm check includes the focused T02 compatibility check and Rust tests include the matching unknown-field/version assertions. Full baseline, git diff --check, Diffcipline R2, exact-head protected CI, and post-merge main qualification all pass.",
+    "S05-T03 remains the next dependency-ordered task and retains ownership of the full adversarial/negative protocol fixture corpus."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000014.json",
+    "protocol/schema/krp.v1.schema.json",
+    "protocol/fixtures/v1/compatibility.json",
+    "tools/protocol/generate.mjs",
+    "tools/protocol/compatibility.mjs",
+    "packages/contracts/src/generated.ts",
+    "crates/kernux-contracts/src/generated.rs",
+    "crates/kernux-contracts/tests/compatibility.rs",
+    "package.json",
+    "docs/canonical/KRP_COMPATIBILITY.md",
+    "docs/canonical/PROTOCOL_STRATEGY.md",
+    "docs/canonical/RUNTIME_OPERATION_MODEL.md",
+    "docs/canonical/ARCHITECTURE_DECISIONS.md",
+    "docs/evidence/P01-S05-T02.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 12000,
+    "estimated_tokens": 9000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "s05-t01-proven",
+      "protocol-version-policy-review-pass",
+      "schema-version-binding-pass",
+      "rust-unknown-field-rejection-pass",
+      "node-unknown-field-rejection-pass",
+      "optional-absence-non-authorizing-pass",
+      "additive-feature-gate-pass",
+      "protocol-mismatch-no-exit-pass",
+      "event-unsupported-version-nonprojection-pass",
+      "generator-determinism-pass",
+      "generator-drift-negative-pass",
+      "provider-neutral-core-scan-pass",
+      "canonical-doc-consistency-pass",
+      "diffcipline-r2-proof-pass",
+      "baseline-ci-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000014",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the existing JSON Schema generator, shared protocol tooling, serde/serde_json, generated contracts, runtime feature advertisements, and current Node/Rust test surfaces. Add only the smallest compatibility policy/checking layer needed to make mixed-version behavior deterministic before T03."
+      },
+      "safety": {
+        "requirements": [
+          "Unknown wire fields or version values must never be silently ignored into a privileged interpretation.",
+          "Compatibility negotiation must never mint, widen, or restore authority; effective authority still requires the existing Grant/policy/runtime intersection.",
+          "Protocol mismatch must never be reported as proof of runtime/process exit or safe side-effect retry.",
+          "Optional-field absence must never synthesize a permissive semantic default.",
+          "A schema digest is provenance identity, not a substitute for negotiated protocol compatibility."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernux has one explicit, provider-neutral KRP v1 compatibility contract that distinguishes protocol-family versions from schema provenance, fails closed on unknown wire semantics, permits only negotiated additive optional behavior, and defines mixed-version handling without conflating incompatibility with runtime exit.",
+  "parent_id": null,
+  "rationale": "S05-T01 is canonically PROVEN with generated Rust/TypeScript contracts and shared fixtures. Mixed desktop/runtime versions are an architectural invariant, but current Rust and Node unknown-field behavior can diverge unless T02 freezes one compatibility model before S05-T03 builds the full adversarial corpus.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the T02 compatibility policy, schema version aliases, generator strictness, focused compatibility checks, regenerated outputs, aligned docs, and closeout state. No production transport or persisted KRP stream depends on these rules yet, so no live wire or stored-data migration is required."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define KRP protocol-contract identity as a semantic compatibility family, with krp/1 as the only v1 family currently supported. The schema SHA-256 remains provenance/drift identity and must never be treated as a negotiated compatibility version.",
+    "Define capability-version identity separately from protocol-contract identity. Capability support is negotiated per exact provider-neutral action/version and cannot be inferred from runtime/provider/application version.",
+    "Classify schema evolution as editorial, additive-optional, or breaking/semantic. An additive optional field is wire-compatible inside krp/1 only when its semantics do not widen authority or change side-effect meaning, it has an explicit negotiated feature owner, and a sender omits it for a peer that did not advertise that feature.",
+    "Keep KRP objects closed on the wire. Unknown fields are not silently ignored or stripped before validation. Align generated Rust with Node/schema behavior by making generated Rust structs reject unknown fields during serde deserialization.",
+    "Define missing-field behavior: missing required fields reject; absent known optional fields mean absence only and must not synthesize authority, success, side-effect certainty, or a permissive default.",
+    "Define unknown enum/discriminator/action/version behavior. Unknown required semantics fail closed for the affected message or operation. Unsupported advertised capabilities may be ignored as unavailable, but cannot become authority and cannot satisfy a requested capability.",
+    "Define protocol mismatch behavior independently from transport/contact/execution truth: an incompatible KRP contract blocks affected operation admission/interpretation but never proves process exit, cancellation, or definitely-not-started side-effect state.",
+    "Define durable Event compatibility: an unsupported Event contract_version or unnegotiated event type may be preserved as opaque bytes/metadata by later storage when policy permits, but cannot mutate a canonical privileged projection until a supported interpreter exists.",
+    "Bind current v1 version tokens into the authoritative schema/generated types so RuntimeDescriptor.protocol_contract, OperationStart.protocol_contract, Event.contract_version, RuntimeCapability.version, and OperationStart.capability_version cannot drift as arbitrary free-form strings.",
+    "Add a focused compatibility matrix/check surface proving exact-v1 acceptance, unknown-field rejection in Node and Rust, missing optional-field acceptance without permissive defaults, unsupported contract/version rejection, and negotiated additive-field sender gating.",
+    "Add an accepted ADR and canonical KRP compatibility document; align protocol/runtime documentation without changing external ACP/A2A/MCP adapter compatibility policy.",
+    "Keep implementation split into bounded semantic PRs when needed to remain within Diffcipline limits, then produce exact native SpecGrain proof and a canonical closeout evidence packet before advancing S05-T03."
+  ],
+  "scope_out": [
+    "Do not build the full S05-T03 adversarial corpus for disconnect, duplicate/replayed operation, general malformed payloads, or broad version-mismatch matrices; T02 may include only focused compatibility cases necessary to prove its own rules.",
+    "Do not implement transport handshake, kernuxd, persistence, event store, runtime adapters, browser/process execution, UI, or remote deployment.",
+    "Do not accept unknown fields by stripping them, by serde defaults, or by treating successful partial decoding as compatibility.",
+    "Do not introduce SemVer/range negotiation, floating versions, provider-specific versions, or implicit downgrade. A future KRP major requires a separately governed contract/migration.",
+    "Do not change capability/grant authorization semantics or let compatibility negotiation create or widen authority."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P01-S05-T02 — Freeze KRP v1 compatibility, version negotiation, and additive-field rules"
+}
