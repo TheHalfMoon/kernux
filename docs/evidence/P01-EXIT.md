@@ -205,8 +205,20 @@ The canonical transition is intentionally withheld until:
 3. a final protected closeout PR appends the immutable native proof, marks P01 exit PROVEN, and advances only `KX-P02-S01-T01` to NEXT;
 4. the final closeout merge itself receives successful five-job post-merge main qualification.
 
+## Protected closeout candidate
+
+This branch stages the real protected P01 exit closeout candidate. At this pre-proof head:
+
+- P01 exit remains not PROVEN;
+- P02 remains unauthorized;
+- `KX-P02-S01-T01` remains PLANNED;
+- native SG-000017 evidence has not yet been appended;
+- exact-head five-job protected CI must pass before the native proof may cite `protected-closeout-pr-pass`.
+
+After that exact-head qualification, the native SpecGrain verifier may append the immutable SG-000017 record to this same PR. The updated head must then pass the protected checks again before ordinary merge.
+
 ## Next frontier
 
-Native SG-000017 verification after this qualification merge and post-merge main qualification.
+Protected exact-head qualification of this closeout candidate, then native SG-000017 verification.
 
-No P02 implementation is authorized before the final protected closeout completes.
+No P02 implementation is authorized before the protected closeout merge and its post-merge qualification complete.
