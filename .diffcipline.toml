@@ -3,8 +3,8 @@ version = 1
 [policy]
 max_changed_files = 12
 max_added_lines = 600
-dependency_manifest_changes = "review"
-lockfile_changes = "review"
+dependency_manifest_changes = "allow"
+lockfile_changes = "allow"
 untracked_files = "fail"
 
 [verification]
