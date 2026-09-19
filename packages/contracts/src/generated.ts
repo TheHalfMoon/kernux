@@ -1,8 +1,8 @@
 // @generated from protocol/schema/krp.v1.schema.json
-// Schema SHA-256: 7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9
+// Schema SHA-256: 904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94
 // DO NOT EDIT. Change the schema and regenerate.
 
-export const KRP_SCHEMA_SHA256 = "7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9" as const;
+export const KRP_SCHEMA_SHA256 = "904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94" as const;
 
 export interface ArtifactRef {
   artifact: CanonicalRef;
@@ -62,6 +62,28 @@ export interface ConstraintSet {
 }
 
 export type ContactState = "connected" | "degraded" | "disconnected";
+
+export type DaemonHealthState = "healthy" | "unavailable";
+
+export type DaemonLifecycleState = "starting" | "serving" | "shutting_down" | "stopped";
+
+export type DaemonProbeKind = "health_version";
+
+export interface DaemonProbeRequest {
+  contract_version: ProtocolContract;
+  probe: DaemonProbeKind;
+  request_id: UuidV7;
+}
+
+export interface DaemonProbeResponse {
+  contract_version: ProtocolContract;
+  daemon_version: string;
+  health: DaemonHealthState;
+  implementation_revision: string;
+  lifecycle_state: DaemonLifecycleState;
+  request_id: UuidV7;
+  schema_sha256: Sha256Digest;
+}
 
 export interface DiagnosticField {
   key: string;

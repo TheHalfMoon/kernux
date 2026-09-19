@@ -8,7 +8,17 @@
   "$defs": {
     "EntityKind": {
       "type": "string",
-      "enum": ["project", "task", "work_unit", "run", "agent_session", "runtime", "artifact", "evidence", "event"]
+      "enum": [
+        "project",
+        "task",
+        "work_unit",
+        "run",
+        "agent_session",
+        "runtime",
+        "artifact",
+        "evidence",
+        "event"
+      ]
     },
     "ConsequenceClass": {
       "type": "string",
@@ -22,39 +32,76 @@
     },
     "ContactState": {
       "type": "string",
-      "enum": ["connected", "degraded", "disconnected"]
+      "enum": [
+        "connected",
+        "degraded",
+        "disconnected"
+      ]
     },
     "ExecutionState": {
       "type": "string",
-      "enum": ["live", "exited", "unverifiable"]
+      "enum": [
+        "live",
+        "exited",
+        "unverifiable"
+      ]
     },
     "SideEffectCertainty": {
       "type": "string",
-      "enum": ["definitely_not_started", "operation_known", "may_have_started", "not_applicable"]
+      "enum": [
+        "definitely_not_started",
+        "operation_known",
+        "may_have_started",
+        "not_applicable"
+      ]
     },
     "RetryGuidance": {
       "type": "string",
-      "enum": ["retry_request", "reconcile_operation", "new_operation_if_still_authorized", "do_not_retry"]
+      "enum": [
+        "retry_request",
+        "reconcile_operation",
+        "new_operation_if_still_authorized",
+        "do_not_retry"
+      ]
     },
     "EvidenceSourceClass": {
       "type": "string",
-      "enum": ["machine", "external_service", "human_review", "agent_report", "imported"]
+      "enum": [
+        "machine",
+        "external_service",
+        "human_review",
+        "agent_report",
+        "imported"
+      ]
     },
     "RedactionState": {
       "type": "string",
-      "enum": ["none", "excluded", "transformed"]
+      "enum": [
+        "none",
+        "excluded",
+        "transformed"
+      ]
     },
     "StreamOwnerKind": {
       "type": "string",
-      "enum": ["project", "task", "run", "runtime"]
+      "enum": [
+        "project",
+        "task",
+        "run",
+        "runtime"
+      ]
     },
     "ProtocolContract": {
       "type": "string",
-      "enum": ["krp/1"]
+      "enum": [
+        "krp/1"
+      ]
     },
     "CapabilityVersion": {
       "type": "string",
-      "enum": ["1"]
+      "enum": [
+        "1"
+      ]
     },
     "UuidV7": {
       "type": "string",
@@ -157,11 +204,30 @@
       "additionalProperties": false,
       "required": [],
       "properties": {
-        "allowed_roots": { "type": "array", "items": { "type": "string" } },
-        "network_hosts": { "type": "array", "items": { "type": "string" } },
-        "max_bytes": { "type": "integer", "minimum": 0 },
-        "max_duration_ms": { "type": "integer", "minimum": 0 },
-        "max_uses": { "type": "integer", "minimum": 1 }
+        "allowed_roots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "network_hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_uses": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "CapabilityRequest": {
@@ -569,10 +635,17 @@
     "StreamRef": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["owner_kind", "owner"],
+      "required": [
+        "owner_kind",
+        "owner"
+      ],
       "properties": {
-        "owner_kind": { "$ref": "#/$defs/StreamOwnerKind" },
-        "owner": { "$ref": "#/$defs/CanonicalRef" }
+        "owner_kind": {
+          "$ref": "#/$defs/StreamOwnerKind"
+        },
+        "owner": {
+          "$ref": "#/$defs/CanonicalRef"
+        }
       }
     },
     "EventCorrelations": {
@@ -652,15 +725,35 @@
     "Redaction": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["state", "affected_roles"],
+      "required": [
+        "state",
+        "affected_roles"
+      ],
       "properties": {
-        "state": { "$ref": "#/$defs/RedactionState" },
-        "affected_roles": { "type": "array", "items": { "type": "string" } },
-        "reason_class": { "type": "string" },
-        "policy_ref": { "type": "string" },
-        "policy_version": { "type": "string" },
-        "source_artifact": { "$ref": "#/$defs/ArtifactRef" },
-        "transformed_artifact": { "$ref": "#/$defs/ArtifactRef" }
+        "state": {
+          "$ref": "#/$defs/RedactionState"
+        },
+        "affected_roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason_class": {
+          "type": "string"
+        },
+        "policy_ref": {
+          "type": "string"
+        },
+        "policy_version": {
+          "type": "string"
+        },
+        "source_artifact": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "transformed_artifact": {
+          "$ref": "#/$defs/ArtifactRef"
+        }
       }
     },
     "Event": {
@@ -804,6 +897,84 @@
         },
         "redaction": {
           "$ref": "#/$defs/Redaction"
+        }
+      }
+    },
+    "DaemonProbeKind": {
+      "type": "string",
+      "enum": [
+        "health_version"
+      ]
+    },
+    "DaemonLifecycleState": {
+      "type": "string",
+      "enum": [
+        "starting",
+        "serving",
+        "shutting_down",
+        "stopped"
+      ]
+    },
+    "DaemonHealthState": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "unavailable"
+      ]
+    },
+    "DaemonProbeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "contract_version",
+        "probe"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "contract_version": {
+          "$ref": "#/$defs/ProtocolContract"
+        },
+        "probe": {
+          "$ref": "#/$defs/DaemonProbeKind"
+        }
+      }
+    },
+    "DaemonProbeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "contract_version",
+        "lifecycle_state",
+        "health",
+        "daemon_version",
+        "implementation_revision",
+        "schema_sha256"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/UuidV7"
+        },
+        "contract_version": {
+          "$ref": "#/$defs/ProtocolContract"
+        },
+        "lifecycle_state": {
+          "$ref": "#/$defs/DaemonLifecycleState"
+        },
+        "health": {
+          "$ref": "#/$defs/DaemonHealthState"
+        },
+        "daemon_version": {
+          "type": "string"
+        },
+        "implementation_revision": {
+          "type": "string"
+        },
+        "schema_sha256": {
+          "$ref": "#/$defs/Sha256Digest"
         }
       }
     }

@@ -1,9 +1,9 @@
 // @generated from protocol/fixtures/v1/core.json
-// Fixture SHA-256: 41570fc8bc1d9f88bdd9fe9e770b74cb4e600fa85e4ee50d305bfabb81dff454
-// Schema SHA-256: 7c8ec2e44777a35c73414da488394ef482a7db9510ba1bda7419929c3bbf03a9
+// Fixture SHA-256: cf95843c89d9dec22831b8bb99ab670f445ffd4557b87bdc692b140483b354ad
+// Schema SHA-256: 904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94
 // DO NOT EDIT. Change the shared fixture source and regenerate.
 
-import type { CapabilityRequest, Event, Evidence, Grant, OperationObservation, OperationStart, RuntimeContactObservation, RuntimeError } from "./generated";
+import type { CapabilityRequest, DaemonProbeRequest, DaemonProbeResponse, Event, Evidence, Grant, OperationObservation, OperationStart, RuntimeContactObservation, RuntimeError } from "./generated";
 
 export const capabilityRequestFixture = {
     "request_id": "01890f00-0000-7000-8000-000000000001",
@@ -216,3 +216,19 @@ export const machineEvidenceFixture = {
       "affected_roles": []
     }
   } satisfies Evidence;
+
+export const daemonProbeRequestFixture = {
+    "request_id": "01890f00-0000-7000-8000-000000000013",
+    "contract_version": "krp/1",
+    "probe": "health_version"
+  } satisfies DaemonProbeRequest;
+
+export const daemonProbeResponseFixture = {
+    "request_id": "01890f00-0000-7000-8000-000000000013",
+    "contract_version": "krp/1",
+    "lifecycle_state": "serving",
+    "health": "healthy",
+    "daemon_version": "0.0.0",
+    "implementation_revision": "1111111111111111111111111111111111111111",
+    "schema_sha256": "904eb86ee9028aca002586187ade53eefea1a51339bff9904182e95d88751b94"
+  } satisfies DaemonProbeResponse;
