@@ -897,14 +897,18 @@ Implementations/conformance fixtures must cover at least:
 19. equal observation generation with contradictory state is an invariant failure.
 20. unknown OperationId is not treated as definitely-not-started unless the runtime's declared persistence guarantee proves that interpretation.
 
+The P01 executable conformance realization is:
+
+- `protocol/fixtures/v1/adversarial.json` — the single tracked adversarial corpus;
+- `tools/protocol/adversarial.mjs` — the normal Node/schema policy gate;
+- `crates/kernux-contracts/tests/adversarial.rs` — the Rust mirror consuming the same fixture bytes.
+
+Those checks prove the contract/policy boundary above. They do not prove runtime transport, persistence, cancellation delivery, durable replay protection, or exactly-once execution.
+
 ## 29. Deferred representation and implementation
 
-Deferred to later dependency-ordered tasks:
+The P01 Event representation, generated KRP v1 contracts, compatibility policy, and adversarial conformance corpus are implemented and separately qualified. Deferred to later dependency-ordered tasks:
 
-- S04 Event envelope, event sequence, lineage, evidence/redaction metadata;
-- S05 schema source and generated Rust/TypeScript wire types;
-- S05 global additive/unknown-field/version compatibility policy;
-- S05 executable protocol fixture corpus;
 - P02 kernuxd operation ledger/policy enforcement;
 - P04/P05 process, PTY, browser, computer adapters;
 - remote transport and cryptographic enrollment;

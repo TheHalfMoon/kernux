@@ -177,6 +177,14 @@ KRP v1 compatibility is frozen in [`KRP_COMPATIBILITY.md`](KRP_COMPATIBILITY.md)
 - protocol mismatch never rewrites contact/execution or side-effect truth;
 - structurally valid but unnegotiated Event types are non-projecting.
 
+KRP adversarial conformance is executable through one shared tracked corpus:
+
+- `protocol/fixtures/v1/adversarial.json` defines the canonical negative policy/wire cases;
+- `tools/protocol/adversarial.mjs` runs the Node/schema policy checks as part of `pnpm check`;
+- `crates/kernux-contracts/tests/adversarial.rs` consumes the same bytes for independent generated-Rust checks.
+
+The adversarial gate proves contract and policy-fixture behavior only. Live transport, persistence, exactly-once execution, cancellation delivery, and reconnect persistence remain downstream runtime evidence.
+
 ## 6. Agent Skills
 
 Agent Skills are packaging/instruction assets, not an authorization system.
