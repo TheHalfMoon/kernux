@@ -1,0 +1,215 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:c4dc5233ff46ef728c3338182f48c1ff26cefb955b1048cf33097032b3327cb2",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Active identity key creation obtains a fresh 32-byte seed from getrandom and constructs a valid Ed25519 SigningKey. The public descriptor exposes exactly the corresponding 32-byte verifying key plus InstallationId and positive generation, while private material has no Debug/Display/serde/log/evidence/filesystem exposure.",
+        "detail": "Production key creation fills an exact 32-byte temporary seed from getrandom, constructs an Ed25519 SigningKey, zeroizes the temporary seed, and exposes only the public descriptor.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;local:8f7a43361a0a0d44202e336358e64a47d7686cfc:macos-kernux-identity-18-of-18-pass;github-actions:35441914338:ubuntu-kernux-identity-18-of-18-pass;github-actions:35441914338:windows-kernux-identity-18-of-18-pass",
+        "passed": true
+      },
+      {
+        "check_id": "After native SpecGrain verification and protected closeout merge/post-merge qualification, KX-P02-S02-T01 becomes PROVEN; only KX-P02-S03-T01 may become NEXT if canonical live truth still confirms that dependency-ordered frontier, all later P02 tasks remain PLANNED, and P02 phase exit remains unproven.",
+        "detail": "The closeout state machine is preserved: pre-proof PR #105 exact head passed 6/6 before native verification; T01 remains NEXT and S03 remains PLANNED until proof-bearing merge, post-merge qualification, and separate canonical transition.",
+        "evidence_ref": "github-pr:105;github-actions:35442101297;git:8a512954c91ce5f3426ca800a85d32980a22541c",
+        "passed": true
+      },
+      {
+        "check_id": "Dependency admission occurs before identity implementation: Cargo manifests/lock and third_party/dependencies/approved.json pin ed25519-dalek 3.0.0, getrandom 0.4.3, and zeroize 1.9.0 exactly; default features are disabled, required license exceptions are documented, cargo metadata/license observations match approvals, dependency validation passes, and no identity code lands before the admitted dependency slice is post-merge qualified.",
+        "detail": "Refinement merged and post-merge qualified before the dependency gate; the dependency validator failed closed before governed exception evidence, then exact pins/licenses/features passed and the dependency-only slice merged/qualified before identity code.",
+        "evidence_ref": "github-pr:99;github-actions:35436371306;github-actions:35436442167;github-review:99:PRR_kwDOUevqks8AAAABOT1new;git:a1395b5df3dc918be383abd1da0052f75e10f2e6;github-pr:100;github-actions:35436690932;github-actions:35437582982;github-review:100:PRR_kwDOUevqks8AAAABOT524w;git:1799c136025fed42b00c09ca462df1325374acb8;repo:docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "IdentitySessionBinding uses an exact domain/version separator and cryptographically binds InstallationId, positive key generation, exact 16-byte InstanceId, exact 32-byte SessionChallenge, verifying key, and Ed25519 signature. Verification succeeds for an exact binding and fails if any bound field, domain/version, key, challenge, or signature changes.",
+        "detail": "Session binding uses kernux.identity.session/v1\\0 and signs InstallationId, generation, verifying key, InstanceId, and SessionChallenge; strict verification and full field/domain/signature tamper rejection pass.",
+        "evidence_ref": "github-pr:104;github-actions:35441840324;github-actions:35441914338;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;git:8f7a43361a0a0d44202e336358e64a47d7686cfc",
+        "passed": true
+      },
+      {
+        "check_id": "InstallationId is exactly 16 bytes, production generation uses getrandom OS entropy, canonical external text is exactly 32 lowercase hex characters, invalid/alternate encodings reject without normalization, and InstallationId is non-secret and never treated as authority.",
+        "detail": "InstallationId is an exact 16-byte newtype with strict 32-lowercase-hex parsing/formatting and production OS-random generation; invalid/alternate encodings reject and no authority behavior is attached.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;local:8f7a43361a0a0d44202e336358e64a47d7686cfc:macos-kernux-identity-18-of-18-pass;github-actions:35441914338:ubuntu-kernux-identity-18-of-18-pass;github-actions:35441914338:windows-kernux-identity-18-of-18-pass",
+        "passed": true
+      },
+      {
+        "check_id": "InstanceId production generation uses OS randomness and exact strict 32-lowercase-hex external form. SessionChallenge is caller-supplied exact 32 bytes and is not itself an authorization token or persistent secret store.",
+        "detail": "InstanceId uses OS randomness and strict 32-lowercase-hex external form; SessionChallenge is an exact caller-supplied 32-byte value and only participates in the signed binding contract.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;github-pr:104;github-actions:35441840324;github-actions:35441914338;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;git:8f7a43361a0a0d44202e336358e64a47d7686cfc;local:8f7a43361a0a0d44202e336358e64a47d7686cfc:macos-kernux-identity-18-of-18-pass;github-actions:35441914338:ubuntu-kernux-identity-18-of-18-pass;github-actions:35441914338:windows-kernux-identity-18-of-18-pass",
+        "passed": true
+      },
+      {
+        "check_id": "KRP schema/generated Rust/TypeScript outputs, T02 launch-nonce authentication, and kernuxd local transport behavior remain unchanged and existing protocol/auth/runtime regression suites remain PASS.",
+        "detail": "Full final-main pnpm check and workflow pass generated KRP, fixtures, compatibility, adversarial, T02 auth/lifecycle/transport suites with no KRP generated/schema path changed by SG-000020.",
+        "evidence_ref": "local:8f7a43361a0a0d44202e336358e64a47d7686cfc:pnpm-check-pass;github-actions:35441914338:protocol-and-transport-regression-pass",
+        "passed": true
+      },
+      {
+        "check_id": "Key generation starts at 1, rotation increments exactly once with checked arithmetic, zero and overflow reject fail-closed, InstallationId remains stable across rotation, and the new verifying key differs from the retired public key under executable tests.",
+        "detail": "Positive generation starts at 1, zero rejects, checked increment prevents wraparound, rotation preserves InstallationId and advances exactly once with executable overflow-before-mutation coverage.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;github-pr:102;github-actions:35437989949;github-actions:35438065373;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;git:e1578c5e3eb1eee48576e0c9155f4fced36889b3",
+        "passed": true
+      },
+      {
+        "check_id": "RecoverySeed is exactly 32 secret bytes, zeroizes on drop, exposes no secret-revealing formatting/serialization, and recovery reconstructs the expected key only when the derived verifying key equals the supplied expected descriptor. Wrong seed/public-key/generation/install-id combinations fail with typed non-secret errors.",
+        "detail": "RecoverySeed is an exact 32-byte non-Clone/non-Copy secret wrapper with Zeroize+Drop and no formatting/serialization/raw accessor; recovery requires matching derived public key plus strict bound-reference verification.",
+        "evidence_ref": "github-pr:103;github-actions:35438300862;github-actions:35438377231;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;git:dfab00b905b08df843a45bcb98bac122c8d52b0b",
+        "passed": true
+      },
+      {
+        "check_id": "Rotation creates fresh OS-random secret material, produces explicit previous/current public lineage, signs/verifies with the new key, does not silently retain or reactivate the retired private key, and does not imply remote revocation or Grant authority.",
+        "detail": "Rotation creates a fresh key via the existing OS-random path, returns previous/current public descriptors, replaces the active key, and proves new-key verification without retaining or reactivating the retired private key.",
+        "evidence_ref": "github-pr:102;github-actions:35437989949;github-actions:35438065373;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;git:e1578c5e3eb1eee48576e0c9155f4fced36889b3",
+        "passed": true
+      },
+      {
+        "check_id": "The exact bounded candidates pass git diff --check, full pnpm check, dependency/provenance validation where applicable, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode plus complete manual accounting for exclusions, all five protected exact-head checks, and the additive Windows kernuxd job.",
+        "detail": "Each bounded candidate passed required diff/baseline/R3/OCR accounting and exact-head CI; the real pre-proof closeout head passed all six jobs before native verification.",
+        "evidence_ref": "github-actions:35436690932;github-actions:35437795774;github-actions:35437989949;github-actions:35438300862;github-actions:35441840324;github-actions:35441914338;local:6597ca7e29f2070b13f548fb806f47d271f64e1b:diffcipline-r3-pass;local:6886dde9becb1734223c54d34394955ee7a7b590:diffcipline-r3-pass;local:854f776288fc1b76f91a605719968711556f69a1:diffcipline-r3-pass;local:a3a6edbaa412857c0e7e3e88262de9d4e3b2d020:diffcipline-r3-pass;local:46b31110ce9b95f0c057ee17ad0e3949e6d302ef:diffcipline-r3-pass;local:8a512954c91ce5f3426ca800a85d32980a22541c:diffcipline-r3-pass;github-review:100:PRR_kwDOUevqks8AAAABOT524w;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;local:8a512954c91ce5f3426ca800a85d32980a22541c:ocr-delegation-manual-accounting-pass;github-pr:105;github-actions:35442101297;git:8a512954c91ce5f3426ca800a85d32980a22541c",
+        "passed": true
+      },
+      {
+        "check_id": "The public API provides no generic arbitrary-message signing function, no private-key byte export, no Grant/policy signing, and no durable secret-storage API. Repository source assertions and manual security review verify those negative surfaces.",
+        "detail": "Exact-range source/manual review finds no public generic signing, private-key export, Grant/policy signing, serde secret surface, or durable secret-storage API.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;github-pr:102;github-actions:35437989949;github-actions:35438065373;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;git:e1578c5e3eb1eee48576e0c9155f4fced36889b3;github-pr:103;github-actions:35438300862;github-actions:35438377231;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;git:dfab00b905b08df843a45bcb98bac122c8d52b0b;github-pr:104;github-actions:35441840324;github-actions:35441914338;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;git:8f7a43361a0a0d44202e336358e64a47d7686cfc;git-range:a1395b5df3dc918be383abd1da0052f75e10f2e6..8f7a43361a0a0d44202e336358e64a47d7686cfc:8-authorized-paths;repo:docs/evidence/P02-S02-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "Ubuntu workspace tests, local macOS tests, and the existing native Windows kernuxd CI job execute kernux-identity creation/rotation/recovery/session-binding tests successfully. Cross-compilation alone is not accepted as Windows runtime evidence.",
+        "detail": "Final implementation executes 18/18 kernux-identity tests locally on macOS, 18/18 in Ubuntu Rust CI, and 18/18 natively on windows-latest.",
+        "evidence_ref": "local:8f7a43361a0a0d44202e336358e64a47d7686cfc:macos-kernux-identity-18-of-18-pass;github-actions:35441914338:ubuntu-kernux-identity-18-of-18-pass;github-actions:35441914338:windows-kernux-identity-18-of-18-pass",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "baseline-ci-pass",
+        "detail": "All bounded implementation exact heads and final implementation main passed required six-job workflows; local full checks passed on corrected runs.",
+        "evidence_ref": "github-actions:35436690932;github-actions:35437795774;github-actions:35437989949;github-actions:35438300862;github-actions:35441840324;github-actions:35441914338",
+        "passed": true
+      },
+      {
+        "check_id": "cross-platform-identity-runtime-pass",
+        "detail": "macOS, Ubuntu, and native Windows each execute the final identity corpus successfully; Windows evidence is not cross-compile-only.",
+        "evidence_ref": "local:8f7a43361a0a0d44202e336358e64a47d7686cfc:macos-kernux-identity-18-of-18-pass;github-actions:35441914338:ubuntu-kernux-identity-18-of-18-pass;github-actions:35441914338:windows-kernux-identity-18-of-18-pass",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-admission-pass",
+        "detail": "Exact dependency pins/features/license exceptions and fail-closed validator sequencing passed before identity implementation.",
+        "evidence_ref": "github-pr:100;github-actions:35436690932;github-actions:35437582982;github-review:100:PRR_kwDOUevqks8AAAABOT524w;git:1799c136025fed42b00c09ca462df1325374acb8;repo:docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Each bounded implementation slice plus the pre-proof closeout candidate passed Diffcipline R3; aggregate work is not misrepresented as one implementation candidate.",
+        "evidence_ref": "local:6597ca7e29f2070b13f548fb806f47d271f64e1b:diffcipline-r3-pass;local:6886dde9becb1734223c54d34394955ee7a7b590:diffcipline-r3-pass;local:854f776288fc1b76f91a605719968711556f69a1:diffcipline-r3-pass;local:a3a6edbaa412857c0e7e3e88262de9d4e3b2d020:diffcipline-r3-pass;local:46b31110ce9b95f0c057ee17ad0e3949e6d302ef:diffcipline-r3-pass;local:8a512954c91ce5f3426ca800a85d32980a22541c:diffcipline-r3-pass",
+        "passed": true
+      },
+      {
+        "check_id": "ed25519-key-generation-pass",
+        "detail": "Fresh OS-random Ed25519 key creation, public descriptor derivation, and temporary seed zeroization pass.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e",
+        "passed": true
+      },
+      {
+        "check_id": "installation-id-pass",
+        "detail": "Strict exact InstallationId encoding and OS-random production generation pass.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e",
+        "passed": true
+      },
+      {
+        "check_id": "instance-id-pass",
+        "detail": "InstanceId strict encoding/OS-random generation and exact 32-byte SessionChallenge binding pass.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;github-pr:104;github-actions:35441840324;github-actions:35441914338;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;git:8f7a43361a0a0d44202e336358e64a47d7686cfc",
+        "passed": true
+      },
+      {
+        "check_id": "key-generation-counter-pass",
+        "detail": "Positive initial generation, zero rejection, checked increment, and overflow-before-mutation pass.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;github-pr:102;github-actions:35437989949;github-actions:35438065373;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;git:e1578c5e3eb1eee48576e0c9155f4fced36889b3",
+        "passed": true
+      },
+      {
+        "check_id": "key-recovery-pass",
+        "detail": "Caller-supplied recovery reconstructs only the expected bound key and rejects wrong seed or bound metadata/signature tampering.",
+        "evidence_ref": "github-pr:103;github-actions:35438300862;github-actions:35438377231;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;git:dfab00b905b08df843a45bcb98bac122c8d52b0b",
+        "passed": true
+      },
+      {
+        "check_id": "key-rotation-pass",
+        "detail": "Fresh-key rotation preserves InstallationId, increments once, emits public lineage, replaces active private key, and verifies with the new key.",
+        "evidence_ref": "github-pr:102;github-actions:35437989949;github-actions:35438065373;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;git:e1578c5e3eb1eee48576e0c9155f4fced36889b3",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba Delegation Mode accounted for each slice; exclusions were manually reviewed completely. No direct LLM OCR success or competing reviewer evidence is claimed.",
+        "evidence_ref": "github-review:100:PRR_kwDOUevqks8AAAABOT524w;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;github-review:102:PRR_kwDOUevqks8AAAABOT8H1Q;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;local:8a512954c91ce5f3426ca800a85d32980a22541c:ocr-delegation-manual-accounting-pass",
+        "passed": true
+      },
+      {
+        "check_id": "post-merge-ci-pass",
+        "detail": "Final SG-000020 implementation merge 8f7a43361a0a0d44202e336358e64a47d7686cfc passed all six main-push jobs in workflow 35441914338. Final proof-bearing closeout post-merge qualification remains future and is not claimed here.",
+        "evidence_ref": "github-actions:35441914338;git:8f7a43361a0a0d44202e336358e64a47d7686cfc",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Real pre-proof closeout PR #105 exact head 8a512954c91ce5f3426ca800a85d32980a22541c passed workflow 35442101297 with all five protected jobs plus Windows kernuxd SUCCESS before native verification.",
+        "evidence_ref": "github-pr:105;github-actions:35442101297;git:8a512954c91ce5f3426ca800a85d32980a22541c",
+        "passed": true
+      },
+      {
+        "check_id": "recovery-seed-zeroize-pass",
+        "detail": "RecoverySeed is exact 32 bytes, non-formatting/non-serializing, and zeroizes explicitly and on drop.",
+        "evidence_ref": "github-pr:103;github-actions:35438300862;github-actions:35438377231;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;git:dfab00b905b08df843a45bcb98bac122c8d52b0b",
+        "passed": true
+      },
+      {
+        "check_id": "scope-boundary-pass",
+        "detail": "Exact eight-path implementation range is inside SG-000020 authorized surface and excludes storage, credential stores, policy/Grants, privileged operations, remote trust, and later P02 work.",
+        "evidence_ref": "git-range:a1395b5df3dc918be383abd1da0052f75e10f2e6..8f7a43361a0a0d44202e336358e64a47d7686cfc:8-authorized-paths;repo:docs/evidence/P02-S02-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "secret-nonexposure-pass",
+        "detail": "No private-key/recovery-seed formatting, serialization, generic signing, persistence, logs/evidence secrets, or public secret export is present.",
+        "evidence_ref": "github-pr:101;github-actions:35437795774;github-actions:35437865644;github-review:101:PRR_kwDOUevqks8AAAABOT6s8w;git:30e296107d7b45efbe0bd06d22629e0cde32ac7e;github-pr:103;github-actions:35438300862;github-actions:35438377231;github-review:103:PRR_kwDOUevqks8AAAABOT_itw;git:dfab00b905b08df843a45bcb98bac122c8d52b0b;github-pr:104;github-actions:35441840324;github-actions:35441914338;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;git:8f7a43361a0a0d44202e336358e64a47d7686cfc;git-range:a1395b5df3dc918be383abd1da0052f75e10f2e6..8f7a43361a0a0d44202e336358e64a47d7686cfc:8-authorized-paths;repo:docs/evidence/P02-S02-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "session-binding-pass",
+        "detail": "Domain-separated field-complete session binding verifies exactly and rejects all required field/domain/signature tampering.",
+        "evidence_ref": "github-pr:104;github-actions:35441840324;github-actions:35441914338;github-review:104:PRR_kwDOUevqks8AAAABOUMi8Q;git:8f7a43361a0a0d44202e336358e64a47d7686cfc",
+        "passed": true
+      },
+      {
+        "check_id": "transport-protocol-regression-pass",
+        "detail": "KRP generated/conformance/compatibility/adversarial and existing T02 auth/lifecycle/transport suites remain PASS and unchanged in scope.",
+        "evidence_ref": "local:8f7a43361a0a0d44202e336358e64a47d7686cfc:pnpm-check-pass;github-actions:35441914338:protocol-and-transport-regression-pass",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:8f7a43361a0a0d44202e336358e64a47d7686cfc",
+    "issues": [],
+    "observed_changed_paths": [
+      ".github/workflows/ci.yml",
+      "Cargo.lock",
+      "Cargo.toml",
+      "crates/kernux-identity/Cargo.toml",
+      "crates/kernux-identity/src/lib.rs",
+      "crates/kernux-identity/tests/core.rs",
+      "docs/evidence/P02-S02-T01-DEPENDENCY-GATE.md",
+      "third_party/dependencies/approved.json"
+    ],
+    "packet_digest": "sha256:aad1ff66dceb5e7f6333a3e97d7640163518d3c4324dd1ec130b86e866cc2e8a",
+    "result_digest": "sha256:18dd88c9aace402901090696956f35a74f5189d86bd79dbe8317179a6e6a5d13",
+    "spec_id": "SG-000020",
+    "spec_revision": "sha256:062adf2889f3971093369d935e7d5d52eb1072c01b522851519d6527f5b63e3b",
+    "verification_version": 1,
+    "verified": true
+  }
+}
