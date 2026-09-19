@@ -1,7 +1,7 @@
-use kernux_contracts::OperationStart;
+use kernux_contracts::{OperationStart, RetryGuidance, RuntimeError, SideEffectCertainty};
 use serde_json::Value;
 
-fn operation_start_fixture() -> Value {
+fn fixture_value(definition: &str) -> Value {
     let bytes = include_bytes!("../../../protocol/fixtures/v1/core.json");
     let fixture: Value = serde_json::from_slice(bytes).expect("shared fixture must be valid JSON");
     fixture
@@ -9,10 +9,14 @@ fn operation_start_fixture() -> Value {
         .and_then(Value::as_array)
         .expect("shared fixture must contain cases")
         .iter()
-        .find(|case| case.get("definition").and_then(Value::as_str) == Some("OperationStart"))
+        .find(|case| case.get("definition").and_then(Value::as_str) == Some(definition))
         .and_then(|case| case.get("value"))
         .cloned()
-        .expect("shared fixture must contain OperationStart")
+        .unwrap_or_else(|| panic!("shared fixture must contain {definition}"))
+}
+
+fn operation_start_fixture() -> Value {
+    fixture_value("OperationStart")
 }
 
 #[test]
@@ -56,4 +60,23 @@ fn generated_rust_rejects_unsupported_operation_versions() {
             "unexpected serde error for {field}: {error}"
         );
     }
+}
+
+#[test]
+fn optional_diagnostic_omission_preserves_side_effect_truth() {
+    let mut value = fixture_value("RuntimeError");
+    value
+        .as_object_mut()
+        .expect("RuntimeError fixture must be an object")
+        .remove("provider_diagnostic");
+
+    let typed: RuntimeError =
+        serde_json::from_value(value).expect("known optional field omission must remain valid");
+
+    assert!(typed.provider_diagnostic.is_none());
+    assert_eq!(
+        typed.side_effect_certainty,
+        SideEffectCertainty::MayHaveStarted
+    );
+    assert_eq!(typed.retry_guidance, RetryGuidance::ReconcileOperation);
 }
