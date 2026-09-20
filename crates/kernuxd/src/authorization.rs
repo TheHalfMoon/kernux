@@ -10,8 +10,9 @@ use kernux_store::{CanonicalId, EventAppend, PolicyDecisionContext, Store};
 ///
 /// This is an in-process privileged snapshot. Request, model, tool, provider, document,
 /// browser, or remote-peer fields must never be treated as authority sources.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub struct TrustedAuthorizationSnapshot<'a> {
+    request: ValidatedCapabilityRequest,
     mandatory_authorities: MandatoryAuthorityInputs<'a>,
     consequence_facts: TrustedConsequenceFacts,
     trusted_now: kernux_policy::CanonicalUtcSecond,
@@ -22,7 +23,8 @@ pub struct TrustedAuthorizationSnapshot<'a> {
 
 impl<'a> TrustedAuthorizationSnapshot<'a> {
     /// Construct one snapshot from daemon-owned trusted state.
-    pub fn new(
+    pub(crate) fn new(
+        request: ValidatedCapabilityRequest,
         mandatory_authorities: MandatoryAuthorityInputs<'a>,
         consequence_facts: TrustedConsequenceFacts,
         trusted_now: kernux_policy::CanonicalUtcSecond,
@@ -31,6 +33,7 @@ impl<'a> TrustedAuthorizationSnapshot<'a> {
         audit_event: &'a EventAppend,
     ) -> Self {
         Self {
+            request,
             mandatory_authorities,
             consequence_facts,
             trusted_now,
@@ -77,16 +80,15 @@ impl std::error::Error for DaemonAuthorizationError {}
 pub fn authorize_pre_side_effect(
     store: &mut Store,
     grant_id: CanonicalId,
-    request: &ValidatedCapabilityRequest,
     snapshot: TrustedAuthorizationSnapshot<'_>,
 ) -> Result<PreSideEffectAuthorization, DaemonAuthorizationError> {
     let authoritative_consequence =
-        match classify_consequence(&request.action, snapshot.consequence_facts) {
+        match classify_consequence(&snapshot.request.action, snapshot.consequence_facts) {
             Ok(value) => value,
             Err(_) => {
                 let decision = store
                     .record_policy_denial(
-                        request,
+                        &snapshot.request,
                         kernux_policy::DenyReason::UnknownInput,
                         snapshot.audit_event,
                         snapshot.trusted_now,
@@ -102,7 +104,7 @@ pub fn authorize_pre_side_effect(
     let decision = store
         .decide_grant_use(
             grant_id,
-            request,
+            &snapshot.request,
             PolicyDecisionContext {
                 mandatory_authorities: snapshot.mandatory_authorities,
                 authoritative_consequence,
@@ -319,8 +321,8 @@ mod tests {
         let decision = authorize_pre_side_effect(
             &mut store,
             CanonicalId::parse(GRANT).unwrap(),
-            &request(),
             TrustedAuthorizationSnapshot::new(
+                request(),
                 authorities(&capability),
                 TrustedConsequenceFacts::default(),
                 now,
@@ -357,8 +359,8 @@ mod tests {
         let decision = authorize_pre_side_effect(
             &mut store,
             CanonicalId::parse(GRANT).unwrap(),
-            &request(),
             TrustedAuthorizationSnapshot::new(
+                request(),
                 authorities(&capability),
                 TrustedConsequenceFacts {
                     generated_or_untrusted_host_code: true,
@@ -403,8 +405,8 @@ mod tests {
             authorize_pre_side_effect(
                 &mut store,
                 CanonicalId::parse(GRANT).unwrap(),
-                &request(),
                 TrustedAuthorizationSnapshot::new(
+                    request(),
                     mandatory,
                     TrustedConsequenceFacts::default(),
                     now,
@@ -442,8 +444,8 @@ mod tests {
             authorize_pre_side_effect(
                 &mut store,
                 CanonicalId::parse(GRANT).unwrap(),
-                &extension_request,
                 TrustedAuthorizationSnapshot::new(
+                    extension_request,
                     authorities(&capability),
                     TrustedConsequenceFacts::default(),
                     now,
