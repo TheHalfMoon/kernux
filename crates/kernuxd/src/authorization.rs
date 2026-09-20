@@ -2,7 +2,7 @@ use std::fmt;
 
 use kernux_policy::{
     MandatoryAuthorityInputs, PolicyDecision, TrustedConsequenceFacts, ValidatedCapabilityRequest,
-    ValidatedConstraints, classify_consequence,
+    classify_consequence,
 };
 use kernux_store::{CanonicalId, EventAppend, PolicyDecisionContext, Store};
 
@@ -79,7 +79,7 @@ pub fn authorize_pre_side_effect(
                         snapshot.trusted_now,
                     )
                     .map_err(|_| DaemonAuthorizationError::DurableDecision)?;
-                let PolicyDecision::Deny(reason) = decision else {
+                let PolicyDecision::Deny(_) = decision else {
                     return Err(DaemonAuthorizationError::DurableDecision);
                 };
                 return Ok(PreSideEffectAuthorization {
