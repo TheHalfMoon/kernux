@@ -315,6 +315,29 @@ impl Store {
         })
     }
 
+    pub fn record_policy_denial(
+        &mut self,
+        request: &ValidatedCapabilityRequest,
+        reason: DenyReason,
+        audit_event: &EventAppend,
+        decided_at: CanonicalUtcSecond,
+    ) -> Result<PolicyDecision, StoreError> {
+        let decision = PolicyDecision::Deny(reason);
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| StoreError::Database)?;
+        persist_policy_decision_tx(
+            &transaction,
+            request,
+            &decision,
+            audit_event,
+            decided_at,
+        )?;
+        transaction.commit().map_err(|_| StoreError::Database)?;
+        Ok(decision)
+    }
+
     pub fn decide_grant_use(
         &mut self,
         grant_id: CanonicalId,
