@@ -123,8 +123,8 @@ mod tests {
     use kernux_policy::{
         Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DenyReason,
         OperationLocation, RemoteHostDecision, RuntimeCapabilityEvidence,
-        SecondaryAuthorityDecision, TrustedAuthorityDecision, ValidatedConstraints,
-        ValidatedGrant, ValidatedSubjectScope,
+        SecondaryAuthorityDecision, TrustedAuthorityDecision, ValidatedConstraints, ValidatedGrant,
+        ValidatedSubjectScope,
     };
     use kernux_store::{
         EventType, ImmutableEntity, Revision, RevisionedEntity, StreamOwnerKind, StreamRef,
