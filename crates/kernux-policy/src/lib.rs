@@ -3,8 +3,10 @@
 //! This crate validates authority vocabulary. It does not persist Grants,
 //! execute host operations, read secrets, or infer authority from providers.
 
+mod decision;
 mod envelope;
 mod semantics;
+pub use decision::*;
 pub use envelope::*;
 pub use semantics::*;
 

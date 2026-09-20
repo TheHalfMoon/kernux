@@ -1,5 +1,6 @@
 use kernux_policy::{
-    Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, ResourceScope,
+    Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DenyReason,
+    GrantAdmissionDecision, GrantRevocationReason, ResourceScope, ValidatedCapabilityRequest,
     ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope, validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
@@ -301,6 +302,199 @@ impl Store {
             used_count,
         })
     }
+    pub fn admit_grant_use(
+        &mut self,
+        grant_id: CanonicalId,
+        request: &ValidatedCapabilityRequest,
+        authoritative_consequence: ConsequenceClass,
+        trusted_now: CanonicalUtcSecond,
+        trusted_extensions: &[&str],
+        hierarchical_resource: bool,
+    ) -> Result<GrantAdmissionDecision, StoreError> {
+        let persisted =
+            match self.persisted_grant(grant_id, trusted_extensions, hierarchical_resource) {
+                Ok(value) => value,
+                Err(StoreError::NotFound) => {
+                    return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantNotFound));
+                }
+                Err(error) => return Err(error),
+            };
+        let grant = persisted.grant();
+
+        if grant.parent_grant_id.is_some() {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::DelegationDenied));
+        }
+        if request.subject != grant.subject {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::SubjectMismatch));
+        }
+        if request.action != grant.action {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::ActionMismatch));
+        }
+        if request.runtime_id != grant.runtime_id
+            || request.runtime_revision != grant.runtime_revision
+        {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::RuntimeMismatch));
+        }
+        if !grant
+            .resource
+            .matches(
+                &request.resource,
+                grant.resource_scope,
+                hierarchical_resource,
+            )
+            .map_err(|_| StoreError::GrantStateCorrupt)?
+        {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::ResourceMismatch));
+        }
+        let effective_constraints = match grant.constraints.intersect(&request.constraints) {
+            Ok(value) if value.is_subset_of(&grant.constraints) => value,
+            Ok(_) | Err(_) => {
+                return Ok(GrantAdmissionDecision::Denied(
+                    DenyReason::ConstraintMismatch,
+                ));
+            }
+        };
+        if authoritative_consequence > grant.consequence_ceiling {
+            return Ok(GrantAdmissionDecision::Denied(
+                DenyReason::ConsequenceExceeded,
+            ));
+        }
+        if trusted_now < grant.not_before {
+            return Ok(GrantAdmissionDecision::Denied(
+                DenyReason::GrantNotYetActive,
+            ));
+        }
+        if trusted_now >= grant.expires_at {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantExpired));
+        }
+
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| StoreError::Database)?;
+        let revoked = transaction
+            .query_row(
+                "SELECT 1 FROM grant_revocations WHERE grant_id = ?1",
+                [grant_id.to_canonical_text()],
+                |_| Ok(()),
+            )
+            .optional()
+            .map_err(|_| StoreError::Database)?;
+        if revoked.is_some() {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantRevoked));
+        }
+        let used_blob = transaction
+            .query_row(
+                "SELECT used_count FROM grant_state WHERE grant_id = ?1",
+                [grant_id.to_canonical_text()],
+                |row| row.get::<_, Vec<u8>>(0),
+            )
+            .optional()
+            .map_err(|_| StoreError::Database)?
+            .ok_or(StoreError::GrantStateCorrupt)?;
+        let used_count = decode_u64(&used_blob)?;
+        if used_count > grant.max_uses {
+            return Err(StoreError::GrantStateCorrupt);
+        }
+        if used_count == grant.max_uses {
+            return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantExhausted));
+        }
+        let next_used = used_count
+            .checked_add(1)
+            .ok_or(StoreError::GrantStateCorrupt)?;
+        let changed = transaction
+            .execute(
+                "UPDATE grant_state SET used_count = ?1 WHERE grant_id = ?2",
+                params![
+                    encode_u64(next_used).as_slice(),
+                    grant_id.to_canonical_text()
+                ],
+            )
+            .map_err(|_| StoreError::Database)?;
+        if changed != 1 {
+            return Err(StoreError::GrantStateCorrupt);
+        }
+        transaction.commit().map_err(|_| StoreError::Database)?;
+
+        Ok(GrantAdmissionDecision::Admitted {
+            grant_id: grant_id.to_canonical_text(),
+            effective_constraints,
+        })
+    }
+
+    pub fn revoke_grant(
+        &mut self,
+        grant_id: CanonicalId,
+        revoked_at: CanonicalUtcSecond,
+        revoked_event_id: CanonicalId,
+        reason: GrantRevocationReason,
+    ) -> Result<(), StoreError> {
+        let issuance = self
+            .connection
+            .query_row(
+                "SELECT run_id, issued_at FROM grant_issuance WHERE grant_id = ?1",
+                [grant_id.to_canonical_text()],
+                |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+            )
+            .optional()
+            .map_err(|_| StoreError::Database)?
+            .ok_or(StoreError::NotFound)?;
+        let run_id = CanonicalId::parse(&issuance.0).map_err(|_| StoreError::GrantStateCorrupt)?;
+        let issued_at =
+            CanonicalUtcSecond::parse(&issuance.1).map_err(|_| StoreError::GrantStateCorrupt)?;
+        if revoked_at < issued_at {
+            return Err(StoreError::InvalidGrantAudit);
+        }
+
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| StoreError::Database)?;
+        let audit = transaction
+            .query_row(
+                "SELECT event_type, owner_kind, owner_id FROM events WHERE id = ?1",
+                [revoked_event_id.to_canonical_text()],
+                |row| {
+                    Ok((
+                        row.get::<_, String>(0)?,
+                        row.get::<_, String>(1)?,
+                        row.get::<_, String>(2)?,
+                    ))
+                },
+            )
+            .optional()
+            .map_err(|_| StoreError::Database)?
+            .ok_or(StoreError::InvalidGrantAudit)?;
+        if audit
+            != (
+                "grant.revoked".to_owned(),
+                "run".to_owned(),
+                run_id.to_canonical_text(),
+            )
+        {
+            return Err(StoreError::InvalidGrantAudit);
+        }
+
+        transaction
+            .execute(
+                "INSERT INTO grant_revocations(grant_id, revoked_at, event_id, reason_class)                  VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    grant_id.to_canonical_text(),
+                    revoked_at.to_canonical_text(),
+                    revoked_event_id.to_canonical_text(),
+                    reason.as_str(),
+                ],
+            )
+            .map_err(|error| match error {
+                rusqlite::Error::SqliteFailure(inner, _)
+                    if inner.code == rusqlite::ErrorCode::ConstraintViolation =>
+                {
+                    StoreError::DuplicateConflict
+                }
+                _ => StoreError::Database,
+            })?;
+        transaction.commit().map_err(|_| StoreError::Database)
+    }
 }
 
 fn insert_set(
@@ -514,6 +708,217 @@ mod tests {
                 .unwrap()
         );
         store.persist_validated_grant(&value, event).unwrap();
+    }
+
+    fn request() -> ValidatedCapabilityRequest {
+        ValidatedCapabilityRequest {
+            request_id: "01890f00-0000-7000-8000-000000000011".into(),
+            subject: ValidatedSubjectScope {
+                run_id: RUN.into(),
+                agent_session_id: Some(SESSION.into()),
+            },
+            action: Action::parse("files.write", &[]).unwrap(),
+            resource: CanonicalResource::parse(
+                "kernux://project/01890f00-0000-7000-8000-000000000004/fs/src/main.rs",
+            )
+            .unwrap(),
+            runtime_id: RUNTIME.into(),
+            runtime_revision: 2,
+            constraints: ValidatedConstraints::from_parts(
+                Some(vec!["src".into()]),
+                Some(1024),
+                None,
+                None,
+                None,
+            )
+            .unwrap(),
+            provenance_event_ids: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn admission_consumes_once_and_restart_preserves_exhaustion() {
+        let (db, mut store, event) = prepare_store("grant-admit");
+        let value = grant();
+        store.persist_validated_grant(&value, event).unwrap();
+        let id = CanonicalId::parse(GRANT).unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+
+        let admitted = store
+            .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+            .unwrap();
+        match admitted {
+            GrantAdmissionDecision::Admitted {
+                effective_constraints,
+                ..
+            } => {
+                assert_eq!(effective_constraints.max_bytes, Some(1024));
+                assert_eq!(effective_constraints.max_uses, Some(1));
+            }
+            other => panic!("expected admitted decision, got {other:?}"),
+        }
+        assert_eq!(
+            store.persisted_grant(id, &[], true).unwrap().used_count(),
+            1
+        );
+        assert_eq!(
+            store
+                .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::GrantExhausted)
+        );
+        drop(store);
+
+        let mut reopened = Store::open(&db.path).unwrap();
+        assert_eq!(
+            reopened
+                .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::GrantExhausted)
+        );
+    }
+
+    #[test]
+    fn concurrent_admissions_cannot_exceed_one_use_budget() {
+        use std::sync::{Arc, Barrier};
+        use std::thread;
+
+        let (db, mut store, event) = prepare_store("grant-concurrent");
+        store.persist_validated_grant(&grant(), event).unwrap();
+        drop(store);
+
+        let barrier = Arc::new(Barrier::new(3));
+        let mut handles = Vec::new();
+        for _ in 0..2 {
+            let path = db.path.clone();
+            let barrier = Arc::clone(&barrier);
+            handles.push(thread::spawn(move || {
+                let mut store = Store::open(&path).unwrap();
+                let id = CanonicalId::parse(GRANT).unwrap();
+                let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+                barrier.wait();
+                store
+                    .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+                    .unwrap()
+            }));
+        }
+        barrier.wait();
+        let decisions: Vec<_> = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect();
+        assert_eq!(
+            decisions
+                .iter()
+                .filter(|decision| matches!(decision, GrantAdmissionDecision::Admitted { .. }))
+                .count(),
+            1
+        );
+        assert_eq!(
+            decisions
+                .iter()
+                .filter(|decision| {
+                    **decision == GrantAdmissionDecision::Denied(DenyReason::GrantExhausted)
+                })
+                .count(),
+            1
+        );
+
+        let reopened = Store::open(&db.path).unwrap();
+        assert_eq!(
+            reopened
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            1
+        );
+    }
+
+    #[test]
+    fn rejected_admission_does_not_consume_use_budget() {
+        let (_db, mut store, event) = prepare_store("grant-reject");
+        store.persist_validated_grant(&grant(), event).unwrap();
+        let id = CanonicalId::parse(GRANT).unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let mut wrong_action = request();
+        wrong_action.action = Action::parse("files.delete", &[]).unwrap();
+
+        assert_eq!(
+            store
+                .admit_grant_use(id, &wrong_action, ConsequenceClass::C2, now, &[], true)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::ActionMismatch)
+        );
+        assert_eq!(
+            store
+                .admit_grant_use(id, &request(), ConsequenceClass::C3, now, &[], true)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::ConsequenceExceeded)
+        );
+        assert_eq!(
+            store.persisted_grant(id, &[], true).unwrap().used_count(),
+            0
+        );
+    }
+
+    #[test]
+    fn time_window_and_revocation_block_new_admissions_without_consumption() {
+        let (db, mut store, event) = prepare_store("grant-revoke");
+        store.persist_validated_grant(&grant(), event).unwrap();
+        let id = CanonicalId::parse(GRANT).unwrap();
+        let before = CanonicalUtcSecond::parse("2026-09-19T00:59:59Z").unwrap();
+        let expiry = CanonicalUtcSecond::parse("2026-09-19T01:05:00Z").unwrap();
+        assert_eq!(
+            store
+                .admit_grant_use(id, &request(), ConsequenceClass::C2, before, &[], true)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::GrantNotYetActive)
+        );
+        assert_eq!(
+            store
+                .admit_grant_use(id, &request(), ConsequenceClass::C2, expiry, &[], true)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::GrantExpired)
+        );
+
+        let revoke_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000012").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                revoke_event,
+                EventType::parse("grant.revoked").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(event),
+            ))
+            .unwrap();
+        let revoked_at = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        store
+            .revoke_grant(
+                id,
+                revoked_at,
+                revoke_event,
+                GrantRevocationReason::Security,
+            )
+            .unwrap();
+        assert_eq!(
+            store
+                .admit_grant_use(id, &request(), ConsequenceClass::C2, revoked_at, &[], true,)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::GrantRevoked)
+        );
+        assert_eq!(
+            store.persisted_grant(id, &[], true).unwrap().used_count(),
+            0
+        );
+        drop(store);
+
+        let mut reopened = Store::open(&db.path).unwrap();
+        assert_eq!(
+            reopened
+                .admit_grant_use(id, &request(), ConsequenceClass::C2, revoked_at, &[], true,)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::GrantRevoked)
+        );
     }
 
     #[test]
