@@ -6,10 +6,11 @@ use kernux_policy::{
 };
 use kernux_store::{CanonicalId, EventAppend, PolicyDecisionContext, Store};
 
-/// Daemon-owned trusted inputs for one final pre-side-effect authorization decision.
+/// Request-bound daemon context for one final pre-side-effect authorization decision.
 ///
-/// This is an in-process privileged snapshot. Request, model, tool, provider, document,
-/// browser, or remote-peer fields must never be treated as authority sources.
+/// The validated request remains a proposal and is not authority. All authority, time,
+/// consequence, extension-registration, resource-hierarchy, and audit inputs in this
+/// in-process snapshot must come from daemon-owned trusted state.
 #[derive(Debug)]
 pub struct TrustedAuthorizationSnapshot<'a> {
     request: ValidatedCapabilityRequest,
@@ -22,7 +23,7 @@ pub struct TrustedAuthorizationSnapshot<'a> {
 }
 
 impl<'a> TrustedAuthorizationSnapshot<'a> {
-    /// Construct one snapshot from daemon-owned trusted state.
+    /// Bind one validated request to daemon-owned trusted authorization state.
     pub(crate) fn new(
         request: ValidatedCapabilityRequest,
         mandatory_authorities: MandatoryAuthorityInputs<'a>,
@@ -481,8 +482,8 @@ mod tests {
             authorize_pre_side_effect(
                 &mut store,
                 CanonicalId::parse(GRANT).unwrap(),
-                &request(),
                 TrustedAuthorizationSnapshot::new(
+                    request(),
                     authorities(&capability),
                     TrustedConsequenceFacts::default(),
                     now,
