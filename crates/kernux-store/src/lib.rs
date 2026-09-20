@@ -23,7 +23,7 @@ mod recovery;
 pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
 pub use cas::{ArtifactBindingError, ArtifactCas, CasBlob, CasError, VerifiedBlob};
 pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
-pub use grant::PersistedGrant;
+pub use grant::{PersistedGrant, PolicyDecisionContext};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
 const SCHEMA_V1_VERSION: i64 = 1;

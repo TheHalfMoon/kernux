@@ -75,6 +75,15 @@ pub enum GrantUseDecision {
     Denied(DenyReason),
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PolicyDecision {
+    Allow {
+        grant_id: String,
+        effective_constraints: ValidatedConstraints,
+    },
+    Deny(DenyReason),
+}
+
 pub fn evaluate_grant_match(
     grant: &ValidatedGrant,
     request: &ValidatedCapabilityRequest,
