@@ -3,7 +3,9 @@
 //! This crate validates authority vocabulary. It does not persist Grants,
 //! execute host operations, read secrets, or infer authority from providers.
 
+mod envelope;
 mod semantics;
+pub use envelope::*;
 pub use semantics::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -19,6 +21,8 @@ pub enum PolicyValidationError {
     InvalidTimestamp,
     InvalidConstraint,
     ConstraintConflict,
+    InvalidReference,
+    InvalidGrantEnvelope,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -397,7 +401,7 @@ fn valid_registry_token(value: &str) -> bool {
             .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
 }
 
-fn canonical_uuid_v7(value: &str) -> bool {
+pub(crate) fn canonical_uuid_v7(value: &str) -> bool {
     let bytes = value.as_bytes();
     if bytes.len() != 36
         || ![8, 13, 18, 23]
