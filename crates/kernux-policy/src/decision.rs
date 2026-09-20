@@ -67,8 +67,8 @@ pub enum GrantMatchDecision {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum GrantAdmissionDecision {
-    Admitted {
+pub enum GrantUseDecision {
+    BudgetConsumed {
         grant_id: String,
         effective_constraints: ValidatedConstraints,
     },
