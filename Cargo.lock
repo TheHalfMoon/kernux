@@ -240,6 +240,9 @@ dependencies = [
 [[package]]
 name = "kernux-policy"
 version = "0.0.0"
+dependencies = [
+ "kernux-contracts",
+]
 
 [[package]]
 name = "kernux-rust-smoke"
