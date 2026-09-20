@@ -6,5 +6,8 @@ rust-version.workspace = true
 license = "Apache-2.0"
 publish = false
 
+[dependencies]
+kernux-contracts = { path = "../kernux-contracts" }
+
 [lib]
 path = "src/lib.rs"

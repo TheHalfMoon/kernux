@@ -3,6 +3,9 @@
 //! This crate validates authority vocabulary. It does not persist Grants,
 //! execute host operations, read secrets, or infer authority from providers.
 
+mod semantics;
+pub use semantics::*;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PolicyValidationError {
     InvalidAction,
@@ -12,6 +15,10 @@ pub enum PolicyValidationError {
     UnknownResourceAuthority,
     ActionResourceMismatch,
     NonHierarchicalSubtree,
+    UnknownExtensionConsequence,
+    InvalidTimestamp,
+    InvalidConstraint,
+    ConstraintConflict,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
