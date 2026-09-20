@@ -210,7 +210,9 @@ mod tests {
                 None,
             ))
             .unwrap();
-        store.persist_validated_grant(&grant(), issue_event).unwrap();
+        store
+            .persist_validated_grant(&grant(), issue_event)
+            .unwrap();
         (db, store, issue_event)
     }
 
@@ -222,10 +224,8 @@ mod tests {
                 agent_session_id: Some(SESSION.into()),
             },
             action: Action::parse("files.write", &[]).unwrap(),
-            resource: CanonicalResource::parse(&format!(
-                "kernux://project/{PROJECT}/fs/src"
-            ))
-            .unwrap(),
+            resource: CanonicalResource::parse(&format!("kernux://project/{PROJECT}/fs/src"))
+                .unwrap(),
             resource_uri: format!("kernux://project/{PROJECT}/fs/src"),
             resource_scope: kernux_policy::ResourceScope::Subtree,
             runtime_id: RUNTIME.into(),
@@ -297,20 +297,11 @@ mod tests {
         }
     }
 
-    fn audit_event(
-        event_id: &str,
-        event_type: &str,
-        predecessor: CanonicalId,
-    ) -> EventAppend {
+    fn audit_event(event_id: &str, event_type: &str, predecessor: CanonicalId) -> EventAppend {
         EventAppend::new(
             CanonicalId::parse(event_id).unwrap(),
             EventType::parse(event_type).unwrap(),
-            StreamRef::new(
-                StreamOwnerKind::Run,
-                CanonicalId::parse(RUN).unwrap(),
-                None,
-            )
-            .unwrap(),
+            StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None).unwrap(),
             Some(predecessor),
         )
     }
@@ -438,8 +429,7 @@ mod tests {
     fn unknown_trusted_consequence_is_audited_as_deny_without_budget_use() {
         let (_db, mut store, issue_event) = prepare_store("unknown-consequence");
         let mut extension_request = request();
-        extension_request.action =
-            Action::parse("ext.example.run", &["ext.example.run"]).unwrap();
+        extension_request.action = Action::parse("ext.example.run", &["ext.example.run"]).unwrap();
         let capability = runtime_capability("ext.example.run");
         let audit = audit_event(
             "01890f00-0000-7000-8000-000000000125",
