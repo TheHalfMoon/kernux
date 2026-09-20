@@ -1137,7 +1137,9 @@ mod tests {
     #[test]
     fn explicit_policy_denial_persists_audit_without_consuming_budget() {
         let (_db, mut store, issued_event) = prepare_store("grant-explicit-deny");
-        store.persist_validated_grant(&grant(), issued_event).unwrap();
+        store
+            .persist_validated_grant(&grant(), issued_event)
+            .unwrap();
         let audit = policy_event(
             "01890f00-0000-7000-8000-000000000035",
             "capability.denied",
@@ -1147,12 +1149,7 @@ mod tests {
 
         assert_eq!(
             store
-                .record_policy_denial(
-                    &request(),
-                    DenyReason::UnknownInput,
-                    &audit,
-                    now,
-                )
+                .record_policy_denial(&request(), DenyReason::UnknownInput, &audit, now)
                 .unwrap(),
             PolicyDecision::Deny(DenyReason::UnknownInput)
         );
