@@ -2,7 +2,8 @@ use kernux_policy::{
     Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DelegationDecision,
     DenyReason, GrantMatchDecision, GrantRevocationReason, GrantUseDecision, ResourceScope,
     TrustedAuthorityDecision, ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant,
-    ValidatedSubjectScope, evaluate_delegation, evaluate_grant_match, validate_action_resource,
+    ValidatedSubjectScope, delegation_is_subset, evaluate_delegation, evaluate_grant_match,
+    validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 
@@ -263,18 +264,16 @@ impl Store {
         trusted_extensions: &[&str],
         hierarchical_resource: bool,
     ) -> Result<GrantUseDecision, StoreError> {
-        let persisted =
-            match self.persisted_grant(grant_id, trusted_extensions, hierarchical_resource) {
+        let lineage =
+            match self.validated_grant_lineage(grant_id, trusted_extensions, hierarchical_resource)
+            {
                 Ok(value) => value,
                 Err(StoreError::NotFound) => {
                     return Ok(GrantUseDecision::Denied(DenyReason::GrantNotFound));
                 }
                 Err(error) => return Err(error),
             };
-        let grant = persisted.grant();
-        if grant.parent_grant_id.is_some() {
-            return Ok(GrantUseDecision::Denied(DenyReason::DelegationDenied));
-        }
+        let grant = &lineage[0].1;
         let effective_constraints = match evaluate_grant_match(
             grant,
             request,
@@ -294,30 +293,45 @@ impl Store {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| StoreError::Database)?;
-        if grant_revoked(&transaction, grant_id)? {
-            return Ok(GrantUseDecision::Denied(DenyReason::GrantRevoked));
+
+        let mut next_counts = Vec::with_capacity(lineage.len());
+        for (lineage_id, lineage_grant) in &lineage {
+            if grant_revoked(&transaction, *lineage_id)? {
+                return Ok(GrantUseDecision::Denied(DenyReason::GrantRevoked));
+            }
+            if trusted_now < lineage_grant.not_before {
+                return Ok(GrantUseDecision::Denied(DenyReason::GrantNotYetActive));
+            }
+            if trusted_now >= lineage_grant.expires_at {
+                return Ok(GrantUseDecision::Denied(DenyReason::GrantExpired));
+            }
+            let used_count = grant_used_count(&transaction, *lineage_id)?;
+            if used_count > lineage_grant.max_uses {
+                return Err(StoreError::GrantStateCorrupt);
+            }
+            if used_count == lineage_grant.max_uses {
+                return Ok(GrantUseDecision::Denied(DenyReason::GrantExhausted));
+            }
+            next_counts.push(
+                used_count
+                    .checked_add(1)
+                    .ok_or(StoreError::GrantStateCorrupt)?,
+            );
         }
-        let used_count = grant_used_count(&transaction, grant_id)?;
-        if used_count > grant.max_uses {
-            return Err(StoreError::GrantStateCorrupt);
-        }
-        if used_count == grant.max_uses {
-            return Ok(GrantUseDecision::Denied(DenyReason::GrantExhausted));
-        }
-        let next_used = used_count
-            .checked_add(1)
-            .ok_or(StoreError::GrantStateCorrupt)?;
-        let changed = transaction
-            .execute(
-                "UPDATE grant_state SET used_count = ?1 WHERE grant_id = ?2",
-                params![
-                    encode_u64(next_used).as_slice(),
-                    grant_id.to_canonical_text()
-                ],
-            )
-            .map_err(|_| StoreError::Database)?;
-        if changed != 1 {
-            return Err(StoreError::GrantStateCorrupt);
+
+        for ((lineage_id, _), next_count) in lineage.iter().zip(next_counts) {
+            let changed = transaction
+                .execute(
+                    "UPDATE grant_state SET used_count = ?1 WHERE grant_id = ?2",
+                    params![
+                        encode_u64(next_count).as_slice(),
+                        lineage_id.to_canonical_text()
+                    ],
+                )
+                .map_err(|_| StoreError::Database)?;
+            if changed != 1 {
+                return Err(StoreError::GrantStateCorrupt);
+            }
         }
         transaction.commit().map_err(|_| StoreError::Database)?;
 
@@ -325,6 +339,46 @@ impl Store {
             grant_id: grant_id.to_canonical_text(),
             effective_constraints,
         })
+    }
+
+    fn validated_grant_lineage(
+        &self,
+        grant_id: CanonicalId,
+        trusted_extensions: &[&str],
+        hierarchical_resource: bool,
+    ) -> Result<Vec<(CanonicalId, ValidatedGrant)>, StoreError> {
+        let mut lineage = Vec::new();
+        let mut current_id = grant_id;
+
+        loop {
+            if lineage.iter().any(|(id, _)| *id == current_id) {
+                return Err(StoreError::GrantStateCorrupt);
+            }
+            let persisted =
+                self.persisted_grant(current_id, trusted_extensions, hierarchical_resource)?;
+            let grant = persisted.grant().clone();
+            let parent_id = grant
+                .parent_grant_id
+                .as_deref()
+                .map(CanonicalId::parse)
+                .transpose()
+                .map_err(|_| StoreError::GrantStateCorrupt)?;
+            lineage.push((current_id, grant));
+
+            let Some(parent_id) = parent_id else {
+                break;
+            };
+            current_id = parent_id;
+        }
+
+        for pair in lineage.windows(2) {
+            let child = &pair[0].1;
+            let parent = &pair[1].1;
+            if !delegation_is_subset(parent, child, hierarchical_resource) {
+                return Err(StoreError::GrantStateCorrupt);
+            }
+        }
+        Ok(lineage)
     }
 
     pub fn revoke_grant(
@@ -953,19 +1007,290 @@ mod tests {
         );
 
         let child_id = CanonicalId::parse(&child.grant_id).unwrap();
-        assert_eq!(
+        assert!(matches!(
             store
                 .consume_grant_use(child_id, &request(), ConsequenceClass::C2, now, &[], true,)
                 .unwrap(),
-            GrantUseDecision::Denied(DenyReason::DelegationDenied)
-        );
+            GrantUseDecision::BudgetConsumed { .. }
+        ));
         assert_eq!(
             store
                 .persisted_grant(child_id, &[], true)
                 .unwrap()
                 .used_count(),
-            0
+            1
         );
+        assert_eq!(
+            store
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            1
+        );
+    }
+
+    fn delegated_from(
+        parent: &ValidatedGrant,
+        grant_id: &str,
+        max_uses: u64,
+        delegation_depth: u64,
+    ) -> ValidatedGrant {
+        let mut child = parent.clone();
+        child.grant_id = grant_id.into();
+        child.parent_grant_id = Some(parent.grant_id.clone());
+        child.max_uses = max_uses;
+        child.constraints.max_uses = Some(max_uses);
+        child.delegation_depth = delegation_depth;
+        child
+    }
+
+    fn allow_delegated(
+        store: &mut Store,
+        child: &ValidatedGrant,
+        event_id: CanonicalId,
+        now: CanonicalUtcSecond,
+    ) {
+        assert_eq!(
+            store
+                .persist_delegated_grant(
+                    child,
+                    event_id,
+                    DelegationPersistenceContext {
+                        trusted_now: now,
+                        delegate_authority: TrustedAuthorityDecision::Allow,
+                        recipient_authority: TrustedAuthorityDecision::Allow,
+                        trusted_extensions: &[],
+                        hierarchical_resource: true,
+                    },
+                )
+                .unwrap(),
+            DelegationDecision::Eligible
+        );
+    }
+
+    #[test]
+    fn delegated_use_consumes_every_ancestor_budget_atomically() {
+        let (_db, mut store, root_event) = prepare_store("grant-lineage-use");
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+
+        let mut root = grant();
+        root.max_uses = 3;
+        root.constraints.max_uses = Some(3);
+        root.delegation_depth = 2;
+        store.persist_validated_grant(&root, root_event).unwrap();
+
+        let child_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000020").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                child_event,
+                EventType::parse("grant.delegated").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(root_event),
+            ))
+            .unwrap();
+        let child = delegated_from(&root, "01890f00-0000-7000-8000-000000000021", 2, 1);
+        allow_delegated(&mut store, &child, child_event, now);
+
+        let grandchild_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000022").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                grandchild_event,
+                EventType::parse("grant.delegated").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(child_event),
+            ))
+            .unwrap();
+        let grandchild = delegated_from(&child, "01890f00-0000-7000-8000-000000000023", 1, 0);
+        allow_delegated(&mut store, &grandchild, grandchild_event, now);
+
+        let grandchild_id = CanonicalId::parse(&grandchild.grant_id).unwrap();
+        assert!(matches!(
+            store
+                .consume_grant_use(
+                    grandchild_id,
+                    &request(),
+                    ConsequenceClass::C2,
+                    now,
+                    &[],
+                    true,
+                )
+                .unwrap(),
+            GrantUseDecision::BudgetConsumed { .. }
+        ));
+
+        for id in [&root.grant_id, &child.grant_id, &grandchild.grant_id] {
+            assert_eq!(
+                store
+                    .persisted_grant(CanonicalId::parse(id).unwrap(), &[], true)
+                    .unwrap()
+                    .used_count(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn sibling_concurrency_cannot_multiply_shared_parent_budget() {
+        use std::sync::{Arc, Barrier};
+        use std::thread;
+
+        let (db, mut store, root_event) = prepare_store("grant-sibling-budget");
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let mut root = grant();
+        root.delegation_depth = 1;
+        store.persist_validated_grant(&root, root_event).unwrap();
+
+        let child_one_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000024").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                child_one_event,
+                EventType::parse("grant.delegated").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(root_event),
+            ))
+            .unwrap();
+        let child_one = delegated_from(&root, "01890f00-0000-7000-8000-000000000025", 1, 0);
+        allow_delegated(&mut store, &child_one, child_one_event, now);
+
+        let child_two_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000026").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                child_two_event,
+                EventType::parse("grant.delegated").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(child_one_event),
+            ))
+            .unwrap();
+        let child_two = delegated_from(&root, "01890f00-0000-7000-8000-000000000027", 1, 0);
+        allow_delegated(&mut store, &child_two, child_two_event, now);
+        drop(store);
+
+        let barrier = Arc::new(Barrier::new(3));
+        let mut handles = Vec::new();
+        for child_id in [child_one.grant_id.clone(), child_two.grant_id.clone()] {
+            let path = db.path.clone();
+            let barrier = Arc::clone(&barrier);
+            handles.push(thread::spawn(move || {
+                let mut store = Store::open(&path).unwrap();
+                barrier.wait();
+                store
+                    .consume_grant_use(
+                        CanonicalId::parse(&child_id).unwrap(),
+                        &request(),
+                        ConsequenceClass::C2,
+                        now,
+                        &[],
+                        true,
+                    )
+                    .unwrap()
+            }));
+        }
+        barrier.wait();
+        let decisions: Vec<_> = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect();
+        assert_eq!(
+            decisions
+                .iter()
+                .filter(|value| matches!(value, GrantUseDecision::BudgetConsumed { .. }))
+                .count(),
+            1
+        );
+        assert_eq!(
+            decisions
+                .iter()
+                .filter(|value| **value == GrantUseDecision::Denied(DenyReason::GrantExhausted))
+                .count(),
+            1
+        );
+
+        let reopened = Store::open(&db.path).unwrap();
+        let root_used = reopened
+            .persisted_grant(CanonicalId::parse(&root.grant_id).unwrap(), &[], true)
+            .unwrap()
+            .used_count();
+        let child_uses = [&child_one.grant_id, &child_two.grant_id]
+            .into_iter()
+            .map(|id| {
+                reopened
+                    .persisted_grant(CanonicalId::parse(id).unwrap(), &[], true)
+                    .unwrap()
+                    .used_count()
+            })
+            .sum::<u64>();
+        assert_eq!(root_used, 1);
+        assert_eq!(child_uses, 1);
+    }
+
+    #[test]
+    fn ancestor_revocation_denies_descendant_without_consuming_any_budget() {
+        let (_db, mut store, root_event) = prepare_store("grant-ancestor-revoke");
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let mut root = grant();
+        root.max_uses = 2;
+        root.constraints.max_uses = Some(2);
+        root.delegation_depth = 1;
+        store.persist_validated_grant(&root, root_event).unwrap();
+
+        let child_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000028").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                child_event,
+                EventType::parse("grant.delegated").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(root_event),
+            ))
+            .unwrap();
+        let child = delegated_from(&root, "01890f00-0000-7000-8000-000000000029", 1, 0);
+        allow_delegated(&mut store, &child, child_event, now);
+
+        let revoke_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000030").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                revoke_event,
+                EventType::parse("grant.revoked").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(child_event),
+            ))
+            .unwrap();
+        store
+            .revoke_grant(
+                CanonicalId::parse(&root.grant_id).unwrap(),
+                now,
+                revoke_event,
+                GrantRevocationReason::Security,
+            )
+            .unwrap();
+
+        assert_eq!(
+            store
+                .consume_grant_use(
+                    CanonicalId::parse(&child.grant_id).unwrap(),
+                    &request(),
+                    ConsequenceClass::C2,
+                    now,
+                    &[],
+                    true,
+                )
+                .unwrap(),
+            GrantUseDecision::Denied(DenyReason::GrantRevoked)
+        );
+        for id in [&root.grant_id, &child.grant_id] {
+            assert_eq!(
+                store
+                    .persisted_grant(CanonicalId::parse(id).unwrap(), &[], true)
+                    .unwrap()
+                    .used_count(),
+                0
+            );
+        }
     }
 
     #[test]
