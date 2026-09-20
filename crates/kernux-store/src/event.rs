@@ -148,66 +148,71 @@ impl Store {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| StoreError::Database)?;
-
-        let duplicate = transaction
-            .query_row(
-                "SELECT 1 FROM events WHERE id = ?1",
-                [event.event_id.to_canonical_text()],
-                |_| Ok(()),
-            )
-            .optional()
-            .map_err(|_| StoreError::Database)?;
-        if duplicate.is_some() {
-            return Err(StoreError::DuplicateConflict);
-        }
-
-        let tip = validate_stream_chain(&transaction, event.stream)?;
-        let (stream_seq, previous_event_id) = match tip {
-            None => {
-                if event.expected_previous_event_id.is_some() {
-                    return Err(StoreError::EventPredecessorMismatch);
-                }
-                (1, None)
-            }
-            Some(tip) => {
-                if event.expected_previous_event_id != Some(tip.event_id) {
-                    return Err(StoreError::EventPredecessorMismatch);
-                }
-                (next_stream_sequence(tip.stream_seq)?, Some(tip.event_id))
-            }
-        };
-
-        let stream_seq_blob = encode_stream_sequence(stream_seq);
-        let owner_revision = event
-            .stream
-            .owner_revision
-            .map(|revision| i64::from(revision.get()));
-        let previous_event_text = previous_event_id.map(CanonicalId::to_canonical_text);
-
-        transaction
-            .execute(
-                "INSERT INTO events(\
-                    id, revision, event_type, owner_kind, owner_id, owner_revision, stream_seq, previous_event_id\
-                 ) VALUES (?1, 1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                (
-                    event.event_id.to_canonical_text(),
-                    event.event_type.as_str(),
-                    event.stream.owner_kind.as_str(),
-                    event.stream.owner_id.to_canonical_text(),
-                    owner_revision,
-                    stream_seq_blob.as_slice(),
-                    previous_event_text.as_deref(),
-                ),
-            )
-            .map_err(map_event_insert_error)?;
+        let accepted = append_event_tx(&transaction, event)?;
         transaction.commit().map_err(|_| StoreError::Database)?;
-
-        Ok(AcceptedEvent {
-            event_id: event.event_id,
-            stream_seq,
-            previous_event_id,
-        })
+        Ok(accepted)
     }
+}
+
+pub(crate) fn append_event_tx(
+    transaction: &Transaction<'_>,
+    event: &EventAppend,
+) -> Result<AcceptedEvent, StoreError> {
+    let duplicate = transaction
+        .query_row(
+            "SELECT 1 FROM events WHERE id = ?1",
+            [event.event_id.to_canonical_text()],
+            |_| Ok(()),
+        )
+        .optional()
+        .map_err(|_| StoreError::Database)?;
+    if duplicate.is_some() {
+        return Err(StoreError::DuplicateConflict);
+    }
+
+    let tip = validate_stream_chain(transaction, event.stream)?;
+    let (stream_seq, previous_event_id) = match tip {
+        None => {
+            if event.expected_previous_event_id.is_some() {
+                return Err(StoreError::EventPredecessorMismatch);
+            }
+            (1, None)
+        }
+        Some(tip) => {
+            if event.expected_previous_event_id != Some(tip.event_id) {
+                return Err(StoreError::EventPredecessorMismatch);
+            }
+            (next_stream_sequence(tip.stream_seq)?, Some(tip.event_id))
+        }
+    };
+
+    let stream_seq_blob = encode_stream_sequence(stream_seq);
+    let owner_revision = event
+        .stream
+        .owner_revision
+        .map(|revision| i64::from(revision.get()));
+    let previous_event_text = previous_event_id.map(CanonicalId::to_canonical_text);
+
+    transaction
+        .execute(
+            "INSERT INTO events(                id, revision, event_type, owner_kind, owner_id, owner_revision, stream_seq, previous_event_id             ) VALUES (?1, 1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            (
+                event.event_id.to_canonical_text(),
+                event.event_type.as_str(),
+                event.stream.owner_kind.as_str(),
+                event.stream.owner_id.to_canonical_text(),
+                owner_revision,
+                stream_seq_blob.as_slice(),
+                previous_event_text.as_deref(),
+            ),
+        )
+        .map_err(map_event_insert_error)?;
+
+    Ok(AcceptedEvent {
+        event_id: event.event_id,
+        stream_seq,
+        previous_event_id,
+    })
 }
 
 fn validate_stream_chain(

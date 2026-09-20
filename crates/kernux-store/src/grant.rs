@@ -1,13 +1,14 @@
 use kernux_policy::{
     Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DelegationDecision,
-    DenyReason, GrantMatchDecision, GrantRevocationReason, GrantUseDecision, ResourceScope,
-    TrustedAuthorityDecision, ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant,
-    ValidatedSubjectScope, delegation_is_subset, evaluate_delegation, evaluate_grant_match,
-    validate_action_resource,
+    DenyReason, GrantMatchDecision, GrantRevocationReason, GrantUseDecision, PolicyDecision,
+    ResourceScope, TrustedAuthorityDecision, ValidatedCapabilityRequest, ValidatedConstraints,
+    ValidatedGrant, ValidatedSubjectScope, delegation_is_subset, evaluate_delegation,
+    evaluate_grant_match, validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 
-use crate::{CanonicalId, Store, StoreError};
+use crate::event::append_event_tx;
+use crate::{CanonicalId, EventAppend, Store, StoreError, StreamOwnerKind};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PersistedGrant {
@@ -37,6 +38,23 @@ pub struct DelegationPersistenceContext<'a> {
     pub recipient_authority: TrustedAuthorityDecision,
     pub trusted_extensions: &'a [&'a str],
     pub hierarchical_resource: bool,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct PolicyDecisionContext<'a> {
+    pub authoritative_consequence: ConsequenceClass,
+    pub trusted_now: CanonicalUtcSecond,
+    pub trusted_extensions: &'a [&'a str],
+    pub hierarchical_resource: bool,
+    pub audit_event: &'a EventAppend,
+}
+
+enum GrantUsePlan {
+    Eligible {
+        lineage: Vec<(CanonicalId, ValidatedGrant)>,
+        effective_constraints: ValidatedConstraints,
+    },
+    Denied(DenyReason),
 }
 
 impl Store {
@@ -264,18 +282,106 @@ impl Store {
         trusted_extensions: &[&str],
         hierarchical_resource: bool,
     ) -> Result<GrantUseDecision, StoreError> {
+        let plan = self.plan_grant_use(
+            grant_id,
+            request,
+            authoritative_consequence,
+            trusted_now,
+            trusted_extensions,
+            hierarchical_resource,
+        )?;
+        let (lineage, effective_constraints) = match plan {
+            GrantUsePlan::Eligible {
+                lineage,
+                effective_constraints,
+            } => (lineage, effective_constraints),
+            GrantUsePlan::Denied(reason) => return Ok(GrantUseDecision::Denied(reason)),
+        };
+
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| StoreError::Database)?;
+        if let Some(reason) = consume_lineage_tx(&transaction, &lineage, trusted_now)? {
+            return Ok(GrantUseDecision::Denied(reason));
+        }
+        transaction.commit().map_err(|_| StoreError::Database)?;
+
+        Ok(GrantUseDecision::BudgetConsumed {
+            grant_id: grant_id.to_canonical_text(),
+            effective_constraints,
+        })
+    }
+
+    pub fn decide_grant_use(
+        &mut self,
+        grant_id: CanonicalId,
+        request: &ValidatedCapabilityRequest,
+        context: PolicyDecisionContext<'_>,
+    ) -> Result<PolicyDecision, StoreError> {
+        let plan = self.plan_grant_use(
+            grant_id,
+            request,
+            context.authoritative_consequence,
+            context.trusted_now,
+            context.trusted_extensions,
+            context.hierarchical_resource,
+        )?;
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| StoreError::Database)?;
+
+        let decision = match plan {
+            GrantUsePlan::Denied(reason) => PolicyDecision::Deny(reason),
+            GrantUsePlan::Eligible {
+                lineage,
+                effective_constraints,
+            } => {
+                if let Some(reason) =
+                    consume_lineage_tx(&transaction, &lineage, context.trusted_now)?
+                {
+                    PolicyDecision::Deny(reason)
+                } else {
+                    PolicyDecision::Allow {
+                        grant_id: grant_id.to_canonical_text(),
+                        effective_constraints,
+                    }
+                }
+            }
+        };
+
+        persist_policy_decision_tx(
+            &transaction,
+            request,
+            &decision,
+            context.audit_event,
+            context.trusted_now,
+        )?;
+        transaction.commit().map_err(|_| StoreError::Database)?;
+        Ok(decision)
+    }
+
+    fn plan_grant_use(
+        &self,
+        grant_id: CanonicalId,
+        request: &ValidatedCapabilityRequest,
+        authoritative_consequence: ConsequenceClass,
+        trusted_now: CanonicalUtcSecond,
+        trusted_extensions: &[&str],
+        hierarchical_resource: bool,
+    ) -> Result<GrantUsePlan, StoreError> {
         let lineage =
             match self.validated_grant_lineage(grant_id, trusted_extensions, hierarchical_resource)
             {
                 Ok(value) => value,
                 Err(StoreError::NotFound) => {
-                    return Ok(GrantUseDecision::Denied(DenyReason::GrantNotFound));
+                    return Ok(GrantUsePlan::Denied(DenyReason::GrantNotFound));
                 }
                 Err(error) => return Err(error),
             };
-        let grant = &lineage[0].1;
         let effective_constraints = match evaluate_grant_match(
-            grant,
+            &lineage[0].1,
             request,
             authoritative_consequence,
             trusted_now,
@@ -284,59 +390,10 @@ impl Store {
             GrantMatchDecision::Eligible {
                 effective_constraints,
             } => effective_constraints,
-            GrantMatchDecision::Denied(reason) => {
-                return Ok(GrantUseDecision::Denied(reason));
-            }
+            GrantMatchDecision::Denied(reason) => return Ok(GrantUsePlan::Denied(reason)),
         };
-
-        let transaction = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| StoreError::Database)?;
-
-        let mut next_counts = Vec::with_capacity(lineage.len());
-        for (lineage_id, lineage_grant) in &lineage {
-            if grant_revoked(&transaction, *lineage_id)? {
-                return Ok(GrantUseDecision::Denied(DenyReason::GrantRevoked));
-            }
-            if trusted_now < lineage_grant.not_before {
-                return Ok(GrantUseDecision::Denied(DenyReason::GrantNotYetActive));
-            }
-            if trusted_now >= lineage_grant.expires_at {
-                return Ok(GrantUseDecision::Denied(DenyReason::GrantExpired));
-            }
-            let used_count = grant_used_count(&transaction, *lineage_id)?;
-            if used_count > lineage_grant.max_uses {
-                return Err(StoreError::GrantStateCorrupt);
-            }
-            if used_count == lineage_grant.max_uses {
-                return Ok(GrantUseDecision::Denied(DenyReason::GrantExhausted));
-            }
-            next_counts.push(
-                used_count
-                    .checked_add(1)
-                    .ok_or(StoreError::GrantStateCorrupt)?,
-            );
-        }
-
-        for ((lineage_id, _), next_count) in lineage.iter().zip(next_counts) {
-            let changed = transaction
-                .execute(
-                    "UPDATE grant_state SET used_count = ?1 WHERE grant_id = ?2",
-                    params![
-                        encode_u64(next_count).as_slice(),
-                        lineage_id.to_canonical_text()
-                    ],
-                )
-                .map_err(|_| StoreError::Database)?;
-            if changed != 1 {
-                return Err(StoreError::GrantStateCorrupt);
-            }
-        }
-        transaction.commit().map_err(|_| StoreError::Database)?;
-
-        Ok(GrantUseDecision::BudgetConsumed {
-            grant_id: grant_id.to_canonical_text(),
+        Ok(GrantUsePlan::Eligible {
+            lineage,
             effective_constraints,
         })
     }
@@ -454,6 +511,109 @@ impl Store {
             })?;
         transaction.commit().map_err(|_| StoreError::Database)
     }
+}
+
+fn consume_lineage_tx(
+    transaction: &rusqlite::Transaction<'_>,
+    lineage: &[(CanonicalId, ValidatedGrant)],
+    trusted_now: CanonicalUtcSecond,
+) -> Result<Option<DenyReason>, StoreError> {
+    let mut next_counts = Vec::with_capacity(lineage.len());
+    for (lineage_id, lineage_grant) in lineage {
+        if grant_revoked(transaction, *lineage_id)? {
+            return Ok(Some(DenyReason::GrantRevoked));
+        }
+        if trusted_now < lineage_grant.not_before {
+            return Ok(Some(DenyReason::GrantNotYetActive));
+        }
+        if trusted_now >= lineage_grant.expires_at {
+            return Ok(Some(DenyReason::GrantExpired));
+        }
+        let used_count = grant_used_count(transaction, *lineage_id)?;
+        if used_count > lineage_grant.max_uses {
+            return Err(StoreError::GrantStateCorrupt);
+        }
+        if used_count == lineage_grant.max_uses {
+            return Ok(Some(DenyReason::GrantExhausted));
+        }
+        next_counts.push(
+            used_count
+                .checked_add(1)
+                .ok_or(StoreError::GrantStateCorrupt)?,
+        );
+    }
+
+    for ((lineage_id, _), next_count) in lineage.iter().zip(next_counts) {
+        let changed = transaction
+            .execute(
+                "UPDATE grant_state SET used_count = ?1 WHERE grant_id = ?2",
+                params![
+                    encode_u64(next_count).as_slice(),
+                    lineage_id.to_canonical_text()
+                ],
+            )
+            .map_err(|_| StoreError::Database)?;
+        if changed != 1 {
+            return Err(StoreError::GrantStateCorrupt);
+        }
+    }
+    Ok(None)
+}
+
+fn persist_policy_decision_tx(
+    transaction: &rusqlite::Transaction<'_>,
+    request: &ValidatedCapabilityRequest,
+    decision: &PolicyDecision,
+    event: &EventAppend,
+    decided_at: CanonicalUtcSecond,
+) -> Result<(), StoreError> {
+    CanonicalId::parse(&request.request_id).map_err(|_| StoreError::InvalidGrantAudit)?;
+    let run_id =
+        CanonicalId::parse(&request.subject.run_id).map_err(|_| StoreError::InvalidGrantAudit)?;
+    if event.stream().owner_kind() != StreamOwnerKind::Run
+        || event.stream().owner_id() != run_id
+        || event.stream().owner_revision().is_some()
+    {
+        return Err(StoreError::InvalidGrantAudit);
+    }
+
+    let (event_type, decision_text, grant_id, deny_reason) = match decision {
+        PolicyDecision::Allow { grant_id, .. } => (
+            "capability.approved",
+            "allow",
+            Some(grant_id.as_str()),
+            None,
+        ),
+        PolicyDecision::Deny(reason) => ("capability.denied", "deny", None, Some(reason.as_str())),
+    };
+    if event.event_type().as_str() != event_type {
+        return Err(StoreError::InvalidGrantAudit);
+    }
+
+    append_event_tx(transaction, event)?;
+    transaction
+        .execute(
+            "INSERT INTO policy_decisions(\
+                request_id, decision, deny_reason, grant_id, event_id, decided_at\
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![
+                request.request_id,
+                decision_text,
+                deny_reason,
+                grant_id,
+                event.event_id().to_canonical_text(),
+                decided_at.to_canonical_text(),
+            ],
+        )
+        .map_err(|error| match error {
+            rusqlite::Error::SqliteFailure(inner, _)
+                if inner.code == rusqlite::ErrorCode::ConstraintViolation =>
+            {
+                StoreError::DuplicateConflict
+            }
+            _ => StoreError::Database,
+        })?;
+    Ok(())
 }
 
 fn persist_grant_tx(
@@ -681,7 +841,9 @@ fn decode_optional(value: Option<&[u8]>) -> Result<Option<u64>, StoreError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernux_policy::{CanonicalUtcSecond, ConsequenceClass, ValidatedConstraints};
+    use kernux_policy::{
+        CanonicalUtcSecond, ConsequenceClass, PolicyDecision, ValidatedConstraints,
+    };
 
     use crate::tests::TestDb;
     use crate::{
@@ -847,6 +1009,175 @@ mod tests {
             .unwrap(),
             provenance_event_ids: Vec::new(),
         }
+    }
+
+    fn policy_event(event_id: &str, event_type: &str, predecessor: CanonicalId) -> EventAppend {
+        EventAppend::new(
+            CanonicalId::parse(event_id).unwrap(),
+            EventType::parse(event_type).unwrap(),
+            StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None).unwrap(),
+            Some(predecessor),
+        )
+    }
+
+    #[test]
+    fn audited_allow_commits_budget_event_and_decision_together() {
+        let (db, mut store, issued_event) = prepare_store("grant-policy-allow");
+        store
+            .persist_validated_grant(&grant(), issued_event)
+            .unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let audit = policy_event(
+            "01890f00-0000-7000-8000-000000000031",
+            "capability.approved",
+            issued_event,
+        );
+
+        let decision = store
+            .decide_grant_use(
+                CanonicalId::parse(GRANT).unwrap(),
+                &request(),
+                PolicyDecisionContext {
+                    authoritative_consequence: ConsequenceClass::C2,
+                    trusted_now: now,
+                    trusted_extensions: &[],
+                    hierarchical_resource: true,
+                    audit_event: &audit,
+                },
+            )
+            .unwrap();
+        assert!(matches!(decision, PolicyDecision::Allow { .. }));
+        assert_eq!(
+            store
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            1
+        );
+
+        let row: (String, Option<String>, Option<String>, String) = store
+            .connection
+            .query_row(
+                "SELECT decision, deny_reason, grant_id, event_id                  FROM policy_decisions WHERE request_id = ?1",
+                [&request().request_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .unwrap();
+        assert_eq!(row.0, "allow");
+        assert_eq!(row.1, None);
+        assert_eq!(row.2.as_deref(), Some(GRANT));
+        assert_eq!(row.3, audit.event_id().to_canonical_text());
+        drop(store);
+
+        let reopened = Store::open(&db.path).unwrap();
+        let count: i64 = reopened
+            .connection
+            .query_row("SELECT COUNT(*) FROM policy_decisions", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn audited_deny_records_generic_reason_without_consuming_budget() {
+        let (_db, mut store, issued_event) = prepare_store("grant-policy-deny");
+        store
+            .persist_validated_grant(&grant(), issued_event)
+            .unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let mut denied_request = request();
+        denied_request.action = Action::parse("files.delete", &[]).unwrap();
+        let audit = policy_event(
+            "01890f00-0000-7000-8000-000000000032",
+            "capability.denied",
+            issued_event,
+        );
+
+        assert_eq!(
+            store
+                .decide_grant_use(
+                    CanonicalId::parse(GRANT).unwrap(),
+                    &denied_request,
+                    PolicyDecisionContext {
+                        authoritative_consequence: ConsequenceClass::C2,
+                        trusted_now: now,
+                        trusted_extensions: &[],
+                        hierarchical_resource: true,
+                        audit_event: &audit,
+                    },
+                )
+                .unwrap(),
+            PolicyDecision::Deny(DenyReason::ActionMismatch)
+        );
+        assert_eq!(
+            store
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            0
+        );
+        let row: (String, Option<String>, Option<String>) = store
+            .connection
+            .query_row(
+                "SELECT decision, deny_reason, grant_id                  FROM policy_decisions WHERE request_id = ?1",
+                [&denied_request.request_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .unwrap();
+        assert_eq!(row, ("deny".into(), Some("action-mismatch".into()), None));
+    }
+
+    #[test]
+    fn audit_failure_rolls_back_allow_budget_and_event() {
+        let (_db, mut store, issued_event) = prepare_store("grant-policy-rollback");
+        store
+            .persist_validated_grant(&grant(), issued_event)
+            .unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let wrong_audit = policy_event(
+            "01890f00-0000-7000-8000-000000000033",
+            "capability.denied",
+            issued_event,
+        );
+
+        assert_eq!(
+            store.decide_grant_use(
+                CanonicalId::parse(GRANT).unwrap(),
+                &request(),
+                PolicyDecisionContext {
+                    authoritative_consequence: ConsequenceClass::C2,
+                    trusted_now: now,
+                    trusted_extensions: &[],
+                    hierarchical_resource: true,
+                    audit_event: &wrong_audit,
+                },
+            ),
+            Err(StoreError::InvalidGrantAudit)
+        );
+        assert_eq!(
+            store
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            0
+        );
+        let event_count: i64 = store
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM events WHERE id = ?1",
+                [wrong_audit.event_id().to_canonical_text()],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let decision_count: i64 = store
+            .connection
+            .query_row("SELECT COUNT(*) FROM policy_decisions", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(event_count, 0);
+        assert_eq!(decision_count, 0);
     }
 
     #[test]
