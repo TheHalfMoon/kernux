@@ -1,7 +1,8 @@
 use kernux_policy::{
     Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DenyReason,
     GrantAdmissionDecision, GrantRevocationReason, ResourceScope, ValidatedCapabilityRequest,
-    ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope, validate_action_resource,
+    ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope, evaluate_grant_match,
+    validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 
@@ -320,53 +321,21 @@ impl Store {
                 Err(error) => return Err(error),
             };
         let grant = persisted.grant();
-
-        if grant.parent_grant_id.is_some() {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::DelegationDenied));
-        }
-        if request.subject != grant.subject {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::SubjectMismatch));
-        }
-        if request.action != grant.action {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::ActionMismatch));
-        }
-        if request.runtime_id != grant.runtime_id
-            || request.runtime_revision != grant.runtime_revision
-        {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::RuntimeMismatch));
-        }
-        if !grant
-            .resource
-            .matches(
-                &request.resource,
-                grant.resource_scope,
-                hierarchical_resource,
-            )
-            .map_err(|_| StoreError::GrantStateCorrupt)?
-        {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::ResourceMismatch));
-        }
-        let effective_constraints = match grant.constraints.intersect(&request.constraints) {
-            Ok(value) if value.is_subset_of(&grant.constraints) => value,
-            Ok(_) | Err(_) => {
-                return Ok(GrantAdmissionDecision::Denied(
-                    DenyReason::ConstraintMismatch,
-                ));
+        let effective_constraints = match evaluate_grant_match(
+            grant,
+            request,
+            authoritative_consequence,
+            trusted_now,
+            hierarchical_resource,
+        ) {
+            GrantAdmissionDecision::Admitted {
+                effective_constraints,
+                ..
+            } => effective_constraints,
+            GrantAdmissionDecision::Denied(reason) => {
+                return Ok(GrantAdmissionDecision::Denied(reason));
             }
         };
-        if authoritative_consequence > grant.consequence_ceiling {
-            return Ok(GrantAdmissionDecision::Denied(
-                DenyReason::ConsequenceExceeded,
-            ));
-        }
-        if trusted_now < grant.not_before {
-            return Ok(GrantAdmissionDecision::Denied(
-                DenyReason::GrantNotYetActive,
-            ));
-        }
-        if trusted_now >= grant.expires_at {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantExpired));
-        }
 
         let transaction = self
             .connection
