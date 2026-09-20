@@ -60,8 +60,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P02-S01-T02 | PROVEN | R3 | Bind local client sessions with launch nonce/peer identity and reject unauthorized local callers. | daemon transport |
 | KX-P02-S02-T01 | PROVEN | R3 | Implement installation/device identity and key creation/rotation/recovery abstraction. | daemon transport |
 | KX-P02-S03-T01 | PROVEN | R3 | Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures. | P01 events/IDs |
-| KX-P02-S04-T01 | NEXT | R2 | Implement SHA-256 artifact CAS with bounded streaming, digest verification and retention metadata. | metadata store |
-| KX-P02-S05-T01 | PLANNED | R3 | Implement policy evaluator and bounded grants/expiry/delegation/deny reasons. | capabilities + store |
+| KX-P02-S04-T01 | PROVEN | R2 | Implement SHA-256 artifact CAS with bounded streaming, digest verification and retention metadata. | metadata store |
+| KX-P02-S05-T01 | NEXT | R3 | Implement policy evaluator and bounded grants/expiry/delegation/deny reasons. | capabilities + store |
 | KX-P02-S05-T02 | PLANNED | R3 | Implement user-friendly Safe/Standard/Developer/Autonomous/Custom profiles compiling to granular grants. | policy engine |
 | KX-P02-S06-T01 | PLANNED | R3 | Implement secret-provider abstraction and first OS credential-store adapters with handle-based use. | identity + policy |
 | KX-P02-S06-T02 | PLANNED | R3 | Add redaction-safe security audit events and secret-leak tests. | secret broker + events |
@@ -73,6 +73,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 **KX-P02-S02-T01 closeout: PROVEN.** Native SG-000020 verification, proof-bearing PR #105 exact-head qualification/review, ordinary merge `f0e457d55021e59799f898a51e634a1d8d284cdc`, and six-job post-merge run `35443098538` are all PROVEN. Only KX-P02-S03-T01 is NEXT; all later P02 tasks remain PLANNED.
 
 **KX-P02-S03-T01 closeout: PROVEN.** Native SG-000021 verification, proof-bearing retry PR #119 exact-head qualification/review, ordinary merge `ec252919e243c2e815dd878eb2d9bd17077f11d8`, and six-job post-merge run `35454187226` are all PROVEN. Only KX-P02-S04-T01 is NEXT; all later P02 tasks remain PLANNED.
+
+**KX-P02-S04-T01 closeout: PROVEN.** Native SG-000022 verification record `sha256:6c358678f4b2225543637212a36cda613d9a914f4e4e93fc2cebf7813ec2e9cb`, proof-bearing PR #125 exact-head qualification/review, ordinary merge `415f7fe41b4eff85d61137132256ef97195a4fbf`, and six-job post-merge run `35458837422` are all PROVEN. Only KX-P02-S05-T01 is NEXT; KX-P02-S05-T02 and all S06 tasks remain PLANNED.
 
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
 
