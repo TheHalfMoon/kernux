@@ -24,15 +24,65 @@ pub struct TrustedAuthorizationSnapshot<'a> {
 
 /// Result of the daemon authorization gate immediately before any side effect.
 ///
-/// Admitted means the Grant and ancestor use budget plus required allow audit linkage
-/// already committed. A later operation failure must not refund that admission.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum PreSideEffectAuthorization {
+/// This value is intentionally non-forgeable in safe external code: its fields are private,
+/// it has no public constructor, and it is not Clone. It also owns the exact validated request
+/// whose admission decision was committed, so a future executor cannot detach an admission from
+/// the operation that consumed Grant budget.
+#[derive(Debug, PartialEq, Eq)]
+pub struct PreSideEffectAuthorization {
+    request: ValidatedCapabilityRequest,
+    outcome: PreSideEffectAuthorizationOutcome,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum PreSideEffectAuthorizationOutcome {
     Admitted {
         grant_id: String,
         effective_constraints: ValidatedConstraints,
     },
     Denied(kernux_policy::DenyReason),
+}
+
+impl PreSideEffectAuthorization {
+    /// Return the exact validated request bound to this committed decision.
+    pub fn request(&self) -> &ValidatedCapabilityRequest {
+        &self.request
+    }
+
+    /// Whether this decision durably admitted the bound request.
+    pub fn is_admitted(&self) -> bool {
+        matches!(
+            &self.outcome,
+            PreSideEffectAuthorizationOutcome::Admitted { .. }
+        )
+    }
+
+    /// Return the admitted Grant identity, if this decision admitted the request.
+    pub fn grant_id(&self) -> Option<&str> {
+        match &self.outcome {
+            PreSideEffectAuthorizationOutcome::Admitted { grant_id, .. } => Some(grant_id),
+            PreSideEffectAuthorizationOutcome::Denied(_) => None,
+        }
+    }
+
+    /// Return the effective constraints committed for an admitted request.
+    pub fn effective_constraints(&self) -> Option<&ValidatedConstraints> {
+        match &self.outcome {
+            PreSideEffectAuthorizationOutcome::Admitted {
+                effective_constraints,
+                ..
+            } => Some(effective_constraints),
+            PreSideEffectAuthorizationOutcome::Denied(_) => None,
+        }
+    }
+
+    /// Return the closed deny reason when the bound request was denied.
+    pub fn deny_reason(&self) -> Option<&kernux_policy::DenyReason> {
+        match &self.outcome {
+            PreSideEffectAuthorizationOutcome::Denied(reason) => Some(reason),
+            PreSideEffectAuthorizationOutcome::Admitted { .. } => None,
+        }
+    }
 }
 
 /// Fail-closed infrastructure or trusted-input failure at the authorization boundary.
@@ -75,7 +125,10 @@ pub fn authorize_pre_side_effect(
                 let PolicyDecision::Deny(reason) = decision else {
                     return Err(DaemonAuthorizationError::DurableDecision);
                 };
-                return Ok(PreSideEffectAuthorization::Denied(reason));
+                return Ok(PreSideEffectAuthorization {
+                    request: snapshot.request,
+                    outcome: PreSideEffectAuthorizationOutcome::Denied(reason),
+                });
             }
         };
 
@@ -94,15 +147,19 @@ pub fn authorize_pre_side_effect(
         )
         .map_err(|_| DaemonAuthorizationError::DurableDecision)?;
 
-    Ok(match decision {
+    let outcome = match decision {
         PolicyDecision::Allow {
             grant_id,
             effective_constraints,
-        } => PreSideEffectAuthorization::Admitted {
+        } => PreSideEffectAuthorizationOutcome::Admitted {
             grant_id,
             effective_constraints,
         },
-        PolicyDecision::Deny(reason) => PreSideEffectAuthorization::Denied(reason),
+        PolicyDecision::Deny(reason) => PreSideEffectAuthorizationOutcome::Denied(reason),
+    };
+    Ok(PreSideEffectAuthorization {
+        request: snapshot.request,
+        outcome,
     })
 }
 
@@ -329,10 +386,11 @@ mod tests {
         )
         .unwrap();
 
-        assert!(matches!(
-            decision,
-            PreSideEffectAuthorization::Admitted { .. }
-        ));
+        assert!(decision.is_admitted());
+        assert_eq!(decision.request().request_id.as_str(), REQUEST);
+        assert_eq!(decision.grant_id(), Some(GRANT));
+        assert!(decision.effective_constraints().is_some());
+        assert_eq!(decision.deny_reason(), None);
         assert_eq!(
             store
                 .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
@@ -369,9 +427,10 @@ mod tests {
         )
         .unwrap();
 
+        assert!(!decision.is_admitted());
         assert_eq!(
-            decision,
-            PreSideEffectAuthorization::Denied(DenyReason::ConsequenceExceeded)
+            decision.deny_reason(),
+            Some(&DenyReason::ConsequenceExceeded)
         );
         assert_eq!(
             store
@@ -396,21 +455,23 @@ mod tests {
         );
         let now = CanonicalUtcSecond::parse("2026-09-20T01:10:00Z").unwrap();
 
+        let decision = authorize_pre_side_effect(
+            &mut store,
+            CanonicalId::parse(GRANT).unwrap(),
+            snapshot(
+                request(),
+                mandatory,
+                TrustedConsequenceFacts::default(),
+                now,
+                &[],
+                &audit,
+            ),
+        )
+        .unwrap();
+        assert!(!decision.is_admitted());
         assert_eq!(
-            authorize_pre_side_effect(
-                &mut store,
-                CanonicalId::parse(GRANT).unwrap(),
-                snapshot(
-                    request(),
-                    mandatory,
-                    TrustedConsequenceFacts::default(),
-                    now,
-                    &[],
-                    &audit,
-                ),
-            )
-            .unwrap(),
-            PreSideEffectAuthorization::Denied(DenyReason::RemoteHostDenied)
+            decision.deny_reason(),
+            Some(&DenyReason::RemoteHostDenied)
         );
         assert_eq!(
             store
@@ -434,22 +495,21 @@ mod tests {
         );
         let now = CanonicalUtcSecond::parse("2026-09-20T01:10:00Z").unwrap();
 
-        assert_eq!(
-            authorize_pre_side_effect(
-                &mut store,
-                CanonicalId::parse(GRANT).unwrap(),
-                snapshot(
-                    extension_request,
-                    authorities(&capability),
-                    TrustedConsequenceFacts::default(),
-                    now,
-                    &["ext.example.run"],
-                    &audit,
-                ),
-            )
-            .unwrap(),
-            PreSideEffectAuthorization::Denied(DenyReason::UnknownInput)
-        );
+        let decision = authorize_pre_side_effect(
+            &mut store,
+            CanonicalId::parse(GRANT).unwrap(),
+            snapshot(
+                extension_request,
+                authorities(&capability),
+                TrustedConsequenceFacts::default(),
+                now,
+                &["ext.example.run"],
+                &audit,
+            ),
+        )
+        .unwrap();
+        assert!(!decision.is_admitted());
+        assert_eq!(decision.deny_reason(), Some(&DenyReason::UnknownInput));
         assert_eq!(
             store
                 .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
