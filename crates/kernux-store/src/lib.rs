@@ -246,6 +246,7 @@ pub enum StoreError {
     EventStreamCorrupt,
     IntegrityFailure,
     InvalidGrantAudit,
+    InvalidGrantDelegation,
     GrantStateCorrupt,
 }
 
@@ -280,6 +281,7 @@ impl fmt::Display for StoreError {
             Self::EventStreamCorrupt => "metadata store event stream is inconsistent",
             Self::IntegrityFailure => "metadata store integrity validation failed",
             Self::InvalidGrantAudit => "metadata store grant audit linkage is invalid",
+            Self::InvalidGrantDelegation => "metadata store grant delegation is invalid",
             Self::GrantStateCorrupt => "metadata store grant state is inconsistent",
         })
     }

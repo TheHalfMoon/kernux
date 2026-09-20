@@ -105,6 +105,7 @@ impl ValidatedGrant {
             || constraints
                 .max_uses
                 .is_some_and(|constraint_uses| constraint_uses != value.max_uses)
+            || issued_at > not_before
             || issued_at >= expires_at
             || not_before >= expires_at
             || issuer.is_empty()
@@ -314,6 +315,10 @@ mod tests {
         assert!(ValidatedGrant::from_wire(&value, &[], true).is_err());
         let mut value = grant();
         value.expires_at = value.not_before.clone();
+        assert!(ValidatedGrant::from_wire(&value, &[], true).is_err());
+        let mut value = grant();
+        value.issued_at = "2026-09-19T01:02:00Z".into();
+        value.not_before = "2026-09-19T01:01:00Z".into();
         assert!(ValidatedGrant::from_wire(&value, &[], true).is_err());
         let value = grant();
         assert_eq!(
