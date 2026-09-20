@@ -1,5 +1,7 @@
+use kernux_contracts::{CapabilityVersion, RuntimeCapability};
+
 use crate::{
-    CanonicalUtcSecond, ConsequenceClass, ValidatedCapabilityRequest, ValidatedConstraints,
+    Action, CanonicalUtcSecond, ConsequenceClass, ValidatedCapabilityRequest, ValidatedConstraints,
     ValidatedGrant,
 };
 
@@ -142,6 +144,103 @@ pub enum DelegationDecision {
     Denied(DenyReason),
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum OperationLocation {
+    Local,
+    Remote,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RemoteHostDecision {
+    NotApplicable,
+    Allow,
+    Deny,
+    Unknown,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SecondaryAuthorityDecision {
+    NotRequired,
+    Allow,
+    Deny,
+    Unknown,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum RuntimeCapabilityEvidence<'a> {
+    Negotiated(&'a RuntimeCapability),
+    Unavailable,
+    VersionMismatch,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct MandatoryAuthorityInputs<'a> {
+    pub controller: TrustedAuthorityDecision,
+    pub local_policy: TrustedAuthorityDecision,
+    pub kernel: TrustedAuthorityDecision,
+    pub principal_policy: TrustedAuthorityDecision,
+    pub runtime_capability: RuntimeCapabilityEvidence<'a>,
+    pub location: OperationLocation,
+    pub remote_host: RemoteHostDecision,
+    pub secondary_authority: SecondaryAuthorityDecision,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AuthorityIntersectionDecision {
+    Eligible,
+    Denied(DenyReason),
+}
+
+pub fn evaluate_authority_intersection(
+    action: &Action,
+    inputs: MandatoryAuthorityInputs<'_>,
+) -> AuthorityIntersectionDecision {
+    if inputs.controller != TrustedAuthorityDecision::Allow
+        || inputs.local_policy != TrustedAuthorityDecision::Allow
+        || inputs.principal_policy != TrustedAuthorityDecision::Allow
+    {
+        return AuthorityIntersectionDecision::Denied(DenyReason::PolicyDenied);
+    }
+    if inputs.kernel != TrustedAuthorityDecision::Allow {
+        return AuthorityIntersectionDecision::Denied(DenyReason::KernelDenied);
+    }
+
+    match inputs.runtime_capability {
+        RuntimeCapabilityEvidence::Unavailable => {
+            return AuthorityIntersectionDecision::Denied(DenyReason::RuntimeCapabilityUnavailable);
+        }
+        RuntimeCapabilityEvidence::VersionMismatch => {
+            return AuthorityIntersectionDecision::Denied(
+                DenyReason::RuntimeCapabilityVersionMismatch,
+            );
+        }
+        RuntimeCapabilityEvidence::Negotiated(capability) => {
+            if capability.action != action.as_str() || capability.version != CapabilityVersion::V1 {
+                return AuthorityIntersectionDecision::Denied(
+                    DenyReason::RuntimeCapabilityUnavailable,
+                );
+            }
+        }
+    }
+
+    match (inputs.location, inputs.remote_host) {
+        (OperationLocation::Local, RemoteHostDecision::NotApplicable)
+        | (OperationLocation::Remote, RemoteHostDecision::Allow) => {}
+        _ => {
+            return AuthorityIntersectionDecision::Denied(DenyReason::RemoteHostDenied);
+        }
+    }
+
+    if !matches!(
+        inputs.secondary_authority,
+        SecondaryAuthorityDecision::NotRequired | SecondaryAuthorityDecision::Allow
+    ) {
+        return AuthorityIntersectionDecision::Denied(DenyReason::SecondaryAuthorityDenied);
+    }
+
+    AuthorityIntersectionDecision::Eligible
+}
+
 pub fn delegation_is_subset(
     parent: &ValidatedGrant,
     child: &ValidatedGrant,
@@ -271,6 +370,147 @@ mod tests {
         child.delegation_depth = 1;
         child.parent_grant_id = Some(parent.grant_id.clone());
         (parent, child)
+    }
+
+    fn runtime_capability(action: &str) -> RuntimeCapability {
+        RuntimeCapability {
+            action: action.into(),
+            features: Vec::new(),
+            version: CapabilityVersion::V1,
+        }
+    }
+
+    fn authority_inputs<'a>(capability: &'a RuntimeCapability) -> MandatoryAuthorityInputs<'a> {
+        MandatoryAuthorityInputs {
+            controller: TrustedAuthorityDecision::Allow,
+            local_policy: TrustedAuthorityDecision::Allow,
+            kernel: TrustedAuthorityDecision::Allow,
+            principal_policy: TrustedAuthorityDecision::Allow,
+            runtime_capability: RuntimeCapabilityEvidence::Negotiated(capability),
+            location: OperationLocation::Local,
+            remote_host: RemoteHostDecision::NotApplicable,
+            secondary_authority: SecondaryAuthorityDecision::NotRequired,
+        }
+    }
+
+    #[test]
+    fn authority_intersection_requires_every_mandatory_local_layer() {
+        let action = Action::parse("files.write", &[]).unwrap();
+        let capability = runtime_capability("files.write");
+        assert_eq!(
+            evaluate_authority_intersection(&action, authority_inputs(&capability)),
+            AuthorityIntersectionDecision::Eligible
+        );
+
+        let mut inputs = authority_inputs(&capability);
+        inputs.controller = TrustedAuthorityDecision::Unknown;
+        assert_eq!(
+            evaluate_authority_intersection(&action, inputs),
+            AuthorityIntersectionDecision::Denied(DenyReason::PolicyDenied)
+        );
+
+        let mut inputs = authority_inputs(&capability);
+        inputs.local_policy = TrustedAuthorityDecision::Deny;
+        assert_eq!(
+            evaluate_authority_intersection(&action, inputs),
+            AuthorityIntersectionDecision::Denied(DenyReason::PolicyDenied)
+        );
+
+        let mut inputs = authority_inputs(&capability);
+        inputs.principal_policy = TrustedAuthorityDecision::Unknown;
+        assert_eq!(
+            evaluate_authority_intersection(&action, inputs),
+            AuthorityIntersectionDecision::Denied(DenyReason::PolicyDenied)
+        );
+
+        let mut inputs = authority_inputs(&capability);
+        inputs.kernel = TrustedAuthorityDecision::Unknown;
+        assert_eq!(
+            evaluate_authority_intersection(&action, inputs),
+            AuthorityIntersectionDecision::Denied(DenyReason::KernelDenied)
+        );
+    }
+
+    #[test]
+    fn runtime_capability_is_exact_and_never_inferred() {
+        let action = Action::parse("files.write", &[]).unwrap();
+        let capability = runtime_capability("files.write");
+
+        let mut inputs = authority_inputs(&capability);
+        inputs.runtime_capability = RuntimeCapabilityEvidence::Unavailable;
+        assert_eq!(
+            evaluate_authority_intersection(&action, inputs),
+            AuthorityIntersectionDecision::Denied(DenyReason::RuntimeCapabilityUnavailable)
+        );
+
+        let mut inputs = authority_inputs(&capability);
+        inputs.runtime_capability = RuntimeCapabilityEvidence::VersionMismatch;
+        assert_eq!(
+            evaluate_authority_intersection(&action, inputs),
+            AuthorityIntersectionDecision::Denied(DenyReason::RuntimeCapabilityVersionMismatch)
+        );
+
+        let wrong_capability = runtime_capability("files.read");
+        assert_eq!(
+            evaluate_authority_intersection(&action, authority_inputs(&wrong_capability)),
+            AuthorityIntersectionDecision::Denied(DenyReason::RuntimeCapabilityUnavailable)
+        );
+    }
+
+    #[test]
+    fn remote_host_and_secondary_authority_fail_closed() {
+        let action = Action::parse("files.write", &[]).unwrap();
+        let capability = runtime_capability("files.write");
+
+        let mut remote = authority_inputs(&capability);
+        remote.location = OperationLocation::Remote;
+        assert_eq!(
+            evaluate_authority_intersection(&action, remote),
+            AuthorityIntersectionDecision::Denied(DenyReason::RemoteHostDenied)
+        );
+
+        remote.remote_host = RemoteHostDecision::Allow;
+        assert_eq!(
+            evaluate_authority_intersection(&action, remote),
+            AuthorityIntersectionDecision::Eligible
+        );
+
+        let mut local = authority_inputs(&capability);
+        local.remote_host = RemoteHostDecision::Allow;
+        assert_eq!(
+            evaluate_authority_intersection(&action, local),
+            AuthorityIntersectionDecision::Denied(DenyReason::RemoteHostDenied)
+        );
+
+        let mut secondary = authority_inputs(&capability);
+        secondary.secondary_authority = SecondaryAuthorityDecision::Unknown;
+        assert_eq!(
+            evaluate_authority_intersection(&action, secondary),
+            AuthorityIntersectionDecision::Denied(DenyReason::SecondaryAuthorityDenied)
+        );
+    }
+
+    #[test]
+    fn no_allow_layer_can_override_an_independent_deny() {
+        let action = Action::parse("files.write", &[]).unwrap();
+        let capability = runtime_capability("files.write");
+
+        let mut controller_denied = authority_inputs(&capability);
+        controller_denied.controller = TrustedAuthorityDecision::Deny;
+        controller_denied.location = OperationLocation::Remote;
+        controller_denied.remote_host = RemoteHostDecision::Allow;
+        assert_eq!(
+            evaluate_authority_intersection(&action, controller_denied),
+            AuthorityIntersectionDecision::Denied(DenyReason::PolicyDenied)
+        );
+
+        let mut host_denied = authority_inputs(&capability);
+        host_denied.location = OperationLocation::Remote;
+        host_denied.remote_host = RemoteHostDecision::Deny;
+        assert_eq!(
+            evaluate_authority_intersection(&action, host_denied),
+            AuthorityIntersectionDecision::Denied(DenyReason::RemoteHostDenied)
+        );
     }
 
     #[test]
