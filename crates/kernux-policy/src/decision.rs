@@ -59,6 +59,14 @@ impl DenyReason {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub enum GrantMatchDecision {
+    Eligible {
+        effective_constraints: ValidatedConstraints,
+    },
+    Denied(DenyReason),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GrantAdmissionDecision {
     Admitted {
         grant_id: String,
@@ -73,19 +81,19 @@ pub fn evaluate_grant_match(
     authoritative_consequence: ConsequenceClass,
     trusted_now: CanonicalUtcSecond,
     hierarchical_resource: bool,
-) -> GrantAdmissionDecision {
+) -> GrantMatchDecision {
     if grant.parent_grant_id.is_some() {
-        return GrantAdmissionDecision::Denied(DenyReason::DelegationDenied);
+        return GrantMatchDecision::Denied(DenyReason::DelegationDenied);
     }
     if request.subject != grant.subject {
-        return GrantAdmissionDecision::Denied(DenyReason::SubjectMismatch);
+        return GrantMatchDecision::Denied(DenyReason::SubjectMismatch);
     }
     if request.action != grant.action {
-        return GrantAdmissionDecision::Denied(DenyReason::ActionMismatch);
+        return GrantMatchDecision::Denied(DenyReason::ActionMismatch);
     }
     if request.runtime_id != grant.runtime_id || request.runtime_revision != grant.runtime_revision
     {
-        return GrantAdmissionDecision::Denied(DenyReason::RuntimeMismatch);
+        return GrantMatchDecision::Denied(DenyReason::RuntimeMismatch);
     }
     if !matches!(
         grant.resource.matches(
@@ -95,23 +103,22 @@ pub fn evaluate_grant_match(
         ),
         Ok(true)
     ) {
-        return GrantAdmissionDecision::Denied(DenyReason::ResourceMismatch);
+        return GrantMatchDecision::Denied(DenyReason::ResourceMismatch);
     }
     let effective_constraints = match grant.constraints.intersect(&request.constraints) {
         Ok(value) if value.is_subset_of(&grant.constraints) => value,
-        Ok(_) | Err(_) => return GrantAdmissionDecision::Denied(DenyReason::ConstraintMismatch),
+        Ok(_) | Err(_) => return GrantMatchDecision::Denied(DenyReason::ConstraintMismatch),
     };
     if authoritative_consequence > grant.consequence_ceiling {
-        return GrantAdmissionDecision::Denied(DenyReason::ConsequenceExceeded);
+        return GrantMatchDecision::Denied(DenyReason::ConsequenceExceeded);
     }
     if trusted_now < grant.not_before {
-        return GrantAdmissionDecision::Denied(DenyReason::GrantNotYetActive);
+        return GrantMatchDecision::Denied(DenyReason::GrantNotYetActive);
     }
     if trusted_now >= grant.expires_at {
-        return GrantAdmissionDecision::Denied(DenyReason::GrantExpired);
+        return GrantMatchDecision::Denied(DenyReason::GrantExpired);
     }
-    GrantAdmissionDecision::Admitted {
-        grant_id: grant.grant_id.clone(),
+    GrantMatchDecision::Eligible {
         effective_constraints,
     }
 }

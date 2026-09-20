@@ -1,8 +1,8 @@
 use kernux_policy::{
     Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DenyReason,
-    GrantAdmissionDecision, GrantRevocationReason, ResourceScope, ValidatedCapabilityRequest,
-    ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope, evaluate_grant_match,
-    validate_action_resource,
+    GrantAdmissionDecision, GrantMatchDecision, GrantRevocationReason, ResourceScope,
+    ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope,
+    evaluate_grant_match, validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 
@@ -328,11 +328,10 @@ impl Store {
             trusted_now,
             hierarchical_resource,
         ) {
-            GrantAdmissionDecision::Admitted {
+            GrantMatchDecision::Eligible {
                 effective_constraints,
-                ..
             } => effective_constraints,
-            GrantAdmissionDecision::Denied(reason) => {
+            GrantMatchDecision::Denied(reason) => {
                 return Ok(GrantAdmissionDecision::Denied(reason));
             }
         };
