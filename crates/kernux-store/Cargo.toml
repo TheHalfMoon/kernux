@@ -10,6 +10,7 @@ publish = false
 rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }
 uuid = { version = "=1.26.1", default-features = false, features = ["std"] }
 sha2 = { version = "=0.11.0", default-features = false }
+kernux-policy = { path = "../kernux-policy" }
 
 [lib]
 path = "src/lib.rs"

@@ -1,7 +1,7 @@
 //! Local SQLite metadata-store foundation.
 //!
 //! This crate owns the bounded SG-000021 SQLite metadata layer: filesystem
-//! database opening, deterministic schema-v1 migration, revisioned metadata,
+//! database opening, deterministic schema migration, revisioned metadata,
 //! append-safe Event stream indexing, and bounded filesystem Artifact CAS bytes.
 //! Policy evaluation, secret plaintext, and daemon state-root wiring remain out of scope.
 
@@ -17,11 +17,13 @@ use rusqlite::{Connection, OpenFlags, TransactionBehavior};
 mod artifact;
 mod cas;
 mod event;
+mod grant;
 mod metadata;
 mod recovery;
 pub use artifact::{AdapterConfigRef, ArtifactMetadata, Sha256Digest};
 pub use cas::{ArtifactBindingError, ArtifactCas, CasBlob, CasError, VerifiedBlob};
 pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
+pub use grant::PersistedGrant;
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
 const SCHEMA_V1_VERSION: i64 = 1;
@@ -243,6 +245,8 @@ pub enum StoreError {
     EventSequenceOverflow,
     EventStreamCorrupt,
     IntegrityFailure,
+    InvalidGrantAudit,
+    GrantStateCorrupt,
 }
 
 impl fmt::Display for StoreError {
@@ -275,6 +279,8 @@ impl fmt::Display for StoreError {
             Self::EventSequenceOverflow => "metadata store event sequence cannot advance",
             Self::EventStreamCorrupt => "metadata store event stream is inconsistent",
             Self::IntegrityFailure => "metadata store integrity validation failed",
+            Self::InvalidGrantAudit => "metadata store grant audit linkage is invalid",
+            Self::GrantStateCorrupt => "metadata store grant state is inconsistent",
         })
     }
 }

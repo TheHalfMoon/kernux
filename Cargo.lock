@@ -252,6 +252,7 @@ version = "0.0.0"
 name = "kernux-store"
 version = "0.0.0"
 dependencies = [
+ "kernux-policy",
  "rusqlite",
  "sha2",
  "uuid",
