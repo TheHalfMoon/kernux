@@ -1,8 +1,9 @@
 use kernux_policy::{
-    Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DelegationDecision,
-    DenyReason, GrantMatchDecision, GrantRevocationReason, GrantUseDecision, PolicyDecision,
-    ResourceScope, TrustedAuthorityDecision, ValidatedCapabilityRequest, ValidatedConstraints,
-    ValidatedGrant, ValidatedSubjectScope, delegation_is_subset, evaluate_delegation,
+    Action, AuthorityIntersectionDecision, CanonicalResource, CanonicalUtcSecond, ConsequenceClass,
+    DelegationDecision, DenyReason, GrantMatchDecision, GrantRevocationReason, GrantUseDecision,
+    MandatoryAuthorityInputs, PolicyDecision, ResourceScope, TrustedAuthorityDecision,
+    ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope,
+    delegation_is_subset, evaluate_authority_intersection, evaluate_delegation,
     evaluate_grant_match, validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
@@ -42,6 +43,7 @@ pub struct DelegationPersistenceContext<'a> {
 
 #[derive(Clone, Copy, Debug)]
 pub struct PolicyDecisionContext<'a> {
+    pub mandatory_authorities: MandatoryAuthorityInputs<'a>,
     pub authoritative_consequence: ConsequenceClass,
     pub trusted_now: CanonicalUtcSecond,
     pub trusted_extensions: &'a [&'a str],
@@ -319,14 +321,18 @@ impl Store {
         request: &ValidatedCapabilityRequest,
         context: PolicyDecisionContext<'_>,
     ) -> Result<PolicyDecision, StoreError> {
-        let plan = self.plan_grant_use(
-            grant_id,
-            request,
-            context.authoritative_consequence,
-            context.trusted_now,
-            context.trusted_extensions,
-            context.hierarchical_resource,
-        )?;
+        let plan =
+            match evaluate_authority_intersection(&request.action, context.mandatory_authorities) {
+                AuthorityIntersectionDecision::Eligible => self.plan_grant_use(
+                    grant_id,
+                    request,
+                    context.authoritative_consequence,
+                    context.trusted_now,
+                    context.trusted_extensions,
+                    context.hierarchical_resource,
+                )?,
+                AuthorityIntersectionDecision::Denied(reason) => GrantUsePlan::Denied(reason),
+            };
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -841,6 +847,7 @@ fn decode_optional(value: Option<&[u8]>) -> Result<Option<u64>, StoreError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use kernux_contracts::{CapabilityVersion, RuntimeCapability};
     use kernux_policy::{
         CanonicalUtcSecond, ConsequenceClass, PolicyDecision, ValidatedConstraints,
     };
@@ -1011,6 +1018,42 @@ mod tests {
         }
     }
 
+    fn runtime_capability(action: &str) -> RuntimeCapability {
+        RuntimeCapability {
+            action: action.into(),
+            features: Vec::new(),
+            version: CapabilityVersion::V1,
+        }
+    }
+
+    fn authority_inputs<'a>(capability: &'a RuntimeCapability) -> MandatoryAuthorityInputs<'a> {
+        MandatoryAuthorityInputs {
+            controller: TrustedAuthorityDecision::Allow,
+            local_policy: TrustedAuthorityDecision::Allow,
+            kernel: TrustedAuthorityDecision::Allow,
+            principal_policy: TrustedAuthorityDecision::Allow,
+            runtime_capability: kernux_policy::RuntimeCapabilityEvidence::Negotiated(capability),
+            location: kernux_policy::OperationLocation::Local,
+            remote_host: kernux_policy::RemoteHostDecision::NotApplicable,
+            secondary_authority: kernux_policy::SecondaryAuthorityDecision::NotRequired,
+        }
+    }
+
+    fn decision_context<'a>(
+        audit_event: &'a EventAppend,
+        trusted_now: CanonicalUtcSecond,
+        capability: &'a RuntimeCapability,
+    ) -> PolicyDecisionContext<'a> {
+        PolicyDecisionContext {
+            mandatory_authorities: authority_inputs(capability),
+            authoritative_consequence: ConsequenceClass::C2,
+            trusted_now,
+            trusted_extensions: &[],
+            hierarchical_resource: true,
+            audit_event,
+        }
+    }
+
     fn policy_event(event_id: &str, event_type: &str, predecessor: CanonicalId) -> EventAppend {
         EventAppend::new(
             CanonicalId::parse(event_id).unwrap(),
@@ -1032,18 +1075,13 @@ mod tests {
             "capability.approved",
             issued_event,
         );
+        let capability = runtime_capability("files.write");
 
         let decision = store
             .decide_grant_use(
                 CanonicalId::parse(GRANT).unwrap(),
                 &request(),
-                PolicyDecisionContext {
-                    authoritative_consequence: ConsequenceClass::C2,
-                    trusted_now: now,
-                    trusted_extensions: &[],
-                    hierarchical_resource: true,
-                    audit_event: &audit,
-                },
+                decision_context(&audit, now, &capability),
             )
             .unwrap();
         assert!(matches!(decision, PolicyDecision::Allow { .. }));
@@ -1093,19 +1131,14 @@ mod tests {
             "capability.denied",
             issued_event,
         );
+        let capability = runtime_capability("files.delete");
 
         assert_eq!(
             store
                 .decide_grant_use(
                     CanonicalId::parse(GRANT).unwrap(),
                     &denied_request,
-                    PolicyDecisionContext {
-                        authoritative_consequence: ConsequenceClass::C2,
-                        trusted_now: now,
-                        trusted_extensions: &[],
-                        hierarchical_resource: true,
-                        audit_event: &audit,
-                    },
+                    decision_context(&audit, now, &capability),
                 )
                 .unwrap(),
             PolicyDecision::Deny(DenyReason::ActionMismatch)
@@ -1129,6 +1162,48 @@ mod tests {
     }
 
     #[test]
+    fn authority_denial_is_audited_before_grant_matching_without_budget_use() {
+        let (_db, mut store, issued_event) = prepare_store("grant-authority-deny");
+        store
+            .persist_validated_grant(&grant(), issued_event)
+            .unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        let mut denied_request = request();
+        denied_request.action = Action::parse("files.delete", &[]).unwrap();
+        let audit = policy_event(
+            "01890f00-0000-7000-8000-000000000034",
+            "capability.denied",
+            issued_event,
+        );
+        let capability = runtime_capability("files.delete");
+        let mut context = decision_context(&audit, now, &capability);
+        context.mandatory_authorities.controller = TrustedAuthorityDecision::Deny;
+
+        assert_eq!(
+            store
+                .decide_grant_use(CanonicalId::parse(GRANT).unwrap(), &denied_request, context,)
+                .unwrap(),
+            PolicyDecision::Deny(DenyReason::PolicyDenied)
+        );
+        assert_eq!(
+            store
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            0
+        );
+        let row: (String, Option<String>, Option<String>) = store
+            .connection
+            .query_row(
+                "SELECT decision, deny_reason, grant_id                  FROM policy_decisions WHERE request_id = ?1",
+                [&denied_request.request_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .unwrap();
+        assert_eq!(row, ("deny".into(), Some("policy-denied".into()), None));
+    }
+
+    #[test]
     fn audit_failure_rolls_back_allow_budget_and_event() {
         let (_db, mut store, issued_event) = prepare_store("grant-policy-rollback");
         store
@@ -1140,18 +1215,13 @@ mod tests {
             "capability.denied",
             issued_event,
         );
+        let capability = runtime_capability("files.write");
 
         assert_eq!(
             store.decide_grant_use(
                 CanonicalId::parse(GRANT).unwrap(),
                 &request(),
-                PolicyDecisionContext {
-                    authoritative_consequence: ConsequenceClass::C2,
-                    trusted_now: now,
-                    trusted_extensions: &[],
-                    hierarchical_resource: true,
-                    audit_event: &wrong_audit,
-                },
+                decision_context(&wrong_audit, now, &capability),
             ),
             Err(StoreError::InvalidGrantAudit)
         );

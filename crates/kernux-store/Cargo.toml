@@ -12,5 +12,8 @@ uuid = { version = "=1.26.1", default-features = false, features = ["std"] }
 sha2 = { version = "=0.11.0", default-features = false }
 kernux-policy = { path = "../kernux-policy" }
 
+[dev-dependencies]
+kernux-contracts = { path = "../kernux-contracts" }
+
 [lib]
 path = "src/lib.rs"
