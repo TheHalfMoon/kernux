@@ -1,6 +1,6 @@
 use kernux_policy::{
     Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DenyReason,
-    GrantAdmissionDecision, GrantMatchDecision, GrantRevocationReason, ResourceScope,
+    GrantMatchDecision, GrantRevocationReason, GrantUseDecision, ResourceScope,
     ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope,
     evaluate_grant_match, validate_action_resource,
 };
@@ -303,7 +303,7 @@ impl Store {
             used_count,
         })
     }
-    pub fn admit_grant_use(
+    pub fn consume_grant_use(
         &mut self,
         grant_id: CanonicalId,
         request: &ValidatedCapabilityRequest,
@@ -311,12 +311,12 @@ impl Store {
         trusted_now: CanonicalUtcSecond,
         trusted_extensions: &[&str],
         hierarchical_resource: bool,
-    ) -> Result<GrantAdmissionDecision, StoreError> {
+    ) -> Result<GrantUseDecision, StoreError> {
         let persisted =
             match self.persisted_grant(grant_id, trusted_extensions, hierarchical_resource) {
                 Ok(value) => value,
                 Err(StoreError::NotFound) => {
-                    return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantNotFound));
+                    return Ok(GrantUseDecision::Denied(DenyReason::GrantNotFound));
                 }
                 Err(error) => return Err(error),
             };
@@ -332,7 +332,7 @@ impl Store {
                 effective_constraints,
             } => effective_constraints,
             GrantMatchDecision::Denied(reason) => {
-                return Ok(GrantAdmissionDecision::Denied(reason));
+                return Ok(GrantUseDecision::Denied(reason));
             }
         };
 
@@ -349,7 +349,7 @@ impl Store {
             .optional()
             .map_err(|_| StoreError::Database)?;
         if revoked.is_some() {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantRevoked));
+            return Ok(GrantUseDecision::Denied(DenyReason::GrantRevoked));
         }
         let used_blob = transaction
             .query_row(
@@ -365,7 +365,7 @@ impl Store {
             return Err(StoreError::GrantStateCorrupt);
         }
         if used_count == grant.max_uses {
-            return Ok(GrantAdmissionDecision::Denied(DenyReason::GrantExhausted));
+            return Ok(GrantUseDecision::Denied(DenyReason::GrantExhausted));
         }
         let next_used = used_count
             .checked_add(1)
@@ -384,7 +384,7 @@ impl Store {
         }
         transaction.commit().map_err(|_| StoreError::Database)?;
 
-        Ok(GrantAdmissionDecision::Admitted {
+        Ok(GrantUseDecision::BudgetConsumed {
             grant_id: grant_id.to_canonical_text(),
             effective_constraints,
         })
@@ -713,17 +713,17 @@ mod tests {
         let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
 
         let admitted = store
-            .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+            .consume_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
             .unwrap();
         match admitted {
-            GrantAdmissionDecision::Admitted {
+            GrantUseDecision::BudgetConsumed {
                 effective_constraints,
                 ..
             } => {
                 assert_eq!(effective_constraints.max_bytes, Some(1024));
                 assert_eq!(effective_constraints.max_uses, Some(1));
             }
-            other => panic!("expected admitted decision, got {other:?}"),
+            other => panic!("expected consumed-budget decision, got {other:?}"),
         }
         assert_eq!(
             store.persisted_grant(id, &[], true).unwrap().used_count(),
@@ -731,18 +731,18 @@ mod tests {
         );
         assert_eq!(
             store
-                .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+                .consume_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::GrantExhausted)
+            GrantUseDecision::Denied(DenyReason::GrantExhausted)
         );
         drop(store);
 
         let mut reopened = Store::open(&db.path).unwrap();
         assert_eq!(
             reopened
-                .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+                .consume_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::GrantExhausted)
+            GrantUseDecision::Denied(DenyReason::GrantExhausted)
         );
     }
 
@@ -766,7 +766,7 @@ mod tests {
                 let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
                 barrier.wait();
                 store
-                    .admit_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
+                    .consume_grant_use(id, &request(), ConsequenceClass::C2, now, &[], true)
                     .unwrap()
             }));
         }
@@ -778,7 +778,7 @@ mod tests {
         assert_eq!(
             decisions
                 .iter()
-                .filter(|decision| matches!(decision, GrantAdmissionDecision::Admitted { .. }))
+                .filter(|decision| matches!(decision, GrantUseDecision::BudgetConsumed { .. }))
                 .count(),
             1
         );
@@ -786,7 +786,7 @@ mod tests {
             decisions
                 .iter()
                 .filter(|decision| {
-                    **decision == GrantAdmissionDecision::Denied(DenyReason::GrantExhausted)
+                    **decision == GrantUseDecision::Denied(DenyReason::GrantExhausted)
                 })
                 .count(),
             1
@@ -828,9 +828,9 @@ mod tests {
         let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
         assert_eq!(
             store
-                .admit_grant_use(child_id, &request(), ConsequenceClass::C2, now, &[], true,)
+                .consume_grant_use(child_id, &request(), ConsequenceClass::C2, now, &[], true,)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::DelegationDenied)
+            GrantUseDecision::Denied(DenyReason::DelegationDenied)
         );
         assert_eq!(
             store
@@ -852,15 +852,15 @@ mod tests {
 
         assert_eq!(
             store
-                .admit_grant_use(id, &wrong_action, ConsequenceClass::C2, now, &[], true)
+                .consume_grant_use(id, &wrong_action, ConsequenceClass::C2, now, &[], true)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::ActionMismatch)
+            GrantUseDecision::Denied(DenyReason::ActionMismatch)
         );
         assert_eq!(
             store
-                .admit_grant_use(id, &request(), ConsequenceClass::C3, now, &[], true)
+                .consume_grant_use(id, &request(), ConsequenceClass::C3, now, &[], true)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::ConsequenceExceeded)
+            GrantUseDecision::Denied(DenyReason::ConsequenceExceeded)
         );
         assert_eq!(
             store.persisted_grant(id, &[], true).unwrap().used_count(),
@@ -877,15 +877,15 @@ mod tests {
         let expiry = CanonicalUtcSecond::parse("2026-09-19T01:05:00Z").unwrap();
         assert_eq!(
             store
-                .admit_grant_use(id, &request(), ConsequenceClass::C2, before, &[], true)
+                .consume_grant_use(id, &request(), ConsequenceClass::C2, before, &[], true)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::GrantNotYetActive)
+            GrantUseDecision::Denied(DenyReason::GrantNotYetActive)
         );
         assert_eq!(
             store
-                .admit_grant_use(id, &request(), ConsequenceClass::C2, expiry, &[], true)
+                .consume_grant_use(id, &request(), ConsequenceClass::C2, expiry, &[], true)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::GrantExpired)
+            GrantUseDecision::Denied(DenyReason::GrantExpired)
         );
 
         let revoke_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000012").unwrap();
@@ -909,9 +909,9 @@ mod tests {
             .unwrap();
         assert_eq!(
             store
-                .admit_grant_use(id, &request(), ConsequenceClass::C2, revoked_at, &[], true,)
+                .consume_grant_use(id, &request(), ConsequenceClass::C2, revoked_at, &[], true,)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::GrantRevoked)
+            GrantUseDecision::Denied(DenyReason::GrantRevoked)
         );
         assert_eq!(
             store.persisted_grant(id, &[], true).unwrap().used_count(),
@@ -922,9 +922,9 @@ mod tests {
         let mut reopened = Store::open(&db.path).unwrap();
         assert_eq!(
             reopened
-                .admit_grant_use(id, &request(), ConsequenceClass::C2, revoked_at, &[], true,)
+                .consume_grant_use(id, &request(), ConsequenceClass::C2, revoked_at, &[], true,)
                 .unwrap(),
-            GrantAdmissionDecision::Denied(DenyReason::GrantRevoked)
+            GrantUseDecision::Denied(DenyReason::GrantRevoked)
         );
     }
 
