@@ -11,6 +11,18 @@ pub enum ConsequenceClass {
     C4,
 }
 
+impl ConsequenceClass {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::C0 => "C0",
+            Self::C1 => "C1",
+            Self::C2 => "C2",
+            Self::C3 => "C3",
+            Self::C4 => "C4",
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct TrustedConsequenceFacts {
     pub sensitive_data: bool,
@@ -109,6 +121,13 @@ impl CanonicalUtcSecond {
             second,
         })
     }
+
+    pub fn to_canonical_text(self) -> String {
+        format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+            self.year, self.month, self.day, self.hour, self.minute, self.second
+        )
+    }
 }
 
 fn decimal_u16(bytes: &[u8]) -> Result<u16, PolicyValidationError> {
@@ -152,15 +171,31 @@ pub struct ValidatedConstraints {
 
 impl ValidatedConstraints {
     pub fn from_wire(value: &ConstraintSet) -> Result<Self, PolicyValidationError> {
-        if value.max_uses == Some(0) {
+        Self::from_parts(
+            value.allowed_roots.clone(),
+            value.max_bytes,
+            value.max_duration_ms,
+            value.max_uses,
+            value.network_hosts.clone(),
+        )
+    }
+
+    pub fn from_parts(
+        allowed_roots: Option<Vec<String>>,
+        max_bytes: Option<u64>,
+        max_duration_ms: Option<u64>,
+        max_uses: Option<u64>,
+        network_hosts: Option<Vec<String>>,
+    ) -> Result<Self, PolicyValidationError> {
+        if max_uses == Some(0) {
             return Err(PolicyValidationError::InvalidConstraint);
         }
         Ok(Self {
-            allowed_roots: validate_set(value.allowed_roots.as_deref(), valid_root)?,
-            max_bytes: value.max_bytes,
-            max_duration_ms: value.max_duration_ms,
-            max_uses: value.max_uses,
-            network_hosts: validate_set(value.network_hosts.as_deref(), valid_host)?,
+            allowed_roots: validate_set(allowed_roots.as_deref(), valid_root)?,
+            max_bytes,
+            max_duration_ms,
+            max_uses,
+            network_hosts: validate_set(network_hosts.as_deref(), valid_host)?,
         })
     }
 
