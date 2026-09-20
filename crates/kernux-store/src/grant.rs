@@ -1,8 +1,8 @@
 use kernux_policy::{
-    Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DenyReason,
-    GrantMatchDecision, GrantRevocationReason, GrantUseDecision, ResourceScope,
-    ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, ValidatedSubjectScope,
-    evaluate_grant_match, validate_action_resource,
+    Action, CanonicalResource, CanonicalUtcSecond, ConsequenceClass, DelegationDecision,
+    DenyReason, GrantMatchDecision, GrantRevocationReason, GrantUseDecision, ResourceScope,
+    TrustedAuthorityDecision, ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant,
+    ValidatedSubjectScope, evaluate_delegation, evaluate_grant_match, validate_action_resource,
 };
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 
@@ -29,137 +29,87 @@ impl PersistedGrant {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct DelegationPersistenceContext<'a> {
+    pub trusted_now: CanonicalUtcSecond,
+    pub delegate_authority: TrustedAuthorityDecision,
+    pub recipient_authority: TrustedAuthorityDecision,
+    pub trusted_extensions: &'a [&'a str],
+    pub hierarchical_resource: bool,
+}
+
 impl Store {
     pub fn persist_validated_grant(
         &mut self,
         grant: &ValidatedGrant,
         issued_event_id: CanonicalId,
     ) -> Result<(), StoreError> {
-        let grant_id = CanonicalId::parse(&grant.grant_id)?;
-        let run_id = CanonicalId::parse(&grant.subject.run_id)?;
+        if grant.parent_grant_id.is_some() {
+            return Err(StoreError::InvalidGrantDelegation);
+        }
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| StoreError::Database)?;
-
-        let runtime_revision = transaction
-            .query_row(
-                "SELECT revision FROM runtimes WHERE id = ?1",
-                [&grant.runtime_id],
-                |row| row.get::<_, i64>(0),
-            )
-            .optional()
-            .map_err(|_| StoreError::Database)?
-            .ok_or(StoreError::NotFound)?;
-        if runtime_revision != i64::from(grant.runtime_revision) {
-            return Err(StoreError::RevisionConflict);
-        }
-
-        let audit = transaction
-            .query_row(
-                "SELECT event_type, owner_kind, owner_id FROM events WHERE id = ?1",
-                [issued_event_id.to_canonical_text()],
-                |row| {
-                    Ok((
-                        row.get::<_, String>(0)?,
-                        row.get::<_, String>(1)?,
-                        row.get::<_, String>(2)?,
-                    ))
-                },
-            )
-            .optional()
-            .map_err(|_| StoreError::Database)?
-            .ok_or(StoreError::InvalidGrantAudit)?;
-        if audit
-            != (
-                "grant.issued".to_owned(),
-                "run".to_owned(),
-                run_id.to_canonical_text(),
-            )
-        {
-            return Err(StoreError::InvalidGrantAudit);
-        }
-
-        transaction
-            .execute(
-                "INSERT INTO grants(id, revision) VALUES (?1, 1)",
-                [grant_id.to_canonical_text()],
-            )
-            .map_err(|error| match error {
-                rusqlite::Error::SqliteFailure(inner, _)
-                    if inner.code == rusqlite::ErrorCode::ConstraintViolation =>
-                {
-                    StoreError::DuplicateConflict
-                }
-                _ => StoreError::Database,
-            })?;
-
-        transaction
-            .execute(
-                "INSERT INTO grant_issuance(\
-                    grant_id, run_id, agent_session_id, action, resource_uri, resource_match, \
-                    runtime_id, runtime_revision, consequence_ceiling, issuer_authority, \
-                    policy_revision, issued_at, not_before, expires_at, max_uses, \
-                    delegation_depth, parent_grant_id, issued_event_id\
-                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)",
-                params![
-                    grant_id.to_canonical_text(),
-                    grant.subject.run_id,
-                    grant.subject.agent_session_id,
-                    grant.action.as_str(),
-                    grant.resource_uri,
-                    scope_text(grant.resource_scope),
-                    grant.runtime_id,
-                    i64::from(grant.runtime_revision),
-                    grant.consequence_ceiling.as_str(),
-                    grant.issuer_authority,
-                    encode_u64(grant.policy_revision).as_slice(),
-                    grant.issued_at.to_canonical_text(),
-                    grant.not_before.to_canonical_text(),
-                    grant.expires_at.to_canonical_text(),
-                    encode_u64(grant.max_uses).as_slice(),
-                    encode_u64(grant.delegation_depth).as_slice(),
-                    grant.parent_grant_id,
-                    issued_event_id.to_canonical_text(),
-                ],
-            )
-            .map_err(|_| StoreError::Database)?;
-
-        let max_bytes = grant.constraints.max_bytes.map(encode_u64);
-        let max_duration = grant.constraints.max_duration_ms.map(encode_u64);
-        let constraint_uses = grant.constraints.max_uses.map(encode_u64);
-        transaction
-            .execute(
-                "INSERT INTO grant_constraints(grant_id, max_bytes, max_duration_ms, max_uses) \
-                 VALUES (?1, ?2, ?3, ?4)",
-                params![
-                    grant_id.to_canonical_text(),
-                    max_bytes.as_ref().map(|value| value.as_slice()),
-                    max_duration.as_ref().map(|value| value.as_slice()),
-                    constraint_uses.as_ref().map(|value| value.as_slice()),
-                ],
-            )
-            .map_err(|_| StoreError::Database)?;
-
-        insert_set(
-            &transaction,
-            "grant_allowed_roots",
-            grant_id,
-            grant.constraints.allowed_roots.as_deref(),
-        )?;
-        insert_set(
-            &transaction,
-            "grant_network_hosts",
-            grant_id,
-            grant.constraints.network_hosts.as_deref(),
-        )?;
-        transaction
-            .execute(
-                "INSERT INTO grant_state(grant_id, used_count) VALUES (?1, ?2)",
-                params![grant_id.to_canonical_text(), encode_u64(0).as_slice()],
-            )
-            .map_err(|_| StoreError::Database)?;
+        persist_grant_tx(&transaction, grant, issued_event_id, "grant.issued")?;
         transaction.commit().map_err(|_| StoreError::Database)
+    }
+
+    pub fn persist_delegated_grant(
+        &mut self,
+        child: &ValidatedGrant,
+        delegated_event_id: CanonicalId,
+        context: DelegationPersistenceContext<'_>,
+    ) -> Result<DelegationDecision, StoreError> {
+        let parent_text = child
+            .parent_grant_id
+            .as_deref()
+            .ok_or(StoreError::InvalidGrantDelegation)?;
+        let parent_id = CanonicalId::parse(parent_text)?;
+        let parent = self.persisted_grant(
+            parent_id,
+            context.trusted_extensions,
+            context.hierarchical_resource,
+        )?;
+        let decision = evaluate_delegation(
+            parent.grant(),
+            child,
+            context.delegate_authority,
+            context.recipient_authority,
+            context.hierarchical_resource,
+        );
+        if decision != DelegationDecision::Eligible {
+            return Ok(decision);
+        }
+
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| StoreError::Database)?;
+        if grant_revoked(&transaction, parent_id)? {
+            return Ok(DelegationDecision::Denied(DenyReason::GrantRevoked));
+        }
+        if context.trusted_now < parent.grant().not_before {
+            return Ok(DelegationDecision::Denied(DenyReason::GrantNotYetActive));
+        }
+        if context.trusted_now >= parent.grant().expires_at {
+            return Ok(DelegationDecision::Denied(DenyReason::GrantExpired));
+        }
+        let used_count = grant_used_count(&transaction, parent_id)?;
+        if used_count > parent.grant().max_uses {
+            return Err(StoreError::GrantStateCorrupt);
+        }
+        if used_count == parent.grant().max_uses {
+            return Ok(DelegationDecision::Denied(DenyReason::GrantExhausted));
+        }
+        let remaining = parent.grant().max_uses - used_count;
+        if child.max_uses > remaining {
+            return Ok(DelegationDecision::Denied(DenyReason::DelegationDenied));
+        }
+
+        persist_grant_tx(&transaction, child, delegated_event_id, "grant.delegated")?;
+        transaction.commit().map_err(|_| StoreError::Database)?;
+        Ok(DelegationDecision::Eligible)
     }
 
     pub fn persisted_grant(
@@ -264,6 +214,7 @@ impl Store {
             || policy_revision == 0
             || used_count > max_uses
             || constraints.max_uses.is_some_and(|value| value != max_uses)
+            || issued_at > not_before
             || issued_at >= expires_at
             || not_before >= expires_at
             || row.8.is_empty()
@@ -321,6 +272,9 @@ impl Store {
                 Err(error) => return Err(error),
             };
         let grant = persisted.grant();
+        if grant.parent_grant_id.is_some() {
+            return Ok(GrantUseDecision::Denied(DenyReason::DelegationDenied));
+        }
         let effective_constraints = match evaluate_grant_match(
             grant,
             request,
@@ -340,27 +294,10 @@ impl Store {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| StoreError::Database)?;
-        let revoked = transaction
-            .query_row(
-                "SELECT 1 FROM grant_revocations WHERE grant_id = ?1",
-                [grant_id.to_canonical_text()],
-                |_| Ok(()),
-            )
-            .optional()
-            .map_err(|_| StoreError::Database)?;
-        if revoked.is_some() {
+        if grant_revoked(&transaction, grant_id)? {
             return Ok(GrantUseDecision::Denied(DenyReason::GrantRevoked));
         }
-        let used_blob = transaction
-            .query_row(
-                "SELECT used_count FROM grant_state WHERE grant_id = ?1",
-                [grant_id.to_canonical_text()],
-                |row| row.get::<_, Vec<u8>>(0),
-            )
-            .optional()
-            .map_err(|_| StoreError::Database)?
-            .ok_or(StoreError::GrantStateCorrupt)?;
-        let used_count = decode_u64(&used_blob)?;
+        let used_count = grant_used_count(&transaction, grant_id)?;
         if used_count > grant.max_uses {
             return Err(StoreError::GrantStateCorrupt);
         }
@@ -463,6 +400,160 @@ impl Store {
             })?;
         transaction.commit().map_err(|_| StoreError::Database)
     }
+}
+
+fn persist_grant_tx(
+    transaction: &rusqlite::Transaction<'_>,
+    grant: &ValidatedGrant,
+    audit_event_id: CanonicalId,
+    expected_event_type: &str,
+) -> Result<(), StoreError> {
+    let grant_id = CanonicalId::parse(&grant.grant_id)?;
+    let run_id = CanonicalId::parse(&grant.subject.run_id)?;
+
+    let runtime_revision = transaction
+        .query_row(
+            "SELECT revision FROM runtimes WHERE id = ?1",
+            [&grant.runtime_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .optional()
+        .map_err(|_| StoreError::Database)?
+        .ok_or(StoreError::NotFound)?;
+    if runtime_revision != i64::from(grant.runtime_revision) {
+        return Err(StoreError::RevisionConflict);
+    }
+
+    let audit = transaction
+        .query_row(
+            "SELECT event_type, owner_kind, owner_id FROM events WHERE id = ?1",
+            [audit_event_id.to_canonical_text()],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|_| StoreError::Database)?
+        .ok_or(StoreError::InvalidGrantAudit)?;
+    if audit
+        != (
+            expected_event_type.to_owned(),
+            "run".to_owned(),
+            run_id.to_canonical_text(),
+        )
+    {
+        return Err(StoreError::InvalidGrantAudit);
+    }
+
+    transaction
+        .execute(
+            "INSERT INTO grants(id, revision) VALUES (?1, 1)",
+            [grant_id.to_canonical_text()],
+        )
+        .map_err(|error| match error {
+            rusqlite::Error::SqliteFailure(inner, _)
+                if inner.code == rusqlite::ErrorCode::ConstraintViolation =>
+            {
+                StoreError::DuplicateConflict
+            }
+            _ => StoreError::Database,
+        })?;
+
+    transaction
+        .execute(
+            "INSERT INTO grant_issuance(                grant_id, run_id, agent_session_id, action, resource_uri, resource_match,                 runtime_id, runtime_revision, consequence_ceiling, issuer_authority,                 policy_revision, issued_at, not_before, expires_at, max_uses,                 delegation_depth, parent_grant_id, issued_event_id             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)",
+            params![
+                grant_id.to_canonical_text(),
+                grant.subject.run_id,
+                grant.subject.agent_session_id,
+                grant.action.as_str(),
+                grant.resource_uri,
+                scope_text(grant.resource_scope),
+                grant.runtime_id,
+                i64::from(grant.runtime_revision),
+                grant.consequence_ceiling.as_str(),
+                grant.issuer_authority,
+                encode_u64(grant.policy_revision).as_slice(),
+                grant.issued_at.to_canonical_text(),
+                grant.not_before.to_canonical_text(),
+                grant.expires_at.to_canonical_text(),
+                encode_u64(grant.max_uses).as_slice(),
+                encode_u64(grant.delegation_depth).as_slice(),
+                grant.parent_grant_id,
+                audit_event_id.to_canonical_text(),
+            ],
+        )
+        .map_err(|_| StoreError::Database)?;
+
+    let max_bytes = grant.constraints.max_bytes.map(encode_u64);
+    let max_duration = grant.constraints.max_duration_ms.map(encode_u64);
+    let constraint_uses = grant.constraints.max_uses.map(encode_u64);
+    transaction
+        .execute(
+            "INSERT INTO grant_constraints(grant_id, max_bytes, max_duration_ms, max_uses)              VALUES (?1, ?2, ?3, ?4)",
+            params![
+                grant_id.to_canonical_text(),
+                max_bytes.as_ref().map(|value| value.as_slice()),
+                max_duration.as_ref().map(|value| value.as_slice()),
+                constraint_uses.as_ref().map(|value| value.as_slice()),
+            ],
+        )
+        .map_err(|_| StoreError::Database)?;
+
+    insert_set(
+        transaction,
+        "grant_allowed_roots",
+        grant_id,
+        grant.constraints.allowed_roots.as_deref(),
+    )?;
+    insert_set(
+        transaction,
+        "grant_network_hosts",
+        grant_id,
+        grant.constraints.network_hosts.as_deref(),
+    )?;
+    transaction
+        .execute(
+            "INSERT INTO grant_state(grant_id, used_count) VALUES (?1, ?2)",
+            params![grant_id.to_canonical_text(), encode_u64(0).as_slice()],
+        )
+        .map_err(|_| StoreError::Database)?;
+    Ok(())
+}
+
+fn grant_revoked(
+    transaction: &rusqlite::Transaction<'_>,
+    grant_id: CanonicalId,
+) -> Result<bool, StoreError> {
+    transaction
+        .query_row(
+            "SELECT 1 FROM grant_revocations WHERE grant_id = ?1",
+            [grant_id.to_canonical_text()],
+            |_| Ok(()),
+        )
+        .optional()
+        .map(|value| value.is_some())
+        .map_err(|_| StoreError::Database)
+}
+
+fn grant_used_count(
+    transaction: &rusqlite::Transaction<'_>,
+    grant_id: CanonicalId,
+) -> Result<u64, StoreError> {
+    let value = transaction
+        .query_row(
+            "SELECT used_count FROM grant_state WHERE grant_id = ?1",
+            [grant_id.to_canonical_text()],
+            |row| row.get::<_, Vec<u8>>(0),
+        )
+        .optional()
+        .map_err(|_| StoreError::Database)?
+        .ok_or(StoreError::GrantStateCorrupt)?;
+    decode_u64(&value)
 }
 
 fn insert_set(
@@ -803,7 +894,7 @@ mod tests {
     }
 
     #[test]
-    fn parent_linked_grant_fails_closed_until_ancestor_accounting_exists() {
+    fn delegated_issuance_requires_authority_subset_and_dedicated_path() {
         let (_db, mut store, event) = prepare_store("grant-parent-deny");
         let mut parent = grant();
         parent.delegation_depth = 1;
@@ -813,7 +904,7 @@ mod tests {
         store
             .append_event(&EventAppend::new(
                 child_event,
-                EventType::parse("grant.issued").unwrap(),
+                EventType::parse("grant.delegated").unwrap(),
                 StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
                     .unwrap(),
                 Some(event),
@@ -822,10 +913,46 @@ mod tests {
         let mut child = grant();
         child.grant_id = "01890f00-0000-7000-8000-000000000014".into();
         child.parent_grant_id = Some(GRANT.into());
-        store.persist_validated_grant(&child, child_event).unwrap();
+
+        assert_eq!(
+            store.persist_validated_grant(&child, child_event),
+            Err(StoreError::InvalidGrantDelegation)
+        );
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        assert_eq!(
+            store
+                .persist_delegated_grant(
+                    &child,
+                    child_event,
+                    DelegationPersistenceContext {
+                        trusted_now: now,
+                        delegate_authority: TrustedAuthorityDecision::Unknown,
+                        recipient_authority: TrustedAuthorityDecision::Allow,
+                        trusted_extensions: &[],
+                        hierarchical_resource: true,
+                    },
+                )
+                .unwrap(),
+            DelegationDecision::Denied(DenyReason::DelegationDenied)
+        );
+        assert_eq!(
+            store
+                .persist_delegated_grant(
+                    &child,
+                    child_event,
+                    DelegationPersistenceContext {
+                        trusted_now: now,
+                        delegate_authority: TrustedAuthorityDecision::Allow,
+                        recipient_authority: TrustedAuthorityDecision::Allow,
+                        trusted_extensions: &[],
+                        hierarchical_resource: true,
+                    },
+                )
+                .unwrap(),
+            DelegationDecision::Eligible
+        );
 
         let child_id = CanonicalId::parse(&child.grant_id).unwrap();
-        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
         assert_eq!(
             store
                 .consume_grant_use(child_id, &request(), ConsequenceClass::C2, now, &[], true,)
