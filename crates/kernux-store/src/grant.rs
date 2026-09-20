@@ -804,6 +804,45 @@ mod tests {
     }
 
     #[test]
+    fn parent_linked_grant_fails_closed_until_ancestor_accounting_exists() {
+        let (_db, mut store, event) = prepare_store("grant-parent-deny");
+        let mut parent = grant();
+        parent.delegation_depth = 1;
+        store.persist_validated_grant(&parent, event).unwrap();
+
+        let child_event = CanonicalId::parse("01890f00-0000-7000-8000-000000000013").unwrap();
+        store
+            .append_event(&EventAppend::new(
+                child_event,
+                EventType::parse("grant.issued").unwrap(),
+                StreamRef::new(StreamOwnerKind::Run, CanonicalId::parse(RUN).unwrap(), None)
+                    .unwrap(),
+                Some(event),
+            ))
+            .unwrap();
+        let mut child = grant();
+        child.grant_id = "01890f00-0000-7000-8000-000000000014".into();
+        child.parent_grant_id = Some(GRANT.into());
+        store.persist_validated_grant(&child, child_event).unwrap();
+
+        let child_id = CanonicalId::parse(&child.grant_id).unwrap();
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+        assert_eq!(
+            store
+                .admit_grant_use(child_id, &request(), ConsequenceClass::C2, now, &[], true,)
+                .unwrap(),
+            GrantAdmissionDecision::Denied(DenyReason::DelegationDenied)
+        );
+        assert_eq!(
+            store
+                .persisted_grant(child_id, &[], true)
+                .unwrap()
+                .used_count(),
+            0
+        );
+    }
+
+    #[test]
     fn rejected_admission_does_not_consume_use_budget() {
         let (_db, mut store, event) = prepare_store("grant-reject");
         store.persist_validated_grant(&grant(), event).unwrap();
