@@ -9,6 +9,8 @@ publish = false
 [dependencies]
 interprocess = { version = "=2.4.4", default-features = false }
 kernux-contracts = { path = "../kernux-contracts" }
+kernux-policy = { path = "../kernux-policy" }
+kernux-store = { path = "../kernux-store" }
 serde_json = "=1.0.151"
 
 [lib]
