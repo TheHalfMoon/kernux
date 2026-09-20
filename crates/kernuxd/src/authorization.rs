@@ -13,36 +13,13 @@ use kernux_store::{CanonicalId, EventAppend, PolicyDecisionContext, Store};
 /// in-process snapshot must come from daemon-owned trusted state.
 #[derive(Debug)]
 pub struct TrustedAuthorizationSnapshot<'a> {
-    request: ValidatedCapabilityRequest,
-    mandatory_authorities: MandatoryAuthorityInputs<'a>,
-    consequence_facts: TrustedConsequenceFacts,
-    trusted_now: kernux_policy::CanonicalUtcSecond,
-    trusted_extensions: &'a [&'a str],
-    hierarchical_resource: bool,
-    audit_event: &'a EventAppend,
-}
-
-impl<'a> TrustedAuthorizationSnapshot<'a> {
-    /// Bind one validated request to daemon-owned trusted authorization state.
-    pub(crate) fn new(
-        request: ValidatedCapabilityRequest,
-        mandatory_authorities: MandatoryAuthorityInputs<'a>,
-        consequence_facts: TrustedConsequenceFacts,
-        trusted_now: kernux_policy::CanonicalUtcSecond,
-        trusted_extensions: &'a [&'a str],
-        hierarchical_resource: bool,
-        audit_event: &'a EventAppend,
-    ) -> Self {
-        Self {
-            request,
-            mandatory_authorities,
-            consequence_facts,
-            trusted_now,
-            trusted_extensions,
-            hierarchical_resource,
-            audit_event,
-        }
-    }
+    pub(crate) request: ValidatedCapabilityRequest,
+    pub(crate) mandatory_authorities: MandatoryAuthorityInputs<'a>,
+    pub(crate) consequence_facts: TrustedConsequenceFacts,
+    pub(crate) trusted_now: kernux_policy::CanonicalUtcSecond,
+    pub(crate) trusted_extensions: &'a [&'a str],
+    pub(crate) hierarchical_resource: bool,
+    pub(crate) audit_event: &'a EventAppend,
 }
 
 /// Result of the daemon authorization gate immediately before any side effect.
@@ -300,6 +277,25 @@ mod tests {
         }
     }
 
+    fn snapshot<'a>(
+        request: ValidatedCapabilityRequest,
+        mandatory_authorities: MandatoryAuthorityInputs<'a>,
+        consequence_facts: TrustedConsequenceFacts,
+        trusted_now: CanonicalUtcSecond,
+        trusted_extensions: &'a [&'a str],
+        audit_event: &'a EventAppend,
+    ) -> TrustedAuthorizationSnapshot<'a> {
+        TrustedAuthorizationSnapshot {
+            request,
+            mandatory_authorities,
+            consequence_facts,
+            trusted_now,
+            trusted_extensions,
+            hierarchical_resource: true,
+            audit_event,
+        }
+    }
+
     fn audit_event(event_id: &str, event_type: &str, predecessor: CanonicalId) -> EventAppend {
         EventAppend::new(
             CanonicalId::parse(event_id).unwrap(),
@@ -322,13 +318,12 @@ mod tests {
         let decision = authorize_pre_side_effect(
             &mut store,
             CanonicalId::parse(GRANT).unwrap(),
-            TrustedAuthorizationSnapshot::new(
+            snapshot(
                 request(),
                 authorities(&capability),
                 TrustedConsequenceFacts::default(),
                 now,
                 &[],
-                true,
                 &audit,
             ),
         )
@@ -360,7 +355,7 @@ mod tests {
         let decision = authorize_pre_side_effect(
             &mut store,
             CanonicalId::parse(GRANT).unwrap(),
-            TrustedAuthorizationSnapshot::new(
+            snapshot(
                 request(),
                 authorities(&capability),
                 TrustedConsequenceFacts {
@@ -369,7 +364,6 @@ mod tests {
                 },
                 now,
                 &[],
-                true,
                 &audit,
             ),
         )
@@ -406,13 +400,12 @@ mod tests {
             authorize_pre_side_effect(
                 &mut store,
                 CanonicalId::parse(GRANT).unwrap(),
-                TrustedAuthorizationSnapshot::new(
+                snapshot(
                     request(),
                     mandatory,
                     TrustedConsequenceFacts::default(),
                     now,
                     &[],
-                    true,
                     &audit,
                 ),
             )
@@ -445,13 +438,12 @@ mod tests {
             authorize_pre_side_effect(
                 &mut store,
                 CanonicalId::parse(GRANT).unwrap(),
-                TrustedAuthorizationSnapshot::new(
+                snapshot(
                     extension_request,
                     authorities(&capability),
                     TrustedConsequenceFacts::default(),
                     now,
                     &["ext.example.run"],
-                    true,
                     &audit,
                 ),
             )
@@ -482,13 +474,12 @@ mod tests {
             authorize_pre_side_effect(
                 &mut store,
                 CanonicalId::parse(GRANT).unwrap(),
-                TrustedAuthorizationSnapshot::new(
+                snapshot(
                     request(),
                     authorities(&capability),
                     TrustedConsequenceFacts::default(),
                     now,
                     &[],
-                    true,
                     &wrong_audit,
                 ),
             ),
