@@ -17,6 +17,7 @@ use std::sync::{
 };
 
 mod auth;
+mod authorization;
 mod transport;
 
 pub use auth::{
@@ -24,6 +25,10 @@ pub use auth::{
     ExpectedPeerIdentity, LaunchNonce, MAX_AUTH_BOOTSTRAP_BYTES, ObservedPeerIdentity,
     SessionAuthConfig, authorize_session, encode_auth_preamble, parse_auth_preamble,
     parse_owner_bootstrap,
+};
+pub use authorization::{
+    DaemonAuthorizationError, PreSideEffectAuthorization, TrustedAuthorizationSnapshot,
+    authorize_pre_side_effect,
 };
 pub use transport::{
     DEFAULT_ACCEPT_POLL_INTERVAL, DEFAULT_IO_TIMEOUT, DEFAULT_MAX_FRAME_BYTES, DaemonEndpoint,
