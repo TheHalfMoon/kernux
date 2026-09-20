@@ -327,13 +327,7 @@ impl Store {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| StoreError::Database)?;
-        persist_policy_decision_tx(
-            &transaction,
-            request,
-            &decision,
-            audit_event,
-            decided_at,
-        )?;
+        persist_policy_decision_tx(&transaction, request, &decision, audit_event, decided_at)?;
         transaction.commit().map_err(|_| StoreError::Database)?;
         Ok(decision)
     }
