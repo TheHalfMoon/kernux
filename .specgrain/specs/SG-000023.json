@@ -1,0 +1,138 @@
+{
+  "acceptance": [
+    "Architecture converges on a repository-owned crates/kernux-policy crate for pure authorization semantics, crates/kernux-store for durable Grant/policy-decision state, and kernuxd for trusted composition. The implementation adds no new external Cargo package/version/source identity; only path dependencies and already-approved locked dependencies may be reused.",
+    "The evaluator accepts only exact closed v1 core actions plus explicitly trusted registered extension actions, validates the lowercase dotted action grammar, rejects wildcards/provider permission strings/unknown extensions, and enforces the frozen action-to-primary-resource-authority compatibility matrix.",
+    "Canonical resource parsing enforces the frozen kernux:// rules before authorization: exact lowercase scheme/registered authority, no userinfo/port/query/fragment, no empty/repeated segments, no dot segments, canonical percent encoding/UTF-8, no encoded structural delimiter or NUL, exact UUIDv7 where required, and parsed segment-aware exact/subtree matching rather than raw string prefix matching.",
+    "Kernel-owned consequence classification returns at least the frozen action floor and may only raise from trusted context facts. Caller/model/tool/browser/document/provider claims cannot lower consequence; secret reveal, Grant issue/delegate, policy modification, identity management, privileged/unrecoverable/generated-host execution, financial commitment, and production/release mutation retain their required floors.",
+    "Constraint evaluation is typed, conjunctive and fail-closed. max_bytes/max_duration/max_uses, allowed-root, network-origin, resource/time/exact-value and supported action-specific constraints narrow by defined subset/intersection rules; unknown or incomparable mandatory constraints deny rather than disappear.",
+    "One issued Grant is immutable finite authority bound to canonical Grant ID, exact Run and optional AgentSession, exact action, canonical resource exact/subtree scope, exact Runtime, typed constraints, consequence ceiling, issuer/policy revision, canonical UTC-second issued/not-before/expiry timestamps, positive finite max_uses, finite delegation depth, and optional parent Grant. Widening requires a distinct new Grant ID.",
+    "SQLite migrates additively and atomically from schema v1 to a deterministic v2 policy ledger without rewriting prior S03/S04 data. Existing grants identity rows remain immutable; companion grant issuance/state/constraint/revocation/policy-decision tables preserve exact bounded authority, restart state and audit linkage. Future/partial/corrupt schema handling remains fail-closed and prior recovery guarantees continue passing.",
+    "Admission returns a closed typed decision/deny reason and succeeds only when Grant existence/state, trusted time, atomic remaining-use budget, subject, exact action, Runtime, canonical resource scope, effective constraints, consequence ceiling, contextual policy, exact runtime capability/version, kernel hard constraints, project/user/organization decision, remote-host decision when applicable, and secondary authority inputs all permit. Any mandatory unknown is non-allow.",
+    "Use accounting is atomic and consumed at successful operation admission before side-effect execution. Rejected pre-admission requests consume nothing; post-admission operation failure does not refund. Concurrent admissions cannot exceed max_uses, and restart preserves the consumed budget.",
+    "Not-before, expiry, revocation and exhaustion prevent new admissions using trusted canonical time. Revocation/expiry does not claim synchronous cancellation of already-admitted work. Deny reasons and stored audit metadata remain generic and must not embed secret values, payload bytes, arbitrary request reason text or raw sensitive resource data.",
+    "Delegation is default-deny at depth zero, separately requires an allowed C4 grant.delegate decision, and creates a new immutable child only when subject recipient authorization plus action/resource/runtime/constraint/consequence/time/use/depth lineage are equal or narrower. Child admission atomically consumes child and every applicable ancestor budget; ancestor expiry/revocation/exhaustion disables descendants and delegation never multiplies authority.",
+    "Remote admission is the fail-closed intersection of controller/Grant authority, local Kernux policy, kernel hard constraints, exact runtime capability/version, remote-host policy, and required secondary-resource authority. Controller allow cannot override host deny, host allow cannot replace controller authority, reconnect cannot resurrect stale authority, and runtime/provider type never implies a capability.",
+    "Every allow/deny/issue/revoke/delegate decision produces a typed redaction-safe policy audit record and a corresponding existing Event-stream append intent/event using exact run ownership and governed predecessor sequencing. An allow is not returned as side-effect-admissible unless durable budget/state mutation and its required audit linkage commit atomically or an equivalent fail-closed transaction proves the same invariant.",
+    "Adversarial tests execute the frozen capability/Grant invariants: URI prefix/encoding escapes, wrong identities, unknown action/authority/constraint, provider-native permission substitution, consequence lowering, data self-authorization, secret/use/action implication failures, stale/revoked/expired/exhausted grants, concurrent budget exhaustion, delegation scope/lifetime/budget widening, ancestor budget multiplication, remote-policy disagreement and reconnect resurrection.",
+    "S05-T01 does not implement Safe/Standard/Developer/Autonomous/Custom profile compilation, approval UI, durable organization-policy distribution, secret-provider/credential access, host filesystem/process/browser operations, runtime cancellation, new KRP wire fields, new action taxonomy, or remote/cloud transport. Those remain later dependency-ordered work.",
+    "Local macOS, Ubuntu Rust CI and native Windows CI execute the policy/store corpus without renaming protected contexts. Every bounded slice passes git diff --check, full pnpm check, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with complete manual accounting for exclusions, exact-head six-job CI/review/zero threads, ordinary merge, and exact post-merge six-job qualification before dependent work begins.",
+    "After native SpecGrain verification and protected closeout merge/post-merge qualification, only KX-P02-S05-T01 becomes PROVEN and KX-P02-S05-T02 may become NEXT if live canonical truth still confirms it; S06 remains PLANNED, progress becomes 6/9, and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000023.json",
+    ".github/workflows/ci.yml",
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/kernux-policy",
+    "crates/kernux-store/src/lib.rs",
+    "crates/kernux-store/src/grant.rs",
+    "crates/kernux-store/src/recovery.rs",
+    "crates/kernuxd/Cargo.toml",
+    "crates/kernuxd/src/lib.rs",
+    "crates/kernuxd/src/policy.rs",
+    "docs/evidence/P02-S05-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 20000,
+    "estimated_tokens": 18500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "policy-crate-boundary-pass",
+      "action-resource-validation-pass",
+      "canonical-resource-matching-pass",
+      "consequence-floor-pass",
+      "constraint-narrowing-pass",
+      "grant-finite-envelope-pass",
+      "policy-schema-v2-migration-pass",
+      "durable-grant-restart-pass",
+      "typed-deny-reason-pass",
+      "atomic-use-accounting-pass",
+      "revocation-expiry-pass",
+      "delegation-subset-pass",
+      "ancestor-budget-pass",
+      "remote-intersection-pass",
+      "audit-atomicity-pass",
+      "adversarial-policy-corpus-pass",
+      "cross-platform-policy-runtime-pass",
+      "protocol-auth-identity-event-cas-regression-pass",
+      "scope-boundary-pass",
+      "baseline-ci-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-closeout-pr-pass",
+      "post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000023",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "repository-owned-policy-crate",
+        "rationale": "Use the architecture-planned kernux-policy crate with standard library plus repository path dependencies only. Keep pure authorization semantics out of kernuxd and durable counters/revocations in kernux-store. Do not add a policy framework, async runtime, time/URL/parser package, ORM, expression language, or second database abstraction."
+      },
+      "safety": {
+        "requirements": [
+          "Unknown action, resource authority, constraint, policy layer, runtime capability/version, remote-host decision or unsupported canonical encoding must never become allow.",
+          "A request, Grant ID, model/tool/browser/document/provider claim or runtime type is never authority by itself.",
+          "Use budgets and all applicable ancestor budgets must be consumed atomically before side effects so retries/concurrency/delegation cannot mint authority.",
+          "Revocation, expiry, exhaustion and ancestor invalidity deny new admissions; do not claim they prove cancellation of already-admitted operations.",
+          "Delegation requires independent C4 grant.delegate authority and can only narrow; it must never extend resource, runtime, time, use, consequence, constraints, subject authorization or delegation depth.",
+          "Kernel-owned consequence may only stay equal or increase from trusted facts; untrusted provenance cannot lower consequence or mint/widen a Grant.",
+          "Policy audit and deny surfaces are redaction-safe and must not expose secret values, payload bytes, arbitrary untrusted reason text or raw sensitive filesystem/resource content.",
+          "Profiles, secret brokers, host-operation execution, approval UI and organization-policy distribution remain outside S05-T01."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Implement Kernux policy engine v1 as a fail-closed, provider-neutral authorization boundary that validates canonical capability requests/resources, classifies consequence, evaluates bounded immutable Grants, persists revocation/use/delegation state, atomically admits operations with audit evidence, and preserves exact finite authority across restart without implementing permission profiles or secret/host operation surfaces.",
+  "parent_id": null,
+  "rationale": "KX-P02-S04-T01 is PROVEN and post-merge-qualified, making KX-P02-S05-T01 the only authorized frontier. P01 already froze action/resource/consequence/constraint/Grant semantics and P02 already provides authenticated daemon boundaries, canonical identity, durable SQLite/Event storage, and Artifact CAS. S05 must implement those frozen semantics rather than invent a second permission model.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only bounded SG-000023 refinement/implementation/closeout changes and keep KX-P02-S05-T01 at NEXT. Preserve all already-issued immutable Grant/audit rows for explicit migration/recovery analysis; never weaken policy, zero counters, revive revoked/expired authority, delete evidence, or downgrade the proven S03/S04 storage/CAS schema automatically."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Add the architecture-planned crates/kernux-policy workspace member for pure v1 action/resource/consequence/constraint/Grant validation and deterministic policy decisions. Keep persistence in kernux-store and trusted composition in kernuxd.",
+    "Reuse generated kernux-contracts CapabilityRequest/Grant/ConstraintSet/RuntimeCapability shapes where they are the frozen wire contract, while converting at a strict trusted boundary into policy-owned validated forms. Do not let arbitrary strings survive as authorization semantics after validation.",
+    "Implement the exact closed v1 core action taxonomy and action/resource compatibility from CAPABILITY_AND_GRANT_MODEL. Support extension actions only through an explicit trusted registered-extension input; unknown extension namespaces/actions deny.",
+    "Implement a strict canonical kernux:// parser sufficient for all v1 resource authorities and exact/subtree segment-aware containment. Reject noncanonical percent encoding, encoded delimiters/NUL, dot/empty segments, wrong UUID identity forms, query/fragment/userinfo/port, wildcards and raw-prefix authorization.",
+    "Implement trusted consequence classification as ordered C0<C1<C2<C3<C4 using frozen action floors plus trusted escalation facts. Request/model/provider metadata may raise attention but cannot lower the trusted result.",
+    "Implement typed constraint validation and subset/intersection for current generated ConstraintSet fields plus internal time/resource/exact-value bounds required by the frozen semantic model. Unknown/incomparable mandatory constraints fail closed; runtime-enforced duration/byte limits remain explicit effective outputs rather than falsely claimed as executed by the policy engine.",
+    "Define strict canonical UTC-second timestamp input for Grant issued_at/not_before/expires_at at the trusted policy boundary, validate calendar/time ordering deterministically without a new external time dependency, and use trusted supplied current time for admission tests. Do not use UUID timestamps as authorization time.",
+    "Migrate kernux-store atomically from schema v1 to v2 using additive companion tables around the existing immutable grants identity table. Persist complete validated Grant issuance, normalized set constraints, use counters, revocations, parent lineage and policy-decision/audit linkage without secret values or arbitrary request reason text.",
+    "Preserve exact prior v1 tables/data and recovery behavior; v1->v2 migration is deterministic and rollback-safe, future/partial schemas fail closed, and reopen/restart proves Grant state survives.",
+    "Implement Grant issue/read/state/revoke operations and an atomic admission transaction that verifies active state and increments the target plus all ancestor use counters or commits nothing. Rejected pre-admission attempts consume zero; successful admission consumes even if later operation execution fails.",
+    "Implement typed closed PolicyDecision and DenyReason values covering malformed/unknown input, inactive Grant state, identity/action/runtime/resource/constraint mismatch, consequence ceiling, runtime capability absence/version mismatch, kernel/policy/remote-host/secondary-authority denial, delegation denial and audit/storage conflict without embedding sensitive values.",
+    "Implement delegation as new immutable child issuance after independent C4 grant.delegate authority, strict parent subset checks, recipient authorization, finite depth decrement, parent/child time/use/consequence/runtime/resource/constraint bounds and durable parent lineage.",
+    "Ensure child admissions consume child and every applicable ancestor budget and fail when any ancestor is revoked, expired, not active or exhausted. Concurrent admissions across siblings cannot exceed a shared ancestor budget.",
+    "Represent mandatory controller/local/kernel/runtime/remote/secondary authority layers as closed trusted inputs. Unknown mandatory layers fail closed; local operations do not fabricate remote-host approval, while remote operations require explicit remote-host allow.",
+    "Use existing Event sequencing to create redaction-safe policy audit events such as capability.approved/capability.denied/grant.issued/grant.revoked/grant.delegated and persist a minimal policy decision record keyed by canonical request identity. Admission state/budget mutation and required allow-audit linkage must commit atomically or fail closed.",
+    "Extend native Windows CI coverage to kernux-policy without renaming the protected Windows kernuxd context. Linux workspace CI and local macOS execute the same core policy/adversarial corpus.",
+    "Split implementation into bounded R3 slices: policy core/canonical parser; additive schema-v2 durable Grant ledger; admission/revocation/use accounting; delegation/ancestor budgets/audit integration; adversarial/cross-platform hardening; then native proof/closeout. Each dependent slice requires exact-head and post-merge qualification before the next begins.",
+    "After native proof and protected closeout, update only canonical ledgers so S05-T01 becomes PROVEN and S05-T02 becomes NEXT if live truth still confirms it. Keep S06 PLANNED and P02 phase exit unproven."
+  ],
+  "scope_out": [
+    "Do not implement Safe/Standard/Developer/Autonomous/Custom profile compilation or profile persistence; KX-P02-S05-T02 owns that user-facing policy layer.",
+    "Do not implement human approval UI, desktop renderer policy UX, organization identity/policy distribution, team roles, mobile approvals or cloud policy synchronization.",
+    "Do not implement secret plaintext access, OS credential-store adapters, secret broker behavior, secret rotation or credential injection; S06 owns those surfaces.",
+    "Do not implement filesystem/process/PTY/Git/browser/computer/network host operations. S05 authorizes typed requests but does not perform their side effects.",
+    "Do not modify the frozen KRP schema/generated contracts, core action taxonomy, Event model semantics, identity model or Artifact CAS semantics unless a separately governed incompatibility is proven. S05 consumes the frozen contracts.",
+    "Do not claim revocation/expiry cancels already-admitted operations, infer successful cancellation, or implement runtime retry/reconciliation semantics.",
+    "Do not treat policy profiles, caller reason text, provider permissions, tool descriptions, runtime type, model output, classifier output, Grant IDs or untrusted provenance as authorization.",
+    "Do not add an external policy engine/framework, expression language, URL parser, time library, async runtime, ORM, second database, remote policy service or new external dependency in S05-T01.",
+    "Do not build durable organization policy rules or immortal wildcard Grants. Persistent convenience rules are deferred to profile/policy-distribution work and must eventually issue finite exact Grants."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S05-T01 \u2014 Implement fail-closed policy evaluation and bounded Grant lifecycle"
+}
