@@ -24,18 +24,43 @@ pub use cas::{ArtifactBindingError, ArtifactCas, CasBlob, CasError, VerifiedBlob
 pub use event::{AcceptedEvent, EventAppend, EventType, StreamOwnerKind, StreamRef};
 pub use metadata::{CanonicalId, ImmutableEntity, Revision, RevisionedEntity};
 
-const SCHEMA_VERSION: i64 = 1;
+const SCHEMA_V1_VERSION: i64 = 1;
+const SCHEMA_V2_VERSION: i64 = 2;
+const SCHEMA_VERSION: i64 = SCHEMA_V2_VERSION;
 const MIGRATION_V1_NAME: &str = "metadata-v1";
+const MIGRATION_V2_NAME: &str = "policy-v2";
 const BUSY_TIMEOUT_MS: u64 = 5_000;
 const WAL_AUTOCHECKPOINT_PAGES: i64 = 1_000;
 
-const EXPECTED_TABLES: &[&str] = &[
+const EXPECTED_TABLES_V1: &[&str] = &[
     "adapter_config_refs",
     "agent_sessions",
     "artifacts",
     "events",
     "evidence",
     "grants",
+    "projects",
+    "runs",
+    "runtimes",
+    "schema_migrations",
+    "tasks",
+    "work_units",
+];
+
+const EXPECTED_TABLES_V2: &[&str] = &[
+    "adapter_config_refs",
+    "agent_sessions",
+    "artifacts",
+    "events",
+    "evidence",
+    "grant_allowed_roots",
+    "grant_constraints",
+    "grant_issuance",
+    "grant_network_hosts",
+    "grant_revocations",
+    "grant_state",
+    "grants",
+    "policy_decisions",
     "projects",
     "runs",
     "runtimes",
@@ -127,6 +152,74 @@ CREATE TABLE adapter_config_refs (
 );
 "#;
 
+const SCHEMA_V2_SQL: &str = r#"
+CREATE TABLE grant_issuance (
+    grant_id TEXT PRIMARY KEY REFERENCES grants(id),
+    run_id TEXT NOT NULL REFERENCES runs(id),
+    agent_session_id TEXT REFERENCES agent_sessions(id),
+    action TEXT NOT NULL CHECK (length(action) BETWEEN 3 AND 128),
+    resource_uri TEXT NOT NULL CHECK (length(resource_uri) BETWEEN 10 AND 4096),
+    resource_match TEXT NOT NULL CHECK (resource_match IN ('exact', 'subtree')),
+    runtime_id TEXT NOT NULL REFERENCES runtimes(id),
+    runtime_revision INTEGER NOT NULL CHECK (runtime_revision BETWEEN 1 AND 4294967295),
+    consequence_ceiling TEXT NOT NULL CHECK (consequence_ceiling IN ('C0', 'C1', 'C2', 'C3', 'C4')),
+    issuer_authority TEXT NOT NULL CHECK (length(issuer_authority) BETWEEN 1 AND 128),
+    policy_revision BLOB NOT NULL CHECK (typeof(policy_revision) = 'blob' AND length(policy_revision) = 8 AND policy_revision <> X'0000000000000000'),
+    issued_at TEXT NOT NULL CHECK (length(issued_at) = 20),
+    not_before TEXT NOT NULL CHECK (length(not_before) = 20),
+    expires_at TEXT NOT NULL CHECK (length(expires_at) = 20),
+    max_uses BLOB NOT NULL CHECK (typeof(max_uses) = 'blob' AND length(max_uses) = 8 AND max_uses <> X'0000000000000000'),
+    delegation_depth BLOB NOT NULL CHECK (typeof(delegation_depth) = 'blob' AND length(delegation_depth) = 8),
+    parent_grant_id TEXT REFERENCES grant_issuance(grant_id),
+    issued_event_id TEXT NOT NULL REFERENCES events(id),
+    CHECK (parent_grant_id IS NULL OR parent_grant_id <> grant_id)
+);
+
+CREATE TABLE grant_constraints (
+    grant_id TEXT PRIMARY KEY REFERENCES grant_issuance(grant_id),
+    max_bytes BLOB CHECK (max_bytes IS NULL OR (typeof(max_bytes) = 'blob' AND length(max_bytes) = 8)),
+    max_duration_ms BLOB CHECK (max_duration_ms IS NULL OR (typeof(max_duration_ms) = 'blob' AND length(max_duration_ms) = 8)),
+    max_uses BLOB CHECK (max_uses IS NULL OR (typeof(max_uses) = 'blob' AND length(max_uses) = 8 AND max_uses <> X'0000000000000000'))
+);
+
+CREATE TABLE grant_allowed_roots (
+    grant_id TEXT NOT NULL REFERENCES grant_constraints(grant_id),
+    value TEXT NOT NULL CHECK (length(value) BETWEEN 1 AND 1024),
+    PRIMARY KEY (grant_id, value)
+);
+
+CREATE TABLE grant_network_hosts (
+    grant_id TEXT NOT NULL REFERENCES grant_constraints(grant_id),
+    value TEXT NOT NULL CHECK (length(value) BETWEEN 1 AND 253),
+    PRIMARY KEY (grant_id, value)
+);
+
+CREATE TABLE grant_state (
+    grant_id TEXT PRIMARY KEY REFERENCES grant_issuance(grant_id),
+    used_count BLOB NOT NULL CHECK (typeof(used_count) = 'blob' AND length(used_count) = 8)
+);
+
+CREATE TABLE grant_revocations (
+    grant_id TEXT PRIMARY KEY REFERENCES grant_issuance(grant_id),
+    revoked_at TEXT NOT NULL CHECK (length(revoked_at) = 20),
+    event_id TEXT NOT NULL REFERENCES events(id),
+    reason_class TEXT NOT NULL CHECK (length(reason_class) BETWEEN 1 AND 64)
+);
+
+CREATE TABLE policy_decisions (
+    request_id TEXT PRIMARY KEY,
+    decision TEXT NOT NULL CHECK (decision IN ('allow', 'deny')),
+    deny_reason TEXT CHECK (deny_reason IS NULL OR length(deny_reason) BETWEEN 1 AND 64),
+    grant_id TEXT REFERENCES grant_issuance(grant_id),
+    event_id TEXT NOT NULL REFERENCES events(id),
+    decided_at TEXT NOT NULL CHECK (length(decided_at) = 20),
+    CHECK (
+        (decision = 'allow' AND grant_id IS NOT NULL AND deny_reason IS NULL) OR
+        (decision = 'deny' AND grant_id IS NULL AND deny_reason IS NOT NULL)
+    )
+);
+"#;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StoreError {
     InvalidPath,
@@ -202,12 +295,16 @@ impl Store {
         configure_connection(&connection)?;
 
         match state {
-            ExistingState::Fresh => migrate_v1(&mut connection, SCHEMA_V1_SQL)?,
-            ExistingState::VersionOne => validate_schema_v1(&connection)?,
+            ExistingState::Fresh => {
+                migrate_v1(&mut connection, SCHEMA_V1_SQL)?;
+                migrate_v2(&mut connection, SCHEMA_V2_SQL)?;
+            }
+            ExistingState::VersionOne => migrate_v2(&mut connection, SCHEMA_V2_SQL)?,
+            ExistingState::VersionTwo => validate_schema_v2(&connection)?,
         }
 
         verify_connection_policy(&connection)?;
-        validate_schema_v1(&connection)?;
+        validate_schema_v2(&connection)?;
         recovery::verify_integrity_connection(&connection)?;
         Ok(Self { connection })
     }
@@ -222,6 +319,7 @@ impl Store {
 enum ExistingState {
     Fresh,
     VersionOne,
+    VersionTwo,
 }
 
 fn validate_path(path: &Path) -> Result<(), StoreError> {
@@ -263,11 +361,15 @@ fn preflight_existing(path: &Path) -> Result<ExistingState, StoreError> {
                 Err(StoreError::SchemaDrift)
             }
         }
-        SCHEMA_VERSION => {
-            validate_migration_ledger(&connection)?;
+        SCHEMA_V1_VERSION => {
             validate_schema_v1(&connection)?;
             recovery::verify_integrity_connection(&connection)?;
             Ok(ExistingState::VersionOne)
+        }
+        SCHEMA_V2_VERSION => {
+            validate_schema_v2(&connection)?;
+            recovery::verify_integrity_connection(&connection)?;
+            Ok(ExistingState::VersionTwo)
         }
         version if version > SCHEMA_VERSION => Err(StoreError::FutureSchema),
         _ => Err(StoreError::SchemaDrift),
@@ -342,28 +444,68 @@ fn migrate_v1(connection: &mut Connection, schema_sql: &str) -> Result<(), Store
     transaction
         .execute(
             "INSERT INTO schema_migrations(version, name) VALUES (?1, ?2)",
-            (SCHEMA_VERSION, MIGRATION_V1_NAME),
+            (SCHEMA_V1_VERSION, MIGRATION_V1_NAME),
         )
         .map_err(|_| StoreError::Database)?;
     transaction
-        .pragma_update(None, "user_version", SCHEMA_VERSION)
+        .pragma_update(None, "user_version", SCHEMA_V1_VERSION)
+        .map_err(|_| StoreError::Database)?;
+    transaction.commit().map_err(|_| StoreError::Database)
+}
+
+fn migrate_v2(connection: &mut Connection, schema_sql: &str) -> Result<(), StoreError> {
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_| StoreError::Database)?;
+    transaction
+        .execute_batch(schema_sql)
+        .map_err(|_| StoreError::Database)?;
+    transaction
+        .execute(
+            "INSERT INTO schema_migrations(version, name) VALUES (?1, ?2)",
+            (SCHEMA_V2_VERSION, MIGRATION_V2_NAME),
+        )
+        .map_err(|_| StoreError::Database)?;
+    transaction
+        .pragma_update(None, "user_version", SCHEMA_V2_VERSION)
         .map_err(|_| StoreError::Database)?;
     transaction.commit().map_err(|_| StoreError::Database)
 }
 
 fn validate_schema_v1(connection: &Connection) -> Result<(), StoreError> {
-    if user_version(connection)? != SCHEMA_VERSION {
+    if user_version(connection)? != SCHEMA_V1_VERSION {
         return Err(StoreError::SchemaDrift);
     }
-    validate_migration_ledger(connection)?;
+    validate_migration_ledger(connection, &[(SCHEMA_V1_VERSION, MIGRATION_V1_NAME)])?;
     let tables = user_table_names(connection)?;
-    if tables.as_slice() != EXPECTED_TABLES {
+    if tables.as_slice() != EXPECTED_TABLES_V1 {
         return Err(StoreError::SchemaDrift);
     }
     Ok(())
 }
 
-fn validate_migration_ledger(connection: &Connection) -> Result<(), StoreError> {
+fn validate_schema_v2(connection: &Connection) -> Result<(), StoreError> {
+    if user_version(connection)? != SCHEMA_V2_VERSION {
+        return Err(StoreError::SchemaDrift);
+    }
+    validate_migration_ledger(
+        connection,
+        &[
+            (SCHEMA_V1_VERSION, MIGRATION_V1_NAME),
+            (SCHEMA_V2_VERSION, MIGRATION_V2_NAME),
+        ],
+    )?;
+    let tables = user_table_names(connection)?;
+    if tables.as_slice() != EXPECTED_TABLES_V2 {
+        return Err(StoreError::SchemaDrift);
+    }
+    Ok(())
+}
+
+fn validate_migration_ledger(
+    connection: &Connection,
+    expected: &[(i64, &str)],
+) -> Result<(), StoreError> {
     let exists: i64 = connection
         .query_row(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='schema_migrations'",
@@ -386,7 +528,11 @@ fn validate_migration_ledger(connection: &Connection) -> Result<(), StoreError> 
     let values = rows
         .collect::<Result<Vec<_>, _>>()
         .map_err(|_| StoreError::SchemaDrift)?;
-    if values != vec![(SCHEMA_VERSION, MIGRATION_V1_NAME.to_owned())] {
+    let expected = expected
+        .iter()
+        .map(|(version, name)| (*version, (*name).to_owned()))
+        .collect::<Vec<_>>();
+    if values != expected {
         return Err(StoreError::SchemaDrift);
     }
     Ok(())
@@ -453,14 +599,14 @@ mod tests {
         assert_eq!(store.schema_version().unwrap(), SCHEMA_VERSION as u32);
         assert_eq!(
             user_table_names(&store.connection).unwrap(),
-            EXPECTED_TABLES
+            EXPECTED_TABLES_V2
         );
-        validate_migration_ledger(&store.connection).expect("exact ledger");
+        validate_schema_v2(&store.connection).expect("exact schema and ledger");
         verify_connection_policy(&store.connection).expect("required policy");
     }
 
     #[test]
-    fn version_one_reopens_without_reapplying_migration() {
+    fn version_two_reopens_without_reapplying_migration() {
         let db = TestDb::new("reopen");
         drop(Store::open(&db.path).expect("create store"));
         let reopened = Store::open(&db.path).expect("reopen store");
@@ -471,15 +617,116 @@ mod tests {
                 row.get(0)
             })
             .unwrap();
-        assert_eq!(count, 1);
+        assert_eq!(count, 2);
         assert_eq!(user_version(&reopened.connection).unwrap(), SCHEMA_VERSION);
+    }
+
+    fn table_definitions(connection: &Connection, names: &[&str]) -> Vec<(String, String)> {
+        let mut statement = connection
+            .prepare(
+                "SELECT name, sql FROM sqlite_master \
+                 WHERE type = 'table' AND name = ?1",
+            )
+            .unwrap();
+        let mut definitions = Vec::with_capacity(names.len());
+        for name in names {
+            definitions.push(
+                statement
+                    .query_row([name], |row| Ok((row.get(0)?, row.get(1)?)))
+                    .unwrap(),
+            );
+        }
+        definitions
+    }
+
+    #[test]
+    fn v2_migration_preserves_every_v1_table_definition_exactly() {
+        let db = TestDb::new("v1-ddl-preserved");
+        let mut connection = Connection::open(&db.path).unwrap();
+        configure_connection(&connection).unwrap();
+        migrate_v1(&mut connection, SCHEMA_V1_SQL).unwrap();
+        let before = table_definitions(&connection, EXPECTED_TABLES_V1);
+
+        migrate_v2(&mut connection, SCHEMA_V2_SQL).unwrap();
+        let after = table_definitions(&connection, EXPECTED_TABLES_V1);
+
+        assert_eq!(after, before);
+        validate_schema_v2(&connection).unwrap();
+    }
+
+    #[test]
+    fn version_one_migrates_additively_to_v2_without_rewriting_prior_rows() {
+        let db = TestDb::new("v1-to-v2");
+        let mut connection = Connection::open(&db.path).unwrap();
+        configure_connection(&connection).unwrap();
+        migrate_v1(&mut connection, SCHEMA_V1_SQL).unwrap();
+        connection
+            .execute(
+                "INSERT INTO projects(id, revision) VALUES (?1, 7)",
+                ["01890f3a-7b2c-7d45-8a61-3c4e5f6071c0"],
+            )
+            .unwrap();
+        connection
+            .execute(
+                "INSERT INTO grants(id, revision) VALUES (?1, 1)",
+                ["01890f3a-7b2c-7d45-8a61-3c4e5f6071c1"],
+            )
+            .unwrap();
+        drop(connection);
+
+        let migrated = Store::open(&db.path).unwrap();
+        assert_eq!(migrated.schema_version().unwrap(), 2);
+        let project_revision: i64 = migrated
+            .connection
+            .query_row(
+                "SELECT revision FROM projects WHERE id = ?1",
+                ["01890f3a-7b2c-7d45-8a61-3c4e5f6071c0"],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let grant_revision: i64 = migrated
+            .connection
+            .query_row(
+                "SELECT revision FROM grants WHERE id = ?1",
+                ["01890f3a-7b2c-7d45-8a61-3c4e5f6071c1"],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(project_revision, 7);
+        assert_eq!(grant_revision, 1);
+        validate_schema_v2(&migrated.connection).unwrap();
+    }
+
+    #[test]
+    fn tampered_v2_migration_ledger_rejects_without_modifying_database_bytes() {
+        let db = TestDb::new("v2-ledger-tamper");
+        drop(Store::open(&db.path).unwrap());
+
+        let connection = Connection::open(&db.path).unwrap();
+        connection
+            .execute(
+                "UPDATE schema_migrations SET name = 'tampered-v2' WHERE version = 2",
+                [],
+            )
+            .unwrap();
+        connection
+            .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);")
+            .unwrap();
+        drop(connection);
+        let before = fs::read(&db.path).unwrap();
+
+        assert!(matches!(
+            Store::open(&db.path),
+            Err(StoreError::SchemaDrift)
+        ));
+        assert_eq!(fs::read(&db.path).unwrap(), before);
     }
 
     #[test]
     fn future_schema_rejects_without_modifying_database_bytes() {
         let db = TestDb::new("future");
         let connection = Connection::open(&db.path).unwrap();
-        connection.execute_batch("CREATE TABLE sentinel(value TEXT NOT NULL); INSERT INTO sentinel VALUES ('keep'); PRAGMA user_version = 2;").unwrap();
+        connection.execute_batch("CREATE TABLE sentinel(value TEXT NOT NULL); INSERT INTO sentinel VALUES ('keep'); PRAGMA user_version = 3;").unwrap();
         drop(connection);
         let before = fs::read(&db.path).unwrap();
 
@@ -523,6 +770,23 @@ mod tests {
     }
 
     #[test]
+    fn v2_migration_failure_rolls_back_to_exact_v1() {
+        let db = TestDb::new("v2-rollback");
+        let mut connection = Connection::open(&db.path).unwrap();
+        configure_connection(&connection).unwrap();
+        migrate_v1(&mut connection, SCHEMA_V1_SQL).unwrap();
+        let invalid = "CREATE TABLE policy_partial(id INTEGER PRIMARY KEY); CREATE TABLE broken(";
+
+        assert_eq!(
+            migrate_v2(&mut connection, invalid),
+            Err(StoreError::Database)
+        );
+        assert_eq!(user_version(&connection).unwrap(), SCHEMA_V1_VERSION);
+        assert_eq!(user_table_names(&connection).unwrap(), EXPECTED_TABLES_V1);
+        validate_schema_v1(&connection).unwrap();
+    }
+
+    #[test]
     fn path_must_be_filesystem_database_not_memory_or_directory() {
         assert!(matches!(
             Store::open(":memory:"),
@@ -540,8 +804,14 @@ mod tests {
         assert_eq!(u32::MAX, 4_294_967_295);
         assert!(SCHEMA_V1_SQL.contains("revision BETWEEN 1 AND 4294967295"));
         assert!(SCHEMA_V1_SQL.contains("typeof(stream_seq) = 'blob' AND length(stream_seq) = 8"));
+        assert!(
+            SCHEMA_V2_SQL
+                .contains("typeof(policy_revision) = 'blob' AND length(policy_revision) = 8")
+        );
+        assert!(SCHEMA_V2_SQL.contains("typeof(max_uses) = 'blob' AND length(max_uses) = 8"));
+        assert!(SCHEMA_V2_SQL.contains("CREATE TABLE policy_decisions"));
+        assert!(!SCHEMA_V2_SQL.contains("approval_required"));
         assert!(!SCHEMA_V1_SQL.contains("artifact_blob"));
-        assert!(!SCHEMA_V1_SQL.contains("secret_value"));
-        assert!(!SCHEMA_V1_SQL.contains("policy_decision"));
+        assert!(!SCHEMA_V2_SQL.contains("secret_value"));
     }
 }
