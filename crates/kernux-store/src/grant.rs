@@ -1135,6 +1135,55 @@ mod tests {
     }
 
     #[test]
+    fn explicit_policy_denial_persists_audit_without_consuming_budget() {
+        let (_db, mut store, issued_event) = prepare_store("grant-explicit-deny");
+        store.persist_validated_grant(&grant(), issued_event).unwrap();
+        let audit = policy_event(
+            "01890f00-0000-7000-8000-000000000035",
+            "capability.denied",
+            issued_event,
+        );
+        let now = CanonicalUtcSecond::parse("2026-09-19T01:01:00Z").unwrap();
+
+        assert_eq!(
+            store
+                .record_policy_denial(
+                    &request(),
+                    DenyReason::UnknownInput,
+                    &audit,
+                    now,
+                )
+                .unwrap(),
+            PolicyDecision::Deny(DenyReason::UnknownInput)
+        );
+        assert_eq!(
+            store
+                .persisted_grant(CanonicalId::parse(GRANT).unwrap(), &[], true)
+                .unwrap()
+                .used_count(),
+            0
+        );
+
+        let row: (String, Option<String>, Option<String>, String) = store
+            .connection
+            .query_row(
+                "SELECT decision, deny_reason, grant_id, event_id                  FROM policy_decisions WHERE request_id = ?1",
+                [&request().request_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .unwrap();
+        assert_eq!(
+            row,
+            (
+                "deny".into(),
+                Some("unknown-input".into()),
+                None,
+                audit.event_id().to_canonical_text(),
+            )
+        );
+    }
+
+    #[test]
     fn audited_deny_records_generic_reason_without_consuming_budget() {
         let (_db, mut store, issued_event) = prepare_store("grant-policy-deny");
         store
