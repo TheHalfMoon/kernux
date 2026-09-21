@@ -239,7 +239,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           CHECK_NAME: Windows kernuxd
           DETAILS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        shell: bash
+        shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           $payload = @{
