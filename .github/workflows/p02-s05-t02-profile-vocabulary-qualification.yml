@@ -1,0 +1,172 @@
+name: P02 S05 T02 Profile Vocabulary Qualification
+
+on:
+  push:
+    branches:
+      - probe/p02-s05-t02-profile-vocabulary-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 9177faa18a415099549bdb63cc78faca77fd2dc3
+  TARGET_SHA: 68d4edb9ec081f13672a27bb01e5bae83006d6ef
+
+jobs:
+  linux:
+    name: linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact profile-vocabulary candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact two-file slice
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "2"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "crates/kernux-policy/src/lib.rs"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "crates/kernux-policy/src/profile.rs"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -E '^(Cargo\.toml|Cargo\.lock|protocol/|specs/|\.github/)' || true)"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Run focused profile policy tests
+        run: cargo test --locked -p kernux-policy --all-targets
+
+      - name: Prove exact slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Prove exact slice at Diffcipline R1
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R1
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    name: macos
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact profile-vocabulary candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact two-file slice
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "2"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          sw_vers
+          uname -m
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Run focused profile policy tests
+        run: cargo test --locked -p kernux-policy --all-targets
+
+      - name: Prove exact slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
