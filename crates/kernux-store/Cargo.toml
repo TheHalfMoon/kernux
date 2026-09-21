@@ -6,6 +6,7 @@ rust-version.workspace = true
 license = "Apache-2.0"
 publish = false
 
+# Corrective SpecGrain scope reconciliation; dependency semantics are intentionally unchanged.
 [dependencies]
 rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }
 uuid = { version = "=1.26.1", default-features = false, features = ["std"] }

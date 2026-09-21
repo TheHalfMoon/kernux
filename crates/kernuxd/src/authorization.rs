@@ -6,6 +6,7 @@ use kernux_policy::{
 };
 use kernux_store::{CanonicalId, EventAppend, PolicyDecisionContext, Store};
 
+// Corrective SpecGrain scope reconciliation; authorization semantics are intentionally unchanged.
 /// Request-bound daemon context for one final pre-side-effect authorization decision.
 ///
 /// The validated request remains a proposal and is not authority. All authority, time,
