@@ -10,7 +10,7 @@ permissions:
 
 env:
   BASE_SHA: 17fe5b52d7d68b04e97bd65bc0c6be4637141225
-  TARGET_SHA: 7984142490353a8bba11bd58cca4af7796eaf539
+  TARGET_SHA: 7a4b0f6717bddca51829a57b0f82df9d608c3ced
 
 jobs:
   qualify:
