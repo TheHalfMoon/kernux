@@ -1,0 +1,338 @@
+name: SG24 Native Verification Probe
+
+on:
+  push:
+    branches:
+      - probe/sg24-native-verification
+
+permissions:
+  contents: read
+
+env:
+  SPEC_ID: SG-000024
+  PIN: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  CORRECTIVE_REFINEMENT_MERGE: 17fe5b52d7d68b04e97bd65bc0c6be4637141225
+  RECONCILIATION_MERGE: 40517b3537f84f02197fa22f0f699adc998bd6c8
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact corrective reconciliation merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.RECONCILIATION_MERGE }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact canonical verification base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RECONCILIATION_MERGE"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          expected="$(printf '%s\n' \
+            'crates/kernux-store/Cargo.toml' \
+            'crates/kernux-store/src/event.rs' \
+            'crates/kernuxd/src/authorization.rs' \
+            'docs/evidence/SG-000024-context-sources.json' \
+            'docs/evidence/SG-000024-work-packet.json')"
+          observed="$(git diff --name-only "$CORRECTIVE_REFINEMENT_MERGE..$RECONCILIATION_MERGE" | sort)"
+          test "$observed" = "$expected"
+          git diff --check "$CORRECTIVE_REFINEMENT_MERGE..$RECONCILIATION_MERGE"
+
+      - name: Bootstrap exact pinned SpecGrain and replay original packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin > /tmp/specgrain-pin.json
+          python3 - <<'PY'
+          import json
+          pin=json.load(open('/tmp/specgrain-pin.json', encoding='utf-8'))
+          assert pin['commit'] == '5de7d6499bb0a9e3a191fc0934399cf099d1980a'
+          assert pin['archive_sha256'] == 'da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9'
+          PY
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet "$SPEC_ID" . \
+            --context-sources "docs/evidence/$SPEC_ID-context-sources.json" \
+            --json > /tmp/sg24-packet-replay.json
+          cmp "docs/evidence/$SPEC_ID-work-packet.json" /tmp/sg24-packet-replay.json
+          sha256sum "docs/evidence/$SPEC_ID-context-sources.json"
+          sha256sum "docs/evidence/$SPEC_ID-work-packet.json"
+
+      - name: Run native verify_execution and append immutable record
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import pathlib
+          import subprocess
+          import sys
+
+          SPEC_ID = os.environ["SPEC_ID"]
+          PIN = os.environ["PIN"]
+          CORRECTIVE_REFINEMENT_MERGE = os.environ["CORRECTIVE_REFINEMENT_MERGE"]
+          RECONCILIATION_MERGE = os.environ["RECONCILIATION_MERGE"]
+
+          source_root = pathlib.Path(".cache/specgrain") / PIN / "source" / "src"
+          sys.path.insert(0, str(source_root))
+
+          from specgrain import (
+              CheckEvidence,
+              ExecutionResult,
+              WorkPacket,
+              append_verification_report,
+              load_project,
+              verify_execution,
+          )
+
+          packet_path = pathlib.Path(f"docs/evidence/{SPEC_ID}-work-packet.json")
+          packet = WorkPacket.from_dict(json.loads(packet_path.read_text(encoding="utf-8")))
+
+          assert packet.packet_digest == "sha256:826805690aecaa38641ebda10cdf304b94c2bb5362f61d349f45d8f8476e5851"
+          assert packet.context_plan_digest == "sha256:3bfc0ff9366f6a2e33ad95ec30e10d20f08a0732939242efc5f6aafe20d9961f"
+          assert packet.spec_revision == "sha256:bad445ed3c11f6b5ff18b1c4e93266aff6f66c64c9c531322986b380a8b7b49f"
+
+          project = load_project(".")
+          nodes = [node for node in project.specs if node.id == SPEC_ID]
+          if len(nodes) != 1:
+              raise SystemExit(f"expected exactly one {SPEC_ID} node, found {len(nodes)}")
+          node = nodes[0]
+
+          observed = tuple(sorted(
+              line.strip()
+              for line in subprocess.check_output(
+                  ["git", "diff", "--name-only", f"{CORRECTIVE_REFINEMENT_MERGE}..{RECONCILIATION_MERGE}"],
+                  text=True,
+              ).splitlines()
+              if line.strip()
+          ))
+          expected = tuple(sorted((
+              "crates/kernux-store/Cargo.toml",
+              "crates/kernux-store/src/event.rs",
+              "crates/kernuxd/src/authorization.rs",
+              f"docs/evidence/{SPEC_ID}-context-sources.json",
+              f"docs/evidence/{SPEC_ID}-work-packet.json",
+          )))
+          if observed != expected:
+              raise SystemExit(f"observed-path mismatch: expected={expected!r} observed={observed!r}")
+
+          result = ExecutionResult(
+              packet_digest=packet.packet_digest,
+              status="succeeded",
+              summary=(
+                  "Corrective packet persistence and explicit three-path source reconciliation "
+                  "completed under the original WorkPacket; all dependent qualification gates "
+                  "and post-merge evidence were independently rechecked."
+              ),
+              changed_paths=observed,
+              reported_evidence=tuple(sorted(packet.required_evidence)),
+          )
+
+          acceptance_refs = {}
+          def acceptance(prefix, evidence_ref, detail):
+              matches = [item for item in packet.acceptance if item.startswith(prefix)]
+              if len(matches) != 1:
+                  raise SystemExit(f"acceptance prefix mismatch for {prefix!r}: {matches!r}")
+              acceptance_refs[matches[0]] = (evidence_ref, detail)
+
+          acceptance(
+              "Replaying the tracked ContextSource records",
+              "git-range:17fe5b52d7d68b04e97bd65bc0c6be4637141225..40517b3537f84f02197fa22f0f699adc998bd6c8:5-authorized-paths;github-actions:35563882292;github-pr:150",
+              "Pinned packet replay is byte-identical to the canonical tracked WorkPacket, and the independently observed corrective execution range is exactly the two packet evidence files plus the three explicitly re-adopted source paths.",
+          )
+          acceptance(
+              "The Event implementation preserves",
+              "github-pr:151;github-actions:35575855639;github-actions:35564699911;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+              "The reconciliation changes only the declared Event comment; focused/full native macOS and exact-head CI pass with Event sequencing, ownership, payload, redaction, and transaction behavior unchanged.",
+          )
+          acceptance(
+              "The SG-000023 native-proof gap remains",
+              "github-pr:147;github-issue:148;repo:docs/evidence/P02-S05-T01.md",
+              "The SG-000023 WorkPacket recovery/change-surface gap remains recorded as negative evidence and no SG-000023 native evidence record was manufactured.",
+          )
+          acceptance(
+              "The corrective Grain uses explicit file paths",
+              "github-pr:149;git:17fe5b52d7d68b04e97bd65bc0c6be4637141225;repo:.specgrain/specs/SG-000024.json",
+              "CLI-emitted SG-000024 has exactly six explicit authorized paths and no wildcard authority.",
+          )
+          acceptance(
+              "The daemon authorization implementation preserves",
+              "github-pr:151;github-actions:35575855639;github-actions:35564699911;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+              "The reconciliation changes only the declared authorization comment; focused/full native macOS and exact-head CI pass with trusted authority, request binding, consequence handling, audited Grant admission, and result semantics unchanged.",
+          )
+          acceptance(
+              "The packet-persistence slice contains only",
+              "github-pr:150;github-actions:35563882292;github-actions:35564152955;git:35e59be711f0550639bd82d6cfa79ff24f8f4163",
+              "PR #150 contains only the two authorized packet evidence files; tracked bytes match the original production artifacts and replay is byte-identical.",
+          )
+          acceptance(
+              "The packet-persistence slice passes required",
+              "github-pr:150;github-actions:35564152955;github-actions:35564228232;github-review:150:PRR_kwDOUevqks8AAAABObcvlw;git:35e59be711f0550639bd82d6cfa79ff24f8f4163;github-actions:35564326795",
+              "Packet persistence passed native macOS/full/R3/OpenCodeReview qualification, exact-head review and six-job CI, ordinary merge, and six-job post-merge qualification before source reconciliation began.",
+          )
+          acceptance(
+              "The source-reconciliation slice contains only",
+              "github-pr:151;github-actions:35575855639;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+              "PR #151 contains exactly the three authorized source paths with one non-functional reconciliation comment added to each and no other source-byte change.",
+          )
+          acceptance(
+              "The source-reconciliation slice passes focused",
+              "github-pr:151;github-actions:35575855639;github-actions:35564699911;github-review:151:5264295971;git:40517b3537f84f02197fa22f0f699adc998bd6c8;github-actions:35576060583",
+              "Source reconciliation passed focused policy/store/daemon tests, full pnpm check, native macOS, Diffcipline R3, OpenCodeReview 3/3 accounting, exact-head six-job CI/review/zero threads, ordinary merge, and exact six-job post-merge qualification.",
+          )
+          acceptance(
+              "The store manifest preserves",
+              "github-pr:151;github-actions:35575855639;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+              "The store manifest diff adds only the corrective comment; package/version/source identities, feature declarations, and path-dependency semantics are byte-unchanged.",
+          )
+
+          evidence_refs = {
+              "corrective-packet-persistence-post-merge-ci-pass": (
+                  "github-actions:35564326795;git:35e59be711f0550639bd82d6cfa79ff24f8f4163",
+                  "PR #150 merge commit passed all six post-merge CI jobs."
+              ),
+              "corrective-packet-persistence-pr-pass": (
+                  "github-pr:150;github-actions:35564152955;github-actions:35564228232;github-review:150:PRR_kwDOUevqks8AAAABObcvlw",
+                  "Packet persistence passed native macOS/full/R3/OCR qualification, exact-head six-job CI, review, and zero-thread gate before ordinary merge."
+              ),
+              "corrective-reconciliation-post-merge-ci-pass": (
+                  "github-actions:35576060583;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+                  "PR #151 merge commit passed all six post-merge CI jobs."
+              ),
+              "corrective-reconciliation-pr-pass": (
+                  "github-pr:151;github-actions:35575855639;github-actions:35564699911;github-review:151:5264295971;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+                  "Source reconciliation passed exact three-path assertions, native macOS/full/R3/OCR qualification, exact-head CI/review/zero threads, and ordinary merge."
+              ),
+              "corrective-workpacket-durable-recovery-pass": (
+                  "github-actions:35563882292;github-pr:150;repo:docs/evidence/SG-000024-context-sources.json;repo:docs/evidence/SG-000024-work-packet.json",
+                  "The complete original ContextSource records and exact pinned-CLI WorkPacket bytes are canonical, durable, and byte-identically replayable."
+              ),
+              "daemon-authorization-semantics-pass": (
+                  "github-actions:35575855639;github-pr:151",
+                  "Focused daemon authorization regressions pass and the only authorization.rs change is the declared non-functional reconciliation comment."
+              ),
+              "diffcipline-r3-proof-pass": (
+                  "github-actions:35564152955;github-actions:35575855639",
+                  "Both bounded corrective implementation slices passed Diffcipline R3 without weakened limits."
+              ),
+              "event-semantics-pass": (
+                  "github-actions:35575855639;github-pr:151",
+                  "Focused store/Event regressions pass and the only event.rs change is the declared non-functional reconciliation comment."
+              ),
+              "explicit-corrective-surface-pass": (
+                  "git-range:17fe5b52d7d68b04e97bd65bc0c6be4637141225..40517b3537f84f02197fa22f0f699adc998bd6c8:5-authorized-paths",
+                  "Independent range observation contains exactly the two packet evidence files and the three re-adopted source paths."
+              ),
+              "local-macos-pass": (
+                  "github-actions:35564152955;github-actions:35575855639",
+                  "Both packet-persistence and source-reconciliation exact candidates passed native macOS qualification."
+              ),
+              "open-code-review-accounting-pass": (
+                  "github-actions:35564152955;github-actions:35575855639",
+                  "Alibaba OpenCodeReview v1.12.7 Delegation Mode accounted for 2/2 packet files and 3/3 source-reconciliation files with zero exclusions."
+              ),
+              "policy-store-daemon-regression-pass": (
+                  "github-actions:35575855639",
+                  "Focused policy, store, and daemon regression suites pass on the exact source-reconciliation candidate."
+              ),
+              "sg23-native-proof-gap-preserved": (
+                  "github-pr:147;github-issue:148;repo:docs/evidence/P02-S05-T01.md",
+                  "SG-000023 negative evidence remains visible and unmodified; no replacement native proof is claimed."
+              ),
+              "store-manifest-semantics-pass": (
+                  "github-actions:35575855639;github-pr:151",
+                  "Store manifest dependency/package/version/source/path-dependency semantics are unchanged."
+              ),
+          }
+
+          if set(acceptance_refs) != set(packet.acceptance):
+              missing = sorted(set(packet.acceptance) - set(acceptance_refs))
+              extra = sorted(set(acceptance_refs) - set(packet.acceptance))
+              raise SystemExit(f"acceptance evidence map mismatch: missing={missing} extra={extra}")
+          if set(evidence_refs) != set(packet.required_evidence):
+              missing = sorted(set(packet.required_evidence) - set(evidence_refs))
+              extra = sorted(set(evidence_refs) - set(packet.required_evidence))
+              raise SystemExit(f"required evidence map mismatch: missing={missing} extra={extra}")
+
+          def passed(check_id, evidence_ref, detail):
+              return CheckEvidence(
+                  check_id=check_id,
+                  passed=True,
+                  evidence_ref=evidence_ref,
+                  detail=detail,
+              )
+
+          acceptance_checks = tuple(
+              passed(check_id, *acceptance_refs[check_id])
+              for check_id in packet.acceptance
+          )
+          evidence_checks = tuple(
+              passed(check_id, *evidence_refs[check_id])
+              for check_id in packet.required_evidence
+          )
+
+          report = verify_execution(
+              node,
+              packet,
+              result,
+              implementation_revision=f"git:{RECONCILIATION_MERGE}",
+              observed_changed_paths=observed,
+              acceptance_checks=acceptance_checks,
+              evidence_checks=evidence_checks,
+          )
+          pathlib.Path("/tmp/sg24-verification-report.json").write_text(
+              json.dumps(report.to_dict(), sort_keys=True, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          if not report.verified or report.issues:
+              print(json.dumps(report.to_dict(), sort_keys=True, indent=2))
+              raise SystemExit("native SG-000024 verification did not pass")
+
+          record = append_verification_report(".", report)
+          record_digest = record.record_digest
+          record_path = pathlib.Path(".specgrain/evidence") / SPEC_ID / (record_digest.removeprefix("sha256:") + ".json")
+          if not record_path.is_file():
+              raise SystemExit(f"expected generated record missing: {record_path}")
+
+          prove_raw = subprocess.check_output(
+              [sys.executable, "tools/specgrain/run.py", "prove", SPEC_ID, ".", "--json"],
+              text=True,
+          )
+          prove = json.loads(prove_raw)
+          if prove.get("verified") is not True:
+              raise SystemExit(f"specgrain prove did not verify: {prove!r}")
+          if prove.get("latest_record_digest") != record_digest:
+              raise SystemExit(
+                  f"latest record mismatch: expected {record_digest} observed {prove.get('latest_record_digest')}"
+              )
+
+          record_raw = record_path.read_bytes()
+          print("SG24_NATIVE_VERIFICATION=PASS")
+          print("implementation_revision=git:" + RECONCILIATION_MERGE)
+          print("packet_digest=" + packet.packet_digest)
+          print("result_digest=" + result.result_digest)
+          print("record_digest=" + record_digest)
+          print("record_path=" + record_path.as_posix())
+          print("record_file_sha256=sha256:" + hashlib.sha256(record_raw).hexdigest())
+          print("record_file_bytes=" + str(len(record_raw)))
+          print("prove=" + json.dumps(prove, sort_keys=True, separators=(",", ":")))
+          print("EVIDENCE_BASE64_BEGIN")
+          print(base64.b64encode(record_raw).decode("ascii"))
+          print("EVIDENCE_BASE64_END")
+          PY
+
+      - name: Final generated-evidence boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RECONCILIATION_MERGE"
+          changed="$(git status --porcelain --untracked-files=all)"
+          printf '%s\n' "$changed"
+          test "$(printf '%s\n' "$changed" | wc -l | tr -d ' ')" = "1"
+          printf '%s\n' "$changed" | grep -E '^\?\? \.specgrain/evidence/SG-000024/[0-9a-f]{64}\.json$'
