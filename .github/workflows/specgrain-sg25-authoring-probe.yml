@@ -183,7 +183,7 @@ jobs:
               'specs/CURRENT.md',
               'specs/tasks.md',
           ]
-          args=['node','tools/specgrain/run.mjs','shape',spec_id,'.','--risk-level','high','--recovery',recovery,'--context-budget','18000','--context-estimate','15500','--minimality-choice','repository-owned-profile-compiler','--minimality-rationale',minimality,'--safety-status','requirements-defined']
+          args=['node','tools/specgrain/run.mjs','shape',spec_id,'.','--risk-level','high','--recovery',recovery,'--context-budget','18000','--context-estimate','15500','--minimality-choice','reuse-existing','--minimality-rationale',minimality,'--safety-status','requirements-defined']
           for item in scope_in: args += ['--scope-in', item]
           for item in scope_out: args += ['--scope-out', item]
           for item in acceptance: args += ['--acceptance', item]
