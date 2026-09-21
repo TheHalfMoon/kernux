@@ -1,0 +1,107 @@
+{
+  "acceptance": [
+    "Secret plaintext never appears in SQLite rows, Event payloads, logs, prompts, process arguments, sandbox environments, or artifact exports.",
+    "A secret handle is an opaque non-secret identifier that authorizes nothing by possession; only broker admission under an exact Grant can produce a bounded resolved use.",
+    "secret.use is admitted only for one exact secret reference and one exact approved destination class and never implies secret.reveal.",
+    "Provider adapters declare exact identity and capabilities and fail closed on unknown, unavailable, or malformed provider responses.",
+    "The OS credential-store adapter reaches the platform store only through a fixed non-shell command template, and native library binding remains explicitly deferred.",
+    "Adversarial tests prove that cross-destination handle reuse, unapproved destinations, provider spoofing, and redaction failure are denied and that no plaintext leaks.",
+    "Existing S05-T01 and S05-T02 policy, profile, store, and daemon authorization behavior and the SQLite policy schema are unchanged.",
+    "The original tracked ContextSource and WorkPacket files are generated before implementation, replay byte-identically through the pinned CLI, and remain immutable execution-authority evidence.",
+    "Exact-head implementation passes full pnpm check, Diffcipline R3, Alibaba OpenCodeReview accounting, native macOS qualification, six-job CI, review with zero unresolved threads, ordinary merge, and six-job post-merge qualification.",
+    "Native SpecGrain verification binds the exact original WorkPacket to independently observed implementation evidence with every acceptance and evidence item satisfied before closeout.",
+    "Canonical closeout advances only KX-P02-S06-T01 after proof and P02 phase exit remains unproven."
+  ],
+  "change_surface": [
+    "crates/kernux-secret/Cargo.toml",
+    "crates/kernux-secret/src/lib.rs",
+    "crates/kernux-secret/src/handle.rs",
+    "crates/kernux-secret/src/provider.rs",
+    "crates/kernux-secret/src/broker.rs",
+    "crates/kernux-secret/src/redaction.rs",
+    "Cargo.toml",
+    "docs/evidence/SG-000026-context-sources.json",
+    "docs/evidence/SG-000026-work-packet.json",
+    "docs/evidence/P02-S06-T01.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 18000,
+    "estimated_tokens": 15000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "secret-no-plaintext-leak-pass",
+      "secret-handle-not-bearer-pass",
+      "secret-use-destination-scope-pass",
+      "secret-reveal-not-implicit-pass",
+      "secret-provider-fail-closed-pass",
+      "secret-os-adapter-template-pass",
+      "secret-adversarial-corpus-pass",
+      "policy-store-daemon-regression-pass",
+      "original-workpacket-durable-recovery-pass",
+      "local-macos-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000026",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse existing Grants, consequence classification, policy envelopes, store and Event machinery, and daemon authorization. Add one dependency-free crate plus its workspace membership; no new external dependency, KMS, schema, or provider-specific permission model."
+      },
+      "safety": {
+        "requirements": [
+          "Plaintext secret values must never be persisted, logged, prompted, placed in process arguments or environments, or exported as artifacts.",
+          "A handle must never be a bearer credential; possession alone must authorize nothing.",
+          "Unknown, unavailable, or malformed provider responses must fail closed rather than degrade to plaintext or to a default provider.",
+          "secret.reveal must remain a distinct C3 capability that this Grain does not grant.",
+          "Do not start implementation until the original ContextSource and WorkPacket are durably tracked and exact replay is proven.",
+          "Do not advance S06-T02 or P02 exit until S06-T01 native proof and canonical closeout are complete."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Implement a repository-owned, provider-neutral secret broker that identifies secrets by opaque Kernux handle instead of plaintext, admits bounded secret.use only for one exact approved destination through a declared provider adapter, and keeps plaintext out of SQLite, events, logs, process arguments, prompts, and artifact export.",
+  "parent_id": null,
+  "rationale": "KX-P02-S05-T02 is PROVEN and post-merge-qualified. The canonical security model requires secrets to be referenced and brokered rather than copied, with plaintext-at-rest in an OS credential store or approved provider, domain-scoped use, redaction, and auditability. This macro task is the dependency-eligible next P02 unit.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only SG-000026 secret-broker changes and keep KX-P02-S06-T01 at NEXT. Preserve existing policy, profile, store, and daemon semantics, the tracked WorkPacket evidence, and the canonical ledgers; never store plaintext and never advance S06-T02 on failed secret proof."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Add a repository-owned dependency-free kernux-secret crate that models opaque non-secret secret handles, canonical secret references, declared provider adapters, and a bounded broker admission path.",
+    "Keep plaintext out of SQLite, events, logs, prompts, process arguments, sandbox environments, and artifact export; persist only references, handle identity, provider identity, destination class, and redaction metadata.",
+    "Admit secret.use only for one exact secret reference and one exact approved destination class under one exact Run and optional AgentSession, one exact Runtime revision, finite trusted windows, a positive finite max_uses, and existing Grant validation plus mandatory authority intersection.",
+    "Model first-generation OS credential-store adapters behind one provider trait and reach the platform credential store only through the daemon brokered process authority with a fixed non-shell command template.",
+    "Keep secret.reveal as a distinct C3 capability that no preset profile and no broker default grants automatically.",
+    "Add adversarial tests for plaintext leakage, cross-destination handle reuse, unapproved destinations, unknown providers, malformed provider responses, and redaction failure paths.",
+    "Persist the original SpecGrain ContextSource set and WorkPacket bytes before the first implementation slice and require byte-identical replay.",
+    "Qualify every bounded implementation slice with full pnpm check, Diffcipline R3, Alibaba OpenCodeReview accounting, native macOS qualification, exact-head six-job CI, semantic review with zero unresolved threads, ordinary merge, and exact post-merge six-job qualification."
+  ],
+  "scope_out": [
+    "Do not add new external dependencies in this Grain; native credential-store library bindings are deferred to a governed dependency-admission Grain.",
+    "Do not implement approval UI, organization or team secret sharing, secret rotation UX, or the HTTP egress substitution broker.",
+    "Do not store plaintext secrets and do not add KRP fields, core actions, resource authorities, consequence classes, or provider-specific permission models.",
+    "Do not auto-grant secret.reveal, do not treat a handle as a bearer credential, and do not add a hidden global secret-access switch.",
+    "Do not advance KX-P02-S06-T02 or P02 phase exit from implementation evidence alone."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S06-T01 — Implement secret-provider abstraction and first OS credential-store adapters with handle-based use"
+}
