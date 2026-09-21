@@ -1,0 +1,223 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Adversarial tests prove profile input and untrusted provenance cannot mint/widen authority, preset semantics are deterministic, and all hard-deny actions remain denied across every preset.",
+        "detail": "The adversarial corpus proves wildcard and provider-shaped profile input cannot bypass the closed vocabulary, an untrusted intent is refused for every profile, the full core-action family corpus compiles deterministically for every preset, and all six preset hard-deny actions are refused on every capable authority.",
+        "evidence_ref": "github-actions:35626652203;github-actions:35626962427;github-pr:163;repo:crates/kernux-policy/src/profile.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Autonomous remains bounded: authoritative consequence must be <= C2, resources/runtime/task scope remain exact/finite, secret.reveal and authority-management actions are denied, and no mandatory policy/runtime/remote/secondary layer is bypassed.",
+        "detail": "Autonomous compiles only when the trusted classifier places authoritative consequence at or below C2 and the action is not preset hard-denied; exact resource, exact runtime revision, finite window, bounded use budget, explicit scope and delegation depth zero remain mandatory, secret.reveal and authority-management actions are refused, and no mandatory authority layer is bypassed.",
+        "evidence_ref": "github-pr:162;github-pr:163;repo:crates/kernux-policy/src/profile.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical closeout advances only S05-T02 after proof; S06-T01 becomes NEXT only after the closeout/transition gates and P02 exit remains unproven.",
+        "detail": "The canonical ledger diff of this closeout advances exactly KX-P02-S05-T02 to PROVEN and KX-P02-S06-T01 to NEXT, leaves KX-P02-S06-T02 PLANNED, and leaves P02 phase exit unproven.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md;repo:docs/evidence/P02-S05-T02.md",
+        "passed": true
+      },
+      {
+        "check_id": "Compiled candidates round-trip through existing ValidatedGrant invariants and cannot directly produce PolicyDecision::Allow, consume a budget, append an approval event, persist a Grant, or execute a side effect.",
+        "detail": "The compiler returns inert ProfileGrantCandidate values; every candidate renders to the canonical wire Grant and round-trips through ValidatedGrant::from_wire, and the profile module exposes no decision, budget, approval, persistence, or side-effect path.",
+        "evidence_ref": "github-pr:162;github-pr:163;repo:crates/kernux-policy/src/profile.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Custom requires explicit trusted rule match and safe subset/intersection; missing rule, wildcard, unknown value, resource-authority mismatch, consequence excess, or constraint conflict denies compilation.",
+        "detail": "Custom fails closed on a missing match, wrong action, wrong authority, narrower rule scope, unsatisfiable constraint intersection, consequence excess, wildcard action, and an empty authority set; two matching trusted rules intersect to the lower consequence ceiling and tighter constraints instead of widening.",
+        "evidence_ref": "github-pr:162;github-pr:163;repo:crates/kernux-policy/src/profile.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Developer adds bounded sandbox process/PTY and project git.modify candidates but does not auto-compile git.publish/admin, secret actions, host-system mutation, authority-management actions, or C3/C4 candidates.",
+        "detail": "Developer compiles bounded project file writes, project git.modify, runtime and sandbox process, PTY, sandbox control, runtime.inspect and clipboard.read; git.publish, git.admin, secret.use, secret.reveal, runtime.manage, network, browser, computer, artifact export, policy, grant, and identity actions are refused, and C3/C4 consequences are refused.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "Every compiled candidate binds one exact core/registered action, one canonical resource, exact Run/optional AgentSession, exact Runtime revision, finite trusted timestamps, positive finite max_uses, explicit resource scope, bounded consequence ceiling, issuer authority, policy revision, and delegation_depth zero unless a separately authorized direct path is used.",
+        "detail": "Every candidate binds exactly one parsed action, one canonical resource with explicit exact or subtree scope, the exact run and optional agent session, the exact runtime revision, canonical UTC seconds ordered issued_at <= not_before < expires_at within the frozen maximum window, a positive finite max_uses equal to the declared constraint budget, the trusted classifier ceiling, the issuer authority, the policy revision, delegation depth zero and no parent grant.",
+        "evidence_ref": "github-pr:162;github-pr:163;repo:crates/kernux-policy/src/profile.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Exact-head implementation passes full pnpm check, Diffcipline R3, Alibaba OpenCodeReview accounting, native macOS qualification, six-job CI, semantic review and zero unresolved threads; ordinary merge and six-job post-merge qualification also pass.",
+        "detail": "Each implementation slice passed full pnpm check, focused policy library tests, Diffcipline R1 and R3, Alibaba OpenCodeReview v1.12.7 Delegation Mode accounting, linux and native macOS qualification, exact-head six-job CI with an exact-head review carrying zero unresolved threads, ordinary merge, and six-job post-merge qualification.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163;github-actions:35623895107;github-actions:35625323534;github-actions:35626652203;github-actions:35624145133;github-actions:35625615854;github-actions:35626962427;github-actions:35624966977;github-actions:35626090366;github-actions:35627158007",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the exact original WorkPacket to independently observed implementation evidence with every acceptance/evidence item satisfied before closeout.",
+        "detail": "This immutable record binds the tracked original SG-000025 WorkPacket to the exact implementation revision and to exactly the four independently observed implementation paths, with all 14 acceptance checks and all 19 required evidence checks satisfied before the canonical ledger closeout is applied.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000025;repo:docs/evidence/SG-000025-work-packet.json",
+        "passed": true
+      },
+      {
+        "check_id": "No external dependency identity, KRP schema, protected CI context name, existing S05-T01 authorization behavior, SQLite policy schema, or secret handling behavior changes.",
+        "detail": "The implementation range changes no dependency manifest or lockfile, no KRP schema or generated contract, no protected CI context name, and no SQLite policy schema; the existing S05-T01 policy, domain, store, and daemon authorization behavior is unchanged and the whole workspace still passes formatting, Clippy with -D warnings, and the complete test suite.",
+        "evidence_ref": "github-actions:35623895107;github-actions:35625323534;github-actions:35626652203;repo:crates/kernux-policy/src/profile.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Safe emits only C0 project/workspace observation candidates and cannot compile host writes, process/PTY, network/browser mutation, clipboard, secret, policy, grant, identity, or external-side-effect authority.",
+        "detail": "Safe compiles only files.read, files.metadata, git.read, and artifact.read at ceiling C0, refuses any fact that raises the authoritative consequence above C0, and refuses every write, delete, move, process, PTY, clipboard, network, browser, secret, policy, grant, identity, and artifact export intent.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "Standard emits only C0/C1 project-scoped read/write/local-artifact candidates plus explicitly isolated sandbox process verification intents; C2+ external actions, host process authority, secrets, authority changes, git publish/admin, and browser commit remain denied.",
+        "detail": "Standard compiles project read/create/write/move/delete, git.read, local artifact read/create/delete, and process inspect/spawn/signal only against an isolated sandbox resource; runtime process authority, git.modify/publish/admin, secrets, network, browser commit, computer input, sandbox management, policy, grant, and identity actions are refused.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "The compiler recognizes exactly Safe, Standard, Developer, Autonomous, and Custom and rejects unknown/ambiguous profile input.",
+        "detail": "Exactly the five canonical profile names compile; different case, surrounding whitespace, empty, unknown, and near-miss names are refused with UnknownProfile before any other evaluation.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "The original tracked ContextSource/WorkPacket files are generated before implementation, replay byte-identically through the pinned CLI, and remain immutable execution-authority evidence.",
+        "detail": "The original ContextSource records and WorkPacket bytes were produced on clean post-refinement canonical main before any permission-profile implementation mutation; the repository-pinned SpecGrain CLI reproduces the tracked WorkPacket byte-for-byte, and the packet slice contains no other file.",
+        "evidence_ref": "github-pr:155;github-actions:35622620107;github-actions:35622293692;github-actions:35623546558",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "autonomous-profile-boundary-pass",
+        "detail": "Autonomous compiles non-hard-denied intents at or below C2 with exact resource, exact runtime, finite window, bounded budget and delegation depth zero, and refuses secret.reveal and every authority-management action.",
+        "evidence_ref": "github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "The protected closeout evidence merge commit passed all six post-merge CI jobs.",
+        "evidence_ref": "github-pr:164;github-actions:35627524278;github-actions:35628011667",
+        "passed": true
+      },
+      {
+        "check_id": "custom-profile-subset-pass",
+        "detail": "Custom compiles only through an explicit trusted exact-action rule and intersects matching rule ceilings and constraint ceilings instead of widening them.",
+        "evidence_ref": "github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "developer-profile-boundary-pass",
+        "detail": "Developer adds only bounded runtime/sandbox process and PTY, project git.modify, sandbox control and clipboard read authority on top of the project read/write and local artifact surface.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Each implementation slice and the closeout evidence slice passed Diffcipline R3 on its exact diff without weakened limits.",
+        "evidence_ref": "github-actions:35624145133;github-actions:35625615854;github-actions:35626962427;github-actions:35628011667",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-post-merge-ci-pass",
+        "detail": "The post-merge main runs for PR #161, PR #162 and PR #163 each passed all six jobs.",
+        "evidence_ref": "github-actions:35624966977;github-actions:35626090366;github-actions:35627158007",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Every implementation slice candidate and the closeout evidence candidate passed native macOS qualification including packet replay, full pnpm check, focused policy library tests, Diffcipline R3 and OpenCodeReview accounting.",
+        "evidence_ref": "github-actions:35624145133;github-actions:35625615854;github-actions:35626962427;github-actions:35628011667",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This immutable record is the pinned native verification result for the exact original SG-000025 WorkPacket with 14/14 acceptance checks, 19/19 required evidence checks and zero issues.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000025;repo:docs/evidence/SG-000025-work-packet.json",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview v1.12.7 Delegation Mode accounting passed for each implementation slice and for the closeout evidence slice.",
+        "evidence_ref": "github-actions:35624145133;github-actions:35625615854;github-actions:35626962427;github-actions:35628011667",
+        "passed": true
+      },
+      {
+        "check_id": "original-workpacket-durable-recovery-pass",
+        "detail": "The original SG-000025 ContextSource records and WorkPacket bytes are tracked in the canonical repository, replay byte-identically through the pinned CLI, and are unchanged since packet persistence.",
+        "evidence_ref": "github-pr:155;repo:docs/evidence/SG-000025-context-sources.json;repo:docs/evidence/SG-000025-work-packet.json",
+        "passed": true
+      },
+      {
+        "check_id": "policy-grant-regression-pass",
+        "detail": "Full pnpm check including cargo fmt, workspace Clippy with -D warnings and the complete workspace test suite passes, so existing policy, store and daemon authorization behavior is unchanged.",
+        "evidence_ref": "github-actions:35623895107;github-actions:35625323534;github-actions:35626652203",
+        "passed": true
+      },
+      {
+        "check_id": "profile-adversarial-corpus-pass",
+        "detail": "The adversarial corpus passes: full core-action family coverage per preset, untrusted origin refusal, trusted consequence escalation, vocabulary bypass, resource authority confusion, custom rule matching, intent bounds, extension handling and preset hard-deny coverage.",
+        "evidence_ref": "github-pr:163;git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9",
+        "passed": true
+      },
+      {
+        "check_id": "profile-exact-finite-grant-pass",
+        "detail": "Every compiled candidate binds exactly one action, canonical resource, exact subject and runtime revision, canonical finite timestamps inside the frozen window, a positive finite use budget, explicit scope, bounded ceiling, issuer authority, policy revision and delegation depth zero.",
+        "evidence_ref": "github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "profile-no-alternate-authority-pass",
+        "detail": "The profile module produces inert candidates only and exposes no decision, budget, approval, persistence or side-effect path, so profile choice cannot bypass existing admission.",
+        "evidence_ref": "github-pr:162;git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9",
+        "passed": true
+      },
+      {
+        "check_id": "profile-vocabulary-pass",
+        "detail": "The closed vocabulary accepts exactly the five canonical profile names and refuses every other spelling before any other evaluation.",
+        "evidence_ref": "github-pr:161;git:68d4edb9ec081f13672a27bb01e5bae83006d6ef",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "The protected closeout evidence PR passed exact-head six-job CI, linux and native macOS qualification, Diffcipline R1 and R3, OpenCodeReview accounting and exact-head review with zero unresolved threads before ordinary merge.",
+        "evidence_ref": "github-pr:164;github-actions:35627524278;github-actions:35628011667;github-review:164:5269389086",
+        "passed": true
+      },
+      {
+        "check_id": "protected-implementation-pr-pass",
+        "detail": "Each implementation slice PR passed exact-head six-job CI, linux and native macOS qualification, Diffcipline R1 and R3, OpenCodeReview accounting and exact-head review with zero unresolved threads before ordinary merge.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163;github-actions:35623895107;github-actions:35625323534;github-actions:35626652203;github-actions:35624145133;github-actions:35625615854;github-actions:35626962427;github-review:161:5269086553;github-review:162:5269204828;github-review:163:5269296040",
+        "passed": true
+      },
+      {
+        "check_id": "safe-profile-boundary-pass",
+        "detail": "Safe compiles only the C0 project and workspace observation surface and refuses writes, process, PTY, clipboard, network, browser, secret, policy, grant, identity and export authority.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      },
+      {
+        "check_id": "standard-profile-boundary-pass",
+        "detail": "Standard compiles C0/C1 project read/write, local artifact and isolated sandbox process intents and refuses C2+ external actions, host process authority, secrets, authority changes, git publish/admin and browser commit.",
+        "evidence_ref": "github-pr:161;github-pr:162;github-pr:163",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9",
+    "issues": [],
+    "observed_changed_paths": [
+      "crates/kernux-policy/src/lib.rs",
+      "crates/kernux-policy/src/profile.rs",
+      "docs/evidence/SG-000025-context-sources.json",
+      "docs/evidence/SG-000025-work-packet.json"
+    ],
+    "packet_digest": "sha256:b022c2f177a3ce59586f05603427659e2c41a6443947061eb59f8de2b153679e",
+    "result_digest": "sha256:4b510819826c6825f2bcefa6cf5ff2eea90b51f6aab463b8436d8d87d88a2088",
+    "spec_id": "SG-000025",
+    "spec_revision": "sha256:033563155d6258f9ceaf7bc0defd1cfc0ceddbf613d1f249f8c56e958b16edfb",
+    "verification_version": 1,
+    "verified": true
+  }
+}
