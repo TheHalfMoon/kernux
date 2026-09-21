@@ -316,6 +316,79 @@ A flaky test is a defect in the evidence system.
 - quarantine only with a tracked owner, reason, and removal criterion;
 - critical security/release gates may not be waived by a generic flaky label.
 
+## 16. Universal capability benchmark
+
+Generation 2 breadth must not turn Kernux quality into an unscored collection of demos.
+
+Maintain a versioned benchmark/regression suite across the six product modes defined by the universal platform plan:
+
+- **Build** — repository, terminal, browser, test, review and remote-runtime work;
+- **Work** — email/calendar/files/apps, planning and cross-application execution;
+- **Research** — search/fetch/browse, source collection, analysis, citation and report generation;
+- **Automate** — schedules, triggers, condition watches, background execution and recovery;
+- **Operate** — business systems, admin workflows, databases, support/CRM and remote systems;
+- **Create** — documents, spreadsheets, presentations, reports, charts, sites/apps and media artifacts.
+
+For each task fixture record:
+
+- fixture/task version;
+- exact Kernux revision;
+- OS/runtime/browser version;
+- provider/model/adapter version;
+- connected integration versions where observable;
+- required permissions and approvals;
+- expected artifacts/evidence;
+- success/failure/partial criteria;
+- latency and active-compute measurements;
+- cost owner and observed cost when available;
+- retry/recovery behavior;
+- negative evidence and unsupported behavior.
+
+A benchmark result from one model/provider/runtime combination is not automatically representative of another.
+
+### Universal reliability scorecard
+
+Track distributions and task-class segmentation for at least:
+
+- verified completion rate;
+- false-completion rate;
+- duplicate-side-effect incidents;
+- crash/reconnect recovery success;
+- scheduled-run lateness/miss rate;
+- integration auth/refresh failure rate;
+- browser/computer action recovery rate;
+- artifact validation and round-trip failure rate;
+- stale-context retrieval rate;
+- user intervention/approval rate;
+- notification false-positive/noise rate;
+- latency to first useful progress and final verified result;
+- variable cost per successful task where observable;
+- storage/index growth and GC effectiveness;
+- accessibility journey pass rate;
+- provider-loss substitution success.
+
+No single composite score replaces the underlying measurements.
+
+### Universal golden journeys
+
+The Generation 1 journeys remain mandatory. Generation 2 adds the canonical journeys from `UNIVERSAL_PLATFORM_PLAN.md`, including:
+
+- morning work review;
+- cross-app meeting follow-up;
+- research-to-editable-deliverable;
+- business operation across multiple systems;
+- authenticated browser fallback;
+- desktop application visual fallback;
+- condition-watch notification;
+- cross-device handoff;
+- provider failure/substitution;
+- memory correction/deletion;
+- project portability;
+- accessible operation;
+- owner-sustainable execution.
+
+Every universal journey defines expected state transitions and strongest-available evidence, not only a final screenshot or natural-language answer.
+
 ## 16. Completion vocabulary
 
 Use explicit states:
