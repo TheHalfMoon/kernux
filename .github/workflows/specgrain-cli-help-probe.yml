@@ -51,10 +51,10 @@ jobs:
         run: |
           set -euo pipefail
           python3 --version
-          pnpm specgrain -- --show-pin
-          pnpm specgrain -- --help
-          pnpm specgrain -- draft --help
-          pnpm specgrain -- shape --help
-          pnpm specgrain -- refine --help
-          pnpm specgrain -- grain --help
-          pnpm specgrain -- packet --help
+          node tools/specgrain/run.mjs --show-pin
+          node tools/specgrain/run.mjs --help
+          node tools/specgrain/run.mjs draft --help
+          node tools/specgrain/run.mjs shape --help
+          node tools/specgrain/run.mjs refine --help
+          node tools/specgrain/run.mjs grain --help
+          node tools/specgrain/run.mjs packet --help
