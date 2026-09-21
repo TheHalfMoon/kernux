@@ -319,6 +319,10 @@ Any durable or side-effecting workflow defines crash/cancel/retry/restart behavi
 
 Any integration that sends content off-device declares what data, to whom, for what purpose, with which retention/configuration assumptions.
 
+## X09 — Owner-sustainable execution
+
+Any capability that can create recurring per-use cost must declare the cost owner and preserve at least one viable local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path. Promotional credits, founder-funded credentials, or hidden hosted infrastructure must not be the only proof path for a core capability. This requirement must not weaken quality, security, privacy, or evidence guarantees.
+
 ---
 
 # Initial implementation sequence
