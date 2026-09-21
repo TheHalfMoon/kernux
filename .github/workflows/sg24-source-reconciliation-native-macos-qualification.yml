@@ -1,0 +1,102 @@
+name: SG24 Source Reconciliation Native macOS Qualification
+
+on:
+  push:
+    branches:
+      - probe/sg24-source-reconciliation-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 35e59be711f0550639bd82d6cfa79ff24f8f4163
+  TARGET_SHA: 916f2486aee62c9e263acd559db01d5acac94a80
+
+jobs:
+  qualify:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact source-reconciliation candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact three-path reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          mapfile -t paths < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
+          test "${#paths[@]}" = "3"
+          test "${paths[0]}" = "crates/kernux-store/Cargo.toml"
+          test "${paths[1]}" = "crates/kernux-store/src/event.rs"
+          test "${paths[2]}" = "crates/kernuxd/src/authorization.rs"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{a+=$1; d+=$2} END {print a ":" d}')" = "3:0"
+          test "$(git diff --unified=0 "$BASE_SHA...$TARGET_SHA" | grep '^+' | grep -v '^+++' | wc -l | tr -d ' ')" = "3"
+          git diff --unified=0 "$BASE_SHA...$TARGET_SHA" | grep '^+' | grep -v '^+++' | grep -Fx '+# Corrective SpecGrain scope reconciliation; dependency semantics are intentionally unchanged.'
+          git diff --unified=0 "$BASE_SHA...$TARGET_SHA" | grep '^+' | grep -v '^+++' | grep -Fx '+// Corrective SpecGrain scope reconciliation; Event sequencing and transaction semantics are intentionally unchanged.'
+          git diff --unified=0 "$BASE_SHA...$TARGET_SHA" | grep '^+' | grep -v '^+++' | grep -Fx '+// Corrective SpecGrain scope reconciliation; authorization semantics are intentionally unchanged.'
+          sw_vers
+          uname -m
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run focused policy/store/daemon regression evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --locked -p kernux-policy --all-targets
+          cargo test --locked -p kernux-store --all-targets
+          cargo test --locked -p kernuxd --all-targets
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Prove exact candidate at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
