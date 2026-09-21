@@ -1,0 +1,106 @@
+name: SG24 Packet Persistence Native macOS Qualification
+
+on:
+  push:
+    branches:
+      - probe/sg24-packet-persistence-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 17fe5b52d7d68b04e97bd65bc0c6be4637141225
+  TARGET_SHA: 7984142490353a8bba11bd58cca4af7796eaf539
+
+jobs:
+  qualify:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact packet-persistence candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact bounded candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "2"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | sed -n '1p')" = "docs/evidence/SG-000024-context-sources.json"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | sed -n '2p')" = "docs/evidence/SG-000024-work-packet.json"
+          sw_vers
+          uname -m
+
+      - name: Assert original artifact identities and replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(shasum -a 256 docs/evidence/SG-000024-context-sources.json | awk '{print $1}')" = "58b87cbedd80a00380f890b3e5da1f6d6d16be555da12165fc6b4b126309bc4e"
+          test "$(shasum -a 256 docs/evidence/SG-000024-work-packet.json | awk '{print $1}')" = "35afa67ba1f15260f0e7507009ee002c44ca65fef505ee10cf1f1b5dc16e13ef"
+          python3 tools/specgrain/run.py packet SG-000024 .             --context-sources docs/evidence/SG-000024-context-sources.json             --json > /tmp/sg24-work-packet-replay.json
+          cmp docs/evidence/SG-000024-work-packet.json /tmp/sg24-work-packet-replay.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          packet=json.loads(Path("docs/evidence/SG-000024-work-packet.json").read_text())
+          assert packet["context_plan_digest"] == "sha256:3bfc0ff9366f6a2e33ad95ec30e10d20f08a0732939242efc5f6aafe20d9961f"
+          assert packet["packet_digest"] == "sha256:826805690aecaa38641ebda10cdf304b94c2bb5362f61d349f45d8f8476e5851"
+          assert packet["spec_revision"] == "sha256:bad445ed3c11f6b5ff18b1c4e93266aff6f66c64c9c531322986b380a8b7b49f"
+          assert len(packet["context_sources"]) == 10
+          print("SG24_PACKET_REPLAY=PASS")
+          PY
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Prove exact candidate at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
