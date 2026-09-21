@@ -5,9 +5,11 @@
 
 mod decision;
 mod envelope;
+mod profile;
 mod semantics;
 pub use decision::*;
 pub use envelope::*;
+pub use profile::*;
 pub use semantics::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
