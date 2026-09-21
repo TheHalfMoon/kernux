@@ -601,6 +601,24 @@ Qualify exact release commit and artifacts independently from ordinary branch CI
 
 ---
 
+# 1.1 Long-horizon universal platform expansion
+
+P00-P15 remains the dependency-ordered path to the first public Kernux generation. It must not be bypassed by later breadth work.
+
+After the Generation 1 contracts and release gates are proven, the long-horizon roadmap continues through:
+
+- **P16 — Work-product and artifact studio:** editable documents, spreadsheets, presentations, analysis packages, reports and lightweight sites/apps with validation and provenance.
+- **P17 — Integration and event fabric:** scalable connector discovery, OAuth/account lifecycle, tool routing, event subscriptions and representative app-category qualification.
+- **P18 — Multimodal and cross-device interaction:** voice/audio/image/screen context, visual computer fallback, richer device handoff, accessibility and internationalization.
+- **P19 — Proactive personal/work agent:** user-governed routines, condition watches, relationship context, universal capture and policy-bound proactive assistance.
+- **P20 — Ecosystem and universal-scale maturity:** signed extensions, registries, stable SDKs, sustainable managed services, universal benchmarks, SLO/chaos qualification and provider-loss resilience.
+
+The binding capability map, anti-gap ownership matrix, adoption strategy and universal golden journeys live in [`UNIVERSAL_PLATFORM_PLAN.md`](UNIVERSAL_PLATFORM_PLAN.md). The concrete macro tasks are in `specs/tasks.md`.
+
+These phases are additive. They must preserve all earlier kernel, security, evidence, portability, local-first and owner-sustainable invariants.
+
+---
+
 # 2. Parallelization strategy
 
 Safe early parallelism after P01 contracts:
