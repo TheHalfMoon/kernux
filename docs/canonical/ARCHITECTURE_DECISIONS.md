@@ -350,6 +350,39 @@ A semantics-neutral additive optional field may remain in `krp/1` only behind an
 
 Protocol mismatch blocks affected admission/interpretation but cannot establish runtime exit, cancellation, definitely-not-started state, or safe retry. Structurally valid but unnegotiated Event types are non-projecting until a supported interpreter is explicitly available.
 
+
+## ADR-0044 — Owner-sustainable execution; no mandatory owner-subsidized compute
+
+**Status:** Accepted
+
+Kernux must preserve a complete useful execution path whose recurring variable compute cost is not involuntarily subsidized by the project owner.
+
+For every core capability that can create recurring per-use infrastructure or provider cost, at least one viable path must be available through one or more of:
+
+- local execution on the user's machine;
+- self-hosted execution;
+- BYOK (bring your own provider/API credentials);
+- BYOC (bring your own compute/runtime);
+- organization-owned infrastructure or provider accounts;
+- an optional paid Kernux-managed service with an explicit sustainable cost/revenue boundary.
+
+This is a **cost-allocation and architectural-independence invariant**, not a ban on cloud services, paid providers, GPUs, hosted browsers, managed search, relays, or premium convenience. Kernux may use those capabilities when they materially improve product quality, provided the user or organization explicitly chooses the funded path or the managed service is designed so that Kernux is not required to indefinitely subsidize variable user consumption.
+
+The local/community core must not depend on promotional credits, founder-funded API keys, hidden hosted inference, hidden browser farms, or another metered service whose exhaustion would make the core product unusable.
+
+Implementation implications:
+
+- local/self-hosted providers are first-class where technically viable, not degraded compatibility fallbacks;
+- provider-native authentication, subscriptions, quotas, and billing remain owned by the user/organization unless a Kernux-managed service explicitly assumes that boundary;
+- provider contracts remain neutral so a paid provider can be replaced by a local, BYOK, BYOC, or managed implementation;
+- browser/web execution must retain a local deterministic path even when semantic or hosted providers add convenience;
+- model-backed agents must support user-owned/provider-owned credentials and local model paths where qualified;
+- optional Kernux cloud, relay, managed runtime, inference, browser, search, storage, or team services must not become a hidden prerequisite for the local core;
+- cost and usage telemetry, where available, is surfaced for budgeting but never treated as authorization or completion evidence;
+- tests and release qualification must not rely on temporary free credits as the only proof of a core capability.
+
+Product quality, security, privacy, evidence integrity, and provider independence remain first-class requirements. This decision must not be interpreted as permission to ship an inferior local path merely to claim zero owner cost.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:
