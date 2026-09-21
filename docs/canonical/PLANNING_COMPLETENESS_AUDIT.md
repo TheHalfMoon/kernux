@@ -299,9 +299,11 @@ This is intentionally stricter than simply proving the three donor feature sets 
 
 **Founding donor coverage:** ACCOUNTED FOR
 
-**Critical product gaps identified:** 6
+**Initial-pass critical product gaps identified:** 6
 
-**Critical product gaps left unaddressed by canonical contract:** 0 known at this planning depth
+**Universal-platform second-pass gap families identified:** 10
+
+**Critical architectural gap families left without a canonical owner/refinement path:** 0 known at this planning depth
 
 **Implementation started:** NO
 
@@ -309,6 +311,94 @@ This is intentionally stricter than simply proving the three donor feature sets 
 
 This is not a claim that future implementation will reveal no new work. It means the current plan has explicit ownership and a refinement path for all major capability, security, lifecycle, interoperability, UX, and evidence surfaces identified in this audit.
 
-## 11. Rule
+## 11. Universal-platform second-pass audit — 2026-09-21
+
+The initial audit focused on whether Kernux could coherently combine agents, browser/web execution, computer execution, local/remote runtimes, context, evidence and security.
+
+A second pass challenged a harder objective: whether the architecture can eventually become a trusted default layer for broad digital work without collapsing into an unfocused application clone or a founder-subsidized cloud service.
+
+Current external product/reference observations reinforced several expectations:
+
+- agent systems increasingly work across files, apps, browser and desktop surfaces;
+- finished editable documents/spreadsheets/presentations are becoming first-class outputs;
+- long-running/background work needs durable state, approvals and recovery;
+- broad integration catalogs require scalable auth/discovery/routing rather than static tool injection;
+- computer-use products increasingly support hosted and bring-your-own-machine paths;
+- multi-agent fan-out and durable orchestration require explicit budget/retry/evidence semantics.
+
+The second pass identified the following additional gap families.
+
+### G07 — Finished artifact production and round-trip editing
+
+**Risk if absent:** Kernux could perform complex reasoning yet still force users into another product for every final deliverable.
+
+**Closure:** `UNIVERSAL_PLATFORM_PLAN.md` U05 plus P16 makes editable documents, spreadsheets, presentations, analysis packages, reports and lightweight sites/apps first-class Artifacts with validation, lineage, templates and explicit round-trip limits.
+
+### G08 — Scalable integration/account/event fabric
+
+**Risk if absent:** broad app support would degrade into hundreds of bespoke integrations, giant tool lists, duplicated OAuth handling and inconsistent revocation.
+
+**Closure:** U04 plus P17 defines connector discovery, account/auth lifecycle, secret brokering, intent-based tool routing, event subscriptions, data-boundary inspection, capability drift and generated/external adapter boundaries.
+
+### G09 — Full web intelligence beyond browser clicking
+
+**Risk if absent:** research/monitoring work would depend on browser navigation even when search/fetch/crawl/change-detection paths are cheaper, more reliable or easier to cite.
+
+**Closure:** U02 distinguishes search, fetch, crawl, extraction, browser interaction, authenticated sessions, monitoring and source lineage behind provider-neutral contracts.
+
+### G10 — Durable proactive/background work
+
+**Risk if absent:** schedules, triggers and monitors could become a second unsafe workflow engine with different authority/retry semantics.
+
+**Closure:** U06, P19 and ADR-0046 require all proactive/background work to compile to ordinary Task/WorkUnit/Run/Grant/Operation/Evidence semantics.
+
+### G11 — Multimodal and voice interaction
+
+**Risk if absent:** Kernux would remain keyboard/text-centric while real computer work includes screenshots, screens, audio, voice and visual context.
+
+**Closure:** U01, P18 and ADR-0048 define multimodal observations as provenance-bearing context, never authority.
+
+### G12 — General visual computer-use fallback
+
+**Risk if absent:** structured APIs/accessibility/CLI are preferable but cannot cover every legacy or closed desktop application.
+
+**Closure:** U03 and P18 require a bounded vision + mouse/keyboard fallback behind the existing capability kernel, approval and evidence model.
+
+### G13 — Cross-device continuity beyond mobile steering
+
+**Risk if absent:** desktop, CLI, mobile and remote machines could show different task truth or duplicate side effects during handoff.
+
+**Closure:** U10 and P18 require one task/run identity, resumable observation, device trust/revocation, offline/degraded state and timezone-consistent scheduling.
+
+### G14 — Proactive personal/work context
+
+**Risk if absent:** Kernux could remain a task launcher rather than becoming more useful over time across the user's approved files, apps, memory and routines.
+
+**Closure:** U07/U19 and P19 define user-governed relationship context, universal capture, routines, condition watches and proactive-but-policy-bound suggestions. Graph state remains retrieval structure, never authority.
+
+### G15 — Accessibility and internationalization as architecture
+
+**Risk if absent:** a supposedly universal product would embed English/Latin/keyboard/mouse assumptions that are expensive to remove later.
+
+**Closure:** U15, P18, X05 and X12 cover semantic accessibility, keyboard operation, RTL, Unicode, IME, locale and timezone behavior.
+
+### G16 — Universal reliability/evaluation/ecosystem maturity
+
+**Risk if absent:** feature breadth could grow faster than evidence, SLOs, extension governance and provider-failure resilience.
+
+**Closure:** U12-U14, P20, X13 and existing P15/P11 governance establish signed extensions, benchmark/regression coverage, SLO/chaos qualification, reproducible comparison rules and provider-loss journeys.
+
+### Second-pass conclusion
+
+The universal objective is now separated into:
+
+- **Generation 1:** P00-P15, preserving the focused developer/power-user wedge and proving the trusted Agent Operating Environment;
+- **Generation 2:** P16-P20, expanding the proven kernel into work-product creation, broad integrations, multimodal/cross-device use, proactive personal/work assistance and ecosystem-scale maturity.
+
+This prevents universal ambition from authorizing premature breadth during the current P02 implementation.
+
+The canonical anti-gap ownership matrix in `UNIVERSAL_PLATFORM_PLAN.md` requires every future feature to identify outcome, capability, authorization, runtime, context, secret/data/cost ownership, persistence, recovery, side effects, artifact, evidence, accessibility, compatibility, deletion, cross-device behavior and test path.
+
+## 12. Rule
 
 **A complete plan does not predict every bug; it makes every major responsibility, boundary, failure mode, and proof obligation have an owner before code makes the decision accidentally.**
