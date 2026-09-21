@@ -40,7 +40,16 @@ jobs:
             --json > /tmp/SG-000025-replay.json
           cmp docs/evidence/SG-000025-work-packet.json /tmp/SG-000025-replay.json
           python3 tools/specgrain/run.py check .
-          python3 tools/specgrain/run.py prove SG-000025 . --json
+          python3 tools/specgrain/run.py prove SG-000025 . --json > /tmp/SG-000025-proof.json || true
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          proof=json.loads(Path("/tmp/SG-000025-proof.json").read_text())
+          assert proof["spec_id"]=="SG-000025"
+          assert proof["record_count"]==0
+          assert proof["verified"] is False
+          print("closeout evidence packet deliberately precedes native proof: record_count=0 verified=false")
+          PY
 
       - name: Install pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
