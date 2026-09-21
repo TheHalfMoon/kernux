@@ -1,0 +1,204 @@
+name: P02 S05 T02 Closeout Proof Qualification
+
+on:
+  push:
+    branches:
+      - probe/p02-s05-t02-closeout-proof-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: d480d5abf1ae5525bf38f2a2c15dda616d9640d1
+  TARGET_SHA: 78561ede2c57867334078844e7ec24c37126ecd7
+  RECORD: e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa
+
+jobs:
+  linux:
+    name: linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact closeout proof candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact four-path slice, replay, and native proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "4"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx ".specgrain/evidence/SG-000025/$RECORD.json"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "docs/evidence/P02-S05-T02.md"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "specs/CURRENT.md"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "specs/tasks.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -E '^(Cargo\.toml|Cargo\.lock|protocol/|crates/)' || true)"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          record = Path(".specgrain/evidence/SG-000025") / (os.environ["RECORD"] + ".json")
+          raw = record.read_bytes()
+          assert len(raw) == 18763, len(raw)
+          assert hashlib.sha256(raw).hexdigest() == "6c9f5aa637623a3ab3c4664d0c79afa3f34b8a73f11587ffe84b5057a9c27313"
+          obj = json.loads(raw)
+          assert obj["record_digest"] == "sha256:" + os.environ["RECORD"]
+          report = obj["report"]
+          assert report["verified"] is True
+          assert report["issues"] == []
+          assert report["spec_id"] == "SG-000025"
+          assert report["packet_digest"] == "sha256:b022c2f177a3ce59586f05603427659e2c41a6443947061eb59f8de2b153679e"
+          assert report["implementation_revision"] == "git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9"
+          assert len(report["acceptance_checks"]) == 14
+          assert all(check["passed"] is True for check in report["acceptance_checks"])
+          assert len(report["evidence_checks"]) == 19
+          assert all(check["passed"] is True for check in report["evidence_checks"])
+          assert len(report["observed_changed_paths"]) == 4
+          PY
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet SG-000025 . \
+            --context-sources docs/evidence/SG-000025-context-sources.json \
+            --json > /tmp/SG-000025-replay.json
+          cmp docs/evidence/SG-000025-work-packet.json /tmp/SG-000025-replay.json
+          python3 tools/specgrain/run.py prove SG-000025 . --json
+          grep -F "sha256:$RECORD" specs/CURRENT.md
+          grep -F "sha256:$RECORD" specs/tasks.md
+          grep -F "sha256:$RECORD" docs/evidence/P02-S05-T02.md
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Prove exact slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Prove exact slice at Diffcipline R1
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R1
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    name: macos
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact closeout proof candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact slice and native proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "4"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py prove SG-000025 . --json
+          python3 tools/specgrain/run.py packet SG-000025 . \
+            --context-sources docs/evidence/SG-000025-context-sources.json \
+            --json > /tmp/SG-000025-replay.json
+          cmp docs/evidence/SG-000025-work-packet.json /tmp/SG-000025-replay.json
+          sw_vers
+          uname -m
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Prove exact slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
