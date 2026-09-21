@@ -597,6 +597,61 @@ mod tests {
 
     const NOT_COVERED: ProfileCompileError = ProfileCompileError::ActionNotPermittedByProfile;
     const TOO_RISKY: ProfileCompileError = ProfileCompileError::ConsequenceExceeded;
+    const BAD_INTENT: ProfileCompileError = ProfileCompileError::InvalidIntent;
+    const CONFLICT: ProfileCompileError = ProfileCompileError::ConstraintConflict;
+
+    /// Every core action family with a resource its action may authorize.
+    fn core_action_corpus() -> Vec<(&'static str, String)> {
+        vec![
+            ("files.read", project_uri()),
+            ("files.metadata", project_uri()),
+            ("files.create", project_uri()),
+            ("files.write", project_uri()),
+            ("files.move", project_uri()),
+            ("files.delete", project_uri()),
+            ("process.inspect", runtime_uri()),
+            ("process.spawn", runtime_uri()),
+            ("process.signal", runtime_uri()),
+            ("pty.open", runtime_uri()),
+            ("pty.write", runtime_uri()),
+            ("pty.resize", runtime_uri()),
+            ("git.read", git_uri()),
+            ("git.modify", git_uri()),
+            ("git.publish", git_uri()),
+            ("git.admin", git_uri()),
+            ("browser.observe", browser_uri()),
+            ("browser.navigate", browser_uri()),
+            ("browser.interact", browser_uri()),
+            ("browser.download", browser_uri()),
+            ("browser.upload", browser_uri()),
+            ("browser.commit", browser_uri()),
+            ("computer.observe", runtime_uri()),
+            ("computer.input", runtime_uri()),
+            ("clipboard.read", runtime_uri()),
+            ("clipboard.write", runtime_uri()),
+            ("network.connect", network_uri()),
+            ("network.send", network_uri()),
+            ("secret.use", secret_uri()),
+            ("secret.reveal", secret_uri()),
+            ("artifact.read", artifact_uri()),
+            ("artifact.create", artifact_uri()),
+            ("artifact.export", artifact_uri()),
+            ("artifact.delete", artifact_uri()),
+            ("runtime.inspect", runtime_uri()),
+            ("runtime.manage", runtime_uri()),
+            ("sandbox.create", sandbox_uri()),
+            ("sandbox.manage", sandbox_uri()),
+            ("sandbox.destroy", sandbox_uri()),
+            ("tool.invoke", "kernux://tool/demo".to_owned()),
+            ("policy.inspect", policy_uri()),
+            ("policy.modify", policy_uri()),
+            ("grant.issue", grant_uri()),
+            ("grant.revoke", grant_uri()),
+            ("grant.delegate", grant_uri()),
+            ("identity.inspect", identity_uri()),
+            ("identity.manage", identity_uri()),
+        ]
+    }
 
     fn project_uri() -> String {
         format!("kernux://project/{PROJECT}/fs/src/main.rs")
@@ -689,6 +744,33 @@ mod tests {
             Err(expected),
             "{profile} {action}"
         );
+    }
+
+    fn ceiling_constraints(max_bytes: u64) -> ValidatedConstraints {
+        ValidatedConstraints::from_parts(
+            Some(vec!["src".into()]),
+            Some(max_bytes),
+            None,
+            None,
+            None,
+        )
+        .unwrap()
+    }
+
+    fn rule<'a>(
+        action: &'a str,
+        authorities: &'a [ResourceAuthority],
+        scope: ResourceScope,
+        ceiling: ConsequenceClass,
+        max_bytes: u64,
+    ) -> ProfileRule<'a> {
+        ProfileRule {
+            action,
+            resource_authorities: authorities,
+            resource_scope: scope,
+            consequence_ceiling: ceiling,
+            constraint_ceiling: ceiling_constraints(max_bytes),
+        }
     }
 
     fn candidate() -> ProfileGrantCandidate {
@@ -1100,5 +1182,469 @@ mod tests {
         assert_eq!(first[0].max_uses, request.max_uses);
         assert_eq!(first[0].constraints.max_uses, Some(request.max_uses));
         assert_eq!(first[0].resource_uri, request.resource_uri);
+    }
+
+    #[test]
+    fn every_preset_decides_every_core_action_without_widening() {
+        let presets = [
+            PermissionProfile::Safe,
+            PermissionProfile::Standard,
+            PermissionProfile::Developer,
+            PermissionProfile::Autonomous,
+        ];
+        for profile in presets {
+            for (action, resource) in core_action_corpus() {
+                let request = intent(action, &resource);
+                let authoritative =
+                    classify_consequence(&Action::parse(action, &[]).unwrap(), request.facts)
+                        .unwrap();
+                match compile_profile(profile.as_str(), &request, &[], &[]) {
+                    Ok(candidates) => {
+                        assert_eq!(candidates.len(), 1, "{action}");
+                        let candidate = &candidates[0];
+                        assert_eq!(candidate.profile, profile, "{action}");
+                        assert_eq!(candidate.consequence_ceiling, authoritative, "{action}");
+                        assert_eq!(candidate.delegation_depth, 0, "{action}");
+                        assert_eq!(candidate.parent_grant_id, None, "{action}");
+                        assert_eq!(candidate.max_uses, request.max_uses, "{action}");
+                        assert_eq!(candidate.resource_uri, resource, "{action}");
+                        assert!(candidate.validate(GRANT_ID, &[], true).is_ok(), "{action}");
+                    }
+                    Err(error) => assert!(
+                        matches!(
+                            error,
+                            ProfileCompileError::ActionNotPermittedByProfile
+                                | ProfileCompileError::ConsequenceExceeded
+                        ),
+                        "{} {action}: {error:?}",
+                        profile.as_str()
+                    ),
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn untrusted_origin_cannot_mint_any_preset_authority() {
+        for profile in PermissionProfile::ALL {
+            for (action, resource) in core_action_corpus() {
+                let untrusted = ProfileIntent {
+                    provenance_trust: ProvenanceTrust::Untrusted,
+                    ..intent(action, &resource)
+                };
+                assert_eq!(
+                    compile_profile(profile.as_str(), &untrusted, &[], &[]),
+                    Err(ProfileCompileError::UntrustedProvenance),
+                    "{} {action}",
+                    profile.as_str()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn trusted_consequence_facts_drive_the_ceiling_and_never_the_profile() {
+        let project = project_uri();
+        let c2_facts = [
+            TrustedConsequenceFacts {
+                sensitive_data: true,
+                ..TrustedConsequenceFacts::default()
+            },
+            TrustedConsequenceFacts {
+                external_side_effect: true,
+                ..TrustedConsequenceFacts::default()
+            },
+        ];
+        for facts in c2_facts {
+            let escalated = with_facts("files.write", &project, facts);
+            assert_eq!(
+                compile_profile("Standard", &escalated, &[], &[]),
+                Err(TOO_RISKY)
+            );
+            let developer = compile_profile("Developer", &escalated, &[], &[]).unwrap();
+            assert_eq!(developer[0].consequence_ceiling, ConsequenceClass::C2);
+            let autonomous = compile_profile("Autonomous", &escalated, &[], &[]).unwrap();
+            assert_eq!(autonomous[0].consequence_ceiling, ConsequenceClass::C2);
+        }
+        let unbounded_facts = [
+            TrustedConsequenceFacts {
+                unrecoverable: true,
+                ..TrustedConsequenceFacts::default()
+            },
+            TrustedConsequenceFacts {
+                privileged_host_change: true,
+                ..TrustedConsequenceFacts::default()
+            },
+            TrustedConsequenceFacts {
+                generated_or_untrusted_host_code: true,
+                ..TrustedConsequenceFacts::default()
+            },
+        ];
+        for facts in unbounded_facts {
+            let escalated = with_facts("files.write", &project, facts);
+            for profile in [
+                PermissionProfile::Standard,
+                PermissionProfile::Developer,
+                PermissionProfile::Autonomous,
+            ] {
+                assert_eq!(
+                    compile_profile(profile.as_str(), &escalated, &[], &[]),
+                    Err(TOO_RISKY),
+                    "{}",
+                    profile.as_str()
+                );
+            }
+        }
+        let authority_facts = [
+            TrustedConsequenceFacts {
+                authority_or_trust_change: true,
+                ..TrustedConsequenceFacts::default()
+            },
+            TrustedConsequenceFacts {
+                financial_commitment: true,
+                ..TrustedConsequenceFacts::default()
+            },
+            TrustedConsequenceFacts {
+                production_or_release_mutation: true,
+                ..TrustedConsequenceFacts::default()
+            },
+        ];
+        for facts in authority_facts {
+            let escalated = with_facts("files.write", &project, facts);
+            for profile in [
+                PermissionProfile::Safe,
+                PermissionProfile::Standard,
+                PermissionProfile::Developer,
+                PermissionProfile::Autonomous,
+            ] {
+                assert_eq!(
+                    compile_profile(profile.as_str(), &escalated, &[], &[]),
+                    Err(TOO_RISKY),
+                    "{}",
+                    profile.as_str()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn wildcard_and_provider_input_cannot_bypass_the_vocabulary() {
+        let project = project_uri();
+        for action in ["*", "files.*", "files.write.*", "*.write"] {
+            expect_denied(
+                "Autonomous",
+                action,
+                &project,
+                ProfileCompileError::WildcardNotPermitted,
+            );
+        }
+        for action in [
+            " ",
+            "FILES.WRITE",
+            "provider.write",
+            "openai.files.write",
+            "acme.tool.invoke",
+        ] {
+            expect_denied(
+                "Autonomous",
+                action,
+                &project,
+                ProfileCompileError::UnknownAction,
+            );
+        }
+        for resource in [
+            "kernux://project/*/fs/src",
+            "kernux://project/01890f00-0000-7000-8000-000000000004/fs/*",
+            "kernux://runtime/*",
+        ] {
+            expect_denied(
+                "Autonomous",
+                "process.spawn",
+                resource,
+                ProfileCompileError::WildcardNotPermitted,
+            );
+        }
+    }
+
+    #[test]
+    fn resource_authority_confusion_is_denied() {
+        for (action, resource) in [
+            ("git.publish", project_uri()),
+            ("process.spawn", project_uri()),
+            ("secret.use", runtime_uri()),
+            ("browser.navigate", runtime_uri()),
+            ("network.connect", project_uri()),
+            ("artifact.read", project_uri()),
+            ("policy.modify", project_uri()),
+            ("identity.manage", project_uri()),
+        ] {
+            expect_denied(
+                "Autonomous",
+                action,
+                &resource,
+                ProfileCompileError::ResourceAuthorityMismatch,
+            );
+        }
+    }
+
+    #[test]
+    fn custom_rules_require_exact_action_and_authority_match() {
+        let project = project_uri();
+        let authorities = &[ResourceAuthority::Project];
+        assert_eq!(
+            compile_profile("Custom", &intent("files.write", &project), &[], &[]),
+            Err(ProfileCompileError::RuleMissing)
+        );
+        let cases: [(&str, ProfileRule<'static>, ProfileCompileError); 6] = [
+            (
+                "wrong action",
+                rule(
+                    "files.read",
+                    authorities,
+                    ResourceScope::Subtree,
+                    ConsequenceClass::C1,
+                    8192,
+                ),
+                ProfileCompileError::RuleMissing,
+            ),
+            (
+                "wrong authority",
+                rule(
+                    "files.write",
+                    &[ResourceAuthority::Runtime],
+                    ResourceScope::Subtree,
+                    ConsequenceClass::C1,
+                    8192,
+                ),
+                ProfileCompileError::RuleMissing,
+            ),
+            (
+                "narrower scope",
+                rule(
+                    "files.write",
+                    authorities,
+                    ResourceScope::Exact,
+                    ConsequenceClass::C1,
+                    8192,
+                ),
+                ProfileCompileError::RuleMissing,
+            ),
+            (
+                "constraint ceiling conflict",
+                rule(
+                    "files.write",
+                    authorities,
+                    ResourceScope::Subtree,
+                    ConsequenceClass::C1,
+                    1024,
+                ),
+                CONFLICT,
+            ),
+            (
+                "consequence ceiling",
+                rule(
+                    "files.write",
+                    authorities,
+                    ResourceScope::Subtree,
+                    ConsequenceClass::C0,
+                    8192,
+                ),
+                TOO_RISKY,
+            ),
+            (
+                "wildcard action",
+                rule(
+                    "files.*",
+                    authorities,
+                    ResourceScope::Subtree,
+                    ConsequenceClass::C1,
+                    8192,
+                ),
+                ProfileCompileError::InvalidRule,
+            ),
+        ];
+        for (label, candidate_rule, expected) in cases {
+            assert_eq!(
+                compile_profile(
+                    "Custom",
+                    &intent("files.write", &project),
+                    &[candidate_rule],
+                    &[]
+                ),
+                Err(expected),
+                "{label}"
+            );
+        }
+        assert_eq!(
+            compile_profile(
+                "Custom",
+                &intent("files.write", &project),
+                &[rule(
+                    "files.write",
+                    &[],
+                    ResourceScope::Subtree,
+                    ConsequenceClass::C1,
+                    8192
+                )],
+                &[]
+            ),
+            Err(ProfileCompileError::InvalidRule)
+        );
+        let wide = rule(
+            "files.write",
+            authorities,
+            ResourceScope::Subtree,
+            ConsequenceClass::C2,
+            65_536,
+        );
+        let narrow = rule(
+            "files.write",
+            authorities,
+            ResourceScope::Subtree,
+            ConsequenceClass::C1,
+            8192,
+        );
+        let candidates = compile_profile(
+            "Custom",
+            &intent("files.write", &project),
+            &[wide, narrow],
+            &[],
+        )
+        .unwrap();
+        assert_eq!(candidates[0].consequence_ceiling, ConsequenceClass::C1);
+        assert_eq!(candidates[0].constraints.max_bytes, Some(4096));
+    }
+
+    #[test]
+    fn intent_bounds_fail_closed() {
+        let project = project_uri();
+        let base = intent("files.write", &project);
+        for max_uses in [0, MAX_PROFILE_USES + 1] {
+            let unbounded = ProfileIntent {
+                max_uses,
+                ..base.clone()
+            };
+            assert_eq!(
+                compile_profile("Standard", &unbounded, &[], &[]),
+                Err(BAD_INTENT)
+            );
+        }
+        for (not_before, expires_at) in [
+            ("2026-09-21T10:00:00Z", "2026-09-22T10:00:01Z"),
+            ("2026-09-21T10:00:00Z", "2026-09-21T10:00:00Z"),
+            ("2026-09-21T09:59:00Z", "2026-09-21T10:30:00Z"),
+            ("2026-09-21T10:00:00Z", "2026-09-21T10:00:01.5Z"),
+            ("2026-02-30T10:00:00Z", "2026-02-30T11:00:00Z"),
+        ] {
+            let invalid = ProfileIntent {
+                not_before,
+                expires_at,
+                ..base.clone()
+            };
+            assert_eq!(
+                compile_profile("Standard", &invalid, &[], &[]),
+                Err(BAD_INTENT),
+                "{not_before}..{expires_at}"
+            );
+        }
+        let zero_revision = ProfileIntent {
+            policy_revision: 0,
+            ..base.clone()
+        };
+        let padded_issuer = ProfileIntent {
+            issuer_authority: " local-user",
+            ..base.clone()
+        };
+        let zero_runtime_revision = ProfileIntent {
+            runtime_revision: 0,
+            ..base.clone()
+        };
+        let non_canonical_run = ProfileIntent {
+            subject: ValidatedSubjectScope {
+                run_id: "01890F00-0000-7000-8000-000000000002".into(),
+                agent_session_id: None,
+            },
+            ..base.clone()
+        };
+        for invalid in [
+            zero_revision,
+            padded_issuer,
+            zero_runtime_revision,
+            non_canonical_run,
+        ] {
+            assert_eq!(
+                compile_profile("Standard", &invalid, &[], &[]),
+                Err(BAD_INTENT)
+            );
+        }
+        let mismatched_budget = ProfileIntent {
+            constraints: ValidatedConstraints::from_parts(
+                Some(vec!["src".into()]),
+                Some(4096),
+                None,
+                Some(9),
+                None,
+            )
+            .unwrap(),
+            ..base.clone()
+        };
+        assert_eq!(
+            compile_profile("Standard", &mismatched_budget, &[], &[]),
+            Err(CONFLICT)
+        );
+        expect_denied(
+            "Standard",
+            "files.write",
+            "kernux://other/thing",
+            ProfileCompileError::InvalidResource,
+        );
+        let extension = ProfileIntent {
+            action: "ext.acme.observe",
+            resource_uri: "kernux://ext/acme/resource",
+            ..base
+        };
+        assert_eq!(
+            compile_profile("Standard", &extension, &[], &["ext.acme.observe"]),
+            Err(NOT_COVERED)
+        );
+        assert_eq!(
+            compile_profile("Autonomous", &extension, &[], &[]),
+            Err(ProfileCompileError::UnknownAction)
+        );
+        assert_eq!(
+            compile_profile("Autonomous", &extension, &[], &["ext.acme.observe"]),
+            Err(ProfileCompileError::UnknownConsequence)
+        );
+        let extension_on_project = intent("ext.acme.observe", &project);
+        assert_eq!(
+            compile_profile(
+                "Autonomous",
+                &extension_on_project,
+                &[],
+                &["ext.acme.observe"]
+            ),
+            Err(ProfileCompileError::ResourceAuthorityMismatch)
+        );
+    }
+
+    #[test]
+    fn every_preset_compilation_denies_hard_deny_actions() {
+        for profile in [
+            PermissionProfile::Safe,
+            PermissionProfile::Standard,
+            PermissionProfile::Developer,
+            PermissionProfile::Autonomous,
+        ] {
+            for (action, resource) in [
+                ("identity.manage", identity_uri()),
+                ("grant.delegate", grant_uri()),
+                ("grant.issue", grant_uri()),
+                ("grant.revoke", grant_uri()),
+                ("policy.modify", policy_uri()),
+                ("secret.reveal", secret_uri()),
+            ] {
+                expect_denied(profile.as_str(), action, &resource, NOT_COVERED);
+            }
+        }
     }
 }
