@@ -383,6 +383,45 @@ Implementation implications:
 
 Product quality, security, privacy, evidence integrity, and provider independence remain first-class requirements. This decision must not be interpreted as permission to ship an inferior local path merely to claim zero owner cost.
 
+
+## ADR-0045 — Universal breadth uses integration over imitation
+
+**Status:** Accepted
+
+Kernux's long-term breadth must come from stable capability contracts, adapters, protocols, artifact formats, browser/computer fallbacks, and extension packages rather than rebuilding every specialized application inside the Kernux core.
+
+Kernux owns orchestration, authorization, context, task state, runtime coordination, recovery, evidence, portability, and user-visible continuity. Email clients, calendars, office suites, CRMs, design tools, databases, browsers, and other specialized systems remain replaceable capability providers unless a Kernux-native surface is required for the cross-provider experience.
+
+A missing vendor-specific integration is not permission to couple core Task/Capability/Event/Artifact contracts to that vendor. When structured integration is unavailable, browser/computer capability may provide a bounded fallback under the same policy/evidence model.
+
+## ADR-0046 — Proactive and background work compiles to ordinary task authority
+
+**Status:** Accepted
+
+Schedules, event triggers, condition watches, recurring routines, proactive suggestions, and long-running background work do not form a separate autonomy subsystem.
+
+They compile to ordinary Task/WorkUnit/Run structures with explicit subject, runtime, ContextBundle, capability requests, bounded Grants, operation identities, budgets, deadlines, evidence, cancellation, recovery, and notification state.
+
+A trigger can create or resume eligible work; it cannot mint new privilege. Expired/revoked authority remains expired/revoked. A background run that requires unavailable authority enters an explicit waiting/blocked state rather than silently expanding scope.
+
+## ADR-0047 — Finished work products are first-class Artifacts
+
+**Status:** Accepted
+
+Documents, spreadsheets, presentations, reports, notebooks, sites/apps, charts, data exports, and media created or revised by Kernux are first-class Artifacts rather than opaque chat attachments.
+
+Where the target format permits it, an artifact adapter defines editability, source lineage, validation, round-trip limits, template/style preservation, producer/runtime identity, and export/import behavior. Changed bytes create new Artifact identity under the existing artifact model.
+
+Kernux must not claim successful editing of a structured work product solely because a visual preview looks correct when stronger format-level validation is available.
+
+## ADR-0048 — Multimodal observations are context, never authority
+
+**Status:** Accepted
+
+Voice, audio, images, screenshots, screen recordings, camera/video input, OCR-like extraction, and model interpretations of those inputs are ContextSources/observations. They may inform planning and capability requests but cannot authorize privileged actions, widen Grants, prove identity, or establish stronger completion evidence than their observation class supports.
+
+Sensitive multimodal data follows the same provenance, retention, redaction, data-boundary, and deletion rules as other context/artifacts.
+
 ## Change process
 
 Any implementation discovery that invalidates one of these decisions should create an ADR rather than silently violating the plan. A replacement ADR must describe:
