@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   author:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - name: Checkout exact canonical main
