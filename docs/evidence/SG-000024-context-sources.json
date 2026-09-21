@@ -1,0 +1,102 @@
+[
+  {
+    "priority": 0,
+    "provenance": "repo:specs/CURRENT.md#L75-L95",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the exact live P02 frontier, S05-T01-only authority, and 5/9 proven progress.",
+    "size_bytes": 765,
+    "source_id": "current-frontier",
+    "token_cost": 192
+  },
+  {
+    "priority": 1,
+    "provenance": "repo:.specgrain/specs/SG-000023.json",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the frozen primary Grain, exact scope, safety, acceptance, evidence, and original change surface whose native gap must remain visible.",
+    "size_bytes": 18659,
+    "source_id": "sg23-primary-grain",
+    "token_cost": 4665
+  },
+  {
+    "priority": 2,
+    "provenance": "repo:.specgrain/specs/SG-000006.json",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the repository-native explicit-path corrective Grain precedent without inventing a new reconciliation model.",
+    "size_bytes": 4217,
+    "source_id": "sg6-corrective-precedent",
+    "token_cost": 1055
+  },
+  {
+    "priority": 3,
+    "provenance": "repo:docs/evidence/P00-S01-T03.md#L165-L205",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the preserved SG-000005 UNSCOPED_CHANGE failure and no-retroactive-widening rule.",
+    "size_bytes": 1085,
+    "source_id": "corrective-gap-precedent",
+    "token_cost": 272
+  },
+  {
+    "priority": 4,
+    "provenance": "repo:docs/evidence/P00-S01-T03.md#L279-L321",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the SG-000006 verified corrective proof and combined macro-outcome closeout precedent.",
+    "size_bytes": 1211,
+    "source_id": "corrective-proof-precedent",
+    "token_cost": 303
+  },
+  {
+    "priority": 5,
+    "provenance": "repo:AGENTS.md#L1-L60",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind repository authority order, negative-evidence rules, bounded delivery, no hand-edited SpecGrain state, and Git history safety.",
+    "size_bytes": 2618,
+    "source_id": "agent-governance",
+    "token_cost": 655
+  },
+  {
+    "priority": 6,
+    "provenance": "repo:docs/governance/SPEC_GRAIN.md#L70-L160",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the supported draft/shape/refine/check/grain/next/context/packet lifecycle and proof boundary.",
+    "size_bytes": 2923,
+    "source_id": "specgrain-governance",
+    "token_cost": 731
+  },
+  {
+    "priority": 7,
+    "provenance": "repo:crates/kernux-store/Cargo.toml",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind the exact current store dependency/path-dependency semantics that the corrective touch must preserve.",
+    "size_bytes": 524,
+    "source_id": "store-manifest",
+    "token_cost": 131
+  },
+  {
+    "priority": 8,
+    "provenance": "repo:crates/kernux-store/src/event.rs#L45-L220",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind current Event ownership, predecessor sequencing, immediate transaction, insert, and accepted-event semantics.",
+    "size_bytes": 4806,
+    "source_id": "store-event-core",
+    "token_cost": 1202
+  },
+  {
+    "priority": 9,
+    "provenance": "repo:crates/kernuxd/src/authorization.rs#L1-L115",
+    "requirement": "required",
+    "revision": "git:17fe5b52d7d68b04e97bd65bc0c6be4637141225",
+    "selection_reason": "Bind request-bound trusted authorization state, non-forgeable result, consequence handling, durable denial, and audited Grant admission.",
+    "size_bytes": 4135,
+    "source_id": "daemon-auth-core",
+    "token_cost": 1034
+  }
+]
