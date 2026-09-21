@@ -24,6 +24,16 @@ python3 tools/provenance/validate.py check
 
 An empty provenance ledger is valid before the first import. Once a donor record is prepared or imported, it must match a notice-inventory source identity and include the preserved license snapshot in its evidence paths.
 
+## Founder authorization scope
+
+The founder states that Kernux has full source-reuse permission for the source repositories explicitly recorded by the project as authorized reuse sources.
+
+For TinyFish specifically, the founder states that this permission was granted personally and covers the full TinyFish source, with permission to copy and use that source as needed for Kernux. The authorization basis may therefore be recorded as founder-supplied personal permission when a non-public TinyFish source artifact is imported.
+
+This authorization statement is intentionally separate from public-license evidence. It does not remove the engineering requirement to record the exact imported source identity, immutable revision or digest, source-to-destination mapping, transformation class, characterization evidence, and import commit. It also does not silently grant rights over embedded third-party dependencies, fonts, media, model weights, datasets, trademarks, service accounts, hosted APIs, or other material governed by separate terms.
+
+For any authorized source whose exact private artifact or revision is not independently visible in the repository, record the founder-supplied permission basis without inventing a public URL, commit, license, or provenance fact.
+
 ## Founding donor 1 — Orca
 
 - Repository: `stablyai/orca`
@@ -81,7 +91,7 @@ High-value areas:
 
 ### Founder-authorized TinyFish source
 
-The founder states that Kernux has permission to use the full TinyFish source code as desired. The exact source repository/artifact and revision of any non-public component must be entered into the provenance ledger **before import**. Do not invent a public revision for source that is not independently visible here.
+The founder states that Kernux has personal permission from TinyFish to copy and use the full TinyFish source as needed. The exact source repository/artifact and revision of any non-public component must be entered into the provenance ledger **before import**. The permission basis should be recorded as founder-supplied personal authorization when that is the applicable source of authority. Do not invent a public revision, public license, or public artifact identity for source that is not independently visible here.
 
 Required import record fields:
 
