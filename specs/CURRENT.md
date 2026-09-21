@@ -190,6 +190,8 @@ Founder authorization has been stated for full source reuse from:
 - TinyFish source / `tinyfish-io/agentql` public reference;
 - `wonderwhy-er/DesktopCommanderMCP`.
 
+The founder further states that the TinyFish authorization is a personal, full-source permission to copy and use the source as needed for Kernux, and that the source repositories recorded by Kernux as authorized reuse sources are covered by founder-supplied reuse permission. This statement is the founder-supplied authorization basis; exact source identity/revision, provenance, preserved notices, embedded third-party obligations, assets, models, trademarks, and hosted-service terms remain independently governed.
+
 No donor code has been imported into Kernux yet. The machine-readable provenance contract, notice/license inventory, donor import checklist, Apache-2.0 project-license policy, and CI enforcement are now proven. Before any import, the active import task must still authorize the bounded source change and provide exact source revision, permission/provenance, source/destination mapping, transformation class, preserved notices, dependency/asset review, characterization evidence, and all applicable security evidence.
 
 ## Architecture invariants
@@ -212,6 +214,7 @@ Implementation must preserve these from the first product commit:
 14. Context, search, indexing, and durable memory remain provenance-aware and user-governed.
 15. Headless CLI/API and desktop UI are peer surfaces over the same core contracts.
 16. Kernux-owned data has explicit retention, export, backup, restore, and deletion semantics.
+17. Owner-sustainable execution is mandatory: core usefulness cannot require owner-subsidized variable compute; local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed paths preserve capability without making Kernux cloud a hidden prerequisite.
 
 ## First-generation protocol posture
 
