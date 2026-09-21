@@ -1,0 +1,112 @@
+[
+  {
+    "priority": 0,
+    "provenance": "repo:specs/CURRENT.md#L70-L100",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the exact live P02 frontier and S05-T02-only execution authority.",
+    "size_bytes": 1041,
+    "source_id": "current-frontier",
+    "token_cost": 261
+  },
+  {
+    "priority": 1,
+    "provenance": "repo:specs/tasks.md#L50-L82",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the canonical P02 dependency order, S05-T02 NEXT state, S06 planning boundary, and P02 exit gate.",
+    "size_bytes": 4193,
+    "source_id": "p02-registry",
+    "token_cost": 1049
+  },
+  {
+    "priority": 2,
+    "provenance": "repo:.specgrain/specs/SG-000025.json",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the complete original SG-000025 scope, safety, acceptance, evidence, and change surface.",
+    "size_bytes": 12027,
+    "source_id": "sg25-grain",
+    "token_cost": 3007
+  },
+  {
+    "priority": 3,
+    "provenance": "repo:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md#L1-L120",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the canonical request-versus-authority invariants, exact action grammar, and non-wildcard Grant semantics.",
+    "size_bytes": 4958,
+    "source_id": "capability-core",
+    "token_cost": 1240
+  },
+  {
+    "priority": 4,
+    "provenance": "repo:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md#L777-L822",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the canonical permission-profile rule: profiles compile to bounded Grants and never create an alternate authorization path.",
+    "size_bytes": 1195,
+    "source_id": "capability-profile",
+    "token_cost": 299
+  },
+  {
+    "priority": 5,
+    "provenance": "repo:crates/kernux-policy/src/lib.rs#L1-L180",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind existing Action, ResourceAuthority, CanonicalResource, and action/resource compatibility primitives reused by the compiler.",
+    "size_bytes": 5022,
+    "source_id": "policy-core",
+    "token_cost": 1256
+  },
+  {
+    "priority": 6,
+    "provenance": "repo:crates/kernux-policy/src/envelope.rs#L1-L125",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind ValidatedGrant round-trip validation, exact subject/runtime binding, finite envelope, and hierarchy rules.",
+    "size_bytes": 4748,
+    "source_id": "policy-envelope",
+    "token_cost": 1187
+  },
+  {
+    "priority": 7,
+    "provenance": "repo:crates/kernux-policy/src/semantics.rs#L1-L190",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind authoritative consequence ordering/classification and typed conjunctive constraint narrowing.",
+    "size_bytes": 5784,
+    "source_id": "policy-semantics",
+    "token_cost": 1446
+  },
+  {
+    "priority": 8,
+    "provenance": "repo:crates/kernux-policy/src/decision.rs#L179-L314",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the mandatory controller/local/kernel/principal/runtime/remote/secondary authority intersection that profiles cannot bypass.",
+    "size_bytes": 4660,
+    "source_id": "policy-authority",
+    "token_cost": 1165
+  },
+  {
+    "priority": 9,
+    "provenance": "repo:AGENTS.md#L1-L60",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, and protected-history rules.",
+    "size_bytes": 2618,
+    "source_id": "agent-governance",
+    "token_cost": 655
+  },
+  {
+    "priority": 10,
+    "provenance": "repo:docs/governance/SPEC_GRAIN.md#L70-L145",
+    "requirement": "required",
+    "revision": "git:1fa8c39d608c918c5ef327bc77e1aca41a6166fc",
+    "selection_reason": "Bind the supported Grain -> explicit context -> WorkPacket -> execute -> independent proof lifecycle and packet authority boundary.",
+    "size_bytes": 2271,
+    "source_id": "specgrain-governance",
+    "token_cost": 568
+  }
+]
