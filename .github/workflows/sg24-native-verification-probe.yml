@@ -16,7 +16,7 @@ env:
 
 jobs:
   verify:
-    runs-on: ubuntu-24.04
+    runs-on: macos-15
     timeout-minutes: 20
     steps:
       - name: Checkout exact corrective reconciliation merge
@@ -58,8 +58,16 @@ jobs:
             --context-sources "docs/evidence/$SPEC_ID-context-sources.json" \
             --json > /tmp/sg24-packet-replay.json
           cmp "docs/evidence/$SPEC_ID-work-packet.json" /tmp/sg24-packet-replay.json
-          sha256sum "docs/evidence/$SPEC_ID-context-sources.json"
-          sha256sum "docs/evidence/$SPEC_ID-work-packet.json"
+          python3 - <<'PY'
+          import hashlib
+          import pathlib
+          for name in (
+              "docs/evidence/SG-000024-context-sources.json",
+              "docs/evidence/SG-000024-work-packet.json",
+          ):
+              raw = pathlib.Path(name).read_bytes()
+              print(f"{name} sha256:{hashlib.sha256(raw).hexdigest()}")
+          PY
 
       - name: Run native verify_execution and append immutable record
         shell: bash
