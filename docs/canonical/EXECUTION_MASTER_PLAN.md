@@ -18,6 +18,7 @@ The plan optimizes for **correct architecture and proof first, donor reuse secon
 6. Cross-platform assumptions are tested while surfaces are small.
 7. Protocol/version compatibility is designed before remote production use.
 8. A phase may run parallel slices only when their contracts are already frozen enough to avoid duplicate architecture.
+9. Preserve owner-sustainable execution: no core capability may require indefinite project-owner subsidy of metered inference, browser, search, storage, relay, runtime, or third-party API consumption when a local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path can own that variable cost.
 
 ---
 
