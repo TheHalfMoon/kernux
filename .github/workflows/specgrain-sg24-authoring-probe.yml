@@ -1,0 +1,235 @@
+name: SpecGrain SG24 Authoring Probe
+
+on:
+  push:
+    branches:
+      - probe/sg24-authoring
+
+permissions:
+  contents: read
+
+env:
+  TARGET_SHA: 94e0691c82ad17e8639b4e19391a518014590a49
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact canonical main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact clean target
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Author corrective Grain through pinned CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import subprocess
+
+          root = pathlib.Path(".")
+          specs = root / ".specgrain" / "specs"
+
+          def run(args):
+              print("+", " ".join(args))
+              proc = subprocess.run(args, text=True, capture_output=True)
+              if proc.stdout:
+                  print(proc.stdout, end="" if proc.stdout.endswith("\n") else "\n")
+              if proc.stderr:
+                  print(proc.stderr, end="" if proc.stderr.endswith("\n") else "\n")
+              if proc.returncode != 0:
+                  raise SystemExit(proc.returncode)
+              return proc.stdout
+
+          title = "KX-P02-S05-T01 — Reconcile SG-000023 unscoped policy surfaces"
+          outcome = (
+              "The three current policy implementation surfaces observed outside the frozen SG-000023 "
+              "change surface are explicitly re-adopted under exact paths, semantically unchanged, "
+              "independently requalified, and natively verifiable without rewriting SG-000023 or "
+              "converting its historical native-proof gap into PASS."
+          )
+          rationale = (
+              "The qualified SG-000023 implementation range contains three observed paths outside its "
+              "frozen exact/literal-prefix change surface. Preserve the primary Grain gap and use the "
+              "proven SG-000005 -> SG-000006 corrective pattern instead of retroactive mutation."
+          )
+
+          scope_in = [
+              "Preserve the SG-000023 WorkPacket-recovery gap and three-path change-surface mismatch as negative evidence.",
+              "Re-review and explicitly re-adopt crates/kernux-store/Cargo.toml without changing dependency package/version/source identity or path-dependency semantics.",
+              "Re-review and explicitly re-adopt crates/kernux-store/src/event.rs without changing Event sequencing, ownership, payload, redaction, or transaction semantics.",
+              "Re-review and explicitly re-adopt crates/kernuxd/src/authorization.rs without changing trusted-authority composition, exact-request binding, consequence classification, atomic audited admission, or authorization-result non-forgeability.",
+              "Persist the exact original corrective WorkPacket bytes and the complete ContextSource records through a dedicated first corrective slice; require its exact-head qualification, ordinary merge, and exact post-merge qualification before any source reconciliation begins.",
+              "After the persistence slice is canonical and byte-identical replay remains proven, touch each re-adopted source only with one minimal non-functional reconciliation comment in a separate dependent slice unless fresh review proves an actual defect.",
+              "Collect exact-head and post-merge evidence from both corrective slices sufficient for later native SpecGrain verification, including local macOS evidence, full repository baseline, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode with complete exclusion accounting, exact-head six-job CI/review/zero threads, ordinary merges, and exact post-merge qualification.",
+          ]
+          scope_out = [
+              "Do not modify SG-000023 or manufacture an SG-000023 native evidence record.",
+              "Do not change policy semantics, Grant semantics, SQLite schema, Event semantics, KRP, protected CI context names, or external dependency identities.",
+              "Do not implement permission profiles, approval UI, organization policy distribution, secret brokerage, host side effects, remote/cloud transport, KX-P02-S05-T02, or S06.",
+          ]
+          acceptance = [
+              "The corrective Grain uses explicit file paths for every authorized corrective surface and no wildcard authority for those paths.",
+              "The SG-000023 native-proof gap remains preserved as negative evidence and is not relabeled PASS.",
+              "The packet-persistence slice contains only the two corrective packet-evidence JSON files declared in this Grain's change surface, and both tracked files are byte-identical to the original pre-execution temporary artifacts.",
+              "The packet-persistence slice passes required local/full/R3/OpenCodeReview/exact-head review and six-job CI gates, merges normally, and passes exact post-merge six-job qualification before the source-reconciliation slice begins.",
+              "The source-reconciliation slice contains only crates/kernux-store/Cargo.toml, crates/kernux-store/src/event.rs, and crates/kernuxd/src/authorization.rs, with exactly one non-functional reconciliation comment added to each file and no other source-byte change.",
+              "The store manifest preserves dependency package/version/source identity and path-dependency semantics.",
+              "The Event implementation preserves sequencing, ownership, payload, redaction, and transaction semantics.",
+              "The daemon authorization implementation preserves trusted-authority composition, exact-request binding, consequence classification, atomic audited admission, and non-forgeable authorization-result semantics.",
+              "The source-reconciliation slice passes focused policy/store/daemon regression evidence, full pnpm check, local macOS evidence, Diffcipline R3, Alibaba OpenCodeReview complete accounting, exact-head six-job CI/review/zero threads, ordinary merge, and exact post-merge six-job qualification.",
+              "Replaying the tracked ContextSource records through the pinned packet command reproduces the tracked WorkPacket exactly, and the combined independently observed corrective execution paths are exactly the two packet-evidence files plus the three re-adopted source files.",
+          ]
+          evidence = [
+              "sg23-native-proof-gap-preserved",
+              "explicit-corrective-surface-pass",
+              "corrective-workpacket-durable-recovery-pass",
+              "corrective-packet-persistence-pr-pass",
+              "corrective-packet-persistence-post-merge-ci-pass",
+              "store-manifest-semantics-pass",
+              "event-semantics-pass",
+              "daemon-authorization-semantics-pass",
+              "policy-store-daemon-regression-pass",
+              "local-macos-pass",
+              "diffcipline-r3-proof-pass",
+              "open-code-review-accounting-pass",
+              "corrective-reconciliation-pr-pass",
+              "corrective-reconciliation-post-merge-ci-pass",
+          ]
+          safety = [
+              "Do not retroactively widen SG-000023 or convert its native-proof gap into PASS.",
+              "Do not generate the corrective WorkPacket after corrective repository mutation begins.",
+              "Do not start the source-reconciliation slice until packet persistence is merged and exact post-merge-qualified.",
+              "Do not proceed if any reconciliation touch changes dependency, Event, policy, authorization, transaction, or security semantics.",
+              "Do not advance KX-P02-S05-T02 or S06 from the corrective Grain.",
+          ]
+          minimality = (
+              "Reuse existing policy/store/daemon surfaces and the repository evidence directory; "
+              "add only two compact execution-authority evidence files and three one-line reconciliation "
+              "comments. Add no framework, dependency, policy model, storage model, protocol field, or execution surface."
+          )
+          recovery = (
+              "Revert only the three non-functional source-reconciliation comments and keep KX-P02-S05-T01 "
+              "at NEXT. Preserve the canonical tracked original corrective WorkPacket/ContextSource evidence, "
+              "SG-000023 negative evidence, and all existing policy/store/daemon semantics; never widen SG-000023 retroactively."
+          )
+
+          before = {p.name for p in specs.glob("SG-*.json")}
+          run([
+              "node", "tools/specgrain/run.mjs", "draft", ".",
+              "--title", title,
+              "--outcome", outcome,
+              "--rationale", rationale,
+              "--json",
+          ])
+          after = {p.name for p in specs.glob("SG-*.json")}
+          created = sorted(after - before)
+          if len(created) != 1:
+              raise SystemExit(f"Expected exactly one new SpecGrain file, observed: {created!r}")
+
+          spec_file = specs / created[0]
+          spec_id = spec_file.stem
+          print(f"EMITTED_SPEC_ID={spec_id}")
+
+          change_surface = [
+              f".specgrain/specs/{spec_id}.json",
+              f"docs/evidence/{spec_id}-context-sources.json",
+              f"docs/evidence/{spec_id}-work-packet.json",
+              "crates/kernux-store/Cargo.toml",
+              "crates/kernux-store/src/event.rs",
+              "crates/kernuxd/src/authorization.rs",
+          ]
+
+          args = [
+              "node", "tools/specgrain/run.mjs", "shape", spec_id, ".",
+              "--risk-level", "high",
+              "--recovery", recovery,
+              "--context-budget", "12000",
+              "--context-estimate", "10500",
+              "--minimality-choice", "reuse-existing",
+              "--minimality-rationale", minimality,
+              "--safety-status", "requirements-defined",
+          ]
+          for item in scope_in:
+              args += ["--scope-in", item]
+          for item in scope_out:
+              args += ["--scope-out", item]
+          for item in acceptance:
+              args += ["--acceptance", item]
+          for item in change_surface:
+              args += ["--change-surface", item]
+          for item in evidence:
+              args += ["--evidence", item]
+          for item in safety:
+              args += ["--safety-requirement", item]
+          args += ["--json"]
+          run(args)
+
+          run(["node", "tools/specgrain/run.mjs", "refine", spec_id, ".", "--json"])
+          run(["node", "tools/specgrain/run.mjs", "check", "."])
+          run(["node", "tools/specgrain/run.mjs", "grain", spec_id, ".", "--json"])
+          run(["node", "tools/specgrain/run.mjs", "check", "."])
+          run(["node", "tools/specgrain/run.mjs", "next", "."])
+
+          raw = spec_file.read_bytes()
+          obj = json.loads(raw)
+          if obj["id"] != spec_id:
+              raise SystemExit("Spec ID mismatch")
+          if obj["state"] != "GRAIN":
+              raise SystemExit(f"Expected GRAIN, got {obj['state']}")
+          if obj["dependencies"] != []:
+              raise SystemExit(f"Corrective dependencies must be empty, got {obj['dependencies']!r}")
+          if obj["method"] != "quick":
+              raise SystemExit(f"Expected method quick, got {obj['method']!r}")
+          if obj["change_surface"] != change_surface:
+              raise SystemExit(f"Change-surface mismatch: {obj['change_surface']!r}")
+          if obj["evidence"]["required"] != evidence:
+              raise SystemExit("Required-evidence ordering/content mismatch")
+
+          sha256 = hashlib.sha256(raw).hexdigest()
+          blob = subprocess.check_output(["git", "hash-object", str(spec_file)], text=True).strip()
+          print(f"EMITTED_SPEC_PATH={spec_file.as_posix()}")
+          print(f"EMITTED_SPEC_BYTES={len(raw)}")
+          print(f"EMITTED_SPEC_SHA256=sha256:{sha256}")
+          print(f"EMITTED_SPEC_GIT_BLOB_SHA1={blob}")
+          print("===SPEC_GRAIN_JSON_BEGIN===")
+          print(raw.decode("utf-8"), end="" if raw.endswith(b"\n") else "\n")
+          print("===SPEC_GRAIN_JSON_END===")
+
+          subprocess.run(["git", "diff", "--check"], check=True)
+          status = subprocess.check_output(
+              ["git", "status", "--porcelain", "--untracked-files=all"], text=True
+          )
+          print("===AUTHORING_STATUS_BEGIN===")
+          print(status, end="")
+          print("===AUTHORING_STATUS_END===")
+          PY
