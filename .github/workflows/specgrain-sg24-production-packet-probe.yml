@@ -1,0 +1,180 @@
+name: SpecGrain SG24 Production Packet Probe
+
+on:
+  push:
+    branches:
+      - probe/sg24-production-packet
+
+permissions:
+  contents: read
+
+env:
+  TARGET_SHA: 17fe5b52d7d68b04e97bd65bc0c6be4637141225
+  SPEC_ID: SG-000024
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact qualified canonical main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Assert exact clean canonical input
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+      - name: Build exact rebased ContextSource records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import math
+          import os
+          from pathlib import Path
+
+          target = os.environ["TARGET_SHA"]
+          root = Path(".")
+          out = Path("/tmp/SG-000024-context-sources.json")
+
+          def whole(path):
+              return len((root / path).read_bytes())
+
+          def line_range(path, start, end):
+              raw = (root / path).read_bytes()
+              lines = raw.splitlines(keepends=True)
+              return len(b"".join(lines[start - 1:end]))
+
+          expected = {
+              "current-frontier": (line_range("specs/CURRENT.md", 75, 95), 765),
+              "sg23-primary-grain": (whole(".specgrain/specs/SG-000023.json"), 18659),
+              "sg6-corrective-precedent": (whole(".specgrain/specs/SG-000006.json"), 4217),
+              "corrective-gap-precedent": (line_range("docs/evidence/P00-S01-T03.md", 165, 205), 1085),
+              "corrective-proof-precedent": (line_range("docs/evidence/P00-S01-T03.md", 279, 321), 1211),
+              "agent-governance": (line_range("AGENTS.md", 1, 60), 2618),
+              "specgrain-governance": (line_range("docs/governance/SPEC_GRAIN.md", 70, 160), 2923),
+              "store-manifest": (whole("crates/kernux-store/Cargo.toml"), 524),
+              "store-event-core": (line_range("crates/kernux-store/src/event.rs", 45, 220), 4806),
+              "daemon-auth-core": (line_range("crates/kernuxd/src/authorization.rs", 1, 115), 4135),
+          }
+          for source_id, (observed, forecast) in expected.items():
+              if observed != forecast:
+                  raise SystemExit(f"{source_id} byte drift: expected {forecast}, observed {observed}")
+
+          def rec(source_id, provenance, reason, priority):
+              size = expected[source_id][0]
+              return {
+                  "source_id": source_id,
+                  "provenance": provenance,
+                  "selection_reason": reason,
+                  "revision": f"git:{target}",
+                  "size_bytes": size,
+                  "token_cost": math.ceil(size / 4),
+                  "requirement": "required",
+                  "priority": priority,
+              }
+
+          records = [
+              rec("current-frontier", "repo:specs/CURRENT.md#L75-L95",
+                  "Bind the exact live P02 frontier, S05-T01-only authority, and 5/9 proven progress.", 0),
+              rec("sg23-primary-grain", "repo:.specgrain/specs/SG-000023.json",
+                  "Bind the frozen primary Grain, exact scope, safety, acceptance, evidence, and original change surface whose native gap must remain visible.", 1),
+              rec("sg6-corrective-precedent", "repo:.specgrain/specs/SG-000006.json",
+                  "Bind the repository-native explicit-path corrective Grain precedent without inventing a new reconciliation model.", 2),
+              rec("corrective-gap-precedent", "repo:docs/evidence/P00-S01-T03.md#L165-L205",
+                  "Bind the preserved SG-000005 UNSCOPED_CHANGE failure and no-retroactive-widening rule.", 3),
+              rec("corrective-proof-precedent", "repo:docs/evidence/P00-S01-T03.md#L279-L321",
+                  "Bind the SG-000006 verified corrective proof and combined macro-outcome closeout precedent.", 4),
+              rec("agent-governance", "repo:AGENTS.md#L1-L60",
+                  "Bind repository authority order, negative-evidence rules, bounded delivery, no hand-edited SpecGrain state, and Git history safety.", 5),
+              rec("specgrain-governance", "repo:docs/governance/SPEC_GRAIN.md#L70-L160",
+                  "Bind the supported draft/shape/refine/check/grain/next/context/packet lifecycle and proof boundary.", 6),
+              rec("store-manifest", "repo:crates/kernux-store/Cargo.toml",
+                  "Bind the exact current store dependency/path-dependency semantics that the corrective touch must preserve.", 7),
+              rec("store-event-core", "repo:crates/kernux-store/src/event.rs#L45-L220",
+                  "Bind current Event ownership, predecessor sequencing, immediate transaction, insert, and accepted-event semantics.", 8),
+              rec("daemon-auth-core", "repo:crates/kernuxd/src/authorization.rs#L1-L115",
+                  "Bind request-bound trusted authorization state, non-forgeable result, consequence handling, durable denial, and audited Grant admission.", 9),
+          ]
+
+          if sum(r["size_bytes"] for r in records) != 40943:
+              raise SystemExit("context byte accounting drift")
+          if sum(r["token_cost"] for r in records) != 10240:
+              raise SystemExit("context token accounting drift")
+
+          raw = (json.dumps(records, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8")
+          out.write_bytes(raw)
+          print("CONTEXT_SOURCE_COUNT=10")
+          print("CONTEXT_SOURCE_BYTES_TOTAL=40943")
+          print("CONTEXT_SOURCE_TOKENS_TOTAL=10240")
+          print("CONTEXT_SOURCE_FILE_BYTES=" + str(len(raw)))
+          print("CONTEXT_SOURCE_FILE_SHA256=sha256:" + hashlib.sha256(raw).hexdigest())
+          PY
+
+      - name: Export production WorkPacket twice and require byte identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          CTX=/tmp/SG-000024-context-sources.json
+          P1=/tmp/SG-000024-work-packet.json
+          P2=/tmp/SG-000024-work-packet-replay.json
+          python3 tools/specgrain/run.py packet "$SPEC_ID" . --context-sources "$CTX" --json > "$P1"
+          python3 tools/specgrain/run.py packet "$SPEC_ID" . --context-sources "$CTX" --json > "$P2"
+          cmp "$P1" "$P2"
+
+          python3 - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          target = os.environ["TARGET_SHA"]
+          spec_id = os.environ["SPEC_ID"]
+          ctx = Path("/tmp/SG-000024-context-sources.json").read_bytes()
+          packet = Path("/tmp/SG-000024-work-packet.json").read_bytes()
+          replay = Path("/tmp/SG-000024-work-packet-replay.json").read_bytes()
+          if packet != replay:
+              raise SystemExit("packet replay bytes differ")
+
+          obj = json.loads(packet)
+          expected_revision = "sha256:bad445ed3c11f6b5ff18b1c4e93266aff6f66c64c9c531322986b380a8b7b49f"
+          if obj["spec_id"] != spec_id:
+              raise SystemExit("packet spec_id mismatch")
+          if obj["spec_revision"] != expected_revision:
+              raise SystemExit(f"packet spec_revision mismatch: {obj['spec_revision']}")
+          if len(obj["context_sources"]) != 10:
+              raise SystemExit("packet context source count mismatch")
+          if any(s["revision"] != f"git:{target}" for s in obj["context_sources"]):
+              raise SystemExit("packet context source revision mismatch")
+          if obj["packet_version"] != 1:
+              raise SystemExit("packet version mismatch")
+
+          print("SPEC_ID=" + obj["spec_id"])
+          print("SPEC_REVISION=" + obj["spec_revision"])
+          print("CONTEXT_PLAN_DIGEST=" + obj["context_plan_digest"])
+          print("PACKET_DIGEST=" + obj["packet_digest"])
+          print("WORK_PACKET_FILE_BYTES=" + str(len(packet)))
+          print("WORK_PACKET_FILE_SHA256=sha256:" + hashlib.sha256(packet).hexdigest())
+          print("CONTEXT_SOURCE_FILE_SHA256=sha256:" + hashlib.sha256(ctx).hexdigest())
+          print("CONTEXT_SOURCES_B64=" + base64.b64encode(ctx).decode("ascii"))
+          print("WORK_PACKET_B64=" + base64.b64encode(packet).decode("ascii"))
+          PY
+
+      - name: Final clean canonical assertion
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
