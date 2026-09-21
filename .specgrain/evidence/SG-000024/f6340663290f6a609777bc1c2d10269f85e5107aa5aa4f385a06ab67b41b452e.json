@@ -1,0 +1,170 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:f6340663290f6a609777bc1c2d10269f85e5107aa5aa4f385a06ab67b41b452e",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Replaying the tracked ContextSource records through the pinned packet command reproduces the tracked WorkPacket exactly, and the combined independently observed corrective execution paths are exactly the two packet-evidence files plus the three re-adopted source files.",
+        "detail": "Pinned packet replay is byte-identical to the canonical tracked WorkPacket, and the independently observed corrective execution range is exactly the two packet evidence files plus the three explicitly re-adopted source paths.",
+        "evidence_ref": "git-range:17fe5b52d7d68b04e97bd65bc0c6be4637141225..40517b3537f84f02197fa22f0f699adc998bd6c8:5-authorized-paths;github-actions:35563882292;github-pr:150",
+        "passed": true
+      },
+      {
+        "check_id": "The Event implementation preserves sequencing, ownership, payload, redaction, and transaction semantics.",
+        "detail": "The reconciliation changes only the declared Event comment; focused/full native macOS and exact-head CI pass with Event sequencing, ownership, payload, redaction, and transaction behavior unchanged.",
+        "evidence_ref": "github-pr:151;github-actions:35575855639;github-actions:35564699911;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+        "passed": true
+      },
+      {
+        "check_id": "The SG-000023 native-proof gap remains preserved as negative evidence and is not relabeled PASS.",
+        "detail": "The SG-000023 WorkPacket recovery/change-surface gap remains recorded as negative evidence and no SG-000023 native evidence record was manufactured.",
+        "evidence_ref": "github-pr:147;github-issue:148;repo:docs/evidence/P02-S05-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "The corrective Grain uses explicit file paths for every authorized corrective surface and no wildcard authority for those paths.",
+        "detail": "CLI-emitted SG-000024 has exactly six explicit authorized paths and no wildcard authority.",
+        "evidence_ref": "github-pr:149;git:17fe5b52d7d68b04e97bd65bc0c6be4637141225;repo:.specgrain/specs/SG-000024.json",
+        "passed": true
+      },
+      {
+        "check_id": "The daemon authorization implementation preserves trusted-authority composition, exact-request binding, consequence classification, atomic audited admission, and non-forgeable authorization-result semantics.",
+        "detail": "The reconciliation changes only the declared authorization comment; focused/full native macOS and exact-head CI pass with trusted authority, request binding, consequence handling, audited Grant admission, and result semantics unchanged.",
+        "evidence_ref": "github-pr:151;github-actions:35575855639;github-actions:35564699911;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+        "passed": true
+      },
+      {
+        "check_id": "The packet-persistence slice contains only the two corrective packet-evidence JSON files declared in this Grain's change surface, and both tracked files are byte-identical to the original pre-execution temporary artifacts.",
+        "detail": "PR #150 contains only the two authorized packet evidence files; tracked bytes match the original production artifacts and replay is byte-identical.",
+        "evidence_ref": "github-pr:150;github-actions:35563882292;github-actions:35564152955;git:35e59be711f0550639bd82d6cfa79ff24f8f4163",
+        "passed": true
+      },
+      {
+        "check_id": "The packet-persistence slice passes required local/full/R3/OpenCodeReview/exact-head review and six-job CI gates, merges normally, and passes exact post-merge six-job qualification before the source-reconciliation slice begins.",
+        "detail": "Packet persistence passed native macOS/full/R3/OpenCodeReview qualification, exact-head review and six-job CI, ordinary merge, and six-job post-merge qualification before source reconciliation began.",
+        "evidence_ref": "github-pr:150;github-actions:35564152955;github-actions:35564228232;github-review:150:PRR_kwDOUevqks8AAAABObcvlw;git:35e59be711f0550639bd82d6cfa79ff24f8f4163;github-actions:35564326795",
+        "passed": true
+      },
+      {
+        "check_id": "The source-reconciliation slice contains only crates/kernux-store/Cargo.toml, crates/kernux-store/src/event.rs, and crates/kernuxd/src/authorization.rs, with exactly one non-functional reconciliation comment added to each file and no other source-byte change.",
+        "detail": "PR #151 contains exactly the three authorized source paths with one non-functional reconciliation comment added to each and no other source-byte change.",
+        "evidence_ref": "github-pr:151;github-actions:35575855639;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+        "passed": true
+      },
+      {
+        "check_id": "The source-reconciliation slice passes focused policy/store/daemon regression evidence, full pnpm check, local macOS evidence, Diffcipline R3, Alibaba OpenCodeReview complete accounting, exact-head six-job CI/review/zero threads, ordinary merge, and exact post-merge six-job qualification.",
+        "detail": "Source reconciliation passed focused policy/store/daemon tests, full pnpm check, native macOS, Diffcipline R3, OpenCodeReview 3/3 accounting, exact-head six-job CI/review/zero threads, ordinary merge, and exact six-job post-merge qualification.",
+        "evidence_ref": "github-pr:151;github-actions:35575855639;github-actions:35564699911;github-review:151:5264295971;git:40517b3537f84f02197fa22f0f699adc998bd6c8;github-actions:35576060583",
+        "passed": true
+      },
+      {
+        "check_id": "The store manifest preserves dependency package/version/source identity and path-dependency semantics.",
+        "detail": "The store manifest diff adds only the corrective comment; package/version/source identities, feature declarations, and path-dependency semantics are byte-unchanged.",
+        "evidence_ref": "github-pr:151;github-actions:35575855639;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "corrective-packet-persistence-post-merge-ci-pass",
+        "detail": "PR #150 merge commit passed all six post-merge CI jobs.",
+        "evidence_ref": "github-actions:35564326795;git:35e59be711f0550639bd82d6cfa79ff24f8f4163",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-packet-persistence-pr-pass",
+        "detail": "Packet persistence passed native macOS/full/R3/OCR qualification, exact-head six-job CI, review, and zero-thread gate before ordinary merge.",
+        "evidence_ref": "github-pr:150;github-actions:35564152955;github-actions:35564228232;github-review:150:PRR_kwDOUevqks8AAAABObcvlw",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-reconciliation-post-merge-ci-pass",
+        "detail": "PR #151 merge commit passed all six post-merge CI jobs.",
+        "evidence_ref": "github-actions:35576060583;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-reconciliation-pr-pass",
+        "detail": "Source reconciliation passed exact three-path assertions, native macOS/full/R3/OCR qualification, exact-head CI/review/zero threads, and ordinary merge.",
+        "evidence_ref": "github-pr:151;github-actions:35575855639;github-actions:35564699911;github-review:151:5264295971;git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-workpacket-durable-recovery-pass",
+        "detail": "The complete original ContextSource records and exact pinned-CLI WorkPacket bytes are canonical, durable, and byte-identically replayable.",
+        "evidence_ref": "github-actions:35563882292;github-pr:150;repo:docs/evidence/SG-000024-context-sources.json;repo:docs/evidence/SG-000024-work-packet.json",
+        "passed": true
+      },
+      {
+        "check_id": "daemon-authorization-semantics-pass",
+        "detail": "Focused daemon authorization regressions pass and the only authorization.rs change is the declared non-functional reconciliation comment.",
+        "evidence_ref": "github-actions:35575855639;github-pr:151",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Both bounded corrective implementation slices passed Diffcipline R3 without weakened limits.",
+        "evidence_ref": "github-actions:35564152955;github-actions:35575855639",
+        "passed": true
+      },
+      {
+        "check_id": "event-semantics-pass",
+        "detail": "Focused store/Event regressions pass and the only event.rs change is the declared non-functional reconciliation comment.",
+        "evidence_ref": "github-actions:35575855639;github-pr:151",
+        "passed": true
+      },
+      {
+        "check_id": "explicit-corrective-surface-pass",
+        "detail": "Independent range observation contains exactly the two packet evidence files and the three re-adopted source paths.",
+        "evidence_ref": "git-range:17fe5b52d7d68b04e97bd65bc0c6be4637141225..40517b3537f84f02197fa22f0f699adc998bd6c8:5-authorized-paths",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Both packet-persistence and source-reconciliation exact candidates passed native macOS qualification.",
+        "evidence_ref": "github-actions:35564152955;github-actions:35575855639",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview v1.12.7 Delegation Mode accounted for 2/2 packet files and 3/3 source-reconciliation files with zero exclusions.",
+        "evidence_ref": "github-actions:35564152955;github-actions:35575855639",
+        "passed": true
+      },
+      {
+        "check_id": "policy-store-daemon-regression-pass",
+        "detail": "Focused policy, store, and daemon regression suites pass on the exact source-reconciliation candidate.",
+        "evidence_ref": "github-actions:35575855639",
+        "passed": true
+      },
+      {
+        "check_id": "sg23-native-proof-gap-preserved",
+        "detail": "SG-000023 negative evidence remains visible and unmodified; no replacement native proof is claimed.",
+        "evidence_ref": "github-pr:147;github-issue:148;repo:docs/evidence/P02-S05-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "store-manifest-semantics-pass",
+        "detail": "Store manifest dependency/package/version/source/path-dependency semantics are unchanged.",
+        "evidence_ref": "github-actions:35575855639;github-pr:151",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:40517b3537f84f02197fa22f0f699adc998bd6c8",
+    "issues": [],
+    "observed_changed_paths": [
+      "crates/kernux-store/Cargo.toml",
+      "crates/kernux-store/src/event.rs",
+      "crates/kernuxd/src/authorization.rs",
+      "docs/evidence/SG-000024-context-sources.json",
+      "docs/evidence/SG-000024-work-packet.json"
+    ],
+    "packet_digest": "sha256:826805690aecaa38641ebda10cdf304b94c2bb5362f61d349f45d8f8476e5851",
+    "result_digest": "sha256:55af1e7eb8cbab392ae5fde16b76b930adb211e16cc097f142479717dfa6327f",
+    "spec_id": "SG-000024",
+    "spec_revision": "sha256:bad445ed3c11f6b5ff18b1c4e93266aff6f66c64c9c531322986b380a8b7b49f",
+    "verification_version": 1,
+    "verified": true
+  }
+}
