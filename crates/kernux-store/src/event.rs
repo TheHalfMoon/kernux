@@ -3,6 +3,7 @@ use rusqlite::{OptionalExtension, Transaction, TransactionBehavior};
 use crate::metadata::revision_from_sql;
 use crate::{CanonicalId, Revision, Store, StoreError};
 
+// Corrective SpecGrain scope reconciliation; Event sequencing and transaction semantics are intentionally unchanged.
 const MIN_EVENT_TYPE_LEN: usize = 3;
 const MAX_EVENT_TYPE_LEN: usize = 128;
 
