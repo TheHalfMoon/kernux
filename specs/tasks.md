@@ -61,8 +61,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P02-S02-T01 | PROVEN | R3 | Implement installation/device identity and key creation/rotation/recovery abstraction. | daemon transport |
 | KX-P02-S03-T01 | PROVEN | R3 | Implement SQLite metadata store, schema versioning, WAL/migration and corruption/recovery fixtures. | P01 events/IDs |
 | KX-P02-S04-T01 | PROVEN | R2 | Implement SHA-256 artifact CAS with bounded streaming, digest verification and retention metadata. | metadata store |
-| KX-P02-S05-T01 | NEXT | R3 | Implement policy evaluator and bounded grants/expiry/delegation/deny reasons. | capabilities + store |
-| KX-P02-S05-T02 | PLANNED | R3 | Implement user-friendly Safe/Standard/Developer/Autonomous/Custom profiles compiling to granular grants. | policy engine |
+| KX-P02-S05-T01 | PROVEN | R3 | Implement policy evaluator and bounded grants/expiry/delegation/deny reasons. | capabilities + store |
+| KX-P02-S05-T02 | NEXT | R3 | Implement user-friendly Safe/Standard/Developer/Autonomous/Custom profiles compiling to granular grants. | policy engine |
 | KX-P02-S06-T01 | PLANNED | R3 | Implement secret-provider abstraction and first OS credential-store adapters with handle-based use. | identity + policy |
 | KX-P02-S06-T02 | PLANNED | R3 | Add redaction-safe security audit events and secret-leak tests. | secret broker + events |
 
@@ -75,6 +75,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 **KX-P02-S03-T01 closeout: PROVEN.** Native SG-000021 verification, proof-bearing retry PR #119 exact-head qualification/review, ordinary merge `ec252919e243c2e815dd878eb2d9bd17077f11d8`, and six-job post-merge run `35454187226` are all PROVEN. Only KX-P02-S04-T01 is NEXT; all later P02 tasks remain PLANNED.
 
 **KX-P02-S04-T01 closeout: PROVEN.** Native SG-000022 verification record `sha256:6c358678f4b2225543637212a36cda613d9a914f4e4e93fc2cebf7813ec2e9cb`, proof-bearing PR #125 exact-head qualification/review, ordinary merge `415f7fe41b4eff85d61137132256ef97195a4fbf`, and six-job post-merge run `35458837422` are all PROVEN. Only KX-P02-S05-T01 is NEXT; KX-P02-S05-T02 and all S06 tasks remain PLANNED.
+
+**KX-P02-S05-T01 closeout: PROVEN.** Primary SG-000023 negative evidence remains preserved; corrective SG-000024 native verification record `sha256:f6340663290f6a609777bc1c2d10269f85e5107aa5aa4f385a06ab67b41b452e` verified the exact five-path reconciliation with acceptance 10/10 and required evidence 14/14. Proof-bearing PR #152 exact head `a8efc29352979ea6fd4651c554adda746c9e9cbb` passed native macOS qualification `35577145490`, exact-head CI `35577135982` 6/6, exact-head review `5264407121` with zero threads, ordinary merge `d93b54de0013e47809336db60f857d5435d8c6a4`, and six-job post-merge run `35579619127`. Only KX-P02-S05-T02 is NEXT; all S06 tasks remain PLANNED and P02 phase exit remains unproven.
 
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
 
