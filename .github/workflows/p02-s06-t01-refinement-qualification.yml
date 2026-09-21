@@ -1,0 +1,182 @@
+name: P02 S06 T01 Refinement Qualification
+
+on:
+  push:
+    branches:
+      - probe/p02-s06-t01-refinement-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: e709f017d6564c7a59a7d54baea0154820ef0dbb
+  TARGET_SHA: 6c7acd7b27cca0fd6c0eca5431d6ab3d3e02ee26
+
+jobs:
+  linux:
+    name: linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact refinement candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact single-file slice and Grain state
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "1"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx ".specgrain/specs/SG-000026.json"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -E '^(Cargo\.toml|Cargo\.lock|protocol/|crates/|specs/|\.github/)' || true)"
+          python3 tools/specgrain/run.py check .
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          node = json.loads(Path(".specgrain/specs/SG-000026.json").read_text())
+          assert node["id"] == "SG-000026"
+          assert node["state"] == "GRAIN"
+          assert node["title"].startswith("KX-P02-S06-T01")
+          surfaces = node["change_surface"]
+          assert len(surfaces) == 12, surfaces
+          assert all("*" not in surface for surface in surfaces), surfaces
+          assert node["metadata"]["readiness"]["safety"]["status"] == "requirements-defined"
+          assert len(node["acceptance"]) == 11
+          assert len(node["evidence"]["required"]) == 17
+          print("SG-000026 GRAIN with explicit non-wildcard change surface")
+          PY
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Prove exact slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Prove exact slice at Diffcipline R1
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R1
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    name: macos
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact refinement candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact single-file slice and Grain state
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "1"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py check .
+          sw_vers
+          uname -m
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Prove exact slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
