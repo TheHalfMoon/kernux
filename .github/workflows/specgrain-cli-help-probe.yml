@@ -1,0 +1,60 @@
+name: SpecGrain CLI Help Probe
+
+on:
+  push:
+    branches:
+      - probe/sg24-cli-help
+
+permissions:
+  contents: read
+
+env:
+  TARGET_SHA: 94e0691c82ad17e8639b4e19391a518014590a49
+
+jobs:
+  cli-help:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact canonical main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact target
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Show pinned SpecGrain CLI help
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version
+          pnpm specgrain -- --show-pin
+          pnpm specgrain -- --help
+          pnpm specgrain -- draft --help
+          pnpm specgrain -- shape --help
+          pnpm specgrain -- refine --help
+          pnpm specgrain -- grain --help
+          pnpm specgrain -- packet --help
