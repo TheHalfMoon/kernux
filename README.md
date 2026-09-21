@@ -70,6 +70,7 @@ Start here:
 - [`docs/canonical/ARCHITECTURE_DECISIONS.md`](docs/canonical/ARCHITECTURE_DECISIONS.md)
 - [`docs/canonical/EXECUTION_MASTER_PLAN.md`](docs/canonical/EXECUTION_MASTER_PLAN.md)
 - [`docs/canonical/PLANNING_COMPLETENESS_AUDIT.md`](docs/canonical/PLANNING_COMPLETENESS_AUDIT.md)
+- [`docs/canonical/UNIVERSAL_PLATFORM_PLAN.md`](docs/canonical/UNIVERSAL_PLATFORM_PLAN.md)
 - [`docs/research/EXTERNAL_REFERENCES.md`](docs/research/EXTERNAL_REFERENCES.md)
 - [`specs/CURRENT.md`](specs/CURRENT.md)
 - [`specs/tasks.md`](specs/tasks.md)

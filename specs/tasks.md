@@ -93,8 +93,12 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P03-S04-T01 | PLANNED | R1 | Implement project rail, command bar, onboarding/empty states and run strip. | pane framework |
 | KX-P03-S05-T01 | PLANNED | R1 | Implement basic timeline projection and typed artifact preview shell. | event store + desktop |
 | KX-P03-S05-T02 | PLANNED | R2 | Add hidden/headless desktop UI qualification that never steals user focus. | workspace |
+| KX-P03-S06-T01 | PLANNED | R2 | Implement universal quick-open/search plus inspectable ContextBundle/source view over local project/task/artifact sources. | context contracts + desktop |
+| KX-P03-S06-T02 | PLANNED | R2 | Implement memory inspector with review/edit/pin/expire/delete controls and provenance visibility. | memory contract + desktop |
+| KX-P03-S07-T01 | PLANNED | R2 | Implement CLI bootstrap/doctor and authenticated headless local client against the same daemon/task contracts. | P02 IPC + CLI envelopes |
+| KX-P03-S08-T01 | PLANNED | R2 | Implement Design Mode entry/capture inspector for structured browser/native visual context artifacts. | desktop + context/artifacts |
 
-**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; accessibility and hidden E2E baseline pass.
+**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; quick-open/context/memory and CLI bootstrap are usable; Design Mode capture shell exists; accessibility and hidden E2E baseline pass.
 
 ---
 
@@ -126,8 +130,11 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P05-S04-T01 | PLANNED | R2 | Implement provider-native auth/account/usage metadata boundary without credential capture. | agent adapters |
 | KX-P05-S05-T01 | PLANNED | R1 | Implement Agent pane with structured status/tool/file/permission events and interrupt/resume controls. | desktop + adapters |
 | KX-P05-S05-T02 | PLANNED | R2 | Add agent capability/version matrix and unsupported-feature tests. | two agents |
+| KX-P05-S06-T01 | PLANNED | R2 | Implement provider-neutral ModelProvider contract with negotiated modalities/context/tool features, local endpoints, BYOK auth, usage/cost metadata and failure semantics. | P01 + P02 secrets |
+| KX-P05-S06-T02 | PLANNED | R3 | Implement Kernux Native Agent loop that plans/acts only through typed capability requests and kernel policy. | ModelProvider + P04/P06 tool surfaces |
+| KX-P05-S06-T03 | PLANNED | R2 | Integrate ContextBundle assembly, bounded tool schemas, artifact outputs and observable agent state into the native agent path. | native agent + context |
 
-**P05 gate:** two agents can perform the same bounded task; provider differences are negotiated honestly; agent use of Kernux tools remains policy-bound.
+**P05 gate:** two external agents and one Kernux-native model-backed path can perform bounded tasks; provider differences are negotiated honestly; local/BYOK model paths are supported where qualified; all agent capability use remains policy-bound.
 
 ---
 
@@ -143,8 +150,10 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P06-S06-T01 | PLANNED | R2 | Capture browser evidence: origin, action method, observation, screenshot/artifact and lineage. | all browser paths |
 | KX-P06-S06-T02 | PLANNED | R3 | Build malicious page/WebMCP/tool-output injection and cross-project auth leakage suite. | browser runtime |
 | KX-P06-S06-T03 | PLANNED | R2 | Prove research/extraction golden journey with inspectable source provenance. | browser evidence |
+| KX-P06-S07-T01 | PLANNED | R2 | Define/implement provider-neutral web Search/Fetch with freshness/cache/source metadata, bounded outputs and local/self-hosted/BYOK or explicitly managed provider paths. | context + browser/web contracts |
+| KX-P06-S07-T02 | PLANNED | R2 | Implement bounded crawl/site traversal and change-detection primitives that preserve source lineage and can feed later monitor/condition-watch tasks. | Search/Fetch + evidence |
 
-**P06 gate:** structured-to-visual hierarchy works; auth contexts isolated; page content cannot self-authorize elevated action.
+**P06 gate:** structured-to-visual hierarchy works; search/fetch/browser paths share inspectable provenance; auth contexts isolated; page content cannot self-authorize elevated action; a useful web research path does not require founder-funded metered credentials.
 
 ---
 
@@ -191,8 +200,12 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P09-S05-T01 | PLANNED | R2 | Implement independently verifiable evidence-bundle export with digests and redaction manifest. | evidence/artifact store |
 | KX-P09-S06-T01 | PLANNED | R3 | Prove crash/restart/interruption recovery for daemon, renderer, browser and partial durable writes. | all P09 |
 | KX-P09-S06-T02 | PLANNED | R3 | Prove duplicate-side-effect prevention/ambiguity surfacing after reconnect/retry. | replay + scheduler |
+| KX-P09-S07-T01 | PLANNED | R2 | Implement versioned project export/import with manifest, digests, redaction/exclusion records and untrusted-import validation. | events + artifacts + context |
+| KX-P09-S07-T02 | PLANNED | R3 | Implement backup/restore and reference-aware Artifact CAS GC with interrupted-operation recovery. | metadata + CAS |
+| KX-P09-S07-T03 | PLANNED | R3 | Implement scoped delete semantics for run/task/project/history/memory/browser state with explicit external-provider leftovers. | lifecycle model |
+| KX-P09-S08-T01 | PLANNED | R2 | Preserve ContextBundle/memory source lineage through replay, fork, export and source invalidation. | context + replay |
 
-**P09 gate:** accepted local golden journeys recover honestly; evidence validates independently; replay never blindly repeats consequential actions.
+**P09 gate:** accepted local golden journeys recover honestly; evidence validates independently; replay never blindly repeats consequential actions; project history is portable; backup/restore/GC/delete semantics are proven.
 
 ---
 
@@ -280,6 +293,88 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P15-S06-T01 | PLANNED | R1 | Complete user/admin/security/developer/onboarding/troubleshooting/privacy documentation. | stable product |
 | KX-P15-S07-T01 | PLANNED | R2 | Preregister and run comparative evaluation before any superiority claims; preserve all negative evidence. | stable benchmark build |
 | KX-P15-S08-T01 | PLANNED | R3 | Qualify exact release commit independently from ordinary CI and publish evidence packet. | all release gates |
+| KX-P15-S09-T01 | PLANNED | R2 | Qualify telemetry-disabled operation and verify no hidden cloud/analytics dependency for supported local journeys. | stable product |
+| KX-P15-S09-T02 | PLANNED | R3 | Qualify reviewable support bundles against synthetic secret/prompt/file fixtures and redaction manifests. | diagnostics + security |
+| KX-P15-S10-T01 | PLANNED | R3 | Qualify project portability, backup/restore migration, deletion and uninstall cleanup on supported platforms. | P09 lifecycle + packaging |
+
+---
+
+## P16 — Work-product and artifact studio
+
+| ID | State | Risk | Macro outcome | Depends |
+| --- | --- | --- | --- | --- |
+| KX-P16-S01-T01 | PLANNED | R2 | Define provider-neutral artifact-authoring/editing contracts, capability scopes, source lineage, validation and round-trip semantics. | P09 + P11 |
+| KX-P16-S02-T01 | PLANNED | R2 | Implement local Markdown/HTML/PDF/DOCX artifact production and bounded round-trip editing with validation evidence. | artifact contract + P04 docs |
+| KX-P16-S03-T01 | PLANNED | R3 | Implement spreadsheet/data-workbook production for XLSX/CSV with formula/style preservation boundaries and recalculation/validation strategy. | artifact contract + P04 data |
+| KX-P16-S04-T01 | PLANNED | R2 | Implement editable PPTX/presentation production with template/brand/layout/notes preservation and evidence. | artifact contract |
+| KX-P16-S05-T01 | PLANNED | R2 | Implement reproducible analysis/notebook/chart/report packaging with source/data lineage and rerun metadata. | artifact contract + runtimes |
+| KX-P16-S06-T01 | PLANNED | R3 | Implement bounded lightweight site/app generation, preview, packaging and optional publish adapters under external.publish policy. | artifacts + browser + integrations |
+| KX-P16-S07-T01 | PLANNED | R2 | Qualify template reuse, edit-in-place, export/import and native connected-editor adapters without making any one office suite mandatory. | P16 surfaces |
+
+**P16 gate:** Kernux can create and revise representative editable documents, spreadsheets, presentations, analysis packages and lightweight sites/apps with source lineage, validation, portability and no mandatory Kernux-hosted compute.
+
+---
+
+## P17 — Integration and event fabric
+
+| ID | State | Risk | Macro outcome | Depends |
+| --- | --- | --- | --- | --- |
+| KX-P17-S01-T01 | PLANNED | R2 | Define connector registry/discovery contract across MCP, OpenAPI/HTTP, CLI, A2A, Skills and native adapters. | P11 stable contracts |
+| KX-P17-S02-T01 | PLANNED | R3 | Implement OAuth/API-key/account-selection lifecycle through the secret broker with revocation, refresh, scope and audit semantics. | P02 secrets + connector contract |
+| KX-P17-S03-T01 | PLANNED | R2 | Implement intent-based tool discovery/routing so large integration catalogs do not flood agent context. | context + connector registry |
+| KX-P17-S04-T01 | PLANNED | R3 | Implement connector health, capability drift, permission-delta, data-boundary and cost-owner inspection. | registry + policy |
+| KX-P17-S05-T01 | PLANNED | R3 | Implement normalized webhook/event/subscription adapters with dedupe, replay protection and provenance. | P12 triggers |
+| KX-P17-S06-T01 | PLANNED | R2 | Qualify representative integrations across email/calendar, messaging, cloud storage/docs, project tracking, source control and one business system. | connector/auth/event fabric |
+| KX-P17-S07-T01 | PLANNED | R2 | Define generated-adapter and third-party integration-provider boundaries so breadth can grow without core coupling. | stable connector contracts |
+
+**P17 gate:** broad app-category work is possible through scoped accounts, discoverable tools and event sources without exposing giant tool lists, leaking secrets or binding Kernux to one integration vendor.
+
+---
+
+## P18 — Multimodal and cross-device interaction
+
+| ID | State | Risk | Macro outcome | Depends |
+| --- | --- | --- | --- | --- |
+| KX-P18-S01-T01 | PLANNED | R2 | Define multimodal ContextItem contracts for audio, image, screen/window and optional camera/video sources with provenance/sensitivity metadata. | context model |
+| KX-P18-S02-T01 | PLANNED | R2 | Implement local/BYOK speech input/transcription and optional speech output behind provider-neutral contracts. | model providers + owner-sustainable execution |
+| KX-P18-S03-T01 | PLANNED | R3 | Implement bounded screenshot/screen/window observation and visual computer-use fallback behind policy, approvals and evidence. | P04/P06 + model/runtime |
+| KX-P18-S04-T01 | PLANNED | R3 | Extend mobile from steering to authenticated task handoff, artifact inspection, capture/share and resumable cross-device continuity. | P13 + P10 remote |
+| KX-P18-S05-T01 | PLANNED | R2 | Implement locale/timezone/RTL/Unicode/IME foundations and multilingual UX/content boundaries. | UI + scheduling + context |
+| KX-P18-S06-T01 | PLANNED | R2 | Qualify keyboard-only, semantic assistive-technology and scalable-text journeys across primary desktop surfaces. | accessibility baseline |
+
+**P18 gate:** users can move between text, voice, images/screens and devices while preserving one task identity, explicit authority, accessibility, locale correctness and evidence lineage.
+
+---
+
+## P19 — Proactive personal/work agent
+
+| ID | State | Risk | Macro outcome | Depends |
+| --- | --- | --- | --- | --- |
+| KX-P19-S01-T01 | PLANNED | R2 | Define user-governed personal/work relationship context over files, connected apps, tasks, memory and time without turning graph state into authority. | context/memory + P17 |
+| KX-P19-S02-T01 | PLANNED | R2 | Implement universal capture/inbox for user intents, shared items, notifications and deferred work that compiles to ordinary Tasks/WorkUnits. | task engine + UI |
+| KX-P19-S03-T01 | PLANNED | R3 | Implement condition watches/change monitors with durable evaluation state, notification suppression/deduplication and evidence. | P12 + web/integration events |
+| KX-P19-S04-T01 | PLANNED | R3 | Implement proactive suggestions that are policy-scoped, explainable, dismissible and unable to execute consequential actions without authority. | memory + policy + monitors |
+| KX-P19-S05-T01 | PLANNED | R2 | Implement reusable routines across email/calendar/files/web/apps using local/BYOK/BYOC/provider-funded execution paths. | P17 + P12 |
+| KX-P19-S06-T01 | PLANNED | R3 | Qualify representative personal/work journeys including morning review, meeting follow-up, research-to-deliverable and cross-app operations. | P19 complete |
+
+**P19 gate:** Kernux can assist proactively across time and apps without hidden surveillance, memory poisoning, notification spam, authority escalation or project-owner-subsidized compute.
+
+---
+
+## P20 — Ecosystem and universal-scale maturity
+
+| ID | State | Risk | Macro outcome | Depends |
+| --- | --- | --- | --- | --- |
+| KX-P20-S01-T01 | PLANNED | R3 | Finalize signed/provenanced extension package and registry contracts with capability/network/secret/data declarations. | P11 + P17 |
+| KX-P20-S02-T01 | PLANNED | R3 | Implement curated public and organization-private registry paths, revocation, compatibility and permission-delta updates. | extension contract + org policy |
+| KX-P20-S03-T01 | PLANNED | R2 | Publish stable SDKs/templates for agents, runtimes, connectors, skills, artifact adapters, policy packs and benchmark journeys. | proven internal contracts |
+| KX-P20-S04-T01 | PLANNED | R3 | Define and qualify optional managed Kernux services under explicit tenancy, privacy, reliability and positive unit-economics boundaries. | P14 + X09 |
+| KX-P20-S05-T01 | PLANNED | R3 | Build universal capability benchmark/regression corpus spanning build, work, research, automate, operate and create modes. | mature capability set |
+| KX-P20-S06-T01 | PLANNED | R3 | Establish SLOs/chaos/recovery/load qualification for long-running tasks, integrations, browsers, devices, artifacts and storage at scale. | mature capability set |
+| KX-P20-S07-T01 | PLANNED | R2 | Run versioned comparative evaluations before any broad market-leadership claim and publish reproducible methodology plus negative evidence. | benchmark corpus |
+| KX-P20-S08-T01 | PLANNED | R3 | Qualify provider-loss/dependency-failure journeys proving core task truth survives replacement or disappearance of any single external provider. | provider-neutral architecture |
+
+**P20 gate:** Kernux has a governed ecosystem, sustainable optional managed services, broad reproducible benchmark coverage, explicit reliability targets and proven resilience to provider loss.
 
 ---
 
@@ -318,6 +413,30 @@ Any durable or side-effecting workflow defines crash/cancel/retry/restart behavi
 ## X08 — Data boundary/privacy
 
 Any integration that sends content off-device declares what data, to whom, for what purpose, with which retention/configuration assumptions.
+
+## X09 — Owner-sustainable execution
+
+Any capability that can create recurring per-use cost must declare the cost owner and preserve at least one viable local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path. Promotional credits, founder-funded credentials, or hidden hosted infrastructure must not be the only proof path for a core capability. This requirement must not weaken quality, security, privacy, or evidence guarantees.
+
+## X10 — Integration lifecycle
+
+Any external account/tool/event source defines discovery, auth, scope, account selection, revocation, capability drift, data boundary, cost ownership and failure behavior.
+
+## X11 — Artifact fidelity
+
+Any user-facing work-product format defines editability, validation, round-trip limits, template/style preservation, provenance, export and degradation behavior.
+
+## X12 — Multimodal and internationalization
+
+Any new modality or user-visible surface defines sensitivity/provenance, accessibility, Unicode/locale/timezone behavior and provider/data-boundary implications.
+
+## X13 — Evaluation and SLOs
+
+Any major capability family defines golden journeys, regression fixtures, observable reliability/latency/cost metrics and the evidence required for public claims.
+
+## X14 — Human agency
+
+Any proactive, background, high-consequence or externally publishing behavior defines user control, approval, interruption, explanation, notification and rollback/compensation semantics where feasible.
 
 ---
 
