@@ -20,16 +20,6 @@ Kernux contains those capabilities where useful, but the durable product boundar
 
 **One prompt -> any agent -> any approved capability -> any enrolled runtime -> a verifiable result.**
 
-## Long-term platform ambition
-
-Kernux's first wedge remains developers and power users because their workflows offer strong deterministic verification. The architecture, however, targets a broader destination: **the trusted operating layer for digital work**.
-
-A mature Kernux should let a person work across apps, web, files, documents, spreadsheets, presentations, data, computers, agents, models, and devices through one task/evidence model without requiring them to abandon the native products they already use.
-
-This does **not** mean rebuilding every application inside Kernux. The strategy is integration over imitation: Kernux owns orchestration, context, permission, execution, continuity, recovery, and evidence; specialized applications remain replaceable capability providers.
-
-The long-horizon capability and delivery contract is defined in [`UNIVERSAL_PLATFORM_PLAN.md`](UNIVERSAL_PLATFORM_PLAN.md). It extends the roadmap without weakening the Generation 1 developer/power-user wedge or changing the current dependency frontier.
-
 The user should think in outcomes, not tool routing. Kernux decides how to coordinate available agents and capabilities while keeping execution visible and policy-bound.
 
 ## User promise
