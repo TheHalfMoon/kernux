@@ -31,11 +31,12 @@ jobs:
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
           git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
           git diff --check "$BASE_SHA...$TARGET_SHA"
-          mapfile -t paths < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
-          test "${#paths[@]}" = "3"
-          test "${paths[0]}" = "crates/kernux-store/Cargo.toml"
-          test "${paths[1]}" = "crates/kernux-store/src/event.rs"
-          test "${paths[2]}" = "crates/kernuxd/src/authorization.rs"
+          paths="$(git diff --name-only "$BASE_SHA...$TARGET_SHA")"
+          expected_paths="$(printf '%s\n' \
+            'crates/kernux-store/Cargo.toml' \
+            'crates/kernux-store/src/event.rs' \
+            'crates/kernuxd/src/authorization.rs')"
+          test "$paths" = "$expected_paths"
           test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{a+=$1; d+=$2} END {print a ":" d}')" = "3:0"
           test "$(git diff --unified=0 "$BASE_SHA...$TARGET_SHA" | grep '^+' | grep -v '^+++' | wc -l | tr -d ' ')" = "3"
           git diff --unified=0 "$BASE_SHA...$TARGET_SHA" | grep '^+' | grep -v '^+++' | grep -Fx '+# Corrective SpecGrain scope reconciliation; dependency semantics are intentionally unchanged.'
