@@ -93,8 +93,12 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P03-S04-T01 | PLANNED | R1 | Implement project rail, command bar, onboarding/empty states and run strip. | pane framework |
 | KX-P03-S05-T01 | PLANNED | R1 | Implement basic timeline projection and typed artifact preview shell. | event store + desktop |
 | KX-P03-S05-T02 | PLANNED | R2 | Add hidden/headless desktop UI qualification that never steals user focus. | workspace |
+| KX-P03-S06-T01 | PLANNED | R2 | Implement universal quick-open/search plus inspectable ContextBundle/source view over local project/task/artifact sources. | context contracts + desktop |
+| KX-P03-S06-T02 | PLANNED | R2 | Implement memory inspector with review/edit/pin/expire/delete controls and provenance visibility. | memory contract + desktop |
+| KX-P03-S07-T01 | PLANNED | R2 | Implement CLI bootstrap/doctor and authenticated headless local client against the same daemon/task contracts. | P02 IPC + CLI envelopes |
+| KX-P03-S08-T01 | PLANNED | R2 | Implement Design Mode entry/capture inspector for structured browser/native visual context artifacts. | desktop + context/artifacts |
 
-**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; accessibility and hidden E2E baseline pass.
+**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; quick-open/context/memory and CLI bootstrap are usable; Design Mode capture shell exists; accessibility and hidden E2E baseline pass.
 
 ---
 
@@ -126,8 +130,11 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P05-S04-T01 | PLANNED | R2 | Implement provider-native auth/account/usage metadata boundary without credential capture. | agent adapters |
 | KX-P05-S05-T01 | PLANNED | R1 | Implement Agent pane with structured status/tool/file/permission events and interrupt/resume controls. | desktop + adapters |
 | KX-P05-S05-T02 | PLANNED | R2 | Add agent capability/version matrix and unsupported-feature tests. | two agents |
+| KX-P05-S06-T01 | PLANNED | R2 | Implement provider-neutral ModelProvider contract with negotiated modalities/context/tool features, local endpoints, BYOK auth, usage/cost metadata and failure semantics. | P01 + P02 secrets |
+| KX-P05-S06-T02 | PLANNED | R3 | Implement Kernux Native Agent loop that plans/acts only through typed capability requests and kernel policy. | ModelProvider + P04/P06 tool surfaces |
+| KX-P05-S06-T03 | PLANNED | R2 | Integrate ContextBundle assembly, bounded tool schemas, artifact outputs and observable agent state into the native agent path. | native agent + context |
 
-**P05 gate:** two agents can perform the same bounded task; provider differences are negotiated honestly; agent use of Kernux tools remains policy-bound.
+**P05 gate:** two external agents and one Kernux-native model-backed path can perform bounded tasks; provider differences are negotiated honestly; local/BYOK model paths are supported where qualified; all agent capability use remains policy-bound.
 
 ---
 
@@ -143,8 +150,10 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P06-S06-T01 | PLANNED | R2 | Capture browser evidence: origin, action method, observation, screenshot/artifact and lineage. | all browser paths |
 | KX-P06-S06-T02 | PLANNED | R3 | Build malicious page/WebMCP/tool-output injection and cross-project auth leakage suite. | browser runtime |
 | KX-P06-S06-T03 | PLANNED | R2 | Prove research/extraction golden journey with inspectable source provenance. | browser evidence |
+| KX-P06-S07-T01 | PLANNED | R2 | Define/implement provider-neutral web Search/Fetch with freshness/cache/source metadata, bounded outputs and local/self-hosted/BYOK or explicitly managed provider paths. | context + browser/web contracts |
+| KX-P06-S07-T02 | PLANNED | R2 | Implement bounded crawl/site traversal and change-detection primitives that preserve source lineage and can feed later monitor/condition-watch tasks. | Search/Fetch + evidence |
 
-**P06 gate:** structured-to-visual hierarchy works; auth contexts isolated; page content cannot self-authorize elevated action.
+**P06 gate:** structured-to-visual hierarchy works; search/fetch/browser paths share inspectable provenance; auth contexts isolated; page content cannot self-authorize elevated action; a useful web research path does not require founder-funded metered credentials.
 
 ---
 
@@ -191,8 +200,12 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P09-S05-T01 | PLANNED | R2 | Implement independently verifiable evidence-bundle export with digests and redaction manifest. | evidence/artifact store |
 | KX-P09-S06-T01 | PLANNED | R3 | Prove crash/restart/interruption recovery for daemon, renderer, browser and partial durable writes. | all P09 |
 | KX-P09-S06-T02 | PLANNED | R3 | Prove duplicate-side-effect prevention/ambiguity surfacing after reconnect/retry. | replay + scheduler |
+| KX-P09-S07-T01 | PLANNED | R2 | Implement versioned project export/import with manifest, digests, redaction/exclusion records and untrusted-import validation. | events + artifacts + context |
+| KX-P09-S07-T02 | PLANNED | R3 | Implement backup/restore and reference-aware Artifact CAS GC with interrupted-operation recovery. | metadata + CAS |
+| KX-P09-S07-T03 | PLANNED | R3 | Implement scoped delete semantics for run/task/project/history/memory/browser state with explicit external-provider leftovers. | lifecycle model |
+| KX-P09-S08-T01 | PLANNED | R2 | Preserve ContextBundle/memory source lineage through replay, fork, export and source invalidation. | context + replay |
 
-**P09 gate:** accepted local golden journeys recover honestly; evidence validates independently; replay never blindly repeats consequential actions.
+**P09 gate:** accepted local golden journeys recover honestly; evidence validates independently; replay never blindly repeats consequential actions; project history is portable; backup/restore/GC/delete semantics are proven.
 
 ---
 
@@ -280,6 +293,9 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P15-S06-T01 | PLANNED | R1 | Complete user/admin/security/developer/onboarding/troubleshooting/privacy documentation. | stable product |
 | KX-P15-S07-T01 | PLANNED | R2 | Preregister and run comparative evaluation before any superiority claims; preserve all negative evidence. | stable benchmark build |
 | KX-P15-S08-T01 | PLANNED | R3 | Qualify exact release commit independently from ordinary CI and publish evidence packet. | all release gates |
+| KX-P15-S09-T01 | PLANNED | R2 | Qualify telemetry-disabled operation and verify no hidden cloud/analytics dependency for supported local journeys. | stable product |
+| KX-P15-S09-T02 | PLANNED | R3 | Qualify reviewable support bundles against synthetic secret/prompt/file fixtures and redaction manifests. | diagnostics + security |
+| KX-P15-S10-T01 | PLANNED | R3 | Qualify project portability, backup/restore migration, deletion and uninstall cleanup on supported platforms. | P09 lifecycle + packaging |
 
 ---
 
