@@ -1,0 +1,181 @@
+name: SpecGrain SG25 Production Packet Probe
+
+on:
+  push:
+    branches:
+      - probe/sg25-production-packet
+
+permissions:
+  contents: read
+
+env:
+  TARGET_SHA: 1fa8c39d608c918c5ef327bc77e1aca41a6166fc
+  SPEC_ID: SG-000025
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact qualified canonical main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Assert exact clean canonical input
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py next .
+
+      - name: Build exact ContextSource records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import math
+          import os
+          from pathlib import Path
+
+          target = os.environ["TARGET_SHA"]
+          root = Path(".")
+          out = Path("/tmp/SG-000025-context-sources.json")
+
+          def whole(path):
+              return len((root / path).read_bytes())
+
+          def line_range(path, start, end):
+              raw = (root / path).read_bytes()
+              lines = raw.splitlines(keepends=True)
+              return len(b"".join(lines[start - 1:end]))
+
+          specs = [
+              ("current-frontier", "specs/CURRENT.md", 70, 100, 1041,
+               "Bind the exact live P02 frontier and S05-T02-only execution authority."),
+              ("p02-registry", "specs/tasks.md", 50, 82, 4193,
+               "Bind the canonical P02 dependency order, S05-T02 NEXT state, S06 planning boundary, and P02 exit gate."),
+              ("sg25-grain", ".specgrain/specs/SG-000025.json", None, None, 12027,
+               "Bind the complete original SG-000025 scope, safety, acceptance, evidence, and change surface."),
+              ("capability-core", "docs/canonical/CAPABILITY_AND_GRANT_MODEL.md", 1, 120, 4958,
+               "Bind the canonical request-versus-authority invariants, exact action grammar, and non-wildcard Grant semantics."),
+              ("capability-profile", "docs/canonical/CAPABILITY_AND_GRANT_MODEL.md", 777, 822, 1195,
+               "Bind the canonical permission-profile rule: profiles compile to bounded Grants and never create an alternate authorization path."),
+              ("policy-core", "crates/kernux-policy/src/lib.rs", 1, 180, 5022,
+               "Bind existing Action, ResourceAuthority, CanonicalResource, and action/resource compatibility primitives reused by the compiler."),
+              ("policy-envelope", "crates/kernux-policy/src/envelope.rs", 1, 125, 4748,
+               "Bind ValidatedGrant round-trip validation, exact subject/runtime binding, finite envelope, and hierarchy rules."),
+              ("policy-semantics", "crates/kernux-policy/src/semantics.rs", 1, 190, 5784,
+               "Bind authoritative consequence ordering/classification and typed conjunctive constraint narrowing."),
+              ("policy-authority", "crates/kernux-policy/src/decision.rs", 179, 314, 4660,
+               "Bind the mandatory controller/local/kernel/principal/runtime/remote/secondary authority intersection that profiles cannot bypass."),
+              ("agent-governance", "AGENTS.md", 1, 60, 2618,
+               "Bind live-truth precedence, negative-evidence preservation, bounded delivery, and protected-history rules."),
+              ("specgrain-governance", "docs/governance/SPEC_GRAIN.md", 70, 145, 2271,
+               "Bind the supported Grain -> explicit context -> WorkPacket -> execute -> independent proof lifecycle and packet authority boundary."),
+          ]
+
+          records = []
+          observed_total = 0
+          token_total = 0
+          for priority, (source_id, path, start, end, forecast, reason) in enumerate(specs):
+              observed = whole(path) if start is None else line_range(path, start, end)
+              if observed != forecast:
+                  raise SystemExit(
+                      f"{source_id} byte drift: expected {forecast}, observed {observed}"
+                  )
+              provenance = f"repo:{path}" if start is None else f"repo:{path}#L{start}-L{end}"
+              token_cost = math.ceil(observed / 4)
+              observed_total += observed
+              token_total += token_cost
+              records.append({
+                  "source_id": source_id,
+                  "provenance": provenance,
+                  "selection_reason": reason,
+                  "revision": f"git:{target}",
+                  "size_bytes": observed,
+                  "token_cost": token_cost,
+                  "requirement": "required",
+                  "priority": priority,
+              })
+
+          if observed_total != 48517:
+              raise SystemExit(f"context byte accounting drift: {observed_total}")
+          if token_total != 12133:
+              raise SystemExit(f"context token accounting drift: {token_total}")
+          if token_total > 18000:
+              raise SystemExit("context exceeds SG-000025 budget")
+
+          raw = (json.dumps(records, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8")
+          out.write_bytes(raw)
+          print("CONTEXT_SOURCE_COUNT=" + str(len(records)))
+          print("CONTEXT_SOURCE_BYTES_TOTAL=" + str(observed_total))
+          print("CONTEXT_SOURCE_TOKENS_TOTAL=" + str(token_total))
+          print("CONTEXT_SOURCE_FILE_BYTES=" + str(len(raw)))
+          print("CONTEXT_SOURCE_FILE_SHA256=sha256:" + hashlib.sha256(raw).hexdigest())
+          PY
+
+      - name: Export production WorkPacket twice and require byte identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          CTX=/tmp/SG-000025-context-sources.json
+          P1=/tmp/SG-000025-work-packet.json
+          P2=/tmp/SG-000025-work-packet-replay.json
+          python3 tools/specgrain/run.py packet "$SPEC_ID" . --context-sources "$CTX" --json > "$P1"
+          python3 tools/specgrain/run.py packet "$SPEC_ID" . --context-sources "$CTX" --json > "$P2"
+          cmp "$P1" "$P2"
+
+          python3 - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          target = os.environ["TARGET_SHA"]
+          spec_id = os.environ["SPEC_ID"]
+          ctx = Path("/tmp/SG-000025-context-sources.json").read_bytes()
+          packet = Path("/tmp/SG-000025-work-packet.json").read_bytes()
+          replay = Path("/tmp/SG-000025-work-packet-replay.json").read_bytes()
+          if packet != replay:
+              raise SystemExit("packet replay bytes differ")
+
+          obj = json.loads(packet)
+          expected_revision = "sha256:033563155d6258f9ceaf7bc0defd1cfc0ceddbf613d1f249f8c56e958b16edfb"
+          if obj["spec_id"] != spec_id:
+              raise SystemExit("packet spec_id mismatch")
+          if obj["spec_revision"] != expected_revision:
+              raise SystemExit(f"packet spec_revision mismatch: {obj['spec_revision']}")
+          if len(obj["context_sources"]) != 11:
+              raise SystemExit("packet context source count mismatch")
+          if any(s["revision"] != f"git:{target}" for s in obj["context_sources"]):
+              raise SystemExit("packet context source revision mismatch")
+          if obj["packet_version"] != 1:
+              raise SystemExit("packet version mismatch")
+
+          print("SPEC_ID=" + obj["spec_id"])
+          print("SPEC_REVISION=" + obj["spec_revision"])
+          print("CONTEXT_PLAN_DIGEST=" + obj["context_plan_digest"])
+          print("PACKET_DIGEST=" + obj["packet_digest"])
+          print("WORK_PACKET_FILE_BYTES=" + str(len(packet)))
+          print("WORK_PACKET_FILE_SHA256=sha256:" + hashlib.sha256(packet).hexdigest())
+          print("CONTEXT_SOURCE_FILE_SHA256=sha256:" + hashlib.sha256(ctx).hexdigest())
+          print("CONTEXT_SOURCES_B64=" + base64.b64encode(ctx).decode("ascii"))
+          print("WORK_PACKET_B64=" + base64.b64encode(packet).decode("ascii"))
+          PY
+
+      - name: Final clean canonical assertion
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
