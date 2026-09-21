@@ -389,7 +389,7 @@ The Generation 1 journeys remain mandatory. Generation 2 adds the canonical jour
 
 Every universal journey defines expected state transitions and strongest-available evidence, not only a final screenshot or natural-language answer.
 
-## 16. Completion vocabulary
+## 17. Completion vocabulary
 
 Use explicit states:
 
@@ -403,7 +403,7 @@ Use explicit states:
 
 Do not use `done` in canonical task state when the required evidence has not established `PROVEN`.
 
-## 17. Project completion
+## 18. Project completion
 
 Kernux as a whole is not complete merely because all planned tasks are checked off. Project/release completion requires:
 
@@ -416,6 +416,6 @@ Kernux as a whole is not complete merely because all planned tasks are checked o
 - docs/onboarding/support surfaces complete;
 - actual release artifacts independently verifiable.
 
-## 18. Rule
+## 19. Rule
 
 **The faster agents become, the stronger the evidence boundary must become.**
