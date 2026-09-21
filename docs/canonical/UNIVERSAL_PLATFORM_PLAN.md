@@ -531,6 +531,8 @@ Current systems demonstrate several durable expectations for modern agent platfo
 
 These are design lessons only. External products remain references, not implicit code donors.
 
+Canonical ADR, task-registry, completeness-audit, benchmark, and reference propagation is intentionally delivered in a separate bounded follow-up change so this planning contract remains independently reviewable under repository scope limits.
+
 ## 11. Completion rule
 
 Kernux is not universally mature because it has many features.
