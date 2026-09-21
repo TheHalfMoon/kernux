@@ -1,0 +1,117 @@
+{
+  "acceptance": [
+    "The compiler recognizes exactly Safe, Standard, Developer, Autonomous, and Custom and rejects unknown/ambiguous profile input.",
+    "Every compiled candidate binds one exact core/registered action, one canonical resource, exact Run/optional AgentSession, exact Runtime revision, finite trusted timestamps, positive finite max_uses, explicit resource scope, bounded consequence ceiling, issuer authority, policy revision, and delegation_depth zero unless a separately authorized direct path is used.",
+    "Safe emits only C0 project/workspace observation candidates and cannot compile host writes, process/PTY, network/browser mutation, clipboard, secret, policy, grant, identity, or external-side-effect authority.",
+    "Standard emits only C0/C1 project-scoped read/write/local-artifact candidates plus explicitly isolated sandbox process verification intents; C2+ external actions, host process authority, secrets, authority changes, git publish/admin, and browser commit remain denied.",
+    "Developer adds bounded sandbox process/PTY and project git.modify candidates but does not auto-compile git.publish/admin, secret actions, host-system mutation, authority-management actions, or C3/C4 candidates.",
+    "Autonomous remains bounded: authoritative consequence must be <= C2, resources/runtime/task scope remain exact/finite, secret.reveal and authority-management actions are denied, and no mandatory policy/runtime/remote/secondary layer is bypassed.",
+    "Custom requires explicit trusted rule match and safe subset/intersection; missing rule, wildcard, unknown value, resource-authority mismatch, consequence excess, or constraint conflict denies compilation.",
+    "Compiled candidates round-trip through existing ValidatedGrant invariants and cannot directly produce PolicyDecision::Allow, consume a budget, append an approval event, persist a Grant, or execute a side effect.",
+    "Adversarial tests prove profile input and untrusted provenance cannot mint/widen authority, preset semantics are deterministic, and all hard-deny actions remain denied across every preset.",
+    "No external dependency identity, KRP schema, protected CI context name, existing S05-T01 authorization behavior, SQLite policy schema, or secret handling behavior changes.",
+    "The original tracked ContextSource/WorkPacket files are generated before implementation, replay byte-identically through the pinned CLI, and remain immutable execution-authority evidence.",
+    "Exact-head implementation passes full pnpm check, Diffcipline R3, Alibaba OpenCodeReview accounting, native macOS qualification, six-job CI, semantic review and zero unresolved threads; ordinary merge and six-job post-merge qualification also pass.",
+    "Native SpecGrain verification binds the exact original WorkPacket to independently observed implementation evidence with every acceptance/evidence item satisfied before closeout.",
+    "Canonical closeout advances only S05-T02 after proof; S06-T01 becomes NEXT only after the closeout/transition gates and P02 exit remains unproven."
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000025.json",
+    "docs/evidence/SG-000025-context-sources.json",
+    "docs/evidence/SG-000025-work-packet.json",
+    "crates/kernux-policy/src/lib.rs",
+    "crates/kernux-policy/src/profile.rs",
+    "docs/evidence/P02-S05-T02.md",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 18000,
+    "estimated_tokens": 15500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "profile-vocabulary-pass",
+      "profile-exact-finite-grant-pass",
+      "safe-profile-boundary-pass",
+      "standard-profile-boundary-pass",
+      "developer-profile-boundary-pass",
+      "autonomous-profile-boundary-pass",
+      "custom-profile-subset-pass",
+      "profile-no-alternate-authority-pass",
+      "profile-adversarial-corpus-pass",
+      "policy-grant-regression-pass",
+      "original-workpacket-durable-recovery-pass",
+      "local-macos-pass",
+      "diffcipline-r3-proof-pass",
+      "open-code-review-accounting-pass",
+      "protected-implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000025",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse kernux-policy Action/CanonicalResource/ValidatedConstraints/ValidatedGrant and existing durable Grant/admission machinery. Add one pure profile module plus module export/tests and evidence; no new dependency, schema, protocol field, daemon side-effect path, UI framework, or second policy engine."
+      },
+      "safety": {
+        "requirements": [
+          "Profiles must compile bounded authority only; they never bypass the existing final pre-side-effect authorization boundary.",
+          "Unknown profile/action/resource/rule/constraint/consequence or mandatory authority input fails closed.",
+          "Profile compilation must not create wildcard, immortal, unlimited-use, all-runtime, all-subject, or delegation-by-default Grants.",
+          "Preset profiles cannot auto-authorize policy.modify, grant.issue, grant.delegate, identity.manage, or secret.reveal.",
+          "Autonomous remains bounded by trusted consequence <= C2 plus exact runtime/resource/time/use constraints and cannot treat untrusted content as authority.",
+          "Do not start implementation until the original ContextSource/WorkPacket is durably tracked and exact replay is proven.",
+          "Do not advance S06 or P02 exit until S05-T02 native proof and canonical closeout are complete."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Implement Safe, Standard, Developer, Autonomous, and Custom as deterministic, provider-neutral policy inputs that compile one trusted bounded intent into one or more exact-action finite Grant candidates without creating an alternate authorization path, bypassing consequence classification, or performing side effects.",
+  "parent_id": null,
+  "rationale": "KX-P02-S05-T01 is PROVEN and post-merge-qualified. Canonical security and capability documents require user-friendly profiles to compile into granular rules/Grants while remaining subordinate to kernel hard constraints, organization/principal policy, runtime capability, secret policy, remote-host policy, provenance escalation, and existing durable admission.",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only SG-000025 profile refinement/implementation/closeout changes and keep KX-P02-S05-T02 at NEXT. Preserve S05-T01 policy/store/daemon semantics, all existing Grant/audit rows, tracked original WorkPacket evidence, and canonical ledgers; never weaken existing admission or advance S06 on failed profile proof."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Add a repository-owned pure profile compiler to kernux-policy; profiles are convenience inputs, never an authorization or side-effect execution path.",
+    "Represent exactly Safe, Standard, Developer, Autonomous, and Custom with deterministic closed semantics and no provider-native permission strings or wildcard actions/resources.",
+    "Compile only trusted profile intents already bound to an exact Run, optional exact AgentSession, exact Runtime revision, one exact action, canonical resource, explicit exact/subtree scope, validated constraints, finite trusted time window, positive finite max-use budget, issuer authority, and policy revision.",
+    "Return bounded Grant candidates that must still pass existing ValidatedGrant validation, durable issuance/audit, consequence classification, mandatory authority intersection, runtime-capability checks, remote-host checks, secondary-resource checks, and pre-side-effect admission.",
+    "Safe automatically admits only low-risk project/workspace observation intents that remain C0 and excludes writes, process/PTY execution, network/browser mutation, clipboard, secrets, policy/grant/identity mutation, and external side effects.",
+    "Standard may compile project-scoped read/write and bounded local artifact intents up to C1; automatic process execution is permitted only for an explicitly isolated sandbox resource and remains constrained/finite. Secrets, authority changes, publish/commit, and other C2+ external effects remain gated.",
+    "Developer may additionally compile bounded sandbox process/PTY and project git.modify intents while keeping publish/admin, secret access, host-system authority, policy/grant/identity mutation, and C3/C4 effects outside preset auto-grant semantics.",
+    "Autonomous may compile broader explicitly requested task/runtime/sandbox intents only when authoritative consequence is at most C2 and the action is not an authority-management or secret-reveal action; exact resources, finite budgets, runtime isolation/policy and all mandatory authority layers remain active.",
+    "Custom uses explicit trusted granular rules with exact action, allowed resource authority/scope, maximum consequence, and constraint ceilings; absence, ambiguity, wildcard, unknown action/resource, or incomparable constraints fails closed.",
+    "Profile compilation never permits policy.modify, grant.issue, grant.delegate, identity.manage, or secret.reveal through preset automation; these authority/credential-expanding surfaces require their existing explicit policy path.",
+    "Add adversarial tests proving profile names cannot self-authorize, untrusted provenance cannot widen profiles, preset ordering is not treated as blanket inheritance, malformed/unknown/custom ambiguity denies, and every emitted Grant remains finite/exact and accepted by existing validation.",
+    "Persist the original SpecGrain ContextSource set and WorkPacket bytes before the first profile implementation slice, and require byte-identical replay from the tracked sources before implementation proceeds.",
+    "Qualify bounded implementation on Linux CI, native Windows protected CI, and native macOS; require full pnpm check, Diffcipline R3, Alibaba OpenCodeReview Delegation Mode accounting, exact-head semantic review with zero unresolved threads, ordinary merge, and exact post-merge six-job qualification before native proof/closeout.",
+    "After native SpecGrain verification and protected closeout, advance only KX-P02-S05-T02 to PROVEN and KX-P02-S06-T01 to NEXT if live canonical truth still permits it; keep S06-T02 PLANNED and P02 exit unproven."
+  ],
+  "scope_out": [
+    "Do not implement approval UI, desktop renderer policy UX, profile editor UI, or organization/team policy distribution.",
+    "Do not implement secret-provider adapters, secret plaintext access/reveal, credential injection, or OS credential-store integration; KX-P02-S06-T01 owns secret brokerage.",
+    "Do not implement filesystem/process/PTY/Git/browser/computer/network side-effect executors; profiles only compile bounded authorization candidates.",
+    "Do not add new KRP fields, core actions, resource authorities, consequence classes, external policy engines, expression languages, or provider-specific permission models.",
+    "Do not create immortal Grants, wildcard actions/resources/runtimes, unlimited use budgets, unbounded lifetimes, delegation-by-default, or a hidden allow-all Autonomous mode.",
+    "Do not let profile choice, UI text, model/tool/browser/document/provider content, or a profile name substitute for C4 authorization, trusted policy state, runtime capability, or existing Grant admission.",
+    "Do not advance S06 or P02 phase exit from implementation evidence alone; native proof, protected closeout, and canonical transition remain separate governed steps."
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S05-T02 — Compile permission profiles to bounded granular Grants"
+}
