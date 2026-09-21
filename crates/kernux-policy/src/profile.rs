@@ -1088,7 +1088,8 @@ mod tests {
 
     #[test]
     fn compilation_is_deterministic_and_leaves_inputs_untouched() {
-        let request = intent("files.write", &project_uri());
+        let project = project_uri();
+        let request = intent("files.write", &project);
         let before = request.clone();
         let first = compile_profile("Developer", &request, &[], &[]).unwrap();
         let second = compile_profile("Developer", &request, &[], &[]).unwrap();
