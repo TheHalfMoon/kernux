@@ -1310,7 +1310,7 @@ mod tests {
             },
         ];
         for facts in authority_facts {
-            let escalated = with_facts("files.write", &project, facts);
+            let escalated = with_facts("files.read", &project, facts);
             for profile in [
                 PermissionProfile::Safe,
                 PermissionProfile::Standard,
@@ -1605,7 +1605,7 @@ mod tests {
         };
         assert_eq!(
             compile_profile("Standard", &extension, &[], &["ext.acme.observe"]),
-            Err(NOT_COVERED)
+            Err(ProfileCompileError::UnknownConsequence)
         );
         assert_eq!(
             compile_profile("Autonomous", &extension, &[], &[]),
@@ -1615,6 +1615,30 @@ mod tests {
             compile_profile("Autonomous", &extension, &[], &["ext.acme.observe"]),
             Err(ProfileCompileError::UnknownConsequence)
         );
+        let floored_facts = TrustedConsequenceFacts {
+            extension_floor: Some(ConsequenceClass::C1),
+            ..TrustedConsequenceFacts::default()
+        };
+        let floored = ProfileIntent {
+            facts: floored_facts,
+            ..extension.clone()
+        };
+        assert_eq!(
+            compile_profile("Standard", &floored, &[], &["ext.acme.observe"]),
+            Err(NOT_COVERED)
+        );
+        let autonomous_floored = ProfileIntent {
+            facts: floored_facts,
+            ..extension
+        };
+        let candidates = compile_profile(
+            "Autonomous",
+            &autonomous_floored,
+            &[],
+            &["ext.acme.observe"],
+        )
+        .unwrap();
+        assert_eq!(candidates[0].consequence_ceiling, ConsequenceClass::C1);
         let extension_on_project = intent("ext.acme.observe", &project);
         assert_eq!(
             compile_profile(
