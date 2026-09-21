@@ -157,24 +157,10 @@ Project open/create, command bar, empty/onboarding states, run strip, notificati
 
 Basic durable event projection and artifact preview surfaces.
 
-### S03.6 Search, context, and memory surfaces
-
-Universal quick-open/search, inspectable ContextBundle/source view, and user-governed memory inspection/edit/delete.
-
-### S03.7 CLI bootstrap
-
-Authenticated headless client bootstrap, `doctor`, deterministic machine-readable output foundation, and parity with desktop task contracts.
-
-### S03.8 Design Mode shell
-
-Structured browser/native selection capture entry point and provenance-bearing capture inspector.
-
 **Exit gate P03**
 
 - desktop can connect/reconnect to daemon without ambient renderer Node privilege;
 - layout/project state survives restart;
-- quick-open/context/memory and CLI bootstrap are usable;
-- Design Mode capture shell exists;
 - basic accessibility keyboard journey passes;
 - hidden/headless desktop E2E can validate UI without focus theft.
 
@@ -242,15 +228,9 @@ Preserve provider-native auth/subscription ownership; support account/usage meta
 
 Structured session events, messages, status, interrupt/resume, file/tool references, usage.
 
-### S05.6 Kernux Native Agent
-
-Provider-neutral ModelProvider contract, local/BYOK model paths where qualified, and a Kernux-native model-backed loop that receives ContextBundles and acts only through typed capability requests.
-
 **Exit gate P05**
 
-- at least two independent external agents can perform the same bounded local task;
-- one Kernux-native model-backed path completes a bounded task end-to-end;
-- local/BYOK model paths are available where qualified rather than requiring Kernux-funded inference;
+- at least two independent agents can perform the same bounded local task;
 - unsupported provider features remain explicitly unsupported, not guessed;
 - TUI parsing is transcript-backed;
 - agent cannot bypass Kernux capability policy when using Kernux-owned tools.
@@ -285,17 +265,12 @@ Screenshot + computer-use action provider for pages/apps where structured method
 
 Action method, page origin, relevant observation/screenshot, downloads, and source lineage captured in timeline.
 
-### S06.7 Web intelligence
-
-Provider-neutral Search/Fetch plus bounded crawl/change-detection primitives with freshness/cache metadata, source lineage, bounded outputs, and local/self-hosted/BYOK or explicitly managed provider paths.
-
 **Exit gate P06 (R3 for injection/credential boundaries)**
 
 - authenticated contexts do not leak across projects by default;
 - malicious page/WebMCP/tool-output injection cannot self-authorize privilege;
 - hierarchy WebMCP -> deterministic -> semantic -> vision is observable/tested;
-- Search/Fetch/browser research paths share inspectable provenance;
-- research journey can produce structured evidence bundle without requiring founder-funded metered credentials.
+- research journey can produce structured evidence bundle.
 
 ---
 
@@ -397,22 +372,12 @@ Manifest + digests + verification + provenance + redaction metadata.
 
 Desktop crash, daemon restart, remote interruption, browser death, partial durable write.
 
-### S09.7 Portability and lifecycle
-
-Versioned project export/import, backup/restore, reference-aware Artifact CAS GC, scoped delete semantics, and explicit provider-owned leftovers.
-
-### S09.8 Context/memory replay lineage
-
-Preserve ContextBundle and MemoryRecord provenance through replay, fork, export/import, source invalidation, correction, and deletion.
-
 **Exit gate P09**
 
 - accepted golden journeys survive restart where contract says they should;
 - duplicate side effects are prevented or surfaced as unresolved ambiguity;
 - event replay reproduces projections;
-- evidence bundle validates independently;
-- project history is portable;
-- backup/restore/GC/delete semantics are proven.
+- evidence bundle validates independently.
 
 ---
 
@@ -624,14 +589,6 @@ Preregister reproducible benchmark/journey set if making competitive claims. Pre
 
 Qualify exact release commit and artifacts independently from ordinary branch CI.
 
-### S15.9 Privacy-safe diagnostics qualification
-
-Prove telemetry-disabled operation and reviewable/redacted support bundles against synthetic secret/content fixtures.
-
-### S15.10 Portability/deletion qualification
-
-Prove project export/import, backup/restore migration, deletion and uninstall cleanup on supported platforms.
-
 **Exit gate P15 / RELEASE_READY**
 
 - all release-blocking acceptance journeys are PROVEN;
@@ -640,27 +597,7 @@ Prove project export/import, backup/restore migration, deletion and uninstall cl
 - release artifacts are signed/checksummed/provenanced;
 - donor/third-party notices are complete;
 - installer/update/recovery are proven;
-- telemetry-disabled local journeys remain functional;
-- support-bundle redaction and lifecycle portability/deletion are qualified;
 - public claims do not exceed evidence.
-
----
-
-# 1.1 Long-horizon universal platform expansion
-
-P00-P15 remains the dependency-ordered path to the first public Kernux generation. It must not be bypassed by later breadth work.
-
-After the Generation 1 contracts and release gates are proven, the long-horizon roadmap continues through:
-
-- **P16 — Work-product and artifact studio:** editable documents, spreadsheets, presentations, analysis packages, reports and lightweight sites/apps with validation and provenance.
-- **P17 — Integration and event fabric:** scalable connector discovery, OAuth/account lifecycle, tool routing, event subscriptions and representative app-category qualification.
-- **P18 — Multimodal and cross-device interaction:** voice/audio/image/screen context, visual computer fallback, richer device handoff, accessibility and internationalization.
-- **P19 — Proactive personal/work agent:** user-governed routines, condition watches, relationship context, universal capture and policy-bound proactive assistance.
-- **P20 — Ecosystem and universal-scale maturity:** signed extensions, registries, stable SDKs, sustainable managed services, universal benchmarks, SLO/chaos qualification and provider-loss resilience.
-
-The binding capability map, anti-gap ownership matrix, adoption strategy and universal golden journeys live in [`UNIVERSAL_PLATFORM_PLAN.md`](UNIVERSAL_PLATFORM_PLAN.md). The concrete macro tasks are in `specs/tasks.md`.
-
-These phases are additive. They must preserve all earlier kernel, security, evidence, portability, local-first and owner-sustainable invariants.
 
 ---
 
