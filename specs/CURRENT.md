@@ -87,10 +87,6 @@ No product code or founding-donor product code has been imported yet.
 
 **P02 PROGRESS:** `6 / 9 macro tasks PROVEN`
 
-**LONG-HORIZON UNIVERSAL PLATFORM PLAN:** `PLANNED / NON-BLOCKING TO CURRENT P02 FRONTIER`
-
-The canonical long-horizon expansion is defined in `docs/canonical/UNIVERSAL_PLATFORM_PLAN.md` with P16-P20 macro tasks in `specs/tasks.md`. This planning expansion does not authorize skipping P02-P15 dependencies and does not change the current next implementation unit.
-
 **KX-P02-S01-T01 QUALIFICATION:** `PROVEN`
 
 **KX-P02-S01-T02 QUALIFICATION:** `PROVEN`
