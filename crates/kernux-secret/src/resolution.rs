@@ -1,4 +1,5 @@
 //! Bounded secret resolution types for SG-000026.
+//! SG-000027 corrective re-adoption: executable semantics are intentionally unchanged.
 //!
 //! Resolution binds one broker-admitted use to one live secret value without
 //! performing any credential-store access itself. It performs no operating
