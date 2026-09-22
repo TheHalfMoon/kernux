@@ -17,10 +17,10 @@ pub fn leaks_plaintext(haystack: &str, plaintext: &[u8]) -> bool {
     if plaintext.is_empty() {
         return false;
     }
-    if let Ok(text) = core::str::from_utf8(plaintext) {
-        if haystack.contains(text) {
-            return true;
-        }
+    if let Ok(text) = core::str::from_utf8(plaintext)
+        && haystack.contains(text)
+    {
+        return true;
     }
     haystack.contains(&hex_lower(plaintext))
 }
