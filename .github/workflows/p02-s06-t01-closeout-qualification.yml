@@ -1,0 +1,184 @@
+name: P02 S06 T01 Closeout Qualification
+
+on:
+  push:
+    branches:
+      - probe/p02-s06-t01-closeout-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 18dd95f7fa07a3c2b9fbd1b9583a044b8384c020
+  TARGET_SHA: ac99bc442d14f3becec4cf7f01b496710cea340f
+
+jobs:
+  linux:
+    name: linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact merged evidence target
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert exact evidence slice and byte-identical WorkPacket replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "1"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "docs/evidence/P02-S06-T01.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py packet SG-000026 . \
+            --context-sources docs/evidence/SG-000026-context-sources.json \
+            --json > /tmp/SG-000026-replay.json
+          cmp docs/evidence/SG-000026-work-packet.json /tmp/SG-000026-replay.json
+          sha256sum docs/evidence/SG-000026-work-packet.json /tmp/SG-000026-replay.json
+          python3 tools/specgrain/run.py check .
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Run focused secret tests
+        run: cargo test --locked -p kernux-secret --all-targets
+
+      - name: Run focused secret clippy
+        run: cargo clippy --locked -p kernux-secret --all-targets -- -D warnings
+
+      - name: Prove exact evidence slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    name: macos
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact merged evidence target
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assert byte-identical WorkPacket replay on native macOS
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$TARGET_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" | wc -l | tr -d ' ')" = "1"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" | grep -Fx "docs/evidence/P02-S06-T01.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py packet SG-000026 . \
+            --context-sources docs/evidence/SG-000026-context-sources.json \
+            --json > /tmp/SG-000026-replay.json
+          cmp docs/evidence/SG-000026-work-packet.json /tmp/SG-000026-replay.json
+          shasum -a 256 docs/evidence/SG-000026-work-packet.json /tmp/SG-000026-replay.json
+          sw_vers
+          uname -m
+          python3 tools/specgrain/run.py check .
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Rust 1.98.1
+        uses: dtolnay/rust-toolchain@ce678459e9fc7500d337468f904b95f1b5c10b5e
+        with:
+          components: clippy,rustfmt
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full repository baseline
+        run: pnpm check
+
+      - name: Run focused secret tests
+        run: cargo test --locked -p kernux-secret --all-targets
+
+      - name: Run focused secret clippy
+        run: cargo clippy --locked -p kernux-secret --all-targets -- -D warnings
+
+      - name: Prove exact evidence slice at Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+
+      - name: Install pinned Alibaba OpenCodeReview
+        run: npm install --global @alibaba-group/open-code-review@1.12.7
+
+      - name: Run OpenCodeReview Delegation Mode accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final exact-target cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
