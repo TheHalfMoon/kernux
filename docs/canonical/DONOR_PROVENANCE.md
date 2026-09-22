@@ -129,6 +129,43 @@ High-value areas:
 
 Important constraint: upstream explicitly describes guardrails as **not a sandbox**. Kernux must not inherit an MCP server's local permission model as the system security boundary. Privileged operations go through `kernuxd` and the Kernux capability policy.
 
+## Authorized donor 4 — Laya application
+
+- Repository: `aayushch/laya`
+- Planning revision inspected: `5970a114241ee09cec09d571acf9ba52d27ae612`
+- Public license observed at that revision: Apache-2.0
+- Upstream repository includes a `NOTICE` file
+- Authorization basis: founder states Kernux has permission to copy, modify, and use the Laya source code
+- Role in Kernux: **event/integration orchestration and AI work-command-center donor/reference**
+
+High-value areas to characterize and potentially reuse:
+
+- normalized cross-application event ingestion;
+- Action Card / Action Inbox UX;
+- Card Workspaces;
+- staged actions and approval-oriented egress;
+- cross-platform association and Coherence-style search;
+- Omni and daily briefing projections;
+- processing/classification rules;
+- local audit and dead-event recovery;
+- budget/usage visibility;
+- connector/account UX;
+- coding-agent and local-model routing patterns.
+
+Kernux must not adopt Laya's donor architecture as authority. In particular:
+
+- n8n is not a mandatory Kernux runtime and requires independent license/dependency admission if used;
+- Python/FastAPI is not the canonical Kernux orchestration authority;
+- LiteLLM is not the Kernux public model contract;
+- ChromaDB is not canonical memory or task truth;
+- Laya SQLite state does not replace Kernux task/evidence stores;
+- OS keyring access maps through the Kernux SecretHandle/secret-provider boundary;
+- Laya approvals become `ActionProposal` plus ordinary Kernux policy/Grant enforcement.
+
+The implementation-ready integration contract is `docs/canonical/platform-fabrics/LAYA_INTEGRATION.md`.
+
+Founder permission over Laya does not grant rights over independently governed dependencies, assets, trademarks, hosted services, or external providers. Every selected source path still requires exact source-to-destination mapping, transformation class, characterization evidence, notice coverage, dependency disposition, and import commit identity.
+
 ## Methodology sources — not product donors by default
 
 ### SpecGrain
@@ -219,6 +256,11 @@ The pinned planning revisions are not permanent forks. Before each import wave:
 | Documents/data | Desktop Commander | capability + artifact model |
 | Remote machine execution | Orca + Desktop Commander | Kernux identity/protocol |
 | Mobile steering | Orca | Kernux approval/task model |
+| Action Inbox / staged external work | Laya | ActionProposal + Kernux policy/Grant |
+| Cross-app event normalization | Laya | IntegrationEvent + connector contracts |
+| Action Workspace | Laya + Orca | Task/WorkUnit/Run + evidence projections |
+| Coherence / briefing / Omni views | Laya | derived context/memory projections |
+| Rules / proactive staging | Laya | Automation/Event Fabric; no self-authorization |
 | Security authorization | none adopted wholesale | Kernux-native capability kernel |
 | Evidence/replay | none adopted wholesale | Kernux-native event/evidence model |
 | Delivery decomposition | SpecGrain | repository methodology |
