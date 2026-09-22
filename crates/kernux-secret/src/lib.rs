@@ -10,14 +10,13 @@
 //! This crate performs no operating system credential-store access, persists
 //! nothing, logs nothing, spawns no processes, and grants no authority.
 //! Possession of a handle authorizes nothing. Only broker admission under an
-//! exact Grant can produce a bounded resolved use. Provider identities and
-//! destination classes arrive in this slice; broker admission arrives in this slice; provider
-//! adapters, and audit events arrive in later SG-000026 slices.
+//! exact Grant can produce a bounded resolved use. Provider identities, destination classes, broker admission, and OS adapter templates arrive across SG-000026 slices; provider execution and audit events arrive in later SG-000026 slices.
 
 #![forbid(unsafe_code)]
 
 mod broker;
 mod handle;
+mod os_adapter;
 mod provider;
 mod redaction;
 
@@ -30,6 +29,10 @@ pub use handle::{
     MAX_SECRET_REF_TOKEN_BYTES, MAX_SECRET_VALUE_BYTES, SECRET_HANDLE_HEX_LEN, SECRET_HANDLE_PREFIX,
 };
 pub use handle::{SecretHandle, SecretRef, SecretValue};
+pub use os_adapter::{
+    AdapterCommand, LINUX_SECRET_SERVICE_PROGRAM, MACOS_KEYCHAIN_PROGRAM, MAX_OS_ACCOUNT_BYTES,
+    MAX_OS_SERVICE_BYTES, WINDOWS_CREDENTIAL_PROGRAM, command_template, program_for,
+};
 pub use provider::{
     DESTINATION_EGRESS_SUBSTITUTION, DESTINATION_HOST_COMMAND, DESTINATION_PROCESS_ENV,
     DestinationClass, EnvName, HostName, MAX_ENV_NAME_BYTES, MAX_HOST_LABEL_BYTES,
