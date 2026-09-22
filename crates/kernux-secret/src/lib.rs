@@ -11,15 +11,20 @@
 //! nothing, logs nothing, spawns no processes, and grants no authority.
 //! Possession of a handle authorizes nothing. Only broker admission under an
 //! exact Grant can produce a bounded resolved use. Provider identities and
-//! destination classes arrive in this slice; broker admission, provider
+//! destination classes arrive in this slice; broker admission arrives in this slice; provider
 //! adapters, and audit events arrive in later SG-000026 slices.
 
 #![forbid(unsafe_code)]
 
+mod broker;
 mod handle;
 mod provider;
 mod redaction;
 
+pub use broker::{
+    AdmittedUse, BrokerDestination, BrokerError, BrokerRequest, EgressClass, MAX_ACCOUNT_ID_BYTES,
+    MAX_OPERATION_ID_BYTES, MAX_PROJECT_ID_BYTES, admit,
+};
 use core::fmt;
 pub use handle::{
     MAX_SECRET_REF_TOKEN_BYTES, MAX_SECRET_VALUE_BYTES, SECRET_HANDLE_HEX_LEN, SECRET_HANDLE_PREFIX,
