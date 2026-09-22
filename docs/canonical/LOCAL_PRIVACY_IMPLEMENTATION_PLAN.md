@@ -19,6 +19,10 @@ The privacy objective is:
 
 This plan makes that objective implementation-ready without changing the active P02 implementation frontier.
 
+## 1.1 Economic boundary
+
+Local privacy and zero runtime COGS reinforce each other. `LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md` is normative for cost ownership: local execution uses the user's hardware/accounts, and external providers use user/organization-owned credentials unless they are a separately priced managed service. Privacy controls must never be weakened to reduce cost, and founder-funded cloud infrastructure must never be introduced merely to simplify the local path.
+
 ## 2. Privacy threat model
 
 Kernux handles highly sensitive material:
