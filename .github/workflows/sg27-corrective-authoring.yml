@@ -1,0 +1,106 @@
+name: SG27 Corrective Authoring
+
+on:
+  push:
+    branches:
+      - probe/sg27-authoring
+
+permissions:
+  contents: read
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout canonical base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ac99bc442d14f3becec4cf7f01b496710cea340f
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Author corrective Grain with pinned SpecGrain CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py draft . \
+            --title "KX-P02-S06-T01 — Reconcile SG-000026 unscoped secret surfaces" \
+            --outcome "The three SG-000026 paths observed outside its frozen change surface—Cargo.lock, crates/kernux-secret/src/os_adapter.rs, and crates/kernux-secret/src/resolution.rs—are explicitly re-adopted under exact paths, independently requalified, and natively verifiable without rewriting SG-000026 or relabeling its historical native-proof gap as PASS." \
+            --rationale "Native proof of SG-000026 is blocked because exact merged PR evidence shows three execution paths outside the frozen WorkPacket change surface. Preserve SG-000026 as negative evidence and use the established SG-000023 to SG-000024 corrective pattern rather than mutating frozen authority retroactively." \
+            --json
+          test -f .specgrain/specs/SG-000027.json
+
+          python3 tools/specgrain/run.py shape SG-000027 . \
+            --scope-in "Preserve the SG-000026 change-surface mismatch as negative evidence and never manufacture an SG-000026 native PASS record." \
+            --scope-in "Persist a fresh corrective ContextSource set and WorkPacket before any corrective source mutation; require byte-identical replay through the pinned CLI." \
+            --scope-in "Explicitly re-adopt Cargo.lock under exact-path authority by independently proving the canonical lockfile is byte-stable under cargo metadata/generate-lockfile checks and contains only the expected kernux-secret workspace package/dependency identities introduced by the already-qualified crate integration; do not hand-edit the generated lockfile." \
+            --scope-in "Explicitly re-adopt crates/kernux-secret/src/os_adapter.rs with at most one minimal non-functional reconciliation comment after corrective packet persistence, preserving fixed per-provider programs, argv-first non-shell templates, validation, no I/O, and no plaintext semantics." \
+            --scope-in "Explicitly re-adopt crates/kernux-secret/src/resolution.rs with at most one minimal non-functional reconciliation comment after corrective packet persistence, preserving single-movement SecretValue ownership, redacted Debug, static failure vocabulary, zeroization, and no side effects." \
+            --scope-in "Requalify the complete current secret surface and policy/store/daemon regressions on Linux, Windows, and native macOS with full pnpm check, focused secret tests/clippy, Diffcipline R3, Jev, Alibaba OpenCodeReview accounting, exact-head six-job CI, zero unresolved review threads, ordinary merge, and post-merge qualification." \
+            --scope-in "After corrective native proof and protected closeout, advance only KX-P02-S06-T01 to PROVEN and make KX-P02-S06-T02 NEXT if live canonical dependency truth still permits it; keep P02 exit unproven." \
+            --scope-out "Do not rewrite SG-000026, its original WorkPacket, ContextSource records, merged history, failed native-proof state, or any prior exact-head evidence." \
+            --scope-out "Do not change secret authority semantics, add secret.reveal authority, weaken exact destination/provider checks, store plaintext, add KRP fields, or add a hidden secret-access switch." \
+            --scope-out "Do not change dependency package/version/source identities, replace zeroize, or manually edit Cargo.lock content." \
+            --scope-out "Do not implement KX-P02-S06-T02 audit-event functionality or claim P02 phase exit." \
+            --acceptance "The SG-000026 native-proof gap is explicitly preserved as negative evidence and is never relabeled PASS." \
+            --acceptance "The corrective Grain uses explicit exact paths for Cargo.lock, os_adapter.rs, resolution.rs, its own packet evidence, closeout evidence, native proof namespace, and canonical ledgers; no wildcard authority is used." \
+            --acceptance "The corrective ContextSource and WorkPacket files are produced before corrective source mutation, tracked canonically, and replay byte-identically through the pinned CLI." \
+            --acceptance "Cargo.lock remains byte-stable under canonical Cargo tooling and preserves the exact existing kernux-secret, kernux-policy, and zeroize package/version/source identities with no dependency drift or manual lockfile edit." \
+            --acceptance "The os_adapter reconciliation changes no executable semantics and preserves fixed program identity, argv-first non-shell construction, bounded service/account validation, static errors, and no I/O/plaintext behavior." \
+            --acceptance "The resolution reconciliation changes no executable semantics and preserves exact admitted metadata binding, non-clone live values, redacted Debug, zeroization, static errors, and no side-effect behavior." \
+            --acceptance "Corrective reconciliation passes full repository regression, focused secret tests, native macOS qualification, Diffcipline R3, Jev, Alibaba OpenCodeReview accounting, exact-head six-job CI/review/zero threads, ordinary merge, and post-merge six-job qualification." \
+            --acceptance "Native SpecGrain verification binds the fresh corrective WorkPacket to independently observed corrective evidence with every acceptance/evidence item satisfied and zero issues." \
+            --acceptance "Canonical closeout advances only KX-P02-S06-T01 after corrective proof, leaves P02 exit unproven, and authorizes KX-P02-S06-T02 only if live dependency truth still makes it the sole next unit." \
+            --risk-level high \
+            --recovery "Revert only corrective reconciliation comments and corrective closeout/ledger changes; keep KX-P02-S06-T01 at NEXT. Preserve SG-000026 negative evidence, all prior merged implementation history, original SG-000026 packet bytes, secret safety semantics, and dependency identities." \
+            --context-budget 14000 \
+            --context-estimate 11000 \
+            --change-surface ".specgrain/specs/SG-000027.json" \
+            --change-surface "docs/evidence/SG-000027-context-sources.json" \
+            --change-surface "docs/evidence/SG-000027-work-packet.json" \
+            --change-surface "Cargo.lock" \
+            --change-surface "crates/kernux-secret/src/os_adapter.rs" \
+            --change-surface "crates/kernux-secret/src/resolution.rs" \
+            --change-surface "docs/evidence/P02-S06-T01.md" \
+            --change-surface ".specgrain/evidence/SG-000027" \
+            --change-surface "specs/CURRENT.md" \
+            --change-surface "specs/tasks.md" \
+            --evidence "sg26-native-proof-gap-preserved" \
+            --evidence "explicit-corrective-surface-pass" \
+            --evidence "corrective-workpacket-durable-recovery-pass" \
+            --evidence "corrective-packet-persistence-pr-pass" \
+            --evidence "corrective-packet-persistence-post-merge-ci-pass" \
+            --evidence "cargo-lock-byte-identity-pass" \
+            --evidence "os-adapter-semantics-pass" \
+            --evidence "resolution-semantics-pass" \
+            --evidence "secret-policy-store-daemon-regression-pass" \
+            --evidence "local-macos-pass" \
+            --evidence "diffcipline-r3-proof-pass" \
+            --evidence "jev-review-pass" \
+            --evidence "open-code-review-accounting-pass" \
+            --evidence "corrective-reconciliation-pr-pass" \
+            --evidence "corrective-reconciliation-post-merge-ci-pass" \
+            --evidence "native-specgrain-verification-pass" \
+            --evidence "protected-closeout-pr-pass" \
+            --evidence "closeout-post-merge-ci-pass" \
+            --minimality-choice reuse-existing \
+            --minimality-rationale "Reuse the already-qualified secret implementation and repository proof machinery. Add no runtime code, dependency, protocol, schema, or permission model; the only source reconciliation is bounded non-functional comments on the two unscoped source files, while Cargo.lock is verified rather than hand-edited." \
+            --safety-status requirements-defined \
+            --safety-requirement "Do not retroactively widen SG-000026 or relabel its frozen change-surface mismatch as PASS." \
+            --safety-requirement "Do not mutate corrective source files until the fresh corrective WorkPacket is canonically persisted and post-merge-qualified." \
+            --safety-requirement "Do not hand-edit Cargo.lock or alter dependency package/version/source identity." \
+            --safety-requirement "Do not weaken secret plaintext, handle-not-bearer, exact destination/provider, secret.reveal separation, redaction, or zeroization guarantees." \
+            --safety-requirement "Do not advance S06-T02 or P02 exit before corrective native proof and protected canonical closeout." \
+            --json
+
+          python3 tools/specgrain/run.py refine SG-000027 . --json
+          python3 tools/specgrain/run.py grain SG-000027 . --json
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py next . --json
+
+          echo "BEGIN_SG27_BASE64"
+          base64 -w 0 .specgrain/specs/SG-000027.json
+          echo
+          echo "END_SG27_BASE64"
