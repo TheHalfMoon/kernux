@@ -320,6 +320,9 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P15-S09-T02 | PLANNED | R3 | Qualify reviewable support bundles against synthetic secret/prompt/file fixtures and redaction manifests. | diagnostics + security |
 | KX-P15-S10-T01 | PLANNED | R3 | Qualify project portability, backup/restore migration, deletion and uninstall cleanup on supported platforms. | P09 lifecycle + packaging |
 | KX-P15-S11-T01 | PLANNED | R3 | Prove the local-only end-to-end privacy golden journey with telemetry disabled and a network oracle confirming zero non-loopback traffic for the fully offline fixture. | P02-P10 privacy/local path + P15 security |
+| KX-P15-S12-T01 | PLANNED | R3 | Implement and qualify signed local commercial entitlement validation with public-key verification, bounded offline grace, key rotation and no user-work-content transmission. | packaging + identity + X16 |
+| KX-P15-S12-T02 | PLANNED | R2 | Prove renewal/expiry/cancellation/device-seat behavior, data export/readability after expiry, and separation of commercial entitlement from kernuxd capability Grants. | entitlement + lifecycle |
+| KX-P15-S12-T03 | PLANNED | R2 | Audit paid-product runtime economics and prove ordinary subscribed-user founder-funded variable COGS is zero across inference, browser/search, storage, agents, connectors and automation. | all paid-product runtime paths + X09 |
 
 ---
 
@@ -401,7 +404,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P20-S01-T01 | PLANNED | R3 | Finalize signed/provenanced Capability Pack and extension package/registry contracts with capability/network/secret/data/privacy declarations, uninstall boundaries and no alternate authority/task/secret system. | P11 + P17 |
 | KX-P20-S02-T01 | PLANNED | R3 | Implement curated public and organization-private registry paths, revocation, compatibility and permission-delta updates. | extension contract + org policy |
 | KX-P20-S03-T01 | PLANNED | R2 | Publish stable SDKs/templates for agents, runtimes, connectors, skills, artifact adapters, policy packs and benchmark journeys. | proven internal contracts |
-| KX-P20-S04-T01 | PLANNED | R3 | Define and qualify optional managed Kernux services under explicit tenancy, privacy, reliability and positive unit-economics boundaries. | P14 + X09 |
+| KX-P20-S04-T01 | PLANNED | R3 | Define and qualify optional managed Kernux services as separate SKUs under explicit tenancy, privacy, usage limits/pricing, reliability and positive unit-economics boundaries; never subsidize them from the base local-software subscription. | P14 + X09 + X16 |
 | KX-P20-S05-T01 | PLANNED | R3 | Build universal capability benchmark/regression corpus spanning build, work, research, automate, operate and create modes. | mature capability set |
 | KX-P20-S06-T01 | PLANNED | R3 | Establish SLOs/chaos/recovery/load qualification for long-running tasks, integrations, browsers, devices, artifacts and storage at scale. | mature capability set |
 | KX-P20-S07-T01 | PLANNED | R2 | Run versioned comparative evaluations before any broad market-leadership claim and publish reproducible methodology plus negative evidence. | benchmark corpus |
@@ -447,9 +450,15 @@ Any durable or side-effecting workflow defines crash/cancel/retry/restart behavi
 
 Any integration that sends content off-device declares what data, to whom, for what purpose, with which retention/configuration assumptions.
 
-## X09 — Owner-sustainable execution
+## X09 — Zero founder-funded runtime COGS
 
-Any capability that can create recurring per-use cost must declare the cost owner and preserve at least one viable local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path. Promotional credits, founder-funded credentials, or hidden hosted infrastructure must not be the only proof path for a core capability. This requirement must not weaken quality, security, privacy, or evidence guarantees.
+Any capability that can create recurring per-use cost must declare the cost owner. Core paid-product operation may use only local/user-owned hardware, user BYOK/provider-native subscriptions, organization-owned infrastructure, or an explicitly separately priced managed service with positive unit economics.
+
+Founder-funded credentials, shared inference, browser/search pools, storage, relays, automation runtimes, connector usage, promotional credits, or hidden hosted infrastructure are not valid proof paths for core capability.
+
+The base local-software subscription must not create variable runtime COGS for ordinary user work.
+
+See `docs/canonical/LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`.
 
 ## X10 — Integration lifecycle
 
@@ -470,6 +479,28 @@ Any major capability family defines golden journeys, regression fixtures, observ
 ## X14 — Human agency
 
 Any proactive, background, high-consequence or externally publishing behavior defines user control, approval, interruption, explanation, notification and rollback/compensation semantics where feasible.
+
+---
+
+## X16 — Commercial entitlement separation
+
+Any paid-product implementation must keep commercial entitlement separate from Kernux capability authority.
+
+Applicable work must define:
+
+- plan/feature entitlement;
+- signed local entitlement representation;
+- issuer/key rotation;
+- offline/grace behavior;
+- renewal metadata;
+- expiry/cancellation behavior;
+- user-data availability/export after expiry;
+- privacy of entitlement refresh;
+- explicit open-source/commercial package boundary;
+- no project-content transmission for license validation;
+- no task/token/browser-minute/local-storage metering for user-supplied resources.
+
+A subscription entitlement cannot grant filesystem, process, network, secret, browser, runtime, tool, or side-effect authority.
 
 ---
 
