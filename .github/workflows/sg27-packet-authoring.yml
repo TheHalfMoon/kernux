@@ -1,0 +1,45 @@
+name: SG27 Packet Authoring
+
+on:
+  push:
+    branches:
+      - probe/sg27-packet-authoring
+
+permissions:
+  contents: read
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Generate and replay SG-000027 WorkPacket with pinned CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py next . --json
+          python3 tools/specgrain/run.py packet SG-000027 . \
+            --context-sources docs/evidence/SG-000027-context-sources.json \
+            --json > /tmp/SG-000027-work-packet.json
+          python3 tools/specgrain/run.py packet SG-000027 . \
+            --context-sources docs/evidence/SG-000027-context-sources.json \
+            --json > /tmp/SG-000027-work-packet-replay.json
+          cmp /tmp/SG-000027-work-packet.json /tmp/SG-000027-work-packet-replay.json
+          echo "CONTEXT_SHA256=$(sha256sum docs/evidence/SG-000027-context-sources.json | awk '{print $1}')"
+          echo "PACKET_SHA256=$(sha256sum /tmp/SG-000027-work-packet.json | awk '{print $1}')"
+          echo "CONTEXT_BYTES=$(wc -c < docs/evidence/SG-000027-context-sources.json | tr -d ' ')"
+          echo "PACKET_BYTES=$(wc -c < /tmp/SG-000027-work-packet.json | tr -d ' ')"
+          echo "BEGIN_SG27_CONTEXT_BASE64"
+          base64 -w 0 docs/evidence/SG-000027-context-sources.json
+          echo
+          echo "END_SG27_CONTEXT_BASE64"
+          echo "BEGIN_SG27_PACKET_BASE64"
+          base64 -w 0 /tmp/SG-000027-work-packet.json
+          echo
+          echo "END_SG27_PACKET_BASE64"
