@@ -1,0 +1,130 @@
+name: PR183 SG27 Packet Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr183-sg27-packet-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 09737241f19541fcb859f4c530ee572a0f62fac0
+  TARGET_SHA: 577aaa52fd30635bc092d271970bd9807ea5cb8d
+  CONTEXT_SHA256: 4953c22a6524a80d322eeb491085f961adc49a74c146ad160505e07c13ddb09a
+  PACKET_SHA256: 74b4780882d726788ee91483725cfdad8fec4e634c2d3d0c77c2776259cf0f0f
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact packet-persistence surface and replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          mapfile -t changed < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
+          test "${#changed[@]}" -eq 2
+          printf '%s\n' "${changed[@]}" | grep -Fx "docs/evidence/SG-000027-context-sources.json"
+          printf '%s\n' "${changed[@]}" | grep -Fx "docs/evidence/SG-000027-work-packet.json"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet SG-000027 . \
+            --context-sources docs/evidence/SG-000027-context-sources.json \
+            --json > /tmp/SG-000027-replay.json
+          cmp docs/evidence/SG-000027-work-packet.json /tmp/SG-000027-replay.json
+          test "$(sha256sum docs/evidence/SG-000027-context-sources.json | awk '{print $1}')" = "$CONTEXT_SHA256"
+          test "$(sha256sum docs/evidence/SG-000027-work-packet.json | awk '{print $1}')" = "$PACKET_SHA256"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS packet replay and exact surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          changed="$(git diff --name-only "$BASE_SHA...$TARGET_SHA")"
+          test "$(printf '%s\n' "$changed" | sed '/^$/d' | wc -l | tr -d ' ')" = "2"
+          printf '%s\n' "$changed" | grep -Fx "docs/evidence/SG-000027-context-sources.json"
+          printf '%s\n' "$changed" | grep -Fx "docs/evidence/SG-000027-work-packet.json"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet SG-000027 . \
+            --context-sources docs/evidence/SG-000027-context-sources.json \
+            --json > /tmp/SG-000027-replay.json
+          cmp docs/evidence/SG-000027-work-packet.json /tmp/SG-000027-replay.json
+          test "$(shasum -a 256 docs/evidence/SG-000027-context-sources.json | awk '{print $1}')" = "$CONTEXT_SHA256"
+          test "$(shasum -a 256 docs/evidence/SG-000027-work-packet.json | awk '{print $1}')" = "$PACKET_SHA256"
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
