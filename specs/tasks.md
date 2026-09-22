@@ -99,6 +99,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P03-S05-T02 | PLANNED | R2 | Add hidden/headless desktop UI qualification that never steals user focus. | workspace |
 | KX-P03-S06-T01 | PLANNED | R2 | Implement universal quick-open/search plus inspectable ContextBundle/source view over local project/task/artifact sources. | context contracts + desktop |
 | KX-P03-S06-T02 | PLANNED | R2 | Implement memory inspector with review/edit/pin/expire/delete controls and provenance visibility. | memory contract + desktop |
+| KX-P03-S06-T03 | PLANNED | R2 | Implement useful local retrieval without external embeddings: exact lookup, lexical/FTS-BM25, temporal/provenance filters, rebuildable local indexes, cross-project denial and deletion/index invalidation. | context/memory contracts + local store |
 | KX-P03-S07-T01 | PLANNED | R2 | Implement CLI bootstrap/doctor and authenticated headless local client against the same daemon/task contracts. | P02 IPC + CLI envelopes |
 | KX-P03-S08-T01 | PLANNED | R2 | Implement Design Mode entry/capture inspector for structured browser/native visual context artifacts. | desktop + context/artifacts |
 
@@ -318,6 +319,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P15-S09-T01 | PLANNED | R2 | Qualify telemetry-disabled operation and verify no hidden cloud/analytics dependency for supported local journeys. | stable product |
 | KX-P15-S09-T02 | PLANNED | R3 | Qualify reviewable support bundles against synthetic secret/prompt/file fixtures and redaction manifests. | diagnostics + security |
 | KX-P15-S10-T01 | PLANNED | R3 | Qualify project portability, backup/restore migration, deletion and uninstall cleanup on supported platforms. | P09 lifecycle + packaging |
+| KX-P15-S11-T01 | PLANNED | R3 | Prove the local-only end-to-end privacy golden journey with telemetry disabled and a network oracle confirming zero non-loopback traffic for the fully offline fixture. | P02-P10 privacy/local path + P15 security |
 
 ---
 
