@@ -1,0 +1,182 @@
+[
+  {
+    "priority": 0,
+    "provenance": "repo:specs/CURRENT.md#L70-L100",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the exact live P02 frontier and S06-T01-only execution authority.",
+    "size_bytes": 1339,
+    "source_id": "current-frontier",
+    "token_cost": 335
+  },
+  {
+    "priority": 1,
+    "provenance": "repo:specs/tasks.md#L55-L83",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the canonical P02 dependency order, S06-T01 NEXT state, S06-T02 planning boundary, and P02 exit gate.",
+    "size_bytes": 5324,
+    "source_id": "p02-registry",
+    "token_cost": 1331
+  },
+  {
+    "priority": 2,
+    "provenance": "repo:.specgrain/specs/SG-000026.json",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the complete original SG-000026 scope, safety, acceptance, evidence, and change surface.",
+    "size_bytes": 8139,
+    "source_id": "sg26-grain",
+    "token_cost": 2035
+  },
+  {
+    "priority": 3,
+    "provenance": "repo:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md#L296-L302",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the canonical opaque secret-reference URI that identifies a reference, not plaintext.",
+    "size_bytes": 139,
+    "source_id": "capability-secret-uri",
+    "token_cost": 35
+  },
+  {
+    "priority": 4,
+    "provenance": "repo:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md#L596-L602",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the canonical Grant rule that secret.use never implies secret.reveal with exact reference and destination sets.",
+    "size_bytes": 165,
+    "source_id": "capability-secret-grant",
+    "token_cost": 42
+  },
+  {
+    "priority": 5,
+    "provenance": "repo:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md#L899-L921",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind brokered secret.use within exact destination constraints and the adversarial unknown-action and unknown-authority denials.",
+    "size_bytes": 1097,
+    "source_id": "capability-secrets-policy",
+    "token_cost": 275
+  },
+  {
+    "priority": 6,
+    "provenance": "repo:docs/canonical/SECURITY_MODEL.md#L154-L171",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the canonical secret architecture: OS or provider plaintext-at-rest, references-only database, handles in prompts, brokered sandbox use, and auditable access.",
+    "size_bytes": 886,
+    "source_id": "security-secret-arch",
+    "token_cost": 222
+  },
+  {
+    "priority": 7,
+    "provenance": "repo:docs/canonical/SECURITY_MODEL.md#L270-L283",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind auditable secret-handle-plus-destination-class events with no secret plaintext in audit logs.",
+    "size_bytes": 489,
+    "source_id": "security-secret-audit",
+    "token_cost": 123
+  },
+  {
+    "priority": 8,
+    "provenance": "repo:docs/canonical/EVENT_AND_EVIDENCE_MODEL.md#L268-L274",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the Event and Evidence minimization rule: no secret plaintext, only opaque references and redaction metadata.",
+    "size_bytes": 330,
+    "source_id": "event-secret-min",
+    "token_cost": 83
+  },
+  {
+    "priority": 9,
+    "provenance": "repo:crates/kernux-policy/src/lib.rs#L1-L190",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind existing secret authority parsing, secret.use and secret.reveal actions, and action and resource compatibility primitives reused by the broker.",
+    "size_bytes": 5378,
+    "source_id": "policy-secret-core",
+    "token_cost": 1345
+  },
+  {
+    "priority": 10,
+    "provenance": "repo:crates/kernux-policy/src/semantics.rs#L1-L70",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind authoritative C2 secret.use versus C3 secret.reveal classification and consequence floors.",
+    "size_bytes": 2377,
+    "source_id": "policy-secret-consequence",
+    "token_cost": 595
+  },
+  {
+    "priority": 11,
+    "provenance": "repo:crates/kernux-policy/src/envelope.rs#L1-L125",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind ValidatedGrant exact subject and runtime binding, finite envelope, and hierarchy rules for bounded resolved use.",
+    "size_bytes": 4747,
+    "source_id": "policy-envelope",
+    "token_cost": 1187
+  },
+  {
+    "priority": 12,
+    "provenance": "repo:crates/kernux-policy/src/decision.rs#L179-L314",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the mandatory controller, local, kernel, principal, runtime, remote, and secondary authority intersection the broker cannot bypass.",
+    "size_bytes": 4659,
+    "source_id": "policy-authority",
+    "token_cost": 1165
+  },
+  {
+    "priority": 13,
+    "provenance": "repo:crates/kernux-store/src/lib.rs#L810-L824",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the frozen SQLite schema test asserting no secret_value column and preserved policy schema shape.",
+    "size_bytes": 820,
+    "source_id": "store-schema-no-plaintext",
+    "token_cost": 205
+  },
+  {
+    "priority": 14,
+    "provenance": "repo:crates/kernuxd/src/auth.rs#L102-L140",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind non-secret peer credentials and fail-closed authentication errors that never contain secret material.",
+    "size_bytes": 1454,
+    "source_id": "daemon-auth-fail-closed",
+    "token_cost": 364
+  },
+  {
+    "priority": 15,
+    "provenance": "repo:crates/kernux-identity/src/lib.rs#L1-L35",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the identity-crate boundary that OS credential-store integration remains out of scope for identity primitives.",
+    "size_bytes": 1066,
+    "source_id": "identity-store-scope",
+    "token_cost": 267
+  },
+  {
+    "priority": 16,
+    "provenance": "repo:AGENTS.md#L1-L60",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, and protected-history rules.",
+    "size_bytes": 2617,
+    "source_id": "agent-governance",
+    "token_cost": 655
+  },
+  {
+    "priority": 17,
+    "provenance": "repo:docs/governance/SPEC_GRAIN.md#L70-L145",
+    "requirement": "required",
+    "revision": "git:02f17685688abf5fa6445f2e1778fa54341131e7",
+    "selection_reason": "Bind the supported Grain to explicit context to WorkPacket to execute to independent proof lifecycle and packet authority boundary.",
+    "size_bytes": 2270,
+    "source_id": "specgrain-governance",
+    "token_cost": 568
+  }
+]
