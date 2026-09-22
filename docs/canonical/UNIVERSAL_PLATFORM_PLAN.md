@@ -18,7 +18,7 @@ The strategy is **integration over imitation**. Kernux should not rebuild every 
 2. **Capability before provider.** Public contracts describe what can be done, not which vendor performs it.
 3. **Structured before visual.** Prefer typed APIs, MCP/WebMCP, accessibility, DOM, CLI, and file contracts before coordinate automation.
 4. **Local privacy by default, cloud optional.** Core task truth, local execution, search, memory, evidence, and at least one qualified local AI/agent path must not require Kernux cloud or an external AI provider. External data movement is explicit, destination-bound, inspectable, revocable, and governed by `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`.
-5. **Owner-sustainable execution.** Core usefulness must not depend on project-owner-subsidized variable compute.
+5. **Zero founder-funded runtime COGS.** The base subscription sells local software entitlement, not subsidized compute. Ordinary user workloads must run on user-owned local hardware, provider-native subscriptions, BYOK/BYOC accounts, organization infrastructure, or explicitly separately priced managed services. Founder-funded inference, browser/search, storage, relay, agent execution, and automation are not valid core dependencies. See `LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`.
 6. **Human agency before autonomy.** High-consequence actions require explicit policy, bounded grants, evidence, and appropriate approval.
 7. **Evidence before done.** Model self-report never proves completion when stronger evidence exists.
 8. **Portable user truth.** Projects, memory, artifacts, policies, and history remain inspectable, exportable, and deletable.
