@@ -172,7 +172,7 @@ Basic durable event projection and artifact preview surfaces.
 
 ### S03.6 Search, context, and memory surfaces
 
-Universal quick-open/search, inspectable ContextBundle/source view, and user-governed memory inspection/edit/delete.
+Universal quick-open/search, inspectable ContextBundle/source view, user-governed memory inspection/edit/delete, and useful local retrieval without external embeddings through exact/lexical/temporal/provenance-aware paths.
 
 ### S03.7 CLI bootstrap
 
@@ -671,6 +671,10 @@ Prove telemetry-disabled operation and reviewable/redacted support bundles again
 
 Prove project export/import, backup/restore migration, deletion and uninstall cleanup on supported platforms.
 
+### S15.11 Local-only privacy golden journey
+
+Prove a meaningful end-to-end Kernux workflow with telemetry disabled and no external AI/cloud service; the fully offline fixture uses a network oracle to confirm zero non-loopback traffic.
+
 **Exit gate P15 / RELEASE_READY**
 
 - all release-blocking acceptance journeys are PROVEN;
@@ -681,6 +685,7 @@ Prove project export/import, backup/restore migration, deletion and uninstall cl
 - installer/update/recovery are proven;
 - telemetry-disabled local journeys remain functional;
 - support-bundle redaction and lifecycle portability/deletion are qualified;
+- the local-only privacy golden journey is PROVEN with network-oracle evidence;
 - public claims do not exceed evidence.
 
 ---
@@ -722,7 +727,7 @@ Unsafe parallelism to avoid:
 
 # 3. First valuable product milestone
 
-The first external alpha should not wait for P15 features. The earliest coherent **Kernux Alpha** is after P09 with a bounded P10 subset:
+The first external alpha should not wait for all P15 features. The earliest coherent **Kernux Alpha** is after P09 with a bounded P10 subset **and only after the applicable alpha privacy gate in `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md` is proven**:
 
 - desktop workspace;
 - local daemon and permission kernel;
@@ -732,9 +737,15 @@ The first external alpha should not wait for P15 features. The earliest coherent
 - task/fleet basics;
 - git/worktree review;
 - evidence/replay/restart recovery;
-- one sandbox runtime.
+- one sandbox runtime;
+- Privacy Inspector;
+- telemetry-off operation;
+- local search/memory without external embeddings;
+- one qualified local AI/agent path;
+- no-silent-cloud-fallback enforcement;
+- local-only end-to-end privacy journey with network-oracle evidence.
 
-That alpha must already feel like one product, not a donor demo.
+That alpha must already feel like one private local product, not a donor demo or a thin client for hosted AI services.
 
 # 4. Scope discipline
 
