@@ -25,7 +25,13 @@ The active implementation frontier remains governed by `specs/CURRENT.md`, SpecG
    - canonical IntegrationEvent, ActionProposal, association, attention, briefing and workspace contracts;
    - storage-of-record and connector architecture boundaries.
 
-3. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
+3. [Laya Lifecycle, Product, and Security Plan](platform-fabrics/LAYA_LIFECYCLE_SECURITY.md)
+   - event/action/rule state machines and replay/idempotency;
+   - connector lifecycle and representative qualification set;
+   - Action Inbox, Action Workspace, Coherence, Omni, briefings and Spaces;
+   - security, privacy, cost, analytics, recovery and cross-platform requirements.
+
+4. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
    - Web and Live-Data Fabric;
    - Computer Fabric;
    - Context and Memory Fabric;
