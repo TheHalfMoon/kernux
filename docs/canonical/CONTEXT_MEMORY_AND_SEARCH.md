@@ -10,6 +10,8 @@ The design goal is:
 
 > Give every agent the smallest trustworthy context needed for the current outcome, with provenance and user control.
 
+The local privacy contract is normative: local search/memory must remain useful without external embeddings or model APIs; any external model/embedding/reranking provider is an explicit `EXTERNAL_AI` boundary; local provider failure never silently exports context.
+
 ## 2. Architectural boundary
 
 Context services sit between projects/artifacts/events and agent/model adapters. They do not grant capabilities.
@@ -245,6 +247,8 @@ For generated reports/research, references should survive export where the artif
 ## 14. Privacy and local-first rules
 
 - local indexes stay local by default;
+- exact/lexical/temporal retrieval remains available without cloud embeddings;
+- external embeddings/reranking/model-assisted retrieval require explicit external-AI authority and provider data-boundary metadata;
 - embeddings are computed locally when configured, or sent to an explicit external provider under declared data-boundary policy;
 - no prompt/file content is exported merely to improve product analytics;
 - indexes and memory follow project/user deletion and export rules;
