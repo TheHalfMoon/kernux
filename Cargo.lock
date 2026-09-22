@@ -249,6 +249,14 @@ name = "kernux-rust-smoke"
 version = "0.0.0"
 
 [[package]]
+name = "kernux-secret"
+version = "0.0.0"
+dependencies = [
+ "kernux-policy",
+ "zeroize",
+]
+
+[[package]]
 name = "kernux-store"
 version = "0.0.0"
 dependencies = [
