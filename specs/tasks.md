@@ -78,9 +78,11 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 **KX-P02-S05-T01 closeout: PROVEN.** Primary SG-000023 negative evidence remains preserved; corrective SG-000024 native verification record `sha256:f6340663290f6a609777bc1c2d10269f85e5107aa5aa4f385a06ab67b41b452e` verified the exact five-path reconciliation with acceptance 10/10 and required evidence 14/14. Proof-bearing PR #152 exact head `a8efc29352979ea6fd4651c554adda746c9e9cbb` passed native macOS qualification `35577145490`, exact-head CI `35577135982` 6/6, exact-head review `5264407121` with zero threads, ordinary merge `d93b54de0013e47809336db60f857d5435d8c6a4`, and six-job post-merge run `35579619127`. Only KX-P02-S05-T02 is NEXT; all S06 tasks remain PLANNED and P02 phase exit remains unproven.
 
-**KX-P02-S05-T02 closeout: PROVEN.** SG-000025 native verification record `sha256:e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa` verified the exact four-path implementation range at `git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9` with acceptance 14/14 and required evidence 19/19. The bounded chain was PR #155 packet persistence (`9177faa18a415099549bdb63cc78faca77fd2dc3`), PR #161 profile vocabulary and preset ceilings (`7f71124328f846383b76e5823ec0e4ab8c931e8c`), PR #162 profile compiler (`8b1e0b35195a17d0ecde716dc70ed222dcd3d180`), and PR #163 adversarial corpus (`d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9`); each slice passed full `pnpm check`, focused policy tests, Diffcipline R1 and R3, Alibaba OpenCodeReview accounting, linux and native macOS qualification, exact-head six-job CI, exact-head review with zero threads, ordinary merge, and six-job post-merge qualification. Protected closeout evidence PR #164 exact head `ad1ecac9de882ed8a49b4c11e63119346c423517` passed exact-head CI `35627524278` 6/6, linux and native macOS qualification `35628011667`, exact-head review `5269389086` with zero threads, ordinary merge `d480d5abf1ae5525bf38f2a2c15dda616d9640d1`, and six-job post-merge run `35628296835`. Two failed candidate heads, `ac7f1e1` and `1086bfd`, remain preserved as negative evidence. Only KX-P02-S06-T01 is NEXT; KX-P02-S06-T02 remains PLANNED and P02 phase exit remains unproven.
+**KX-P02-S05-T02 closeout: PROVEN.** SG-000025 native verification record `sha256:e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa` verified the exact four-path implementation range at `git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9` with acceptance 14/14 and required evidence 19/19. The bounded chain was PR #155 packet persistence (`9177faa18a415099549bdb63cc78faca77fd2dc3`), PR #161 profile vocabulary and preset ceilings (`7f71124328f846383b76e5823ec0e4ab8c931e8c`), PR #162 profile compiler (`8b1e0b35195a17d0ecde716dc70ed222dcd3d180`), and PR #163 adversarial corpus (`d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9`); each slice passed full `pnpm check`, focused policy tests, Diffcipline R1 and R3, Alibaba OpenCodeReview accounting, linux and native macOS qualification, exact-head six-job CI, exact-head review with zero threads, ordinary merge, and six-job post-merge qualification. Protected closeout evidence PR #164 exact head `ad1ecac9de882ed8a49b4c11e63119346c423517` passed exact-head CI `35627524278` 6/6, linux and native macOS qualification `35628011667`, exact-head review `5269389086` with zero threads, ordinary merge `d480d5abf1ae5525bf38f2a2c15dda616d9640d1`, and six-job post-merge run `35628296835`. Two failed candidate heads, `ac7f1e1` and `1086bfd`, remain preserved as negative evidence. Only KX-P02-S06-T01 is NEXT; KX-P02-S06-T02 and KX-P02-S07-T01 remain PLANNED and P02 phase exit remains unproven.
 
-**P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven.
+| KX-P02-S07-T01 | PLANNED | R3 | Define and implement kernel egress-class/destination policy primitives for NONE, DIRECT_DESTINATION, CONNECTED_ACCOUNT, EXTERNAL_MODEL, EXTERNAL_TOOL, REMOTE_RUNTIME, UPDATE and TELEMETRY; unknown sensitive egress fails closed. | policy + secret broker |
+
+**P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven; egress class/destination policy can fail closed before later network-capable phases.
 
 ---
 
@@ -97,10 +99,13 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P03-S05-T02 | PLANNED | R2 | Add hidden/headless desktop UI qualification that never steals user focus. | workspace |
 | KX-P03-S06-T01 | PLANNED | R2 | Implement universal quick-open/search plus inspectable ContextBundle/source view over local project/task/artifact sources. | context contracts + desktop |
 | KX-P03-S06-T02 | PLANNED | R2 | Implement memory inspector with review/edit/pin/expire/delete controls and provenance visibility. | memory contract + desktop |
+| KX-P03-S06-T03 | PLANNED | R2 | Implement useful local retrieval without external embeddings: exact lookup, lexical/FTS-BM25, temporal/provenance filters, rebuildable local indexes, cross-project denial and deletion/index invalidation. | context/memory contracts + local store |
 | KX-P03-S07-T01 | PLANNED | R2 | Implement CLI bootstrap/doctor and authenticated headless local client against the same daemon/task contracts. | P02 IPC + CLI envelopes |
 | KX-P03-S08-T01 | PLANNED | R2 | Implement Design Mode entry/capture inspector for structured browser/native visual context artifacts. | desktop + context/artifacts |
 
-**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; quick-open/context/memory and CLI bootstrap are usable; Design Mode capture shell exists; accessibility and hidden E2E baseline pass.
+| KX-P03-S09-T01 | PLANNED | R2 | Implement Privacy Inspector and privacy-mode UX over real kernel/provider state: accounts, external AI, remote runtimes, recent egress, local data locations, telemetry/update controls and deletion/export entry points. | P02 egress + desktop |
+
+**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; quick-open/context/memory and CLI bootstrap are usable; Design Mode capture shell exists; Privacy Inspector reflects real kernel/provider state; accessibility and hidden E2E baseline pass.
 
 ---
 
@@ -117,7 +122,10 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P04-S06-T01 | PLANNED | R3 | Define/implement structured host app/window/clipboard/notification/accessibility capability subset. | policy + platform adapters |
 | KX-P04-S06-T02 | PLANNED | R3 | Build host-boundary adversarial suite: path escape, argv injection, destructive action, output exhaustion. | local runtime |
 
-**P04 gate:** project-scoped host work proven on all desktop OS families; long-running sessions survive renderer restart; donor import characterized.
+| KX-P04-S07-T01 | PLANNED | R3 | Define and qualify protection-at-rest for Kernux-managed sensitive local content, key ownership, backup/restore/migration and no-plaintext-key invariants. | P02 secrets + metadata/artifacts |
+| KX-P04-S07-T02 | PLANNED | R3 | Prove a no-network local files/process/PTY execution fixture and truthful host-mode network limitations. | local runtime + P02 egress |
+
+**P04 gate:** project-scoped host work proven on all desktop OS families; long-running sessions survive renderer restart; donor import characterized; Kernux-managed sensitive local content has a qualified protection-at-rest strategy and local execution can be proven without non-loopback network.
 
 ---
 
@@ -136,7 +144,12 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P05-S06-T02 | PLANNED | R3 | Implement Kernux Native Agent loop that plans/acts only through typed capability requests and kernel policy. | ModelProvider + P04/P06 tool surfaces |
 | KX-P05-S06-T03 | PLANNED | R2 | Integrate ContextBundle assembly, bounded tool schemas, artifact outputs and observable agent state into the native agent path. | native agent + context |
 
-**P05 gate:** two external agents and one Kernux-native model-backed path can perform bounded tasks; provider differences are negotiated honestly; local/BYOK model paths are supported where qualified; all agent capability use remains policy-bound.
+| KX-P05-S07-T01 | PLANNED | R2 | Define DecisionProvider/DecisionRequest/DecisionResult contracts with provider/model revision, calibration, data-boundary, abstain/OOD, resource and non-authority semantics. | ModelProvider + context |
+| KX-P05-S07-T02 | PLANNED | R2 | Qualify at least one local DecisionProvider through Kernux-owned calibration/OOD/multilingual/latency fixtures while preserving provider-optional correctness. | DecisionProvider |
+| KX-P05-S08-T01 | PLANNED | R3 | Qualify at least one local generative-model adapter for a bounded native-agent task with offline-after-install proof, cancellation/OOM handling and deterministic fake-provider CI. | ModelProvider + native agent |
+| KX-P05-S08-T02 | PLANNED | R3 | Enforce no-silent-cloud-fallback and bind every external/local model invocation to a minimized/redacted ContextBundle digest plus explicit privacy mode/egress evidence. | local/external providers + P02 egress |
+
+**P05 gate:** two external agents and one Kernux-native model-backed path can perform bounded tasks; provider differences are negotiated honestly; at least one qualified local generative path and one local DecisionProvider exist for applicable claims; no local failure silently widens to cloud; all agent capability use remains policy-bound.
 
 ---
 
@@ -155,7 +168,9 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P06-S07-T01 | PLANNED | R2 | Define/implement provider-neutral web Search/Fetch with freshness/cache/source metadata, bounded outputs and local/self-hosted/BYOK or explicitly managed provider paths. | context + browser/web contracts |
 | KX-P06-S07-T02 | PLANNED | R2 | Implement bounded crawl/site traversal and change-detection primitives that preserve source lineage and can feed later monitor/condition-watch tasks. | Search/Fetch + evidence |
 
-**P06 gate:** structured-to-visual hierarchy works; search/fetch/browser paths share inspectable provenance; auth contexts isolated; page content cannot self-authorize elevated action; a useful web research path does not require founder-funded metered credentials.
+| KX-P06-S08-T01 | PLANNED | R3 | Enforce browser privacy boundary: local browser execution, DIRECT_DESTINATION distinct from EXTERNAL_MODEL, redirect/DNS/private-network re-evaluation, profile isolation and explicit download/upload scope. | browser contexts + P02 egress |
+
+**P06 gate:** structured-to-visual hierarchy works; search/fetch/browser paths share inspectable provenance; auth contexts isolated; page content cannot self-authorize elevated action; DIRECT_DESTINATION web access remains distinct from EXTERNAL_MODEL processing; a useful web research path does not require founder-funded metered credentials.
 
 ---
 
@@ -240,7 +255,10 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P11-S05-T01 | PLANNED | R3 | Define plugin manifest, capability/network/secret declarations and update permission-delta UX. | capabilities + provenance |
 | KX-P11-S06-T01 | PLANNED | R2 | Publish internal extension SDK only for contracts proven stable by prior phases. | stable contracts |
 
-**P11 gate:** external tools cannot self-expand permissions; MCP conformance and one real integration journey proven.
+| KX-P11-S07-T01 | PLANNED | R3 | Define ToolDescriptor/provider privacy manifest and local capability registry with effect class, schemas, secret bindings, network destinations, data classes, retention, telemetry, cost/payer, idempotency, evidence and provenance; unknown sensitive metadata fails closed. | tool runtime + P02 egress/secrets |
+| KX-P11-S07-T02 | PLANNED | R2 | Implement bounded intent-to-capability discovery/routing over local/MCP/OpenAPI/CLI/Skills without flooding agent context; deterministic eligibility precedes probabilistic ranking. | ToolDescriptor + context |
+
+**P11 gate:** external tools cannot self-expand permissions; tool/provider data boundaries are inspectable and fail closed when unknown for sensitive use; bounded capability discovery works without giant tool lists; MCP conformance and one real integration journey proven.
 
 ---
 
@@ -253,6 +271,9 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P12-S03-T01 | PLANNED | R3 | Implement background supervision, wake/restart/approval wait/budget notifications. | scheduler + runtimes |
 | KX-P12-S04-T01 | PLANNED | R2 | Implement reusable task templates that compile to ordinary Task/WorkUnit contracts. | task engine |
 | KX-P12-S04-T02 | PLANNED | R3 | Prove no duplicate scheduled side effect after crash/restart/clock or connectivity edge cases. | automation stack |
+| KX-P12-S05-T01 | PLANNED | R3 | Make privacy mode/data boundary durable automation state: scheduled/background work cannot activate external AI/tools/accounts or widen egress merely because the user is absent. | scheduler + P02 egress + provider manifests |
+
+**P12 gate:** delayed, scheduled and event-driven work survives restart without duplicate side effects and preserves the same privacy mode, egress limits, budgets and approval semantics as interactive work.
 
 ---
 
@@ -298,6 +319,10 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P15-S09-T01 | PLANNED | R2 | Qualify telemetry-disabled operation and verify no hidden cloud/analytics dependency for supported local journeys. | stable product |
 | KX-P15-S09-T02 | PLANNED | R3 | Qualify reviewable support bundles against synthetic secret/prompt/file fixtures and redaction manifests. | diagnostics + security |
 | KX-P15-S10-T01 | PLANNED | R3 | Qualify project portability, backup/restore migration, deletion and uninstall cleanup on supported platforms. | P09 lifecycle + packaging |
+| KX-P15-S11-T01 | PLANNED | R3 | Prove the local-only end-to-end privacy golden journey with telemetry disabled and a network oracle confirming zero non-loopback traffic for the fully offline fixture. | P02-P10 privacy/local path + P15 security |
+| KX-P15-S12-T01 | PLANNED | R3 | Implement and qualify signed local commercial entitlement validation with public-key verification, bounded offline grace, key rotation and no user-work-content transmission. | packaging + identity + X16 |
+| KX-P15-S12-T02 | PLANNED | R2 | Prove renewal/expiry/cancellation/device-seat behavior, data export/readability after expiry, and separation of commercial entitlement from kernuxd capability Grants. | entitlement + lifecycle |
+| KX-P15-S12-T03 | PLANNED | R2 | Audit paid-product runtime economics and prove ordinary subscribed-user founder-funded variable COGS is zero across inference, browser/search, storage, agents, connectors and automation. | all paid-product runtime paths + X09 |
 
 ---
 
@@ -329,7 +354,12 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P17-S06-T01 | PLANNED | R2 | Qualify representative integrations across email/calendar, messaging, cloud storage/docs, project tracking, source control and one business system. | connector/auth/event fabric |
 | KX-P17-S07-T01 | PLANNED | R2 | Define generated-adapter and third-party integration-provider boundaries so breadth can grow without core coupling. | stable connector contracts |
 
-**P17 gate:** broad app-category work is possible through scoped accounts, discoverable tools and event sources without exposing giant tool lists, leaking secrets or binding Kernux to one integration vendor.
+| KX-P17-S08-T01 | PLANNED | R2 | Define normalized IntegrationEvent contract with source/account identity, dedupe, trust/sensitivity, provenance and connector revision; keep it separate from kernel audit Event authority. | P12 triggers + connector registry |
+| KX-P17-S08-T02 | PLANNED | R3 | Implement event normalization/dedupe/association/enrichment pipeline with restart-safe state and no event-to-authority shortcut. | IntegrationEvent |
+| KX-P17-S09-T01 | PLANNED | R2 | Define and implement LiveDataObject schema/row/source/freshness/conflict/refresh history with field-level provenance and local storage-of-record semantics. | web acquisition + integration fabric + evidence |
+| KX-P17-S09-T02 | PLANNED | R3 | Implement incremental refresh, partial-failure/stale-row/deletion/schema-migration semantics and cost/privacy budgets for LiveDataObjects. | LiveDataObject + P12 automation |
+
+**P17 gate:** broad app-category work is possible through scoped accounts, discoverable tools and event sources without exposing giant tool lists, leaking secrets or binding Kernux to one integration vendor; IntegrationEvents and LiveDataObjects preserve local storage-of-record, provenance, freshness and explicit external data boundaries.
 
 ---
 
@@ -359,7 +389,11 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P19-S05-T01 | PLANNED | R2 | Implement reusable routines across email/calendar/files/web/apps using local/BYOK/BYOC/provider-funded execution paths. | P17 + P12 |
 | KX-P19-S06-T01 | PLANNED | R3 | Qualify representative personal/work journeys including morning review, meeting follow-up, research-to-deliverable and cross-app operations. | P19 complete |
 
-**P19 gate:** Kernux can assist proactively across time and apps without hidden surveillance, memory poisoning, notification spam, authority escalation or project-owner-subsidized compute.
+| KX-P19-S07-T01 | PLANNED | R3 | Implement ActionProposal/Action Inbox over ordinary task/capability/grant semantics with destination/account/data/credential/cost/evidence preview, expiry and approval state. | P17 events + policy + desktop |
+| KX-P19-S08-T01 | PLANNED | R3 | Implement deterministic/model-evaluated rules with simulation, firing log, rate/suppression/loop prevention and no model-evaluated self-authorization. | ActionProposal + automation |
+| KX-P19-S08-T02 | PLANNED | R2 | Implement local-first briefings and cross-app association/coherence as derived views with correction learning under explicit user control. | events + memory/context |
+
+**P19 gate:** Kernux can assist proactively across time and apps through ActionProposal/Action Inbox/rules/briefings without hidden surveillance, memory poisoning, notification spam, authority escalation, silent cloud processing or project-owner-subsidized compute.
 
 ---
 
@@ -367,10 +401,10 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | ID | State | Risk | Macro outcome | Depends |
 | --- | --- | --- | --- | --- |
-| KX-P20-S01-T01 | PLANNED | R3 | Finalize signed/provenanced extension package and registry contracts with capability/network/secret/data declarations. | P11 + P17 |
+| KX-P20-S01-T01 | PLANNED | R3 | Finalize signed/provenanced Capability Pack and extension package/registry contracts with capability/network/secret/data/privacy declarations, uninstall boundaries and no alternate authority/task/secret system. | P11 + P17 |
 | KX-P20-S02-T01 | PLANNED | R3 | Implement curated public and organization-private registry paths, revocation, compatibility and permission-delta updates. | extension contract + org policy |
 | KX-P20-S03-T01 | PLANNED | R2 | Publish stable SDKs/templates for agents, runtimes, connectors, skills, artifact adapters, policy packs and benchmark journeys. | proven internal contracts |
-| KX-P20-S04-T01 | PLANNED | R3 | Define and qualify optional managed Kernux services under explicit tenancy, privacy, reliability and positive unit-economics boundaries. | P14 + X09 |
+| KX-P20-S04-T01 | PLANNED | R3 | Define and qualify optional managed Kernux services as separate SKUs under explicit tenancy, privacy, usage limits/pricing, reliability and positive unit-economics boundaries; never subsidize them from the base local-software subscription. | P14 + X09 + X16 |
 | KX-P20-S05-T01 | PLANNED | R3 | Build universal capability benchmark/regression corpus spanning build, work, research, automate, operate and create modes. | mature capability set |
 | KX-P20-S06-T01 | PLANNED | R3 | Establish SLOs/chaos/recovery/load qualification for long-running tasks, integrations, browsers, devices, artifacts and storage at scale. | mature capability set |
 | KX-P20-S07-T01 | PLANNED | R2 | Run versioned comparative evaluations before any broad market-leadership claim and publish reproducible methodology plus negative evidence. | benchmark corpus |
@@ -416,9 +450,15 @@ Any durable or side-effecting workflow defines crash/cancel/retry/restart behavi
 
 Any integration that sends content off-device declares what data, to whom, for what purpose, with which retention/configuration assumptions.
 
-## X09 — Owner-sustainable execution
+## X09 — Zero founder-funded runtime COGS
 
-Any capability that can create recurring per-use cost must declare the cost owner and preserve at least one viable local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path. Promotional credits, founder-funded credentials, or hidden hosted infrastructure must not be the only proof path for a core capability. This requirement must not weaken quality, security, privacy, or evidence guarantees.
+Any capability that can create recurring per-use cost must declare the cost owner. Core paid-product operation may use only local/user-owned hardware, user BYOK/provider-native subscriptions, organization-owned infrastructure, or an explicitly separately priced managed service with positive unit economics.
+
+Founder-funded credentials, shared inference, browser/search pools, storage, relays, automation runtimes, connector usage, promotional credits, or hidden hosted infrastructure are not valid proof paths for core capability.
+
+The base local-software subscription must not create variable runtime COGS for ordinary user work.
+
+See `docs/canonical/LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`.
 
 ## X10 — Integration lifecycle
 
@@ -439,6 +479,50 @@ Any major capability family defines golden journeys, regression fixtures, observ
 ## X14 — Human agency
 
 Any proactive, background, high-consequence or externally publishing behavior defines user control, approval, interruption, explanation, notification and rollback/compensation semantics where feasible.
+
+---
+
+## X16 — Commercial entitlement separation
+
+Any paid-product implementation must keep commercial entitlement separate from Kernux capability authority.
+
+Applicable work must define:
+
+- plan/feature entitlement;
+- signed local entitlement representation;
+- issuer/key rotation;
+- offline/grace behavior;
+- renewal metadata;
+- expiry/cancellation behavior;
+- user-data availability/export after expiry;
+- privacy of entitlement refresh;
+- explicit open-source/commercial package boundary;
+- no project-content transmission for license validation;
+- no task/token/browser-minute/local-storage metering for user-supplied resources.
+
+A subscription entitlement cannot grant filesystem, process, network, secret, browser, runtime, tool, or side-effect authority.
+
+---
+
+## X15 — Local privacy and data sovereignty
+
+Every applicable Grain must state:
+
+- privacy mode;
+- egress class and exact destination class;
+- local-vs-external processing boundary;
+- data classes crossing the boundary;
+- secret handles and injection destination;
+- provider telemetry/retention assumptions;
+- no-silent-cloud-fallback behavior;
+- local/offline degradation path;
+- context minimization/redaction;
+- deletion/index invalidation behavior;
+- privacy evidence and adversarial fixtures.
+
+A capability cannot be called local-first merely because its UI runs locally. If user content is sent to an external model, embedding, search, OCR, speech, browser, tool, telemetry or remote-runtime provider, that transfer is an explicit governed external boundary.
+
+See `docs/canonical/LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`.
 
 ---
 
