@@ -19,7 +19,13 @@ The active implementation frontier remains governed by `specs/CURRENT.md`, SpecG
    - Tool and Integration Fabric;
    - Automation and Event Fabric.
 
-2. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
+2. [Laya Source and Architecture Plan](platform-fabrics/LAYA_SOURCE_ARCHITECTURE.md)
+   - pinned Laya donor revision and founder authorization boundary;
+   - source disposition and dependency decisions;
+   - canonical IntegrationEvent, ActionProposal, association, attention, briefing and workspace contracts;
+   - storage-of-record and connector architecture boundaries.
+
+3. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
    - Web and Live-Data Fabric;
    - Computer Fabric;
    - Context and Memory Fabric;
