@@ -19,7 +19,14 @@ The active implementation frontier remains governed by `specs/CURRENT.md`, SpecG
    - Tool and Integration Fabric;
    - Automation and Event Fabric.
 
-2. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
+2. [Laya Integration Plan](platform-fabrics/LAYA_INTEGRATION.md)
+   - pinned Laya donor revision and founder authorization boundary;
+   - source disposition and dependency decisions;
+   - IntegrationEvent, ActionProposal, workspace, Coherence, Omni and briefing contracts;
+   - security/privacy/cost/recovery matrices;
+   - bounded import waves, golden journeys and completion gates.
+
+3. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
    - Web and Live-Data Fabric;
    - Computer Fabric;
    - Context and Memory Fabric;
