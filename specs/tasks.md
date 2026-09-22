@@ -78,7 +78,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 **KX-P02-S05-T01 closeout: PROVEN.** Primary SG-000023 negative evidence remains preserved; corrective SG-000024 native verification record `sha256:f6340663290f6a609777bc1c2d10269f85e5107aa5aa4f385a06ab67b41b452e` verified the exact five-path reconciliation with acceptance 10/10 and required evidence 14/14. Proof-bearing PR #152 exact head `a8efc29352979ea6fd4651c554adda746c9e9cbb` passed native macOS qualification `35577145490`, exact-head CI `35577135982` 6/6, exact-head review `5264407121` with zero threads, ordinary merge `d93b54de0013e47809336db60f857d5435d8c6a4`, and six-job post-merge run `35579619127`. Only KX-P02-S05-T02 is NEXT; all S06 tasks remain PLANNED and P02 phase exit remains unproven.
 
-**KX-P02-S05-T02 closeout: PROVEN.** SG-000025 native verification record `sha256:e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa` verified the exact four-path implementation range at `git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9` with acceptance 14/14 and required evidence 19/19. The bounded chain was PR #155 packet persistence (`9177faa18a415099549bdb63cc78faca77fd2dc3`), PR #161 profile vocabulary and preset ceilings (`7f71124328f846383b76e5823ec0e4ab8c931e8c`), PR #162 profile compiler (`8b1e0b35195a17d0ecde716dc70ed222dcd3d180`), and PR #163 adversarial corpus (`d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9`); each slice passed full `pnpm check`, focused policy tests, Diffcipline R1 and R3, Alibaba OpenCodeReview accounting, linux and native macOS qualification, exact-head six-job CI, exact-head review with zero threads, ordinary merge, and six-job post-merge qualification. Protected closeout evidence PR #164 exact head `ad1ecac9de882ed8a49b4c11e63119346c423517` passed exact-head CI `35627524278` 6/6, linux and native macOS qualification `35628011667`, exact-head review `5269389086` with zero threads, ordinary merge `d480d5abf1ae5525bf38f2a2c15dda616d9640d1`, and six-job post-merge run `35628296835`. Two failed candidate heads, `ac7f1e1` and `1086bfd`, remain preserved as negative evidence. Only KX-P02-S06-T01 is NEXT; KX-P02-S06-T02 remains PLANNED and P02 phase exit remains unproven.
+**KX-P02-S05-T02 closeout: PROVEN.** SG-000025 native verification record `sha256:e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa` verified the exact four-path implementation range at `git:d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9` with acceptance 14/14 and required evidence 19/19. The bounded chain was PR #155 packet persistence (`9177faa18a415099549bdb63cc78faca77fd2dc3`), PR #161 profile vocabulary and preset ceilings (`7f71124328f846383b76e5823ec0e4ab8c931e8c`), PR #162 profile compiler (`8b1e0b35195a17d0ecde716dc70ed222dcd3d180`), and PR #163 adversarial corpus (`d6e42a3ecccf9a23f5acb11afd97cf34a9caa6c9`); each slice passed full `pnpm check`, focused policy tests, Diffcipline R1 and R3, Alibaba OpenCodeReview accounting, linux and native macOS qualification, exact-head six-job CI, exact-head review with zero threads, ordinary merge, and six-job post-merge qualification. Protected closeout evidence PR #164 exact head `ad1ecac9de882ed8a49b4c11e63119346c423517` passed exact-head CI `35627524278` 6/6, linux and native macOS qualification `35628011667`, exact-head review `5269389086` with zero threads, ordinary merge `d480d5abf1ae5525bf38f2a2c15dda616d9640d1`, and six-job post-merge run `35628296835`. Two failed candidate heads, `ac7f1e1` and `1086bfd`, remain preserved as negative evidence. Only KX-P02-S06-T01 is NEXT; KX-P02-S06-T02 and KX-P02-S07-T01 remain PLANNED and P02 phase exit remains unproven.
 
 | KX-P02-S07-T01 | PLANNED | R3 | Define and implement kernel egress-class/destination policy primitives for NONE, DIRECT_DESTINATION, CONNECTED_ACCOUNT, EXTERNAL_MODEL, EXTERNAL_TOOL, REMOTE_RUNTIME, UPDATE and TELEMETRY; unknown sensitive egress fails closed. | policy + secret broker |
 
@@ -104,7 +104,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | KX-P03-S09-T01 | PLANNED | R2 | Implement Privacy Inspector and privacy-mode UX over real kernel/provider state: accounts, external AI, remote runtimes, recent egress, local data locations, telemetry/update controls and deletion/export entry points. | P02 egress + desktop |
 
-**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; quick-open/context/memory and CLI bootstrap are usable; Design Mode capture shell exists; accessibility and hidden E2E baseline pass.
+**P03 gate:** renderer has no ambient host authority; layout/project state survives restart; quick-open/context/memory and CLI bootstrap are usable; Design Mode capture shell exists; Privacy Inspector reflects real kernel/provider state; accessibility and hidden E2E baseline pass.
 
 ---
 
@@ -169,7 +169,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | KX-P06-S08-T01 | PLANNED | R3 | Enforce browser privacy boundary: local browser execution, DIRECT_DESTINATION distinct from EXTERNAL_MODEL, redirect/DNS/private-network re-evaluation, profile isolation and explicit download/upload scope. | browser contexts + P02 egress |
 
-**P06 gate:** structured-to-visual hierarchy works; search/fetch/browser paths share inspectable provenance; auth contexts isolated; page content cannot self-authorize elevated action; a useful web research path does not require founder-funded metered credentials.
+**P06 gate:** structured-to-visual hierarchy works; search/fetch/browser paths share inspectable provenance; auth contexts isolated; page content cannot self-authorize elevated action; DIRECT_DESTINATION web access remains distinct from EXTERNAL_MODEL processing; a useful web research path does not require founder-funded metered credentials.
 
 ---
 
@@ -272,6 +272,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P12-S04-T02 | PLANNED | R3 | Prove no duplicate scheduled side effect after crash/restart/clock or connectivity edge cases. | automation stack |
 | KX-P12-S05-T01 | PLANNED | R3 | Make privacy mode/data boundary durable automation state: scheduled/background work cannot activate external AI/tools/accounts or widen egress merely because the user is absent. | scheduler + P02 egress + provider manifests |
 
+**P12 gate:** delayed, scheduled and event-driven work survives restart without duplicate side effects and preserves the same privacy mode, egress limits, budgets and approval semantics as interactive work.
+
 ---
 
 ## P13 — Mobile companion
@@ -352,7 +354,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P17-S09-T01 | PLANNED | R2 | Define and implement LiveDataObject schema/row/source/freshness/conflict/refresh history with field-level provenance and local storage-of-record semantics. | web acquisition + integration fabric + evidence |
 | KX-P17-S09-T02 | PLANNED | R3 | Implement incremental refresh, partial-failure/stale-row/deletion/schema-migration semantics and cost/privacy budgets for LiveDataObjects. | LiveDataObject + P12 automation |
 
-**P17 gate:** broad app-category work is possible through scoped accounts, discoverable tools and event sources without exposing giant tool lists, leaking secrets or binding Kernux to one integration vendor.
+**P17 gate:** broad app-category work is possible through scoped accounts, discoverable tools and event sources without exposing giant tool lists, leaking secrets or binding Kernux to one integration vendor; IntegrationEvents and LiveDataObjects preserve local storage-of-record, provenance, freshness and explicit external data boundaries.
 
 ---
 
@@ -386,7 +388,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P19-S08-T01 | PLANNED | R3 | Implement deterministic/model-evaluated rules with simulation, firing log, rate/suppression/loop prevention and no model-evaluated self-authorization. | ActionProposal + automation |
 | KX-P19-S08-T02 | PLANNED | R2 | Implement local-first briefings and cross-app association/coherence as derived views with correction learning under explicit user control. | events + memory/context |
 
-**P19 gate:** Kernux can assist proactively across time and apps without hidden surveillance, memory poisoning, notification spam, authority escalation or project-owner-subsidized compute.
+**P19 gate:** Kernux can assist proactively across time and apps through ActionProposal/Action Inbox/rules/briefings without hidden surveillance, memory poisoning, notification spam, authority escalation, silent cloud processing or project-owner-subsidized compute.
 
 ---
 
