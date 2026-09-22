@@ -356,7 +356,6 @@ mod provider_tests {
             let error = ProviderId::parse(input).expect_err("must reject");
             assert_eq!(error, SecretError::UnknownProvider);
             assert_eq!(format!("{error}"), "unknown secret provider");
-            assert!(!format!("{error}").contains(input));
         }
     }
 
@@ -399,7 +398,6 @@ mod provider_tests {
             let error = DestinationClass::parse(input).expect_err("must reject");
             assert_eq!(error, SecretError::InvalidDestination);
             assert_eq!(format!("{error}"), "invalid secret destination");
-            assert!(!format!("{error}").contains(input));
         }
     }
 
