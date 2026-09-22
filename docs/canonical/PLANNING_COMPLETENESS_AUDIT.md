@@ -338,7 +338,7 @@ The second pass identified the following additional gap families.
 
 **Risk if absent:** broad app support would degrade into hundreds of bespoke integrations, giant tool lists, duplicated OAuth handling and inconsistent revocation.
 
-**Closure:** U04 plus P17 defines connector discovery, account/auth lifecycle, secret brokering, intent-based tool routing, event subscriptions, data-boundary inspection, capability drift and generated/external adapter boundaries. `platform-fabrics/LAYA_INTEGRATION.md` additionally freezes the donor source boundary, IntegrationEvent contract, connector/event lifecycle, dependency disposition and bounded Laya source-admission path.
+**Closure:** U04 plus P17 defines connector discovery, account/auth lifecycle, secret brokering, intent-based tool routing, event subscriptions, data-boundary inspection, capability drift and generated/external adapter boundaries. `platform-fabrics/LAYA_SOURCE_ARCHITECTURE.md` freezes the donor source boundary, IntegrationEvent contract, connector architecture, dependency disposition and bounded Laya source-admission path; `platform-fabrics/LAYA_LIFECYCLE_SECURITY.md` owns the event lifecycle.
 
 ### G09 — Full web intelligence beyond browser clicking
 
@@ -350,7 +350,7 @@ The second pass identified the following additional gap families.
 
 **Risk if absent:** schedules, triggers and monitors could become a second unsafe workflow engine with different authority/retry semantics.
 
-**Closure:** U06, P19 and ADR-0046 require all proactive/background work to compile to ordinary Task/WorkUnit/Run/Grant/Operation/Evidence semantics. `platform-fabrics/LAYA_INTEGRATION.md` adds ActionProposal/rule state machines, dedupe/replay, stale-approval handling, ambiguous-side-effect reconciliation and dead-event recovery.
+**Closure:** U06, P19 and ADR-0046 require all proactive/background work to compile to ordinary Task/WorkUnit/Run/Grant/Operation/Evidence semantics. `platform-fabrics/LAYA_LIFECYCLE_SECURITY.md` adds ActionProposal/rule state machines, dedupe/replay, stale-approval handling, ambiguous-side-effect reconciliation and dead-event recovery.
 
 ### G11 — Multimodal and voice interaction
 
@@ -374,7 +374,7 @@ The second pass identified the following additional gap families.
 
 **Risk if absent:** Kernux could remain a task launcher rather than becoming more useful over time across the user's approved files, apps, memory and routines.
 
-**Closure:** U07/U19 and P19 define user-governed relationship context, universal capture, routines, condition watches and proactive-but-policy-bound suggestions. `platform-fabrics/LAYA_INTEGRATION.md` adds Action Inbox, Action Workspace, Coherence, Omni/Attention/Briefing projections, correction learning and source-inspection requirements. Graph state remains retrieval structure, never authority.
+**Closure:** U07/U19 and P19 define user-governed relationship context, universal capture, routines, condition watches and proactive-but-policy-bound suggestions. `platform-fabrics/LAYA_LIFECYCLE_SECURITY.md` adds Action Inbox, Action Workspace, Coherence, Omni/Attention/Briefing projections, correction learning and source-inspection requirements. Graph state remains retrieval structure, never authority.
 
 ### G15 — Accessibility and internationalization as architecture
 
