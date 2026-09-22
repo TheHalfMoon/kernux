@@ -251,11 +251,11 @@ mod handle_tests {
 
     #[test]
     fn reference_strict_and_semantic_equality() {
-        let first = SecretRef::parse("kernux://secret/ref/abc").expect("valid");
-        let same = SecretRef::parse("kernux://secret/ref/abc").expect("valid");
-        let encoded = SecretRef::parse("kernux://secret/ref/%61bc").expect("valid");
-        let other = SecretRef::parse("kernux://secret/ref/abd").expect("valid");
-        let upper = SecretRef::parse("kernux://secret/ref/ABC").expect("valid");
+        let first = SecretRef::parse("kernux://secret/ref/a+b").expect("valid");
+        let same = SecretRef::parse("kernux://secret/ref/a+b").expect("valid");
+        let encoded = SecretRef::parse("kernux://secret/ref/a%2Bb").expect("valid");
+        let other = SecretRef::parse("kernux://secret/ref/a+c").expect("valid");
+        let upper = SecretRef::parse("kernux://secret/ref/A+B").expect("valid");
         assert_eq!(first, same);
         assert_ne!(first, encoded);
         assert!(first.matches_exact(&same));
