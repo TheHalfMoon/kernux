@@ -6,6 +6,8 @@ Kernux coordinates systems that can read private data, execute code, browse adve
 
 No model, plugin, browser page, renderer component, or remote agent is trusted to enforce its own permissions.
 
+Local privacy is part of the security boundary. `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md` is normative for privacy modes, egress classes, no-silent-cloud-fallback behavior, local capability baselines, provider data-boundary manifests, privacy evidence and alpha privacy gates.
+
 ## 2. Trust zones
 
 Kernux distinguishes at least these zones:
@@ -62,6 +64,8 @@ Policy evaluates the request against:
 - requested side effect;
 - secret use;
 - network destination;
+- privacy mode and egress class;
+- data classes crossing the boundary;
 - risk classification;
 - time/delegation limits.
 
@@ -73,6 +77,7 @@ User-friendly profiles compile to granular rules. Profiles are convenience, not 
 
 ### Safe
 
+- `LOCAL_ONLY` privacy mode is the default unless the user explicitly selects a wider mode for the project/task;
 - automatic low-risk reads inside explicitly opened project/workspace;
 - no host writes, shell execution, secret use, or external side effects without approval;
 - isolated execution preferred.
