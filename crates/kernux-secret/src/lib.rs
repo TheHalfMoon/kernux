@@ -10,7 +10,7 @@
 //! This crate performs no operating system credential-store access, persists
 //! nothing, logs nothing, spawns no processes, and grants no authority.
 //! Possession of a handle authorizes nothing. Only broker admission under an
-//! exact Grant can produce a bounded resolved use. Provider identities, destination classes, broker admission, and OS adapter templates arrive across SG-000026 slices; provider execution and audit events arrive in later SG-000026 slices.
+//! exact Grant can produce a bounded resolved use. Provider identities, destination classes, broker admission, OS adapter templates, and bounded resolution arrive across SG-000026 slices; provider execution and audit events arrive in later SG-000026 slices.
 
 #![forbid(unsafe_code)]
 
@@ -19,6 +19,7 @@ mod handle;
 mod os_adapter;
 mod provider;
 mod redaction;
+mod resolution;
 
 pub use broker::{
     AdmittedUse, BrokerDestination, BrokerError, BrokerRequest, EgressClass, MAX_ACCOUNT_ID_BYTES,
@@ -40,6 +41,7 @@ pub use provider::{
     ProviderCapabilities, ProviderId,
 };
 pub use redaction::{REDACTED_SECRET_VALUE, assert_no_plaintext, leaks_plaintext};
+pub use resolution::{ProviderFailure, ResolutionError, ResolvedUse};
 
 /// Fail-closed vocabulary errors for secret references, handles, values,
 /// providers, and destinations.
