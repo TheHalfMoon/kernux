@@ -10,7 +10,7 @@ permissions:
 
 env:
   BASE_SHA: 2520554051273f28793e649c5aefc54271c78a70
-  TARGET_SHA: 76fab24
+  TARGET_SHA: 76fab2425d1b61efcb8aab8fb52c1cba629df9e
   SPEC_ID: SG-000026
 
 jobs:
