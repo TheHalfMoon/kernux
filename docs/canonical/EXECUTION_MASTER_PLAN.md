@@ -18,7 +18,7 @@ The plan optimizes for **correct architecture and proof first, donor reuse secon
 6. Cross-platform assumptions are tested while surfaces are small.
 7. Protocol/version compatibility is designed before remote production use.
 8. A phase may run parallel slices only when their contracts are already frozen enough to avoid duplicate architecture.
-9. Preserve owner-sustainable execution: no core capability may require indefinite project-owner subsidy of metered inference, browser, search, storage, relay, runtime, or third-party API consumption when a local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path can own that variable cost.
+9. Preserve zero founder-funded runtime COGS: the base subscription sells local software entitlement, while ordinary workload compute/storage/models/browser/search/agents/connectors/automation are supplied by the user's device/accounts or organization infrastructure. Any managed Kernux service is separately priced with positive unit economics. See `LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`.
 
 ---
 
@@ -675,6 +675,10 @@ Prove project export/import, backup/restore migration, deletion and uninstall cl
 
 Prove a meaningful end-to-end Kernux workflow with telemetry disabled and no external AI/cloud service; the fully offline fixture uses a network oracle to confirm zero non-loopback traffic.
 
+### S15.12 Commercial entitlement and zero-runtime-COGS qualification
+
+Implement/qualify signed locally validated subscription entitlement, bounded offline grace, renewal/expiry/cancellation, open-source/commercial package separation and a runtime-economics audit proving ordinary paid-user founder-funded variable COGS is zero. Commercial entitlement remains separate from capability Grants and cannot trap user data.
+
 **Exit gate P15 / RELEASE_READY**
 
 - all release-blocking acceptance journeys are PROVEN;
@@ -686,6 +690,9 @@ Prove a meaningful end-to-end Kernux workflow with telemetry disabled and no ext
 - telemetry-disabled local journeys remain functional;
 - support-bundle redaction and lifecycle portability/deletion are qualified;
 - the local-only privacy golden journey is PROVEN with network-oracle evidence;
+- signed local entitlement works without transmitting user work content;
+- commercial entitlement cannot grant runtime authority or trap user data;
+- ordinary paid-user founder-funded variable runtime COGS is proven zero;
 - public claims do not exceed evidence.
 
 ---
