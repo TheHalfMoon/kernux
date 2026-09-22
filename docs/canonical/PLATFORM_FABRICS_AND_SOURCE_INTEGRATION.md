@@ -27,6 +27,19 @@ The permanent integration rule is:
 
 > **Adopt capabilities behind Kernux contracts; never adopt donor architecture as product authority.**
 
+### 2.1 Local privacy is the default trust boundary
+
+All fabrics, providers, Capability Packs and user surfaces inherit `docs/canonical/LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`.
+
+Hard rules:
+
+- local task truth, memory, search, artifacts and evidence stay local by default;
+- external AI/model/embedding/search processing is opt-in and separately classified from ordinary direct web access;
+- local provider failure never silently activates cloud fallback;
+- provider/tool manifests declare egress, data classes, secrets, retention and telemetry;
+- every external transfer is attributable to an operation, destination, Grant and privacy mode;
+- no Capability Pack may introduce a hidden hosted dependency or alternate privacy policy.
+
 ## 3. Correct source identities
 
 Several similarly named sources must remain distinct in provenance and architecture.
@@ -809,6 +822,8 @@ Add fabric-specific benchmark families to the existing Kernux evaluation strateg
 Public "best" or market-leadership claims require preregistered reproducible comparative evaluation.
 
 ## 20. Dependency-correct delivery mapping
+
+Local-privacy work packages and release gates are defined normatively in `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`. The mappings below must be refined together with that plan; a provider/fabric task cannot be called planning-complete if its privacy owner is missing.
 
 Do not create a parallel roadmap. Refine the existing phases.
 
