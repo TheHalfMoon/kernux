@@ -10,13 +10,14 @@
 //! This crate performs no operating system credential-store access, persists
 //! nothing, logs nothing, spawns no processes, and grants no authority.
 //! Possession of a handle authorizes nothing. Only broker admission under an
-//! exact Grant can produce a bounded resolved use. Provider identities,
-//! destination classes, broker admission, provider adapters, and audit events
-//! arrive in later SG-000026 slices.
+//! exact Grant can produce a bounded resolved use. Provider identities and
+//! destination classes arrive in this slice; broker admission, provider
+//! adapters, and audit events arrive in later SG-000026 slices.
 
 #![forbid(unsafe_code)]
 
 mod handle;
+mod provider;
 mod redaction;
 
 use core::fmt;
@@ -24,6 +25,12 @@ pub use handle::{
     MAX_SECRET_REF_TOKEN_BYTES, MAX_SECRET_VALUE_BYTES, SECRET_HANDLE_HEX_LEN, SECRET_HANDLE_PREFIX,
 };
 pub use handle::{SecretHandle, SecretRef, SecretValue};
+pub use provider::{
+    DESTINATION_EGRESS_SUBSTITUTION, DESTINATION_HOST_COMMAND, DESTINATION_PROCESS_ENV,
+    DestinationClass, EnvName, HostName, MAX_ENV_NAME_BYTES, MAX_HOST_LABEL_BYTES,
+    MAX_HOST_NAME_BYTES, OS_LINUX_SECRET_SERVICE, OS_MACOS_KEYCHAIN, OS_WINDOWS_CREDENTIAL_MANAGER,
+    ProviderCapabilities, ProviderId,
+};
 pub use redaction::{REDACTED_SECRET_VALUE, assert_no_plaintext, leaks_plaintext};
 
 /// Fail-closed vocabulary errors for secret references, handles, values,
