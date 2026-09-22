@@ -14,11 +14,19 @@ The plan optimizes for **correct architecture and proof first, donor reuse secon
 2. Each slice ends with evidence against its exact head.
 3. Donor code is characterized and provenance-recorded before adaptation.
 4. Privileged authority never migrates into the renderer for convenience.
-5. Local-first end-to-end usefulness must be proven before cloud/team expansion.
+5. Local-private end-to-end usefulness must be proven before cloud/team expansion. `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md` is normative: external data movement is explicit, egress-classed, destination-bound, inspectable and never a silent fallback.
 6. Cross-platform assumptions are tested while surfaces are small.
 7. Protocol/version compatibility is designed before remote production use.
 8. A phase may run parallel slices only when their contracts are already frozen enough to avoid duplicate architecture.
-9. Preserve owner-sustainable execution: no core capability may require indefinite project-owner subsidy of metered inference, browser, search, storage, relay, runtime, or third-party API consumption when a local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed path can own that variable cost.
+9. Preserve zero founder-funded runtime COGS: the base subscription sells local software entitlement, while ordinary workload compute/storage/models/browser/search/agents/connectors/automation are supplied by the user's device/accounts or organization infrastructure. Any managed Kernux service is separately priced with positive unit economics. See `LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`.
+
+---
+
+## 1.1 Permanent local-privacy rule
+
+Every applicable SpecGrain unit must account for X15 Local Privacy & Data Sovereignty from `specs/tasks.md` and the normative `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`.
+
+No phase may be called PROVEN while an applicable privacy obligation is orphaned in prose. Privacy requirements are refined into the earliest dependency-correct phase; they do not justify skipping the active frontier.
 
 ---
 
@@ -123,13 +131,18 @@ Implement capability evaluation, scoped grants, profiles, expiry, delegation bou
 
 OS credential integration abstraction, secret references, domain/tool scope, redaction-safe audit.
 
+### S02.7 Egress policy primitives
+
+Represent and enforce privacy mode, egress class and destination metadata before later network-capable phases. Unknown sensitive egress fails closed.
+
 **Exit gate P02 (R3)**
 
 - renderer-equivalent unprivileged client cannot bypass policy;
 - restart preserves durable identity/events/grants correctly;
 - migration/corruption/recovery paths tested;
 - path/IPC/auth adversarial corpus passes;
-- secrets are not persisted in ordinary SQLite records/logs.
+- secrets are not persisted in ordinary SQLite records/logs;
+- egress-class/destination policy can fail closed before external model/tool/browser/integration execution.
 
 ---
 
@@ -159,7 +172,7 @@ Basic durable event projection and artifact preview surfaces.
 
 ### S03.6 Search, context, and memory surfaces
 
-Universal quick-open/search, inspectable ContextBundle/source view, and user-governed memory inspection/edit/delete.
+Universal quick-open/search, inspectable ContextBundle/source view, user-governed memory inspection/edit/delete, and useful local retrieval without external embeddings through exact/lexical/temporal/provenance-aware paths.
 
 ### S03.7 CLI bootstrap
 
@@ -169,6 +182,10 @@ Authenticated headless client bootstrap, `doctor`, deterministic machine-readabl
 
 Structured browser/native selection capture entry point and provenance-bearing capture inspector.
 
+### S03.9 Privacy Inspector
+
+Render actual privacy mode, configured external providers/accounts/runtimes, recent egress, local data locations, telemetry/update settings and deletion/export controls from kernel/provider truth.
+
 **Exit gate P03**
 
 - desktop can connect/reconnect to daemon without ambient renderer Node privilege;
@@ -176,7 +193,8 @@ Structured browser/native selection capture entry point and provenance-bearing c
 - quick-open/context/memory and CLI bootstrap are usable;
 - Design Mode capture shell exists;
 - basic accessibility keyboard journey passes;
-- hidden/headless desktop E2E can validate UI without focus theft.
+- hidden/headless desktop E2E can validate UI without focus theft;
+- Privacy Inspector reflects real policy/provider state rather than UI-only preferences.
 
 ---
 
@@ -208,13 +226,19 @@ Bounded PDF/DOCX/Excel/CSV/JSON read/write/preview capability adapters derived w
 
 App/window/clipboard/notification/accessibility-tree operations where platform support allows; raw visual input remains later fallback.
 
+### S04.7 Local privacy storage/runtime qualification
+
+Qualify protection-at-rest for Kernux-managed sensitive content and prove a no-network local files/process/PTY fixture with truthful host-mode network limitations.
+
 **Exit gate P04 (R3 for host boundary)**
 
 - no path escape outside grants;
 - argv/shell behavior proven on macOS/Windows/Linux;
 - long-running sessions survive renderer restart;
 - destructive actions show appropriate policy escalation;
-- donor-derived primitives have provenance + characterization tests.
+- donor-derived primitives have provenance + characterization tests;
+- Kernux-managed sensitive content has a qualified at-rest strategy;
+- no-network local computer execution is independently observable.
 
 ---
 
@@ -246,6 +270,14 @@ Structured session events, messages, status, interrupt/resume, file/tool referen
 
 Provider-neutral ModelProvider contract, local/BYOK model paths where qualified, and a Kernux-native model-backed loop that receives ContextBundles and acts only through typed capability requests.
 
+### S05.7 Decision Fabric
+
+Define provider-neutral typed DecisionProvider contracts, calibration/abstention/OOD semantics, non-authority invariants and qualify at least one local provider.
+
+### S05.8 Local model privacy qualification
+
+Qualify at least one local generative path for a bounded task, enforce no-silent-cloud-fallback, and bind provider calls to minimized/redacted ContextBundle digests plus privacy/egress evidence.
+
 **Exit gate P05**
 
 - at least two independent external agents can perform the same bounded local task;
@@ -253,7 +285,9 @@ Provider-neutral ModelProvider contract, local/BYOK model paths where qualified,
 - local/BYOK model paths are available where qualified rather than requiring Kernux-funded inference;
 - unsupported provider features remain explicitly unsupported, not guessed;
 - TUI parsing is transcript-backed;
-- agent cannot bypass Kernux capability policy when using Kernux-owned tools.
+- agent cannot bypass Kernux capability policy when using Kernux-owned tools;
+- at least one qualified local generative path and one local DecisionProvider exist for applicable local-AI claims;
+- local provider failure cannot silently widen to an external provider.
 
 ---
 
@@ -289,13 +323,18 @@ Action method, page origin, relevant observation/screenshot, downloads, and sour
 
 Provider-neutral Search/Fetch plus bounded crawl/change-detection primitives with freshness/cache metadata, source lineage, bounded outputs, and local/self-hosted/BYOK or explicitly managed provider paths.
 
+### S06.8 Browser privacy boundary
+
+Keep local browser execution and DIRECT_DESTINATION web access distinct from EXTERNAL_MODEL processing; re-evaluate redirects/DNS/private-network targets, isolate authenticated profiles and scope downloads/uploads.
+
 **Exit gate P06 (R3 for injection/credential boundaries)**
 
 - authenticated contexts do not leak across projects by default;
 - malicious page/WebMCP/tool-output injection cannot self-authorize privilege;
 - hierarchy WebMCP -> deterministic -> semantic -> vision is observable/tested;
 - Search/Fetch/browser research paths share inspectable provenance;
-- research journey can produce structured evidence bundle without requiring founder-funded metered credentials.
+- research journey can produce structured evidence bundle without requiring founder-funded metered credentials;
+- direct web access never implicitly authorizes external AI processing of page content.
 
 ---
 
@@ -632,6 +671,14 @@ Prove telemetry-disabled operation and reviewable/redacted support bundles again
 
 Prove project export/import, backup/restore migration, deletion and uninstall cleanup on supported platforms.
 
+### S15.11 Local-only privacy golden journey
+
+Prove a meaningful end-to-end Kernux workflow with telemetry disabled and no external AI/cloud service; the fully offline fixture uses a network oracle to confirm zero non-loopback traffic.
+
+### S15.12 Commercial entitlement and zero-runtime-COGS qualification
+
+Implement/qualify signed locally validated subscription entitlement, bounded offline grace, renewal/expiry/cancellation, open-source/commercial package separation and a runtime-economics audit proving ordinary paid-user founder-funded variable COGS is zero. Commercial entitlement remains separate from capability Grants and cannot trap user data.
+
 **Exit gate P15 / RELEASE_READY**
 
 - all release-blocking acceptance journeys are PROVEN;
@@ -642,6 +689,10 @@ Prove project export/import, backup/restore migration, deletion and uninstall cl
 - installer/update/recovery are proven;
 - telemetry-disabled local journeys remain functional;
 - support-bundle redaction and lifecycle portability/deletion are qualified;
+- the local-only privacy golden journey is PROVEN with network-oracle evidence;
+- signed local entitlement works without transmitting user work content;
+- commercial entitlement cannot grant runtime authority or trap user data;
+- ordinary paid-user founder-funded variable runtime COGS is proven zero;
 - public claims do not exceed evidence.
 
 ---
@@ -683,7 +734,7 @@ Unsafe parallelism to avoid:
 
 # 3. First valuable product milestone
 
-The first external alpha should not wait for P15 features. The earliest coherent **Kernux Alpha** is after P09 with a bounded P10 subset:
+The first external alpha should not wait for all P15 features. The earliest coherent **Kernux Alpha** is after P09 with a bounded P10 subset **and only after the applicable alpha privacy gate in `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md` is proven**:
 
 - desktop workspace;
 - local daemon and permission kernel;
@@ -693,9 +744,15 @@ The first external alpha should not wait for P15 features. The earliest coherent
 - task/fleet basics;
 - git/worktree review;
 - evidence/replay/restart recovery;
-- one sandbox runtime.
+- one sandbox runtime;
+- Privacy Inspector;
+- telemetry-off operation;
+- local search/memory without external embeddings;
+- one qualified local AI/agent path;
+- no-silent-cloud-fallback enforcement;
+- local-only end-to-end privacy journey with network-oracle evidence.
 
-That alpha must already feel like one product, not a donor demo.
+That alpha must already feel like one private local product, not a donor demo or a thin client for hosted AI services.
 
 # 4. Scope discipline
 

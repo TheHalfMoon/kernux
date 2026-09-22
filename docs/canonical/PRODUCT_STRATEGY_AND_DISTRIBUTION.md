@@ -239,7 +239,38 @@ Requirements independent of channel:
 
 ## 14. Product packaging
 
-Avoid exposing architecture as a confusing product matrix.
+Avoid exposing architecture as a confusing product matrix. The commercial model is a **local-software subscription**, not bundled compute.
+
+The base subscription pays for Kernux product entitlement while execution remains on the user's device, existing provider subscriptions, BYOK accounts, organization infrastructure, or user-owned remote runtimes. The base subscription must not include hidden founder-funded inference, search, browser, storage, relay, or automation usage.
+
+Commercial entitlement and runtime authority are separate: subscription state may enable paid product modules, but it never grants filesystem, network, secret, browser, tool, or external-side-effect permission.
+
+The normative economics and entitlement architecture are defined in [`LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`](LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md).
+
+### Open-source and paid product boundary
+
+Kernux Core remains governed by the existing Apache-2.0 policy. A paid official product layer may contain separately licensed commercial modules or Capability Packs, official signed distribution/update entitlements, and support/organization conveniences, but any such boundary must be explicit and must not silently relicense Apache-covered source.
+
+If every paid feature is released under Apache-2.0, subscription revenue should be treated as a convenience/distribution/support model because users retain the right to self-build the Apache-covered code.
+
+### Subscription economics
+
+The product must optimize for:
+
+```text
+monthly subscription revenue
+- payment / merchant fees
+- taxes and unavoidable commerce costs
+- small fixed distribution/business costs
+= gross margin
+
+founder-funded variable runtime COGS
+= 0
+```
+
+Do not meter local tokens, local tasks, local browser minutes, local storage, local models, local memory or local automations. These run on user-owned resources.
+
+
 
 The default product is simply **Kernux**.
 
@@ -269,7 +300,7 @@ Add scheduled/triggered workflows, structured computer actions, service integrat
 
 ### Stage 4 — Teams
 
-Shared policy, projects, agents/runtimes, collaboration, organization audit, optional relay/cloud.
+Shared policy, projects, agents/runtimes, collaboration and organization audit remain self-hostable or organization-owned by default. Optional managed relay/cloud is a separate priced add-on with positive unit economics, never a hidden cost of the base subscription.
 
 Do not build separate incompatible products for these stages; expand the same task/capability/runtime model.
 
@@ -353,6 +384,8 @@ Requires the P15 release qualification gates and evidence-based public claims.
 - flashy workflow graphs;
 - copying every donor feature before core coherence;
 - forcing cloud sign-up to inflate accounts;
+- bundling unlimited founder-funded inference/browser/search/storage into the local-software subscription;
+- per-task/token metering for resources supplied by the user's own device/accounts;
 - benchmark wins without representative reproducible tasks;
 - marketplace size before extension safety.
 
