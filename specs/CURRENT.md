@@ -91,6 +91,8 @@ No product code or founding-donor product code has been imported yet.
 
 **LOCAL PRIVACY IMPLEMENTATION PLAN:** `PLANNED / BINDING ON APPLICABLE FUTURE GRAINS / NON-BLOCKING TO CURRENT KX-P02-S06-T01 FRONTIER`
 
+**LOCAL SUBSCRIPTION / ZERO RUNTIME COGS PLAN:** `PLANNED / BINDING ON APPLICABLE COMMERCIAL AND PROVIDER GRAINS / NON-BLOCKING TO CURRENT KX-P02-S06-T01 FRONTIER`
+
 The canonical long-horizon expansion is defined in `docs/canonical/UNIVERSAL_PLATFORM_PLAN.md` with P16-P20 macro tasks in `specs/tasks.md`. This planning expansion does not authorize skipping P02-P15 dependencies and does not change the current next implementation unit.
 
 **KX-P02-S01-T01 QUALIFICATION:** `PROVEN`
@@ -225,7 +227,8 @@ Implementation must preserve these from the first product commit:
 14. Context, search, indexing, and durable memory remain provenance-aware and user-governed.
 15. Headless CLI/API and desktop UI are peer surfaces over the same core contracts.
 16. Kernux-owned data has explicit retention, export, backup, restore, and deletion semantics.
-17. Owner-sustainable execution is mandatory: core usefulness cannot require owner-subsidized variable compute; local/self-hosted, BYOK, BYOC, organization-funded, or explicitly paid managed paths preserve capability without making Kernux cloud a hidden prerequisite.
+17. Zero founder-funded runtime COGS is mandatory for the base subscription: ordinary inference, browser/search, storage, agent execution, connector usage, relay and automation are supplied by user-owned local resources/accounts or organization infrastructure; any Kernux-managed service is separately priced with positive unit economics.
+18. Commercial subscription entitlement is separate from capability authority: entitlement may enable paid product modules but cannot grant filesystem/network/secret/tool/runtime authority, require user-content upload, or trap user data after expiry.
 
 ## First-generation protocol posture
 
