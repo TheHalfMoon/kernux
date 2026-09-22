@@ -445,4 +445,68 @@ mod resolution_tests {
         request.expected_handle = SecretHandle::parse(HANDLE).expect("valid handle");
         assert!(admit(&request).is_ok(), "corrected request admits");
     }
+
+    #[test]
+    fn resolved_use_binds_exact_admitted_metadata() {
+        let admitted = admitted_use();
+        let plaintext = b"correct horse battery staple".to_vec();
+        let value = SecretValue::from_bytes(plaintext.clone()).expect("valid value");
+        let resolved = ResolvedUse::bind(&admitted, value);
+        assert_eq!(resolved.grant_id(), GRANT);
+        assert_eq!(resolved.secret_ref(), SECRET);
+        assert_eq!(resolved.handle().as_str(), HANDLE);
+        assert_eq!(resolved.provider(), ProviderId::OsMacosKeychain);
+        assert_eq!(resolved.destination(), admitted.destination());
+        assert_eq!(resolved.len(), plaintext.len());
+        let released = resolved.into_value();
+        assert_eq!(released.expose(), plaintext.as_slice());
+    }
+
+    #[test]
+    fn live_value_never_leaks_through_any_rendering() {
+        use crate::BrokerError;
+        let admitted = admitted_use();
+        let plaintext = b"correct horse battery staple".to_vec();
+        let value = SecretValue::from_bytes(plaintext.clone()).expect("valid value");
+        let resolved = ResolvedUse::bind(&admitted, value);
+        let handle = SecretHandle::parse(HANDLE).expect("handle");
+        let secret_ref = SecretRef::parse(SECRET).expect("ref");
+        for rendering in [
+            format!("{resolved:?}"),
+            format!("{admitted:?}"),
+            format!("{handle:?}"),
+            format!("{handle}"),
+            format!("{secret_ref:?}"),
+            format!("{secret_ref}"),
+        ] {
+            crate::assert_no_plaintext(&rendering, &plaintext, "live rendering");
+        }
+        for error in [
+            ResolutionError::NotAdmitted,
+            ResolutionError::ProviderUnavailable,
+            ResolutionError::ProviderNotFound,
+            ResolutionError::MalformedProviderOutput,
+            ResolutionError::ProviderDenied,
+            ResolutionError::ValueRejected,
+        ] {
+            crate::assert_no_plaintext(&format!("{error}"), &plaintext, "error display");
+            crate::assert_no_plaintext(&format!("{error:?}"), &plaintext, "error debug");
+        }
+        for failure in [
+            ProviderFailure::Unavailable,
+            ProviderFailure::NotFound,
+            ProviderFailure::MalformedResponse,
+            ProviderFailure::Denied,
+        ] {
+            crate::assert_no_plaintext(&format!("{failure}"), &plaintext, "failure display");
+            crate::assert_no_plaintext(&format!("{failure:?}"), &plaintext, "failure debug");
+        }
+        for error in [
+            BrokerError::WrongProvider,
+            BrokerError::HandleMismatch,
+            BrokerError::PrivacyDenied,
+        ] {
+            crate::assert_no_plaintext(&format!("{error}"), &plaintext, "broker error");
+        }
+    }
 }

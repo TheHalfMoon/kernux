@@ -585,4 +585,55 @@ mod broker_tests {
         assert!(!crate::leaks_plaintext(&rendered, &plaintext));
         crate::assert_no_plaintext(&rendered, &plaintext, "admitted use");
     }
+
+    #[test]
+    fn cross_destination_handle_reuse_denied() {
+        let admitted = admit(&valid_request()).expect("destination A admission");
+        assert_eq!(admitted.handle().as_str(), HANDLE);
+        let mut cross_class = valid_request();
+        cross_class.presented_destination = BrokerDestination::HostCommand;
+        assert_eq!(admit(&cross_class), Err(BrokerError::WrongDestination));
+        let mut cross_detail = valid_request();
+        cross_detail.presented_destination = BrokerDestination::ProcessEnv {
+            var: EnvName::parse("OTHER_VAR").expect("env"),
+        };
+        assert_eq!(admit(&cross_detail), Err(BrokerError::WrongEnv));
+        let readmitted = admit(&valid_request()).expect("destination A still admits");
+        assert_eq!(readmitted.handle().as_str(), admitted.handle().as_str());
+        assert_eq!(readmitted.destination(), admitted.destination());
+    }
+
+    #[test]
+    fn spoofed_provider_identity_denied() {
+        let mut spoofed = valid_request();
+        spoofed.presented_provider = ProviderId::OsLinuxSecretService;
+        assert_eq!(admit(&spoofed), Err(BrokerError::WrongProvider));
+        assert!(ProviderId::parse("vault-spoof-99").is_err());
+        assert!(ProviderId::parse("keychain-substitute").is_err());
+    }
+
+    #[test]
+    fn handle_possession_authorizes_nothing() {
+        let mut no_grant = valid_request();
+        no_grant.grant = None;
+        assert_eq!(admit(&no_grant), Err(BrokerError::MissingGrant));
+        let mut wrong_handle = valid_request();
+        wrong_handle.presented_handle = SecretHandle::parse(HANDLE_OTHER).expect("handle");
+        assert_eq!(admit(&wrong_handle), Err(BrokerError::HandleMismatch));
+        let admitted = admit(&valid_request()).expect("valid");
+        assert_eq!(admitted.grant_id(), GRANT);
+        assert_eq!(admitted.handle().as_str(), HANDLE);
+    }
+
+    #[test]
+    fn reveal_grant_never_admits_use() {
+        let mut reveal = valid_request();
+        reveal.grant = Some(grant_with_hosts(None, "secret.reveal"));
+        assert_eq!(admit(&reveal), Err(BrokerError::WrongCapability));
+        let mut elevated_reveal = valid_request();
+        let mut grant = grant_with_hosts(None, "secret.reveal");
+        grant.consequence_ceiling = ConsequenceClass::C3;
+        elevated_reveal.grant = Some(grant);
+        assert_eq!(admit(&elevated_reveal), Err(BrokerError::WrongCapability));
+    }
 }
