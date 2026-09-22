@@ -1,0 +1,142 @@
+[
+  {
+    "priority": 0,
+    "provenance": "repo:specs/CURRENT.md#L70-L96",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the exact live P02 frontier, S06-T01-only authority, current 7/10 progress, and the rule that later phases remain dependency-bound.",
+    "size_bytes": 1468,
+    "source_id": "current-frontier",
+    "token_cost": 367
+  },
+  {
+    "priority": 1,
+    "provenance": "repo:specs/tasks.md#L55-L68",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the canonical P02 task registry with S06-T01 NEXT and S06-T02 PLANNED.",
+    "size_bytes": 1430,
+    "source_id": "p02-task-frontier",
+    "token_cost": 358
+  },
+  {
+    "priority": 2,
+    "provenance": "repo:specs/tasks.md#L79-L85",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the proven corrective SG-000024 precedent, the S05-T02 closeout, S06 dependency boundary, and P02 gate.",
+    "size_bytes": 2663,
+    "source_id": "p02-corrective-precedent",
+    "token_cost": 666
+  },
+  {
+    "priority": 3,
+    "provenance": "repo:.specgrain/specs/SG-000027.json",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the complete corrective Grain authority, exact change surface, acceptance, safety, recovery, and evidence requirements.",
+    "size_bytes": 7948,
+    "source_id": "sg27-corrective-grain",
+    "token_cost": 1987
+  },
+  {
+    "priority": 4,
+    "provenance": "repo:.specgrain/specs/SG-000026.json",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the frozen primary Grain that must remain unchanged and whose original change-surface mismatch remains negative evidence.",
+    "size_bytes": 8140,
+    "source_id": "sg26-primary-grain",
+    "token_cost": 2035
+  },
+  {
+    "priority": 5,
+    "provenance": "repo:docs/evidence/P02-S06-T01.md#L1-L45",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the primary task identity, frozen SG-000026 packet identities, packet persistence history, and no-advancement boundary.",
+    "size_bytes": 2795,
+    "source_id": "sg26-evidence-identity",
+    "token_cost": 699
+  },
+  {
+    "priority": 6,
+    "provenance": "repo:docs/evidence/P02-S06-T01.md#L120-L147",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the preserved SG-000026 proof gap, pending native proof/closeout evidence, and explicit no-advancement claims.",
+    "size_bytes": 2752,
+    "source_id": "sg26-negative-boundary",
+    "token_cost": 688
+  },
+  {
+    "priority": 7,
+    "provenance": "repo:.specgrain/specs/SG-000024.json",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the repository-native explicit-path corrective Grain precedent rather than inventing a new reconciliation model.",
+    "size_bytes": 7369,
+    "source_id": "sg24-corrective-grain",
+    "token_cost": 1843
+  },
+  {
+    "priority": 8,
+    "provenance": "repo:crates/kernux-secret/src/os_adapter.rs#L1-L137",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the current OS-adapter executable semantics that the corrective reconciliation must preserve byte-for-byte except one non-functional adoption comment.",
+    "size_bytes": 5190,
+    "source_id": "secret-os-adapter-semantics",
+    "token_cost": 1298
+  },
+  {
+    "priority": 9,
+    "provenance": "repo:crates/kernux-secret/src/resolution.rs#L1-L186",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the current bounded-resolution ownership, redaction, static-error, and zeroization semantics that corrective reconciliation must preserve.",
+    "size_bytes": 6656,
+    "source_id": "secret-resolution-semantics",
+    "token_cost": 1664
+  },
+  {
+    "priority": 10,
+    "provenance": "repo:Cargo.lock#L240-L257",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the exact current kernux-policy and kernux-secret workspace package/dependency identities.",
+    "size_bytes": 254,
+    "source_id": "cargo-lock-secret-core",
+    "token_cost": 64
+  },
+  {
+    "priority": 11,
+    "provenance": "repo:Cargo.lock#L586-L590",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the exact zeroize version, registry source, and checksum identity that the corrective proof must preserve.",
+    "size_bytes": 190,
+    "source_id": "cargo-lock-zeroize",
+    "token_cost": 48
+  },
+  {
+    "priority": 12,
+    "provenance": "repo:AGENTS.md#L1-L60",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, exact-head proof, and protected-history rules.",
+    "size_bytes": 2618,
+    "source_id": "agent-governance",
+    "token_cost": 655
+  },
+  {
+    "priority": 13,
+    "provenance": "repo:docs/governance/SPEC_GRAIN.md#L70-L145",
+    "requirement": "required",
+    "revision": "git:09737241f19541fcb859f4c530ee572a0f62fac0",
+    "selection_reason": "Bind the supported Grain-to-context-to-WorkPacket-to-independent-proof lifecycle and packet authority boundary.",
+    "size_bytes": 2271,
+    "source_id": "specgrain-governance",
+    "token_cost": 568
+  }
+]
