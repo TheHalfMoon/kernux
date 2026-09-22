@@ -37,7 +37,8 @@ Kernux is deliberately broader than a coding IDE, browser agent, desktop automat
 
 ## Founding design principles
 
-- **Local-first, cloud-capable.** A useful core requires no Kernux cloud account.
+- **Local privacy by default.** Core task truth, local execution, search, memory, evidence, and qualified local AI paths do not require a Kernux cloud account; external processing is explicit and never a silent fallback.
+- **Zero founder-funded runtime COGS.** The paid base product is a local-software subscription: user hardware/accounts perform the work; Kernux does not subsidize ordinary inference, browser/search, storage, agents, connectors, relay, or automation.
 - **Provider-neutral.** Agents, models, browsers, sandboxes, git hosts, and tools live behind versioned contracts.
 - **Permission before power.** Privileged actions are authorized by a capability kernel, not by a model or UI convention.
 - **Structured before visual.** Prefer typed tools, WebMCP, accessibility/DOM, and deterministic automation before vision/coordinates.
@@ -59,6 +60,9 @@ Start here:
 - [`docs/canonical/PRODUCT_STRATEGY_AND_DISTRIBUTION.md`](docs/canonical/PRODUCT_STRATEGY_AND_DISTRIBUTION.md)
 - [`docs/canonical/ARCHITECTURE.md`](docs/canonical/ARCHITECTURE.md)
 - [`docs/canonical/SECURITY_MODEL.md`](docs/canonical/SECURITY_MODEL.md)
+- [`docs/canonical/LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`](docs/canonical/LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md)
+- [`docs/canonical/LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`](docs/canonical/LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md)
+- [`docs/canonical/PLATFORM_FABRICS_AND_SOURCE_INTEGRATION.md`](docs/canonical/PLATFORM_FABRICS_AND_SOURCE_INTEGRATION.md)
 - [`docs/canonical/UX_BLUEPRINT.md`](docs/canonical/UX_BLUEPRINT.md)
 - [`docs/canonical/CONTEXT_MEMORY_AND_SEARCH.md`](docs/canonical/CONTEXT_MEMORY_AND_SEARCH.md)
 - [`docs/canonical/NATIVE_AGENT_AND_HEADLESS.md`](docs/canonical/NATIVE_AGENT_AND_HEADLESS.md)
