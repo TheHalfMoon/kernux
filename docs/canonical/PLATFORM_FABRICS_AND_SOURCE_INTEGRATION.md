@@ -31,7 +31,13 @@ The active implementation frontier remains governed by `specs/CURRENT.md`, SpecG
    - Action Inbox, Action Workspace, Coherence, Omni, briefings and Spaces;
    - security, privacy, cost, analytics, recovery and cross-platform requirements.
 
-4. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
+4. [Laya Delivery and Qualification Plan](platform-fabrics/LAYA_DELIVERY_QUALIFICATION.md)
+   - bounded source-admission/import waves;
+   - evidence matrix and golden journeys;
+   - P17/P19 ownership and additional macro tasks;
+   - SpecGrain decomposition, anti-gap checklist and completion gate.
+
+5. [Platform Fabrics Runtime, Reliability, and Delivery](platform-fabrics/DELIVERY.md)
    - Web and Live-Data Fabric;
    - Computer Fabric;
    - Context and Memory Fabric;
