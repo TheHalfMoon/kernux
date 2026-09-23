@@ -1,0 +1,142 @@
+[
+ {
+  "priority": 0,
+  "provenance": "repo:specs/CURRENT.md#L70-L96",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind the exact live P02 frontier with S06-T02 as the sole NEXT unit at 8 of 10 and P02 exit unproven.",
+  "size_bytes": 1427,
+  "source_id": "current-frontier",
+  "token_cost": 357
+ },
+ {
+  "priority": 1,
+  "provenance": "repo:specs/tasks.md#L55-L68",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind the S06-T02 macro outcome with R3 risk and the secret broker plus events dependency.",
+  "size_bytes": 1428,
+  "source_id": "s06-t02-registry",
+  "token_cost": 357
+ },
+ {
+  "priority": 2,
+  "provenance": "repo:specs/tasks.md#L83-L87",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Reuse the proven S06-T01 closeout chain shape and preserve its negative evidence.",
+  "size_bytes": 1728,
+  "source_id": "s06-t01-closeout-precedent",
+  "token_cost": 432
+ },
+ {
+  "priority": 3,
+  "provenance": "repo:docs/canonical/EXECUTION_MASTER_PLAN.md#L124-L146",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind the canonical secret broker scope with redaction-safe audit and the P02 exit gate.",
+  "size_bytes": 974,
+  "source_id": "master-plan-secret-broker",
+  "token_cost": 244
+ },
+ {
+  "priority": 4,
+  "provenance": "repo:.specgrain/specs/SG-000027.json",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Depend on the proven broker surface and its explicit ten-path authority.",
+  "size_bytes": 7947,
+  "source_id": "sg27-grain",
+  "token_cost": 1987
+ },
+ {
+  "priority": 5,
+  "provenance": "repo:.specgrain/specs/SG-000028.json",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind the shaped audit-event grain authority with nine exact paths and 21 evidence checks.",
+  "size_bytes": 4074,
+  "source_id": "sg28-grain",
+  "token_cost": 1019
+ },
+ {
+  "priority": 6,
+  "provenance": "repo:docs/evidence/P02-S06-T01.md#L338-L390",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind the native SG-000027 verification digests and the protected closeout facts.",
+  "size_bytes": 2208,
+  "source_id": "sg27-proof-identity",
+  "token_cost": 552
+ },
+ {
+  "priority": 7,
+  "provenance": "repo:docs/evidence/P02-S06-T01.md#L138-L143",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Keep ResolvedUse borrow retention and cross-provider binding owned by the daemon-execution slice and not S06-T02.",
+  "size_bytes": 713,
+  "source_id": "deferred-disposition",
+  "token_cost": 178
+ },
+ {
+  "priority": 8,
+  "provenance": "repo:crates/kernux-secret/src/broker.rs#L55-L212",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind admit allow and denial reasons plus AdmittedUse metadata fields for audit emission points.",
+  "size_bytes": 5396,
+  "source_id": "broker-admission-semantics",
+  "token_cost": 1349
+ },
+ {
+  "priority": 9,
+  "provenance": "repo:crates/kernux-secret/src/resolution.rs#L100-L187",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind ResolvedUse bind expose and redacted Debug for consumption recording without plaintext retention.",
+  "size_bytes": 2696,
+  "source_id": "resolution-binding-semantics",
+  "token_cost": 674
+ },
+ {
+  "priority": 10,
+  "provenance": "repo:crates/kernux-secret/src/redaction.rs#L1-L60",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Reuse the redaction constant and plaintext-leak test guards for the leak corpus.",
+  "size_bytes": 2127,
+  "source_id": "redaction-helpers",
+  "token_cost": 532
+ },
+ {
+  "priority": 11,
+  "provenance": "repo:crates/kernuxd/src/authorization.rs#L285-L312",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Follow the proven EventAppend audit-before-side-effect and audit-failure-never-admits pattern.",
+  "size_bytes": 981,
+  "source_id": "daemon-audit-pattern",
+  "token_cost": 245
+ },
+ {
+  "priority": 12,
+  "provenance": "repo:protocol/schema/krp.v1.schema.json#L770-L900",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Bind audit payloads to the frozen Event and Redaction envelope with no wire change.",
+  "size_bytes": 3019,
+  "source_id": "krp-event-envelope",
+  "token_cost": 755
+ },
+ {
+  "priority": 13,
+  "provenance": "repo:AGENTS.md#L1-L60",
+  "requirement": "required",
+  "revision": "git:8d7a3fbc78ec2dace732418a9c0be756a0ac3d9b",
+  "selection_reason": "Obey repository evidence security and delivery rules for the new grain.",
+  "size_bytes": 2617,
+  "source_id": "agent-governance",
+  "token_cost": 654
+ }
+]

@@ -24,9 +24,7 @@
     "budget_tokens": 14000,
     "estimated_tokens": 11000
   },
-  "dependencies": [
-    "SG-000027"
-  ],
+  "dependencies": [],
   "evidence": {
     "required": [
       "audit-surface-pass",
