@@ -10,7 +10,7 @@ permissions:
 
 env:
   BASE_SHA: a9f697c933c583133fd02e575a801531991c2b2c
-  TARGET_SHA: da16109530ec91b050ed71ccd0ab26d4b34cffb7
+  TARGET_SHA: 01e6e3def76d7019c9f023942ba689f555ee8c3b
   PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
   PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
   SPEC_REVISION: sha256:8680129138f08eb434e729a28136d3d6902881eaee91929c92e60b97c61d9bc8
@@ -40,7 +40,7 @@ jobs:
           cat /tmp/paths.txt
           test "$(cat /tmp/paths.txt)" = "crates/kernux-policy/src/egress.rs"
           git diff --shortstat "$BASE_SHA...$TARGET_SHA"
-          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1} END {print s+0}')" = "368"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1} END {print s+0}')" = "367"
           test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$2} END {print s+0}')" = "6"
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml)"
@@ -122,7 +122,7 @@ jobs:
           git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
           cat /tmp/paths.txt
           test "$(cat /tmp/paths.txt)" = "crates/kernux-policy/src/egress.rs"
-          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1} END {print s+0}')" = "368"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1} END {print s+0}')" = "367"
           test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$2} END {print s+0}')" = "6"
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml)"
