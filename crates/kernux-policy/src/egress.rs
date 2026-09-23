@@ -6,7 +6,7 @@
 #![doc = "The adversarial fail-closed corpus remains reserved for PR-C."]
 
 use crate::{
-    Action, CanonicalUtcSecond, ConsequenceClass, PolicyValidationError,
+    Action, CanonicalUtcSecond, ConsequenceClass, PolicyValidationError, ResourceAuthority,
     ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, canonical_uuid_v7,
     evaluate_grant_match,
 };
@@ -473,6 +473,8 @@ impl core::fmt::Display for EgressDenyReason {
 pub struct EgressGrantBinding {
     grant_id: String,
     operation: Action,
+    resource_host: Option<String>,
+    resource_runtime: Option<String>,
     effective_constraints: ValidatedConstraints,
 }
 
@@ -496,6 +498,8 @@ impl EgressGrantBinding {
             } => Ok(Self {
                 grant_id: grant.grant_id.clone(),
                 operation: capability_request.action.clone(),
+                resource_host: resource_host(&capability_request.resource).map(str::to_owned),
+                resource_runtime: resource_runtime(&capability_request.resource).map(str::to_owned),
                 effective_constraints,
             }),
             crate::GrantMatchDecision::Denied(_) => Err(EgressDenyReason::GrantNotEligible),
@@ -513,6 +517,22 @@ impl EgressGrantBinding {
     pub fn effective_constraints(&self) -> &ValidatedConstraints {
         &self.effective_constraints
     }
+}
+
+fn resource_host(resource: &crate::CanonicalResource) -> Option<&str> {
+    match resource.authority() {
+        ResourceAuthority::Network => resource.segments().get(2).map(String::as_str),
+        ResourceAuthority::Browser if resource.segments().get(2).is_some_and(|v| v == "origin") => {
+            resource.segments().get(4).map(String::as_str)
+        }
+        _ => None,
+    }
+}
+
+fn resource_runtime(resource: &crate::CanonicalResource) -> Option<&str> {
+    (resource.authority() == ResourceAuthority::Runtime)
+        .then(|| resource.segments().first().map(String::as_str))
+        .flatten()
 }
 
 /// Pure result of intersecting an exact Grant binding with egress limits.
@@ -546,9 +566,25 @@ pub fn evaluate_egress_constraint(
     if request.destination != authorized.destination {
         return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
     }
-    if let EgressDestination::Host(host) = &request.destination
-        && let Some(allowed_hosts) = &grant_binding.effective_constraints.network_hosts
-        && !allowed_hosts.iter().any(|entry| entry == host.as_str())
+    if let EgressDestination::Host(host) = &request.destination {
+        if grant_binding
+            .resource_host
+            .as_deref()
+            .is_some_and(|bound| bound != host.as_str())
+        {
+            return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
+        }
+        if let Some(allowed_hosts) = &grant_binding.effective_constraints.network_hosts
+            && !allowed_hosts.iter().any(|entry| entry == host.as_str())
+        {
+            return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
+        }
+    }
+    if let EgressDestination::Runtime(runtime) = &request.destination
+        && grant_binding
+            .resource_runtime
+            .as_deref()
+            .is_some_and(|bound| bound != runtime.as_str())
     {
         return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
     }
@@ -731,7 +767,7 @@ mod tests {
     const GRANT_V7: &str = "01890f3a-7b2f-7e55-aa66-6f708192a3b9";
     const NETWORK_URI: &str = "kernux://network/origin/https/example.com/443";
 
-    fn capability_request(operation: &str, host: &str) -> crate::ValidatedCapabilityRequest {
+    fn capability_request(operation: &str) -> crate::ValidatedCapabilityRequest {
         crate::ValidatedCapabilityRequest {
             request_id: REQUEST_V7.to_owned(),
             subject: crate::ValidatedSubjectScope {
@@ -742,19 +778,13 @@ mod tests {
             resource: crate::CanonicalResource::parse(NETWORK_URI).unwrap(),
             runtime_id: RUNTIME_V7.to_owned(),
             runtime_revision: 2,
-            constraints: crate::ValidatedConstraints::from_parts(
-                None,
-                None,
-                None,
-                None,
-                Some(vec![host.to_owned()]),
-            )
-            .unwrap(),
+            constraints: crate::ValidatedConstraints::from_parts(None, None, None, None, None)
+                .unwrap(),
             provenance_event_ids: vec![],
         }
     }
 
-    fn grant(operation: &str, host: &str) -> crate::ValidatedGrant {
+    fn grant(operation: &str) -> crate::ValidatedGrant {
         crate::ValidatedGrant {
             grant_id: GRANT_V7.to_owned(),
             subject: crate::ValidatedSubjectScope {
@@ -767,14 +797,8 @@ mod tests {
             resource_scope: crate::ResourceScope::Exact,
             runtime_id: RUNTIME_V7.to_owned(),
             runtime_revision: 2,
-            constraints: crate::ValidatedConstraints::from_parts(
-                None,
-                None,
-                None,
-                Some(3),
-                Some(vec![host.to_owned()]),
-            )
-            .unwrap(),
+            constraints: crate::ValidatedConstraints::from_parts(None, None, None, Some(3), None)
+                .unwrap(),
             consequence_ceiling: crate::ConsequenceClass::C2,
             issuer_authority: "local-user".to_owned(),
             policy_revision: 1,
@@ -787,10 +811,10 @@ mod tests {
         }
     }
 
-    fn grant_binding(operation: &str, host: &str) -> EgressGrantBinding {
+    fn grant_binding(operation: &str) -> EgressGrantBinding {
         EgressGrantBinding::from_grant_and_request(
-            &grant(operation, host),
-            &capability_request(operation, host),
+            &grant(operation),
+            &capability_request(operation),
             crate::ConsequenceClass::C1,
             crate::CanonicalUtcSecond::parse("2026-09-23T21:00:00Z").unwrap(),
             false,
@@ -834,18 +858,18 @@ mod tests {
             EgressSensitivity::NonSensitive,
         );
         let authorized = direct_authorized("example.com", "network.connect", false);
-        let wrong_grant = grant("network.send", "example.com");
+        let wrong_grant = grant("network.send");
         assert_eq!(
             EgressGrantBinding::from_grant_and_request(
                 &wrong_grant,
-                &capability_request("network.connect", "example.com"),
+                &capability_request("network.connect"),
                 crate::ConsequenceClass::C1,
                 crate::CanonicalUtcSecond::parse("2026-09-23T21:00:00Z").unwrap(),
                 false,
             ),
             Err(EgressDenyReason::GrantNotEligible)
         );
-        let binding = grant_binding("network.connect", "example.com");
+        let binding = grant_binding("network.connect");
         assert_eq!(binding.grant_id(), GRANT_V7);
         assert_eq!(binding.operation().as_str(), "network.connect");
         assert_eq!(
@@ -864,7 +888,7 @@ mod tests {
         let authorized = direct_authorized("example.com", "network.connect", false);
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &request,
                 &authorized
             ),
@@ -880,7 +904,7 @@ mod tests {
         .unwrap();
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &class_changed,
                 &authorized
             ),
@@ -894,9 +918,19 @@ mod tests {
         );
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &destination_changed,
                 &authorized
+            ),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+
+        let other_host_authorized = direct_authorized("other.example", "network.connect", false);
+        assert_eq!(
+            evaluate_egress_constraint(
+                &grant_binding("network.connect"),
+                &destination_changed,
+                &other_host_authorized,
             ),
             EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
         );
@@ -906,12 +940,12 @@ mod tests {
             "network.send",
             EgressSensitivity::NonSensitive,
         );
-        let binding = grant_binding("network.connect", "example.com");
+        let binding = grant_binding("network.connect");
         assert_eq!(
             evaluate_egress_constraint(&binding, &operation_changed, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch)
         );
-        let other_operation_binding = grant_binding("network.send", "example.com");
+        let other_operation_binding = grant_binding("network.send");
         assert_eq!(
             evaluate_egress_constraint(&other_operation_binding, &request, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch)
@@ -933,7 +967,7 @@ mod tests {
         .unwrap();
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &account_a,
                 &account_b,
             ),
@@ -947,7 +981,7 @@ mod tests {
         let unknown = direct_request("example.com", "network.connect", EgressSensitivity::Unknown);
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &unknown,
                 &authorized
             ),
@@ -961,7 +995,7 @@ mod tests {
         );
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &sensitive,
                 &authorized
             ),
@@ -971,7 +1005,7 @@ mod tests {
         let sensitive_authorized = direct_authorized("example.com", "network.connect", true);
         assert_eq!(
             evaluate_egress_constraint(
-                &grant_binding("network.connect", "example.com"),
+                &grant_binding("network.connect"),
                 &sensitive,
                 &sensitive_authorized,
             ),
