@@ -19,6 +19,7 @@ ChatGPT / supported OpenAI surface
        -> Files / Process / PTY / Git / System / ComputerUse / Browser providers
 ```
 Kernux already owns the required security primitives. A standalone privileged MCP project would duplicate policy, secret, audit, workspace, and runtime truth. The bridge may later ship independently, but authority remains `kernuxd`.
+Implementation language: use **TypeScript/Node for the thin MCP edge** because it aligns with the MCP ecosystem and has no host authority; retain **Rust for `kernuxd`, policy, identity, secrets, durable authority, and native privileged operations**. Playwright may run as a supervised browser provider; Windows automation belongs in the qualified Kernux platform provider/helper, never in the MCP edge.
 Rejected topology:
 ```text
 ChatGPT -> tunnel -> Node MCP server -> arbitrary shell / desktop authority
@@ -135,7 +136,7 @@ Approval is independent of ChatGPT and cannot be actuated by the agent.
 6. One-time approval cannot replay after expiry, target change or policy revision.
 7. Destructive/privileged actions use fresh authority.
 8. Denial is typed.
-Injected-input detection may be defense-in-depth; it is not the sole invariant.
+The local approval card must show capability, exact action, command/argv, normalized path/resource, app/window or URL/origin, target, consequence/risk class, workspace/session, originating external call, expiry, and whether authority is one-time or reusable. Injected-input detection may be defense-in-depth; it is not the sole invariant.
 ## 13. Desktop hierarchy
 Preferred order:
 ```text
