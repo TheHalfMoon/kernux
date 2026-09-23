@@ -360,6 +360,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P17-S09-T02 | PLANNED | R3 | Implement incremental refresh, partial-failure/stale-row/deletion/schema-migration semantics and cost/privacy budgets for LiveDataObjects. | LiveDataObject + P12 automation |
 | KX-P17-S10-T01 | PLANNED | R2 | Admit and characterize pinned `aayushch/laya` donor surfaces with exact provenance, LICENSE/NOTICE, dependency/asset disposition, source-to-destination mapping and pre-adaptation fixtures. | connector/event contracts + X03 provenance |
 | KX-P17-S10-T02 | PLANNED | R3 | Port/adapt selected Laya event-normalization and connector-workflow logic behind Kernux-owned IntegrationEvent/connector contracts, keeping n8n optional rather than mandatory. | KX-P17-S10-T01 + IntegrationEvent |
+| KX-P17-S10-T03 | PLANNED | R3 | Build the Laya-program connector conformance harness covering deterministic fake-provider fixtures, OAuth/token rotation, webhook authenticity/replay, account isolation, scope drift, provider schema change and SecretHandle-only credential use. | KX-P17-S10-T01 + KX-P17-S02-T01 + KX-P17-S05-T01 |
+| KX-P17-S10-T04 | PLANNED | R3 | Qualify bounded event/backlog behavior, fair scheduling, resource budgets, suspend/resume/offline catch-up, clock/timezone changes and restart recovery without duplicate side effects or notification storms. | KX-P17-S08-T02 + connector conformance + event/evidence state |
 
 **P17 gate:** broad app-category work is possible through scoped accounts, discoverable tools and event sources without exposing giant tool lists, leaking secrets or binding Kernux to one integration vendor; IntegrationEvents and LiveDataObjects preserve local storage-of-record, provenance, freshness and explicit external data boundaries.
 
@@ -397,6 +399,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P19-S09-T01 | PLANNED | R3 | Implement Action Workspace over Task/WorkUnit/Run/Context/Artifact/Evidence/ActionProposal with live agent progress and policy-bound approvals. | ActionProposal + desktop + agent/runtime streams |
 | KX-P19-S09-T02 | PLANNED | R2 | Implement Omni/Attention/Bookmarks/temporal current-state views as rebuildable projections with source inspection, correction and no truth duplication. | events + context/memory + Action Inbox |
 | KX-P19-S10-T01 | PLANNED | R2 | Implement user-visible dead-event/action recovery plus local budget/usage/operations analytics without telemetry or mandatory cloud dependency. | event recovery + evidence + provider cost metadata |
+| KX-P19-S10-T02 | PLANNED | R2 | Implement notification/attention governance with per-source and per-space budgets, quiet hours, dedupe/coalescing, digest substitution, snooze/stale retirement and no suppression of consequential failure evidence. | universal inbox + watches + Action Inbox |
 
 **P19 gate:** Kernux can assist proactively across time and apps through ActionProposal/Action Inbox/rules/briefings without hidden surveillance, memory poisoning, notification spam, authority escalation, silent cloud processing or project-owner-subsidized compute.
 
