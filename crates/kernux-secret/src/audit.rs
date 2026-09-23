@@ -534,9 +534,11 @@ mod audit_tests {
         assert_eq!(event.secret_ref(), SECRET);
     }
 
+    type DenialCase = (fn(&mut BrokerRequest), BrokerError);
+
     #[test]
     fn denial_events_match_real_admission_failures() {
-        let cases: [(fn(&mut BrokerRequest), BrokerError); 6] = [
+        let cases: [DenialCase; 6] = [
             (|request| request.grant = None, BrokerError::MissingGrant),
             (
                 |request| request.presented_provider = ProviderId::OsLinuxSecretService,
