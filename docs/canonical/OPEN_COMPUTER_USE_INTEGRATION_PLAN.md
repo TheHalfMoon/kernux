@@ -63,7 +63,7 @@ Default transformation: `ported` or `adapted` behavior behind Kernux contracts r
 
 A `ComputerObservation` must carry:
 
-- runtime/device identity;
+- runtime/device identity plus authorized OS user/session identity;
 - app/process/window identity;
 - observation revision;
 - bounded accessibility projection;
@@ -86,7 +86,7 @@ Use a revision-bound `ElementRef`, not a durable donor-style integer index. It m
 - element identity/ordinal;
 - optional role/name/frame fingerprint.
 
-PID reuse, app relaunch, window replacement, stale observation, or mismatched identity must fail closed and require re-observation.
+PID reuse, app relaunch, window replacement, stale observation, mismatched OS session, or a target that is no longer actionable/visible under the requested method must fail closed and require re-observation.
 
 ### Initial action vocabulary
 
@@ -185,7 +185,7 @@ Accessibility/screenshot content is attacker-influenced. Every adapter needs har
 - text bytes per node and total structured bytes;
 - screenshot dimensions/encoded bytes;
 - observation/action timeouts;
-- retry count;
+- retry/action count and rate;
 - cached observations;
 - event/output volume.
 
@@ -214,7 +214,7 @@ Race/recovery handling must explicitly cover:
 - display change;
 - adapter/helper crash;
 - timeout;
-- partial drag/type sequence;
+- partial drag/type/key/button sequence with deterministic release/unwind of pressed modifiers/buttons;
 - human takeover.
 
 Retryability/idempotency is explicit; retries are never assumed safe.
@@ -283,8 +283,8 @@ P05 native agents see ComputerUse only through capability-generated Kernux tool 
 
 Human takeover is a first-class state:
 
-- automated input stops;
-- in-flight sequences cancel where safe;
+- automated input stops and the UX makes agent-control/global-input state visible;
+- in-flight sequences cancel where safe and pressed keys/buttons unwind;
 - stale observations are invalidated;
 - resume requires fresh observation and policy eligibility;
 - evidence records whether physical pointer/focus was touched.
@@ -303,6 +303,7 @@ Build Kernux-owned fixtures before donor adaptation:
 - deep/high-node tree;
 - destructive-action fake confirmation;
 - protected-content fixture;
+- Unicode/IME/non-US-keyboard and modifier-unwind fixture;
 - mixed-DPI/multi-display fixture where CI permits.
 
 Never test against real password managers, personal accounts, or personal applications.
