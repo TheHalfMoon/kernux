@@ -1,0 +1,194 @@
+name: PR199 Packet Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr199-packet-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 66345e84f44e9710188d6fd177957c87e80787a4
+  TARGET_SHA: 897c001e445370af9226f17edeaabe0fce4e7d3c
+  PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
+  SPEC_REVISION: sha256:8680129138f08eb434e729a28136d3d6902881eaee91929c92e60b97c61d9bc8
+  CONTEXT_PLAN_DIGEST: sha256:6b1328622e66ca24c8022587c4892f703bbfd470c30e4c66cec279728cdbc560
+  PACKET_DIGEST: sha256:fedbd524f487e3acbd7defc979dfd32a28be1217ac74b47d6d47a762892137ca
+  WORKPACKET_SHA256: 3699d36ea9a30ebdfd75e2c0b9ca05107811b1692076132da9fb5d4571adba37
+  WORKPACKET_BYTES: "10141"
+  CONTEXT_BYTES: "7206"
+  CONTEXT_SOURCES: "17"
+  CONTEXT_TOKENS: "9803"
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact packet surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          grep -q "docs/evidence/SG-000029-context-sources.json" /tmp/paths.txt
+          grep -q "docs/evidence/SG-000029-work-packet.json" /tmp/paths.txt
+          test 2 -eq $(wc -l < /tmp/paths.txt)
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" > /tmp/counts.txt
+          cat /tmp/counts.txt
+          grep -q "2 files changed" /tmp/counts.txt
+          grep -q "173 insertions" /tmp/counts.txt
+          git diff --numstat "$BASE_SHA...$TARGET_SHA" > /tmp/numstat.txt
+          cat /tmp/numstat.txt
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- protocol/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- specs/CURRENT.md specs/tasks.md)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- .specgrain/specs/SG-000029.json)"
+          test ! -f crates/kernux-policy/src/egress.rs
+          test -z "$(git ls-files --others --exclude-standard)"
+      - name: Verify packet digests and context budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(stat -c%s docs/evidence/SG-000029-work-packet.json)" = "$WORKPACKET_BYTES"
+          test "$(stat -c%s docs/evidence/SG-000029-context-sources.json)" = "$CONTEXT_BYTES"
+          echo "$WORKPACKET_SHA256  docs/evidence/SG-000029-work-packet.json" | sha256sum -c -
+          python3 -c "import json; d=json.load(open('docs/evidence/SG-000029-work-packet.json')); assert d['packet_digest']=='$PACKET_DIGEST', d['packet_digest']; assert d['spec_revision']=='$SPEC_REVISION', d['spec_revision']; assert d['context_plan_digest']=='$CONTEXT_PLAN_DIGEST', d['context_plan_digest']; assert d['spec_id']=='SG-000029'"
+          python3 -c "import json; s=json.load(open('docs/evidence/SG-000029-context-sources.json')); assert len(s)==17, len(s); total=sum(x['token_cost'] for x in s); assert total==9803, total; assert all(x['revision']=='git:$BASE_SHA' for x in s)"
+          test ! -e .specgrain/evidence/SG-000029
+          grep -q '"state": "GRAIN"' .specgrain/specs/SG-000029.json
+      - name: Verify SpecGrain state and byte-identical replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_ARCHIVE_SHA256"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000029 . --json > /tmp/sg29-prove.json || test $? -eq 1
+          cat /tmp/sg29-prove.json
+          grep -q '"verified": false' /tmp/sg29-prove.json || grep -q 'verified.:false' /tmp/sg29-prove.json
+          grep -q '"record_count": 0' /tmp/sg29-prove.json || grep -q 'record_count.:0' /tmp/sg29-prove.json
+          python3 tools/specgrain/run.py prove SG-000028 . --json > /tmp/sg28-prove.json
+          cat /tmp/sg28-prove.json
+          grep -q '"verified": true' /tmp/sg28-prove.json || grep -q 'verified.:true' /tmp/sg28-prove.json
+          python3 tools/specgrain/run.py packet SG-000029 . --context-sources docs/evidence/SG-000029-context-sources.json --json > /tmp/SG-000029-replay.json
+          cmp docs/evidence/SG-000029-work-packet.json /tmp/SG-000029-replay.json
+          echo "REPLAY_CMP_PASS"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Focused policy secret store daemon regression
+        run: cargo test -p kernux-policy -p kernux-secret -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS exact surface and replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          grep -q "docs/evidence/SG-000029-context-sources.json" /tmp/paths.txt
+          grep -q "docs/evidence/SG-000029-work-packet.json" /tmp/paths.txt
+          test 2 -eq $(wc -l < /tmp/paths.txt)
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- protocol/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- specs/CURRENT.md specs/tasks.md)"
+          echo "$WORKPACKET_SHA256  docs/evidence/SG-000029-work-packet.json" | shasum -a 256 -c -
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000029 . --json > /tmp/sg29-prove.json || test $? -eq 1
+          cat /tmp/sg29-prove.json
+          python3 tools/specgrain/run.py prove SG-000028 . --json > /tmp/sg28-prove.json
+          cat /tmp/sg28-prove.json
+          python3 tools/specgrain/run.py packet SG-000029 . --context-sources docs/evidence/SG-000029-context-sources.json --json > /tmp/SG-000029-replay.json
+          cmp docs/evidence/SG-000029-work-packet.json /tmp/SG-000029-replay.json
+          echo "MACOS_REPLAY_CMP_PASS"
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Focused policy secret store daemon regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test -p kernux-policy -p kernux-secret -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
