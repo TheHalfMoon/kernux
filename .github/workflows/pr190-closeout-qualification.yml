@@ -10,7 +10,7 @@ permissions:
 
 env:
   BASE_SHA: 573a32b0730d053df3afb60b726491ad8e996442
-  TARGET_SHA: 585928aa76ad7a17efc6583baa5dc0982b989ffe
+  TARGET_SHA: 82e61f71ed20c6bab629cbed13db7b21ba449c65
 
 jobs:
   linux:
@@ -35,8 +35,8 @@ jobs:
           grep -q specs/tasks.md /tmp/paths.txt
           test 4 -eq $(wc -l < /tmp/paths.txt)
           grep -q 4 files changed /tmp/counts.txt
-          grep -q 286 insertions /tmp/counts.txt
-          grep -q 7 deletions /tmp/counts.txt
+          grep -q 285 insertions /tmp/counts.txt
+          grep -q 6 deletions /tmp/counts.txt
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.toml crates/kernux-secret/Cargo.toml)"
@@ -115,8 +115,8 @@ jobs:
           grep -q specs/tasks.md /tmp/paths.txt
           test 4 -eq $(wc -l < /tmp/paths.txt)
           grep -q 4 files changed /tmp/counts.txt
-          grep -q 286 insertions /tmp/counts.txt
-          grep -q 7 deletions /tmp/counts.txt
+          grep -q 285 insertions /tmp/counts.txt
+          grep -q 6 deletions /tmp/counts.txt
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
           python3 tools/specgrain/run.py --show-pin
