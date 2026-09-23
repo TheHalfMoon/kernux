@@ -32,7 +32,7 @@ jobs:
           grep -q crates/kernux-secret/src/audit.rs /tmp/paths.txt
           test 1 -eq $(wc -l < /tmp/paths.txt)
           grep -q 1 file changed /tmp/counts.txt
-          grep -q 230 insertions /tmp/counts.txt
+          grep -q 232 insertions /tmp/counts.txt
           grep -q 1 deletion /tmp/counts.txt
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
@@ -109,7 +109,7 @@ jobs:
           grep -q crates/kernux-secret/src/audit.rs /tmp/paths.txt
           test 1 -eq $(wc -l < /tmp/paths.txt)
           grep -q 1 file changed /tmp/counts.txt
-          grep -q 230 insertions /tmp/counts.txt
+          grep -q 232 insertions /tmp/counts.txt
           grep -q 1 deletion /tmp/counts.txt
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
