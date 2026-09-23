@@ -341,7 +341,7 @@ mod tests {
             assert_eq!(class.as_str(), text);
             assert_eq!(class.to_string(), text);
         }
-        assert_eq!(EgressClass::None.requires_destination(), false);
+        assert!(!EgressClass::None.requires_destination());
         for class in [
             EgressClass::DirectDestination,
             EgressClass::ConnectedAccount,
