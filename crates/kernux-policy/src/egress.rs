@@ -6,8 +6,9 @@
 #![doc = "The adversarial fail-closed corpus remains reserved for PR-C."]
 
 use crate::{
-    Action, CanonicalUtcSecond, ConsequenceClass, PolicyValidationError, ValidatedCapabilityRequest,
-    ValidatedConstraints, ValidatedGrant, canonical_uuid_v7, evaluate_grant_match,
+    Action, CanonicalUtcSecond, ConsequenceClass, PolicyValidationError,
+    ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, canonical_uuid_v7,
+    evaluate_grant_match,
 };
 
 /// Canonical string for NONE: no non-loopback network.
@@ -534,7 +535,9 @@ pub fn evaluate_egress_constraint(
     request: &EgressRequest,
     authorized: &AuthoritativeEgressConstraint,
 ) -> EgressConstraintDecision {
-    if request.operation != grant_binding.operation || authorized.operation != grant_binding.operation {
+    if request.operation != grant_binding.operation
+        || authorized.operation != grant_binding.operation
+    {
         return EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch);
     }
     if request.class != authorized.class {
@@ -860,7 +863,11 @@ mod tests {
         );
         let authorized = direct_authorized("example.com", "network.connect", false);
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("network.connect", "example.com"), &request, &authorized),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &request,
+                &authorized
+            ),
             EgressConstraintDecision::Eligible
         );
 
@@ -872,7 +879,11 @@ mod tests {
         )
         .unwrap();
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("network.connect", "example.com"), &class_changed, &authorized),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &class_changed,
+                &authorized
+            ),
             EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch)
         );
 
@@ -882,7 +893,11 @@ mod tests {
             EgressSensitivity::NonSensitive,
         );
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("network.connect", "example.com"), &destination_changed, &authorized),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &destination_changed,
+                &authorized
+            ),
             EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
         );
 
@@ -931,7 +946,11 @@ mod tests {
         let authorized = direct_authorized("example.com", "network.connect", false);
         let unknown = direct_request("example.com", "network.connect", EgressSensitivity::Unknown);
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("network.connect", "example.com"), &unknown, &authorized),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &unknown,
+                &authorized
+            ),
             EgressConstraintDecision::Denied(EgressDenyReason::SensitivityUnknown)
         );
 
@@ -941,13 +960,21 @@ mod tests {
             EgressSensitivity::Sensitive,
         );
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("network.connect", "example.com"), &sensitive, &authorized),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &sensitive,
+                &authorized
+            ),
             EgressConstraintDecision::Denied(EgressDenyReason::SensitiveEgressDenied)
         );
 
         let sensitive_authorized = direct_authorized("example.com", "network.connect", true);
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("network.connect", "example.com"), &sensitive, &sensitive_authorized,),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &sensitive,
+                &sensitive_authorized,
+            ),
             EgressConstraintDecision::Eligible
         );
     }
