@@ -887,11 +887,7 @@ mod tests {
         );
         let authorized = direct_authorized("example.com", "network.connect", false);
         assert_eq!(
-            evaluate_egress_constraint(
-                &grant_binding("network.connect"),
-                &request,
-                &authorized
-            ),
+            evaluate_egress_constraint(&grant_binding("network.connect"), &request, &authorized),
             EgressConstraintDecision::Eligible
         );
 
@@ -966,11 +962,7 @@ mod tests {
         )
         .unwrap();
         assert_eq!(
-            evaluate_egress_constraint(
-                &grant_binding("network.connect"),
-                &account_a,
-                &account_b,
-            ),
+            evaluate_egress_constraint(&grant_binding("network.connect"), &account_a, &account_b,),
             EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
         );
     }
@@ -980,11 +972,7 @@ mod tests {
         let authorized = direct_authorized("example.com", "network.connect", false);
         let unknown = direct_request("example.com", "network.connect", EgressSensitivity::Unknown);
         assert_eq!(
-            evaluate_egress_constraint(
-                &grant_binding("network.connect"),
-                &unknown,
-                &authorized
-            ),
+            evaluate_egress_constraint(&grant_binding("network.connect"), &unknown, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::SensitivityUnknown)
         );
 
@@ -994,11 +982,7 @@ mod tests {
             EgressSensitivity::Sensitive,
         );
         assert_eq!(
-            evaluate_egress_constraint(
-                &grant_binding("network.connect"),
-                &sensitive,
-                &authorized
-            ),
+            evaluate_egress_constraint(&grant_binding("network.connect"), &sensitive, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::SensitiveEgressDenied)
         );
 
