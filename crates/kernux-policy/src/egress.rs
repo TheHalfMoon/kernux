@@ -302,17 +302,17 @@ pub fn validate_egress_binding(
     class: EgressClass,
     destination: &EgressDestination,
 ) -> Result<(), PolicyValidationError> {
-    let valid = match (class, destination) {
-        (EgressClass::None, EgressDestination::None) => true,
-        (EgressClass::DirectDestination, EgressDestination::Host(_)) => true,
-        (EgressClass::ConnectedAccount, EgressDestination::Account(_)) => true,
-        (EgressClass::ExternalModel, EgressDestination::Host(_)) => true,
-        (EgressClass::ExternalTool, EgressDestination::Host(_)) => true,
-        (EgressClass::RemoteRuntime, EgressDestination::Runtime(_)) => true,
-        (EgressClass::Update, EgressDestination::Host(_)) => true,
-        (EgressClass::Telemetry, EgressDestination::Host(_)) => true,
-        _ => false,
-    };
+    let valid = matches!(
+        (class, destination),
+        (EgressClass::None, EgressDestination::None)
+            | (EgressClass::DirectDestination, EgressDestination::Host(_))
+            | (EgressClass::ConnectedAccount, EgressDestination::Account(_))
+            | (EgressClass::ExternalModel, EgressDestination::Host(_))
+            | (EgressClass::ExternalTool, EgressDestination::Host(_))
+            | (EgressClass::RemoteRuntime, EgressDestination::Runtime(_))
+            | (EgressClass::Update, EgressDestination::Host(_))
+            | (EgressClass::Telemetry, EgressDestination::Host(_))
+    );
     valid
         .then_some(())
         .ok_or(PolicyValidationError::EgressClassDestinationMismatch)
