@@ -27,9 +27,9 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
-          mapfile -t changed < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
-          test "${#changed[@]}" -eq 1
-          printf "%s\n" "${changed[@]}" | grep -Fx "docs/evidence/P02-S06-T02.md"
+          changed="$(git diff --name-only "$BASE_SHA...$TARGET_SHA")"
+          test "$(printf "%s\n" "$changed" | wc -l)" -eq 1
+          printf "%s\n" "$changed" | grep -Fx "docs/evidence/P02-S06-T02.md"
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.toml crates/kernux-secret/Cargo.toml)"
@@ -100,9 +100,9 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
-          mapfile -t changed < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
-          test "${#changed[@]}" -eq 1
-          printf "%s\n" "${changed[@]}" | grep -Fx "docs/evidence/P02-S06-T02.md"
+          changed="$(git diff --name-only "$BASE_SHA...$TARGET_SHA")"
+          test "$(printf "%s\n" "$changed" | wc -l)" -eq 1
+          printf "%s\n" "$changed" | grep -Fx "docs/evidence/P02-S06-T02.md"
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.toml crates/kernux-secret/Cargo.toml)"
