@@ -40,8 +40,12 @@ jobs:
           python3 --version
           python3 tools/specgrain/run.py --show-pin
           python3 tools/specgrain/run.py check .
-          python3 tools/specgrain/run.py prove SG-000026 . --json | tee /tmp/sg26-prove.json | grep -q verified.:false
-          python3 tools/specgrain/run.py prove SG-000027 . --json | tee /tmp/sg27-prove.json | grep -q verified.:false
+          python3 tools/specgrain/run.py prove SG-000026 . --json > /tmp/sg26-prove.json || test $? -eq 1
+          grep -q "\"verified\":false" /tmp/sg26-prove.json
+          grep -q "\"record_count\":0" /tmp/sg26-prove.json
+          python3 tools/specgrain/run.py prove SG-000027 . --json > /tmp/sg27-prove.json || test $? -eq 1
+          grep -q "\"verified\":false" /tmp/sg27-prove.json
+          grep -q "\"record_count\":0" /tmp/sg27-prove.json
           python3 tools/specgrain/run.py packet SG-000027 . --context-sources docs/evidence/SG-000027-context-sources.json --json > /tmp/SG-000027-replay.json
           cmp docs/evidence/SG-000027-work-packet.json /tmp/SG-000027-replay.json
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
