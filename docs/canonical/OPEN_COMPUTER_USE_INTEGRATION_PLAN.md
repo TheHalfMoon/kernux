@@ -458,15 +458,18 @@ Every implementation Grain derived from this plan must explicitly own:
 - authorization and approval;
 - runtime/process;
 - app/window/target identity;
+- context ownership and what observation enters a ContextBundle;
 - secret and data/egress boundary;
+- explicit cost owner/budget behavior, including zero founder-funded ordinary local use;
 - persistence/retention/deletion;
 - recovery/retry/idempotency;
 - side effects;
 - action method/fallback ceiling;
+- artifact ownership for screenshots/captures/evidence;
 - evidence;
 - accessibility;
 - compatibility/update/rollback;
-- cross-platform behavior;
+- cross-platform and cross-device/remote applicability;
 - deterministic fixtures;
 - negative/adversarial cases.
 
