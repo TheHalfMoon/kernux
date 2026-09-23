@@ -905,19 +905,23 @@ mod tests {
         let account_a = EgressRequest::new(
             EgressClass::ConnectedAccount,
             EgressDestination::Account(EgressAccount::parse("account-a").unwrap()),
-            Action::parse("tool.invoke", &[]).unwrap(),
+            Action::parse("network.connect", &[]).unwrap(),
             EgressSensitivity::NonSensitive,
         )
         .unwrap();
         let account_b = AuthoritativeEgressConstraint::new(
             EgressClass::ConnectedAccount,
             EgressDestination::Account(EgressAccount::parse("account-b").unwrap()),
-            Action::parse("tool.invoke", &[]).unwrap(),
+            Action::parse("network.connect", &[]).unwrap(),
             false,
         )
         .unwrap();
         assert_eq!(
-            evaluate_egress_constraint(&grant_binding("tool.invoke", "example.com"), &account_a, &account_b),
+            evaluate_egress_constraint(
+                &grant_binding("network.connect", "example.com"),
+                &account_a,
+                &account_b,
+            ),
             EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
         );
     }
