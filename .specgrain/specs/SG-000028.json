@@ -1,0 +1,97 @@
+{
+  "acceptance": [
+    "Admission allow and every denial emit an audit event with exact non-plaintext metadata",
+    "Audit event types bind to the frozen KRP v1 Event and Redaction envelope with no wire change",
+    "Debug and Display renderings of audit events never expose plaintext",
+    "Leak corpus passes for events errors logs and exports",
+    "Audit-before-side-effect and audit-failure-never-admits hold for the secret path",
+    "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+    "Canonical closeout advances only KX-P02-S06-T02 and leaves P02 exit unproven"
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000028.json",
+    "docs/evidence/SG-000028-context-sources.json",
+    "docs/evidence/SG-000028-work-packet.json",
+    "crates/kernux-secret/src/audit.rs",
+    "crates/kernux-secret/src/lib.rs",
+    "docs/evidence/P02-S06-T02.md",
+    ".specgrain/evidence/SG-000028",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 14000,
+    "estimated_tokens": 11000
+  },
+  "dependencies": [
+    "SG-000027"
+  ],
+  "evidence": {
+    "required": [
+      "audit-surface-pass",
+      "workpacket-durable-recovery-pass",
+      "packet-persistence-pr-pass",
+      "packet-persistence-post-merge-ci-pass",
+      "cargo-lock-byte-identity-pass",
+      "admission-allow-event-pass",
+      "denial-event-pass",
+      "resolution-consumption-pass",
+      "redaction-rendering-pass",
+      "leak-corpus-pass",
+      "audit-before-side-effect-pass",
+      "secret-policy-store-daemon-regression-pass",
+      "local-macos-pass",
+      "diffcipline-r3-proof-pass",
+      "jev-review-pass",
+      "open-code-review-accounting-pass",
+      "implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000028",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "New audit module reusing the EventAppend pattern redaction helpers and frozen envelope, no qualified semantics touched"
+      },
+      "safety": {
+        "requirements": [
+          "Audit events never carry secret plaintext or value material",
+          "Audit failure never admits use or consumes budget"
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Broker admission outcomes emit redaction-safe audit events",
+  "parent_id": null,
+  "rationale": "S06-T01 built handle-based use without an observable audit trail",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only audit-event additions and closeout changes, keep KX-P02-S06-T02 at NEXT, preserve the SG-000027 native proof"
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Emit redaction-safe audit events for secret broker admission allow outcomes carrying only grant id secret ref destination class operation id and decision metadata",
+    "Emit redaction-safe audit events for every broker denial reason without plaintext or value material",
+    "Record resolution consumption for the single admitted use without retaining plaintext beyond the admitted destination",
+    "Build an adversarial secret-leak corpus proving events errors logs and exports never carry secret plaintext",
+    "Persist fresh ContextSources and WorkPacket before any implementation and require byte-identical replay through the pinned CLI"
+  ],
+  "scope_out": [
+    "No KRP schema change: v1 stays frozen and audit payloads bind to the existing Event and Redaction envelope",
+    "No ResolvedUse borrow-retention change and no cross-provider value-binding enforcement change: both stay owned by the daemon-execution slice",
+    "No new secret reveal authority, no plaintext persistence, no provider execution through the daemon, no P02 exit claim, S07-T01 stays PLANNED"
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S06-T02 audit events"
+}
