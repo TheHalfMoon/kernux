@@ -63,6 +63,7 @@ Start here:
 - [`docs/canonical/LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md`](docs/canonical/LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md)
 - [`docs/canonical/LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md`](docs/canonical/LOCAL_SUBSCRIPTION_ZERO_RUNTIME_COGS.md)
 - [`docs/canonical/PLATFORM_FABRICS_AND_SOURCE_INTEGRATION.md`](docs/canonical/PLATFORM_FABRICS_AND_SOURCE_INTEGRATION.md)
+- [`docs/canonical/OPEN_COMPUTER_USE_INTEGRATION_PLAN.md`](docs/canonical/OPEN_COMPUTER_USE_INTEGRATION_PLAN.md)
 - [`docs/canonical/UX_BLUEPRINT.md`](docs/canonical/UX_BLUEPRINT.md)
 - [`docs/canonical/CONTEXT_MEMORY_AND_SEARCH.md`](docs/canonical/CONTEXT_MEMORY_AND_SEARCH.md)
 - [`docs/canonical/NATIVE_AGENT_AND_HEADLESS.md`](docs/canonical/NATIVE_AGENT_AND_HEADLESS.md)
@@ -86,6 +87,10 @@ The founder has stated that Kernux has permission to use the full source of the 
 - `stablyai/orca` — agent workspace, parallel worktrees, terminal/runtime UX, remote/mobile patterns.
 - `tinyfish-io/agentql` and TinyFish source — resilient web interaction and browser-agent primitives.
 - `wonderwhy-er/DesktopCommanderMCP` — local filesystem, process, terminal, document/data, MCP, and remote-device primitives.
+
+Additional donor/reference:
+
+- `opensymph/open-computer-use` — cross-platform accessibility-first native computer-use observation/action patterns, integrated only behind the Kernux capability kernel and the canonical ComputerUse plan.
 
 SpecGrain and Diffcipline are used as delivery/proof methodology rather than product donors:
 
