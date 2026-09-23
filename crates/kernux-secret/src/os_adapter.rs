@@ -1,4 +1,5 @@
 //! First-generation OS credential-store adapter declarations for SG-000026.
+//! SG-000027 corrective re-adoption: executable semantics are intentionally unchanged.
 //!
 //! This module declares how the daemon reaches the platform credential store
 //! without performing any store access itself. It performs no operating system
