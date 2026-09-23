@@ -698,8 +698,11 @@ mod tests {
 
     #[test]
     fn evaluation_requires_an_existing_eligible_grant() {
-        let request =
-            direct_request("example.com", "network.connect", EgressSensitivity::NonSensitive);
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
         let authorized = direct_authorized("example.com", "network.connect", false);
         assert_eq!(
             evaluate_egress_constraint(
@@ -737,15 +740,21 @@ mod tests {
             EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch)
         );
 
-        let destination_changed =
-            direct_request("other.example", "network.connect", EgressSensitivity::NonSensitive);
+        let destination_changed = direct_request(
+            "other.example",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
         assert_eq!(
             evaluate_egress_constraint(&eligible_grant_match(), &destination_changed, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
         );
 
-        let operation_changed =
-            direct_request("example.com", "network.send", EgressSensitivity::NonSensitive);
+        let operation_changed = direct_request(
+            "example.com",
+            "network.send",
+            EgressSensitivity::NonSensitive,
+        );
         assert_eq!(
             evaluate_egress_constraint(&eligible_grant_match(), &operation_changed, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch)
@@ -774,11 +783,7 @@ mod tests {
     #[test]
     fn sensitivity_is_explicit_and_fails_closed() {
         let authorized = direct_authorized("example.com", "network.connect", false);
-        let unknown = direct_request(
-            "example.com",
-            "network.connect",
-            EgressSensitivity::Unknown,
-        );
+        let unknown = direct_request("example.com", "network.connect", EgressSensitivity::Unknown);
         assert_eq!(
             evaluate_egress_constraint(&eligible_grant_match(), &unknown, &authorized),
             EgressConstraintDecision::Denied(EgressDenyReason::SensitivityUnknown)
