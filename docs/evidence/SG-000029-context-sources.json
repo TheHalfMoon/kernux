@@ -1,0 +1,172 @@
+[
+ {
+  "priority": 0,
+  "provenance": "repo:specs/CURRENT.md#L70-L96",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the exact live P02 frontier with S07-T01 as the sole NEXT unit at 9 of 10 and P02 exit unproven.",
+  "size_bytes": 1555,
+  "source_id": "current-frontier",
+  "token_cost": 389
+ },
+ {
+  "priority": 1,
+  "provenance": "repo:specs/tasks.md#L87-L89",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the S07-T01 macro outcome with R3 risk, eight-class vocabulary, fail-closed unknown egress, and policy plus secret broker dependency.",
+  "size_bytes": 500,
+  "source_id": "s07-t01-registry",
+  "token_cost": 125
+ },
+ {
+  "priority": 2,
+  "provenance": "repo:specs/tasks.md#L55-L67",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the P02 kernel table with nine PROVEN tasks and S07-T01 dependency on proven policy and secret broker layers.",
+  "size_bytes": 1429,
+  "source_id": "p02-table",
+  "token_cost": 357
+ },
+ {
+  "priority": 3,
+  "provenance": "repo:specs/tasks.md#L85-L85",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Reuse the proven SG-000028 packet-first chain shape with R3 gates and preserve its negative evidence.",
+  "size_bytes": 1758,
+  "source_id": "s06-t02-closeout-precedent",
+  "token_cost": 440
+ },
+ {
+  "priority": 4,
+  "provenance": "repo:docs/canonical/EXECUTION_MASTER_PLAN.md#L134-L145",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind canonical S02.7 egress scope with fail-closed unknown sensitive egress and the P02 exit gate before network-capable phases.",
+  "size_bytes": 594,
+  "source_id": "master-plan-egress",
+  "token_cost": 149
+ },
+ {
+  "priority": 5,
+  "provenance": "repo:.specgrain/specs/SG-000029.json",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the shaped egress-policy Grain authority with nine exact paths, eight acceptance requirements, and 22 evidence checks.",
+  "size_bytes": 5289,
+  "source_id": "sg29-grain",
+  "token_cost": 1322
+ },
+ {
+  "priority": 6,
+  "provenance": "repo:.specgrain/specs/SG-000028.json",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Depend on the proven audit-event Grain for redaction-safe audit projection with frozen KRP envelope and no wire change.",
+  "size_bytes": 4054,
+  "source_id": "sg28-grain",
+  "token_cost": 1014
+ },
+ {
+  "priority": 7,
+  "provenance": "repo:crates/kernux-policy/src/decision.rs#L1-L132",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind stable DenyReason vocabulary with exact strings and pure deterministic Grant match evaluation with subject, action, runtime, resource, constraint intersection, and consequence ceiling for grant-constraining design.",
+  "size_bytes": 4390,
+  "source_id": "grant-evaluator-semantics",
+  "token_cost": 1098
+ },
+ {
+  "priority": 8,
+  "provenance": "repo:crates/kernux-policy/src/lib.rs#L343-L406",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Reuse proven network origin and browser profile validation with closed host, port, and path rules for explicit destination binding.",
+  "size_bytes": 2467,
+  "source_id": "policy-destination-validation",
+  "token_cost": 617
+ },
+ {
+  "priority": 9,
+  "provenance": "repo:crates/kernux-secret/src/broker.rs#L28-L80",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the proven secret broker EgressClass vocabulary with DirectDestination, ConnectedAccount, ExternalModel, ExternalTool, RemoteRuntime, Update, Telemetry, and validated BrokerDestination shapes.",
+  "size_bytes": 1386,
+  "source_id": "broker-egress-semantics",
+  "token_cost": 347
+ },
+ {
+  "priority": 10,
+  "provenance": "repo:crates/kernux-secret/src/provider.rs#L131-L250",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Reuse proven HostName and DestinationClass parsing with label, length, character, and closed vocabulary rules for destination identity.",
+  "size_bytes": 4202,
+  "source_id": "provider-hostname-validation",
+  "token_cost": 1051
+ },
+ {
+  "priority": 11,
+  "provenance": "repo:crates/kernux-secret/src/audit.rs#L1-L60",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind redaction-safe audit construction with deterministic events, frozen KRP envelope binding, and non-authoritative audit-before-side-effect for audit projection.",
+  "size_bytes": 3241,
+  "source_id": "audit-event-compat",
+  "token_cost": 810
+ },
+ {
+  "priority": 12,
+  "provenance": "repo:docs/canonical/local-privacy/FOUNDATIONS.md#L137-L152",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the normative eight egress classes with NONE requiring no destination, explicit destination binding, and no EXTERNAL_MODEL relabeling as DIRECT_DESTINATION.",
+  "size_bytes": 670,
+  "source_id": "privacy-egress-classes",
+  "token_cost": 168
+ },
+ {
+  "priority": 13,
+  "provenance": "repo:docs/canonical/local-privacy/FOUNDATIONS.md#L248-L290",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind mandatory browser DIRECT_DESTINATION versus EXTERNAL_MODEL separation, no silent cloud fallback on local failure, and fail-closed network enforcement with destination evidence.",
+  "size_bytes": 1188,
+  "source_id": "privacy-no-fallback-enforcement",
+  "token_cost": 297
+ },
+ {
+  "priority": 14,
+  "provenance": "repo:docs/canonical/CAPABILITY_AND_GRANT_MODEL.md#L578-L610",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind the effective destination set as the intersection of policy, request, Grant, and runtime-host limits for grant-constraining evaluation.",
+  "size_bytes": 838,
+  "source_id": "capability-destination-binding",
+  "token_cost": 210
+ },
+ {
+  "priority": 15,
+  "provenance": "repo:AGENTS.md#L1-L60",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, exact-head proof, and protected-history rules.",
+  "size_bytes": 2617,
+  "source_id": "agent-governance",
+  "token_cost": 654
+ },
+ {
+  "priority": 16,
+  "provenance": "repo:protocol/schema/krp.v1.schema.json#L770-L900",
+  "requirement": "required",
+  "revision": "git:66345e84f44e9710188d6fd177957c87e80787a4",
+  "selection_reason": "Bind audit payloads to the frozen Event and Redaction envelope with no wire change.",
+  "size_bytes": 3019,
+  "source_id": "krp-event-envelope",
+  "token_cost": 755
+ }
+]
