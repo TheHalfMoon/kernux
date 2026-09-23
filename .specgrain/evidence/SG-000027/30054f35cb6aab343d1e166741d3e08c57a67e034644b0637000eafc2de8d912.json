@@ -1,0 +1,187 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:30054f35cb6aab343d1e166741d3e08c57a67e034644b0637000eafc2de8d912",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Canonical closeout advances only KX-P02-S06-T01 after corrective proof, leaves P02 exit unproven, and authorizes KX-P02-S06-T02 only if live dependency truth still makes it the sole next unit.",
+        "detail": "This closeout advances exactly KX-P02-S06-T01 NEXT to PROVEN and KX-P02-S06-T02 PLANNED to NEXT, leaves KX-P02-S07-T01 PLANNED, moves P02 7 of 10 to 8 of 10, and leaves P02 exit unproven with S06-T01-only authority preserved.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md;repo:docs/evidence/P02-S06-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "Cargo.lock remains byte-stable under canonical Cargo tooling and preserves the exact existing kernux-secret, kernux-policy, and zeroize package/version/source identities with no dependency drift or manual lockfile edit.",
+        "detail": "Cargo.lock is unchanged from base 0973724 to merge 73b7b60 with empty diff for Cargo.lock Cargo.toml and kernux-secret Cargo.toml, preserves kernux-secret kernux-policy and zeroize identities, and was verified unchanged on probe linux and macos with no manual lockfile edit.",
+        "evidence_ref": "git-range:09737241f19541fcb859f4c530ee572a0f62fac0..73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa;repo:Cargo.lock;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "Corrective reconciliation passes full repository regression, focused secret tests, native macOS qualification, Diffcipline R3, Jev, Alibaba OpenCodeReview accounting, exact-head six-job CI/review/zero threads, ordinary merge, and post-merge six-job qualification.",
+        "detail": "Reconciliation passes full pnpm check plus focused secret policy store daemon suites on probe linux and native macos, Diffcipline R3, genuine Jev, OCR accounting, exact-head six-job CI 35781362094 with semantic review and zero threads, ordinary merge 73b7b60, and post-merge six-job CI 35820857483.",
+        "evidence_ref": "github-pr:184;github-actions:35781362094;github-actions:35819854347;github-actions:35820857483",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the fresh corrective WorkPacket to independently observed corrective evidence with every acceptance/evidence item satisfied and zero issues.",
+        "detail": "This immutable record binds the tracked corrective WorkPacket e96e0ab1 to implementation revision git:73b7b60 and to exactly the four independently observed corrective paths, with all 9 acceptance checks and all 18 required evidence checks satisfied and zero issues.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000027;repo:docs/evidence/SG-000027-work-packet.json",
+        "passed": true
+      },
+      {
+        "check_id": "The SG-000026 native-proof gap is explicitly preserved as negative evidence and is never relabeled PASS.",
+        "detail": "Prove SG-000026 reports verified false with record count 0, prove SG-000027 reported verified false with 0 records before this record, and no SG-000026 PASS record is manufactured or relabeled.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000026;repo:docs/evidence/P02-S06-T01.md;github-pr:184",
+        "passed": true
+      },
+      {
+        "check_id": "The corrective ContextSource and WorkPacket files are produced before corrective source mutation, tracked canonically, and replay byte-identically through the pinned CLI.",
+        "detail": "Fourteen context sources were produced before corrective source mutation on base 0973724, tracked as SG-000027-context-sources.json and SG-000027-work-packet.json, and replay through the pinned CLI reproduces the tracked WorkPacket byte-identically with trailing newline locally and on probe linux and macos.",
+        "evidence_ref": "github-pr:183;repo:docs/evidence/SG-000027-context-sources.json;repo:docs/evidence/SG-000027-work-packet.json;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "The corrective Grain uses explicit exact paths for Cargo.lock, os_adapter.rs, resolution.rs, its own packet evidence, closeout evidence, native proof namespace, and canonical ledgers; no wildcard authority is used.",
+        "detail": "The Grain authorizes exactly ten explicit paths including spec, packet evidence, Cargo.lock, os_adapter.rs, resolution.rs, closeout evidence, native proof namespace, and canonical ledgers, with no wildcard authority for those paths.",
+        "evidence_ref": "repo:.specgrain/specs/SG-000027.json;github-pr:182",
+        "passed": true
+      },
+      {
+        "check_id": "The os_adapter reconciliation changes no executable semantics and preserves fixed program identity, argv-first non-shell construction, bounded service/account validation, static errors, and no I/O/plaintext behavior.",
+        "detail": "Only the declared one-line adoption comment changed in os_adapter.rs with plus 1 minus 0, preserving fixed per-provider programs, argv-first non-shell templates, bounded service and account validation, static errors, and no IO or plaintext behavior, with focused secret tests 50 of 50 PASS on linux and macos.",
+        "evidence_ref": "git:985beeb0242229bf646cd711406999f0f2f1dc97;repo:crates/kernux-secret/src/os_adapter.rs;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "The resolution reconciliation changes no executable semantics and preserves exact admitted metadata binding, non-clone live values, redacted Debug, zeroization, static errors, and no side-effect behavior.",
+        "detail": "Only the declared one-line adoption comment changed in resolution.rs with plus 1 minus 0, preserving exact admitted metadata binding, non-clone live values, redacted Debug, zeroization, static errors, and no side-effect behavior, with focused secret tests 50 of 50 PASS on linux and macos.",
+        "evidence_ref": "git:985beeb0242229bf646cd711406999f0f2f1dc97;repo:crates/kernux-secret/src/resolution.rs;github-actions:35819854347",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "cargo-lock-byte-identity-pass",
+        "detail": "Cargo.lock Cargo.toml and kernux-secret Cargo.toml are unchanged across 0973724 to 73b7b60, preserve existing package version source identities including zeroize, and probe linux and macos report manifest and lockfile identities unchanged with no manual edit.",
+        "evidence_ref": "git-range:09737241f19541fcb859f4c530ee572a0f62fac0..73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa;repo:Cargo.lock;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Protected closeout evidence merge 573a32b passed all six post-merge CI jobs in run 35825508593.",
+        "evidence_ref": "github-pr:189;github-actions:35825508593;git:573a32b0730d053df3afb60b726491ad8e996442",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-packet-persistence-post-merge-ci-pass",
+        "detail": "Packet persistence merge 937fd04 passed post-merge qualification through run 35778344601 and the subsequent exact-head and post-merge chain with no failure attributed to packet persistence.",
+        "evidence_ref": "github-pr:183;github-actions:35778344601;git:937fd04fa900639ede99641a772354b3643c271f",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-packet-persistence-pr-pass",
+        "detail": "Packet persistence PR 183 passed exact-head six-job CI 35769000988 before ordinary merge with only the two authorized packet files.",
+        "evidence_ref": "github-pr:183;github-actions:35769000988",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-reconciliation-post-merge-ci-pass",
+        "detail": "Reconciliation merge 73b7b60 passed all six post-merge CI jobs in run 35820857483.",
+        "evidence_ref": "github-pr:184;github-actions:35820857483;git:73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-reconciliation-pr-pass",
+        "detail": "Reconciliation PR 184 exact head 985beeb passed exact-head six-job CI 35781362094 with probe R3 OCR macos and focused evidence plus Jev and semantic review and zero threads before ordinary merge.",
+        "evidence_ref": "github-pr:184;github-actions:35781362094;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "corrective-workpacket-durable-recovery-pass",
+        "detail": "Tracked corrective ContextSource and WorkPacket files are canonical and replay byte-identically through the pinned CLI locally and on probe linux and macos, with packet digest e96e0ab1 and context-plan digest 277257d6.",
+        "evidence_ref": "github-pr:183;repo:docs/evidence/SG-000027-context-sources.json;repo:docs/evidence/SG-000027-work-packet.json;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "Probe Diffcipline R3 with run-verification true passes on linux and macos for the exact plus 2 minus 0 scope, with dependencies unchanged, lockfiles unchanged, untracked 0, and verification PASS via pnpm check.",
+        "evidence_ref": "github-actions:35819854347;github-pr:184",
+        "passed": true
+      },
+      {
+        "check_id": "explicit-corrective-surface-pass",
+        "detail": "Range 0973724 to 73b7b60 holds exactly the two packet files plus the two re-adopted source paths, all inside the ten-path authorized surface, with Cargo.lock manifests and all other surfaces unchanged.",
+        "evidence_ref": "git-range:09737241f19541fcb859f4c530ee572a0f62fac0..73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "Genuine Jev CLI 0.3.2 provider TypeSafe model jev-1.13.0 on exact base 937fd04 and head 985beeb returns all 8 dimensions no with probabilities 0.02 to 0.04 and no legitimate findings for the comment-only diff.",
+        "evidence_ref": "github-pr:184",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Native macos-14 qualification succeeds in probe run 35819854347 covering replay, full baseline pnpm check, focused secret and policy store daemon suites, R3, OCR accounting, and cleanliness.",
+        "evidence_ref": "github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This immutable record is the pinned native verification result for the exact corrective WorkPacket e96e0ab1 with 9 of 9 acceptance checks, 18 of 18 required evidence checks, and zero issues.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000027;repo:docs/evidence/SG-000027-work-packet.json",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview 1.12.7 Delegation Mode accounting with binary SHA 7C40F72363C66BD49AA16DDDE48DDB458EED6D8492C3A0C35A94D6A9BAC1BB64 shows total 2 reviewable 2 excluded 0 with one system Rust group and no blocking findings for the comment-only scope, on probe linux and macos.",
+        "evidence_ref": "github-pr:184;github-actions:35819854347",
+        "passed": true
+      },
+      {
+        "check_id": "os-adapter-semantics-pass",
+        "detail": "OS adapter preserves fixed program identity, argv-first non-shell construction, bounded validation, static errors, and no IO or plaintext behavior with only the adoption comment changed and focused secret tests 50 of 50 PASS.",
+        "evidence_ref": "github-pr:184;github-actions:35819854347;repo:crates/kernux-secret/src/os_adapter.rs",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Closeout evidence PR 189 exact head 5e62fc2 passed exact-head six-job CI 35824914642 with probe SUCCESS 35825306218 after preserved failed probe 35825001476, plus Jev docs-only 8 of 8 no, OCR Delegation 1 total 0 reviewable 1 excluded with no blocking, semantic review with no findings, and zero threads before ordinary merge.",
+        "evidence_ref": "github-pr:189;github-actions:35824914642;github-actions:35825306218",
+        "passed": true
+      },
+      {
+        "check_id": "resolution-semantics-pass",
+        "detail": "Resolution preserves exact admitted metadata binding, non-clone live values, redacted Debug, zeroization, static errors, and no side effects with only the adoption comment changed and focused secret tests 50 of 50 PASS.",
+        "evidence_ref": "github-pr:184;github-actions:35819854347;repo:crates/kernux-secret/src/resolution.rs",
+        "passed": true
+      },
+      {
+        "check_id": "secret-policy-store-daemon-regression-pass",
+        "detail": "Full pnpm check plus focused kernux-secret 50 passed, kernux-policy 41 passed, kernux-store 86 passed, and kernuxd plus kernux-identity suites pass on probe linux and native macos, with exact-head and post-merge six-job CI SUCCESS.",
+        "evidence_ref": "github-actions:35819854347;github-actions:35781362094;github-actions:35820857483",
+        "passed": true
+      },
+      {
+        "check_id": "sg26-native-proof-gap-preserved",
+        "detail": "SG-000026 remains verified false with 0 records, its change-surface mismatch is not rewritten and not relabeled PASS, and the corrective path follows the established explicit re-adoption pattern.",
+        "evidence_ref": "github-pr:184;repo:docs/evidence/P02-S06-T01.md",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa",
+    "issues": [],
+    "observed_changed_paths": [
+      "crates/kernux-secret/src/os_adapter.rs",
+      "crates/kernux-secret/src/resolution.rs",
+      "docs/evidence/SG-000027-context-sources.json",
+      "docs/evidence/SG-000027-work-packet.json"
+    ],
+    "packet_digest": "sha256:e96e0ab1976fb2fcdb93669b1873ed9800d0c2792a115d462be319948ea2004d",
+    "result_digest": "sha256:a0b5978d0315ba4d143f3d3939ae083ca62bae4d79f0f1fffb42da02504ee4a7",
+    "spec_id": "SG-000027",
+    "spec_revision": "sha256:530fb9eb04ff62923ef459b08c298a549872309067a7485b4e6a27c65e6fb8b0",
+    "verification_version": 1,
+    "verified": true
+  }
+}

@@ -79,13 +79,13 @@ No product code or founding-donor product code has been imported yet.
 
 **P01 EXIT STATUS:** `PROVEN`
 
-**P02 ENTRY AUTHORIZED:** `KX-P02-S06-T01 ONLY`
+**P02 ENTRY AUTHORIZED:** `KX-P02-S06-T02 ONLY`
 
-**NEXT CANONICAL FRONTIER:** `KX-P02-S06-T01 — Implement secret-provider abstraction and first OS credential-store adapters with handle-based use`
+**NEXT CANONICAL FRONTIER:** `KX-P02-S06-T02 — Add redaction-safe security audit events and secret-leak tests.`
 
-**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S05-T02 — Implement user-friendly Safe/Standard/Developer/Autonomous/Custom profiles compiling to granular grants`
+**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S06-T01 — Implement secret-provider abstraction and first OS credential-store adapters with handle-based use`
 
-**P02 PROGRESS:** `7 / 10 macro tasks PROVEN`
+**P02 PROGRESS:** `8 / 10 macro tasks PROVEN`
 
 **LONG-HORIZON UNIVERSAL PLATFORM PLAN:** `PLANNED / NON-BLOCKING TO CURRENT P02 FRONTIER`
 
@@ -108,6 +108,8 @@ The canonical long-horizon expansion is defined in `docs/canonical/UNIVERSAL_PLA
 **KX-P02-S05-T01 QUALIFICATION:** `PROVEN`
 
 **KX-P02-S05-T02 QUALIFICATION:** `PROVEN`
+
+**KX-P02-S06-T01 QUALIFICATION:** `PROVEN`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -154,6 +156,8 @@ KX-P01-S05-T03 is PROVEN after native verification and its protected closeout. P
 
 KX-P02-S05-T02 is now PROVEN through the SG-000025 packet-first path: immutable native record `sha256:e0a77a108922a591f6934fb1fec1fde70cdfabae93f803449223d3ce6d0f91fa` verified the exact four-path implementation range with acceptance 14/14 and required evidence 19/19; protected closeout evidence PR #164 exact head `ad1ecac9de882ed8a49b4c11e63119346c423517` passed exact-head CI `35627524278` 6/6, linux and native macOS qualification `35628011667`, exact-head review `5269389086` with zero threads, and post-merge CI `35628296835` 6/6. Only KX-P02-S06-T01 is authorized as NEXT; KX-P02-S06-T02 and KX-P02-S07-T01 remain PLANNED and P02 phase exit remains unproven.
 
+KX-P02-S06-T01 is now PROVEN through the corrective SG-000027 path: immutable native record `sha256:30054f35cb6aab343d1e166741d3e08c57a67e034644b0637000eafc2de8d912` verified the exact four-path corrective range at `git:73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa` with acceptance 9/9 and required evidence 18/18; corrective packet persistence PR #183 and reconciliation PR #184 plus protected closeout evidence PR #189 exact head `5e62fc217ac1ebe48d450818b201c8a816047932` passed exact-head CI `35824914642` 6/6, linux and native macOS probe `35825306218`, exact-head review with zero threads, ordinary merge `573a32b0730d053df3afb60b726491ad8e996442`, and post-merge CI `35825508593` 6/6. Only KX-P02-S06-T02 is authorized as NEXT; KX-P02-S07-T01 remains PLANNED and P02 phase exit remains unproven.
+
 Proof for the current frontier includes:
 
 - `docs/evidence/P00-EXIT.md`;
@@ -172,6 +176,7 @@ Proof for the current frontier includes:
 - `docs/evidence/P02-S04-T01.md` — PROVEN Artifact CAS implementation, native SG-000022 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S05-T01.md` — PROVEN policy/Grant implementation outcome through preserved SG-000023 negative evidence plus corrective native SG-000024 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S05-T02.md` — PROVEN permission-profile vocabulary, compiler, and adversarial corpus outcome through the tracked SG-000025 WorkPacket, native SG-000025 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-S06-T01.md` — PROVEN secret-provider abstraction and OS credential-store adapter outcome through preserved SG-000026 negative evidence plus corrective native SG-000027 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 
 ## Dependency rule
 
