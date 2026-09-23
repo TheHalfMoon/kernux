@@ -4,10 +4,12 @@
 //! execute host operations, read secrets, or infer authority from providers.
 
 mod decision;
+mod egress;
 mod envelope;
 mod profile;
 mod semantics;
 pub use decision::*;
+pub use egress::*;
 pub use envelope::*;
 pub use profile::*;
 pub use semantics::*;
@@ -27,6 +29,9 @@ pub enum PolicyValidationError {
     ConstraintConflict,
     InvalidReference,
     InvalidGrantEnvelope,
+    UnknownEgressClass,
+    InvalidEgressDestination,
+    EgressClassDestinationMismatch,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
