@@ -1,0 +1,191 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:0bb0dc7d5fe578f194b2cd9bfbca61380d2add6e49194a6323d4feb816de17ba",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Admission allow and every denial emit an audit event with exact non-plaintext metadata",
+        "detail": "PR-A allow_event_projects_exact_metadata plus every_denial_emits_a_stable_reason_code over all 21 BrokerError variants; PR-B denial_events_match_real_admission_failures binds 6 real admit() denials to denial codes.",
+        "evidence_ref": "github-pr:193;github-pr:194;repo:crates/kernux-secret/src/audit.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Audit event types bind to the frozen KRP v1 Event and Redaction envelope with no wire change",
+        "detail": "Constants-only binding (krp/1, secret-metadata-only, excluded, secret-plaintext-excluded); protocol/ empty across fb63a4f to 92f3929; envelope_binds_the_frozen_krp_vocabulary passes.",
+        "evidence_ref": "github-pr:193;github-pr:194;repo:protocol/",
+        "passed": true
+      },
+      {
+        "check_id": "Audit-before-side-effect and audit-failure-never-admits hold for the secret path",
+        "detail": "Type-level hold: constructors require parsed CanonicalUtcSecond and event-first construction; timestamp_failure_blocks_before_admission rejects 6 bad timestamps; daemon sequencing stays owned by the daemon slice.",
+        "evidence_ref": "github-pr:194;repo:crates/kernux-secret/src/audit.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical closeout advances only KX-P02-S06-T02 and leaves P02 exit unproven",
+        "detail": "Closeout advances only KX-P02-S06-T02 NEXT to PROVEN and KX-P02-S07-T01 PLANNED to NEXT, leaves P02 exit unproven, with S06-T02-only authority across implementation, evidence, closeout, and proof ranges.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "Debug and Display renderings of audit events never expose plaintext",
+        "detail": "Redacted Debug/Display carry metadata only; renderings_are_deterministic_and_stable plus audit_events_never_authorize_use pass; corpus scans all three surfaces.",
+        "evidence_ref": "github-pr:194;repo:crates/kernux-secret/src/audit.rs",
+        "passed": true
+      },
+      {
+        "check_id": "Leak corpus passes for events errors logs and exports",
+        "detail": "14-entry adversarial corpus over all 3 events x 3 surfaces plus SecretValue Debug and BrokerError renderings; 60/60 kernux-secret tests pass on probe linux and macos-14.",
+        "evidence_ref": "github-pr:194;github-actions:35891315591",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+        "detail": "This immutable record binds the tracked WorkPacket 453cffa0 to implementation revision git:92f3929 with 7/7 acceptance and 21/21 evidence satisfied and zero issues.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000028",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "admission-allow-event-pass",
+        "detail": "allow_event_projects_exact_metadata asserts exact grant/ref/provider/class/detail/op/egress/reason/stamp projection with corresponds_to_allow.",
+        "evidence_ref": "github-pr:193;github-actions:35884729510;github-actions:35889111829",
+        "passed": true
+      },
+      {
+        "check_id": "audit-before-side-effect-pass",
+        "detail": "Event-first pure constructors; timestamp_failure_blocks_before_admission; op-id correspondence sensitivity in audit_events_never_authorize_use.",
+        "evidence_ref": "github-pr:194;github-actions:35890939606;github-actions:35891315591",
+        "passed": true
+      },
+      {
+        "check_id": "audit-surface-pass",
+        "detail": "PR-A exact 2-file +526/-1 and PR-B exact 1-file +232/-1 scopes inside the nine-path surface; manifests, lockfile, protocol, ledgers unchanged on probes.",
+        "evidence_ref": "github-actions:35889111829;github-actions:35891315591",
+        "passed": true
+      },
+      {
+        "check_id": "cargo-lock-byte-identity-pass",
+        "detail": "Cargo.lock SHA-256 f74117077faceefba65c497b5eef7f63500e761d0833e48626b0ded80a93a7c8 at 92f3929; empty lockfile/manifest diffs across fb63a4f to 92f3929.",
+        "evidence_ref": "git-range:fb63a4fb89b62f9e5600d62216eb3cc8e65366c4..92f3929e26a18de25f9f3dbb2db8e68eec984bb9;repo:Cargo.lock",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Closeout PR 196 merge db7193228b099ac807cab19aa53193f558bdcc11 post-merge CI 6/6 SUCCESS (35894496333).",
+        "evidence_ref": "github-pr:196;github-actions:35894496333;git:db7193228b099ac807cab19aa53193f558bdcc11",
+        "passed": true
+      },
+      {
+        "check_id": "denial-event-pass",
+        "detail": "All 21 BrokerError variants map to distinct kebab-case codes; grant-less denials invent no grant id; 6 real admission failures correspond.",
+        "evidence_ref": "github-pr:193;github-pr:194",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "R3 PASS with run-verification on linux and macos-14 for PR-A (+526/-1), PR-B (+232/-1), and evidence (+172/-0) scopes; deps/lockfiles unchanged; untracked 0.",
+        "evidence_ref": "github-actions:35889111829;github-actions:35891315591;github-actions:35892890158",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-post-merge-ci-pass",
+        "detail": "Post-merge CI 6/6 on PR-A merge f4729ad (35889733273) and PR-B merge 92f3929 (35891797823).",
+        "evidence_ref": "github-actions:35889733273;github-actions:35891797823",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-pr-pass",
+        "detail": "PR 193 and PR 194 each passed exact-head CI 6/6, R3, Jev, OCR 1.12.7, linux plus native macos plus Windows, semantic review, and zero threads before ordinary merge.",
+        "evidence_ref": "github-pr:193;github-pr:194",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "Genuine jev 0.3.2 TypeSafe jev-1.13.0: PR-A 8/8 no (0.02-0.08), PR-B 8/8 no (0.02-0.35), evidence 7 direct no plus 1 threshold-yes adjudicated to no (0.02). No blocking findings.",
+        "evidence_ref": "github-pr:193;github-pr:194;github-pr:195",
+        "passed": true
+      },
+      {
+        "check_id": "leak-corpus-pass",
+        "detail": "leak_corpus_never_reaches_event_surfaces with 14 synthetic secrets passes on linux and macos-14; de-patterned slack entry keeps identical matcher coverage.",
+        "evidence_ref": "github-pr:194;github-actions:35891315591",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Native macos-14-arm64 (14.8.9, 23J631) qualification SUCCESS covering replay, baseline, focused suites, R3, and OCR for PR-A, PR-B, and evidence.",
+        "evidence_ref": "github-actions:35889111829;github-actions:35891315591;github-actions:35892890158",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This immutable record is the pinned native verification result with 7/7 acceptance and 21/21 evidence satisfied and zero issues.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000028",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview 1.12.7 (85cecfe) Delegation Mode accounting only on linux and macos for PR-A (2/2/0), PR-B (1/1/0), evidence (1/0/1 unsupported_ext). No blocking findings.",
+        "evidence_ref": "github-actions:35889111829;github-actions:35891315591;github-actions:35892890158",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-post-merge-ci-pass",
+        "detail": "Packet persistence merge fb63a4f post-merge CI 6/6 SUCCESS (35837385920).",
+        "evidence_ref": "github-pr:192;github-actions:35837385920",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-pr-pass",
+        "detail": "SG-000028 packet persistence qualified through probe pr192-packet-qualification SUCCESS (35837127930) before merge fb63a4f.",
+        "evidence_ref": "github-pr:192;github-actions:35837127930",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Closeout PR 196 exact head 23dfe587080aa89e6eb8b4c89b3f1e17130fbfe8 passed exact-head CI 35894087220 with probe SUCCESS 35894159508 (R3, OCR, linux, native macos), Jev 8/8 no, OCR Delegation Mode, semantic clean, and zero threads before ordinary merge db71932.",
+        "evidence_ref": "github-pr:196;github-actions:35894087220;github-actions:35894159508",
+        "passed": true
+      },
+      {
+        "check_id": "redaction-rendering-pass",
+        "detail": "Deterministic canonical projection with stable key order; safe Debug subset and metadata-only Display; no SecretValue or plaintext in any rendering.",
+        "evidence_ref": "github-pr:193;github-pr:194",
+        "passed": true
+      },
+      {
+        "check_id": "resolution-consumption-pass",
+        "detail": "consumption_records_use_without_plaintext binds ResolvedUse without expose() and asserts clean surfaces; consumed events carry no op id or egress.",
+        "evidence_ref": "github-pr:194",
+        "passed": true
+      },
+      {
+        "check_id": "secret-policy-store-daemon-regression-pass",
+        "detail": "Full pnpm check plus focused kernux-secret (60), kernux-policy, kernux-store, kernuxd, kernux-identity suites pass on probe linux and native macos.",
+        "evidence_ref": "github-actions:35889111829;github-actions:35891315591",
+        "passed": true
+      },
+      {
+        "check_id": "workpacket-durable-recovery-pass",
+        "detail": "Tracked packet 453cffa0 with context-plan 10225431 replay byte-identically (cmp) through the pinned CLI on probe linux and macos; SG-000027 proof preserved.",
+        "evidence_ref": "repo:docs/evidence/SG-000028-work-packet.json;github-actions:35889111829",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:92f3929e26a18de25f9f3dbb2db8e68eec984bb9",
+    "issues": [],
+    "observed_changed_paths": [
+      "crates/kernux-secret/src/audit.rs",
+      "crates/kernux-secret/src/lib.rs"
+    ],
+    "packet_digest": "sha256:453cffa03b66c5b47813a343056fbbad7ae8bd9c71743436c0475fcf420d6005",
+    "result_digest": "sha256:539118b8334993a188f82bcd496348b887cb0bfd882043cddb6b6381b0b1f8c7",
+    "spec_id": "SG-000028",
+    "spec_revision": "sha256:1afaca0e329fd1b2742db53737d25f4c8de2a9f9285f36912b83139706420335",
+    "verification_version": 1,
+    "verified": true
+  }
+}
