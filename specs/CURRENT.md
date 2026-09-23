@@ -175,8 +175,8 @@ Proof for the current frontier includes:
 - `docs/evidence/P02-S03-T01.md` — PROVEN metadata-store implementation, native SG-000021 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S04-T01.md` — PROVEN Artifact CAS implementation, native SG-000022 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S05-T01.md` — PROVEN policy/Grant implementation outcome through preserved SG-000023 negative evidence plus corrective native SG-000024 proof, protected closeout, exact-head review, merge, and post-merge qualification.
-- `docs/evidence/P02-S05-T02.md`
-- `docs/evidence/P02-S06-T01.md` — PROVEN permission-profile vocabulary, compiler, and adversarial corpus outcome through the tracked SG-000025 WorkPacket, native SG-000025 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-S05-T02.md` — PROVEN permission-profile vocabulary, compiler, and adversarial corpus outcome through the tracked SG-000025 WorkPacket, native SG-000025 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-S06-T01.md` — PROVEN secret-provider abstraction and OS credential-store adapter outcome through preserved SG-000026 negative evidence plus corrective native SG-000027 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 
 ## Dependency rule
 
