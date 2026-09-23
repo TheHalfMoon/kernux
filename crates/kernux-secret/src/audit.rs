@@ -355,7 +355,7 @@ impl fmt::Display for SecretAuditEvent {
 #[cfg(test)]
 mod audit_tests {
     use super::*;
-    use crate::{EnvName, SecretHandle, SecretRef, admit};
+    use crate::{EnvName, SecretHandle, SecretRef, SecretValue, admit};
     use kernux_policy::{
         Action, CanonicalResource, ConsequenceClass, ResourceScope, ValidatedConstraints,
         ValidatedGrant, ValidatedSubjectScope,
@@ -438,6 +438,24 @@ mod audit_tests {
         admit(&valid_request()).expect("valid admission")
     }
 
+    fn surfaces(event: &SecretAuditEvent) -> [String; 3] {
+        [
+            format!("{event:?}"),
+            format!("{event}"),
+            event.to_canonical_string(),
+        ]
+    }
+
+    fn assert_surfaces_clean(event: &SecretAuditEvent, plaintext: &[u8], what: &str) {
+        for surface in surfaces(event) {
+            assert!(
+                !crate::leaks_plaintext(&surface, plaintext),
+                "plaintext leak in {what}"
+            );
+            crate::assert_no_plaintext(&surface, plaintext, what);
+        }
+    }
+
     #[test]
     fn allow_event_projects_exact_metadata() {
         let admitted = admitted_use();
@@ -514,5 +532,218 @@ mod audit_tests {
         assert_eq!(event.grant_id(), None);
         assert_eq!(event.reason_code(), "missing-grant");
         assert_eq!(event.secret_ref(), SECRET);
+    }
+
+    type DenialCase = (fn(&mut BrokerRequest), BrokerError);
+
+    #[test]
+    fn denial_events_match_real_admission_failures() {
+        let cases: [DenialCase; 6] = [
+            (|request| request.grant = None, BrokerError::MissingGrant),
+            (
+                |request| request.presented_provider = ProviderId::OsLinuxSecretService,
+                BrokerError::WrongProvider,
+            ),
+            (
+                |request| request.presented_project_id = "project-beta".to_owned(),
+                BrokerError::CrossProject,
+            ),
+            (|request| request.revoked = true, BrokerError::GrantRevoked),
+            (
+                |request| request.privacy_allows = false,
+                BrokerError::PrivacyDenied,
+            ),
+            (
+                |request| {
+                    request.presented_destination = BrokerDestination::HostCommand;
+                },
+                BrokerError::WrongDestination,
+            ),
+        ];
+        for (mutate, expected) in cases {
+            let mut request = valid_request();
+            mutate(&mut request);
+            let failure = admit(&request).expect_err("must deny");
+            assert_eq!(failure, expected);
+            let event = SecretAuditEvent::for_denial(&request, failure, stamp());
+            assert_eq!(event.reason_code(), denial_code(expected));
+        }
+    }
+
+    #[test]
+    fn consumption_records_use_without_plaintext() {
+        let plaintext = b"correct horse battery staple".to_vec();
+        let resolved = ResolvedUse::bind(
+            &admitted_use(),
+            SecretValue::from_bytes(plaintext.clone()).expect("value"),
+        );
+        // The audit path never borrows the live value: no `expose()` call.
+        let event = SecretAuditEvent::for_consumption(&resolved, stamp());
+        assert_eq!(event.kind(), SecretAuditKind::Consumed);
+        assert_eq!(event.event_type(), SECRET_AUDIT_CONSUMED_EVENT);
+        assert_eq!(event.grant_id(), Some(GRANT));
+        assert_eq!(event.secret_ref(), SECRET);
+        assert_eq!(event.reason_code(), SECRET_AUDIT_CONSUMED_REASON);
+        assert_eq!(event.operation_id(), None);
+        assert_eq!(event.egress(), None);
+        assert_surfaces_clean(&event, &plaintext, "consumption event");
+    }
+
+    #[test]
+    fn renderings_are_deterministic_and_stable() {
+        let first = SecretAuditEvent::for_allow(&admitted_use(), stamp());
+        let second = SecretAuditEvent::for_allow(&admitted_use(), stamp());
+        assert_eq!(first, second);
+        let (debug, display, canonical) = (
+            format!("{first:?}"),
+            format!("{first}"),
+            first.to_canonical_string(),
+        );
+        assert_eq!(debug, format!("{second:?}"));
+        assert_eq!(display, format!("{second}"));
+        assert_eq!(canonical, second.to_canonical_string());
+        assert!(debug.contains(SECRET_AUDIT_ADMITTED_EVENT));
+        assert!(display.contains(SECRET_AUDIT_ALLOW_REASON));
+        let order = [
+            "event_type=",
+            "grant_id=",
+            "secret_ref=",
+            "provider=",
+            "reason=",
+            "recorded_at=",
+        ];
+        let mut cursor = 0;
+        for key in order {
+            let found = canonical[cursor..].find(key).expect("stable key order");
+            cursor += found;
+        }
+    }
+
+    #[test]
+    fn envelope_binds_the_frozen_krp_vocabulary() {
+        for event_type in [
+            SECRET_AUDIT_ADMITTED_EVENT,
+            SECRET_AUDIT_DENIED_EVENT,
+            SECRET_AUDIT_CONSUMED_EVENT,
+        ] {
+            let tokens: Vec<&str> = event_type.split('.').collect();
+            assert!(tokens.len() >= 2, "KRP event shape: {event_type}");
+            for token in tokens {
+                let mut bytes = token.bytes();
+                assert!(matches!(bytes.next(), Some(b'a'..=b'z')));
+                assert!(bytes.all(|byte| byte.is_ascii_lowercase()
+                    || byte.is_ascii_digit()
+                    || byte == b'_'));
+            }
+        }
+        assert_eq!(
+            SecretAuditKind::Admitted.event_type(),
+            SECRET_AUDIT_ADMITTED_EVENT
+        );
+        assert_eq!(
+            SecretAuditKind::Denied.event_type(),
+            SECRET_AUDIT_DENIED_EVENT
+        );
+        assert_eq!(
+            SecretAuditKind::Consumed.event_type(),
+            SECRET_AUDIT_CONSUMED_EVENT
+        );
+        let event = SecretAuditEvent::for_allow(&admitted_use(), stamp());
+        assert_eq!(event.contract_version(), "krp/1");
+        assert_eq!(event.sensitivity(), SECRET_AUDIT_SENSITIVITY);
+        assert_eq!(event.redaction_state(), "excluded");
+        assert_eq!(event.redaction_reason(), SECRET_AUDIT_REDACTION_REASON);
+    }
+
+    #[test]
+    fn audit_events_never_authorize_use() {
+        let admitted = admitted_use();
+        let allow = SecretAuditEvent::for_allow(&admitted, stamp());
+        let denial =
+            SecretAuditEvent::for_denial(&valid_request(), BrokerError::PrivacyDenied, stamp());
+        let resolved = ResolvedUse::bind(
+            &admitted,
+            SecretValue::from_bytes(b"top secret value".to_vec()).expect("value"),
+        );
+        let consumed = SecretAuditEvent::for_consumption(&resolved, stamp());
+        for event in [&allow, &denial, &consumed] {
+            assert!(!event.authorizes_use());
+        }
+        assert!(!denial.corresponds_to_allow(&admitted));
+        assert!(!consumed.corresponds_to_allow(&admitted));
+        let mut other = valid_request();
+        other.expected_operation_id = Some("op-002".to_owned());
+        other.presented_operation_id = Some("op-002".to_owned());
+        let other_admitted = admit(&other).expect("valid admission");
+        assert!(allow.corresponds_to_allow(&admitted));
+        assert!(
+            !SecretAuditEvent::for_allow(&other_admitted, stamp()).corresponds_to_allow(&admitted)
+        );
+    }
+
+    #[test]
+    fn timestamp_failure_blocks_before_admission() {
+        // Constructors require an already-parsed trusted timestamp, so a
+        // caller that cannot parse its audit time holds no event and must
+        // refuse the side effect: audit failure never admits.
+        for bad in [
+            "",
+            "2026-09-20",
+            "2026-13-01T00:00:00Z",
+            "2026-09-20T25:00:00Z",
+            "2026-09-20 01:30:00Z",
+            "not-a-time",
+        ] {
+            assert!(
+                CanonicalUtcSecond::parse(bad).is_err(),
+                "must reject {bad:?}"
+            );
+        }
+        assert_eq!(stamp().to_canonical_text(), STAMP);
+    }
+
+    #[test]
+    fn leak_corpus_never_reaches_event_surfaces() {
+        let secrets: [&[u8]; 14] = [
+            b"sk-live-51H7x9Kp2mQv8Tn3Yw",
+            b"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0In0.AFTo3p0g0uXk7vQ",
+            b"postgres://admin:s3cr3t-p@ss@db.internal:5432/app",
+            b"Authorization: Basic YWRtaW46c3VwZXItc2VjcmV0",
+            b"-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASC",
+            b"hunter2-correct-horse",
+            b"AKIAIOSFODNN7EXAMPLE",
+            b"ghp_0123456789abcdefghijKLMNOP",
+            b"slack-synthetic-token-0123456789-abcdefghijklmnopqrstuv",
+            b"mongodb+srv://user:p%40ss%3Aw0rd@cluster.example.net/db?secret=1",
+            "{\"token\": \"super-secret-value-9\", \"nested\": {\"key\": \"super-secret-value-9\"}}".as_bytes(),
+            "pässwörd-sëcret-✓-unicode".as_bytes(),
+            b"repeat-secret::repeat-secret::repeat-secret",
+            b"a=b;c=d|e=f\ttoken=delimited-secret-value",
+        ];
+        let resolved = ResolvedUse::bind(
+            &admitted_use(),
+            SecretValue::from_bytes(b"corpus-holder-value".to_vec()).expect("value"),
+        );
+        let events = [
+            SecretAuditEvent::for_allow(&admitted_use(), stamp()),
+            SecretAuditEvent::for_denial(&valid_request(), BrokerError::WrongHost, stamp()),
+            SecretAuditEvent::for_consumption(&resolved, stamp()),
+        ];
+        for secret in &secrets {
+            assert!(!secret.is_empty());
+            for event in &events {
+                assert_surfaces_clean(event, secret, "leak corpus");
+            }
+            let value = SecretValue::from_bytes(secret.to_vec()).expect("corpus value");
+            let debug = format!("{value:?}");
+            assert!(!crate::leaks_plaintext(&debug, secret));
+            crate::assert_no_plaintext(&debug, secret, "corpus value debug");
+        }
+        for error in [BrokerError::HandleMismatch, BrokerError::PrivacyDenied] {
+            let rendered = format!("{error}");
+            for secret in &secrets {
+                assert!(!crate::leaks_plaintext(&rendered, secret));
+            }
+        }
     }
 }
