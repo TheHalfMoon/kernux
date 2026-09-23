@@ -422,3 +422,252 @@ Kernux strengthens it with:
 
 > **The proposed action is never authority; only the capability kernel can authorize execution, and completion requires evidence.**
 
+
+
+## 34. Implementation-readiness hardening
+
+The Laya integration inherits, and must explicitly bind each future Grain to, the existing Kernux canonical contracts for security, privacy, lifecycle, portability, diagnostics, updates, cross-platform behavior, and release qualification. This section closes integration-specific gaps that are easy to miss when porting a working donor application.
+
+### 34.1 Donor differential characterization
+
+Before semantic adaptation of any copied donor path:
+
+- preserve the exact upstream revision and source bytes;
+- capture selected dependency versions or an equivalent reproducible dependency snapshot;
+- generate dependency/license/SBOM evidence for the selected surface;
+- write characterization fixtures against the donor behavior before adaptation;
+- run differential tests where practical between donor behavior and the Kernux-adapted implementation;
+- document every intentional behavior difference;
+- preserve negative evidence when the donor behavior is unsafe, ambiguous, platform-specific, or incompatible with Kernux authority.
+
+Floating upstream dependency ranges are not sufficient reproducibility evidence for a Kernux import Grain.
+
+### 34.2 Connector conformance harness
+
+Every connector admitted through the Laya program must pass a provider-independent conformance harness with deterministic fake/provider fixtures. The harness must cover, where applicable:
+
+- OAuth authorization-code + PKCE or provider-equivalent secure flow;
+- refresh-token rotation and refresh failure;
+- API-key/token replacement and revocation;
+- account and tenant selection;
+- cross-account isolation and confused-deputy resistance;
+- scope grant, reduction, expansion and capability drift;
+- webhook signature/authentication verification;
+- webhook timestamp/replay-window checks;
+- webhook secret rotation;
+- polling/subscription cursor persistence;
+- rate-limit and retry metadata;
+- deterministic idempotency identity;
+- timeout/cancellation;
+- provider malformed payloads;
+- provider schema evolution;
+- provider outage and partial response;
+- account deletion/disconnect cleanup;
+- SecretHandle-only credential access;
+- explicit external data-boundary declaration.
+
+Live provider tests may supplement but never replace deterministic CI fixtures.
+
+### 34.3 Backpressure, resource and event-storm safety
+
+Event ingestion and proactive processing must define bounded behavior for:
+
+- queue depth;
+- event payload size;
+- attachment/artifact size;
+- concurrent connector work;
+- concurrent model/agent work;
+- retry count and retry horizon;
+- disk growth;
+- derived-index growth;
+- dead-letter growth;
+- per-source fairness;
+- per-space fairness;
+- user-visible overload state;
+- notification/action-proposal generation rate.
+
+Overload must degrade by delaying, coalescing, suppressing, quarantining or refusing bounded work. It must not silently widen resource use, drop canonical evidence, duplicate side effects, or create unlimited founder-funded runtime cost.
+
+### 34.4 Suspend, resume, clock and timezone correctness
+
+Desktop/background behavior must be tested across:
+
+- OS suspend and resume;
+- application restart;
+- system clock adjustment;
+- timezone change;
+- daylight-saving transitions where applicable;
+- long offline intervals;
+- webhook/poll cursor catch-up;
+- expired approvals after resume;
+- expired connector credentials after resume;
+- budget-window rollover.
+
+Wall-clock time is not a safe substitute for durable operation identity or monotonic retry ordering.
+
+### 34.5 Persisted-state evolution and rollback
+
+Laya-derived persisted connector/event/projection state must follow `DATA_LIFECYCLE_AND_PORTABILITY.md` and Kernux migration discipline:
+
+- version every persisted schema;
+- deterministic forward migrations;
+- crash-safe migration checkpoints;
+- restore/rollback plan before destructive migration;
+- compatibility tests from every supported source version;
+- backup/restore qualification for canonical local state;
+- rebuild derived indexes instead of treating them as migration authority;
+- preserve unknown future data during supported downgrade/rollback where possible;
+- never make a model call part of migration correctness.
+
+### 34.6 Update and supply-chain integrity
+
+Any imported or adapted Laya code must remain inside Kernux update/supply-chain policy:
+
+- exact donor source revision;
+- exact import commit;
+- LICENSE/NOTICE coverage;
+- dependency lock evidence;
+- vulnerability review;
+- SBOM inclusion;
+- signed/reproducible release expectations where applicable;
+- updater metadata/signature verification;
+- explicit rollback/recovery path;
+- no unreviewed runtime code download by a connector, workflow, model adapter or UI component.
+
+Laya's bundled/runtime assumptions are references, not automatic Kernux admissions.
+
+### 34.7 Content rendering, attachments and deep links
+
+External content is hostile by default. User-visible event/action surfaces must define:
+
+- HTML/Markdown sanitization;
+- safe URL rendering;
+- deep-link allow/deny behavior;
+- external-navigation confirmation where policy requires it;
+- attachment MIME/type/size validation;
+- active-content quarantine;
+- no implicit execution of downloaded/opened content;
+- content provenance preserved into any later ActionProposal;
+- Unicode/bidirectional text handling that cannot visually spoof destination/account/action meaning.
+
+Sanitization is presentation defense, not an authorization boundary.
+
+### 34.8 Notification and attention governance
+
+The proactive layer must prevent notification fatigue from becoming a reliability failure. The product contract must support:
+
+- per-source and per-space notification budgets;
+- dedupe/coalescing;
+- quiet hours;
+- digest/briefing substitution;
+- snooze with explicit wake condition;
+- stale-item retirement;
+- repeated-failure suppression;
+- escalation only under explicit policy;
+- user-visible reason for interruption;
+- no dark-pattern reactivation of dismissed items.
+
+Notification suppression must never suppress durable evidence of a consequential action or failure.
+
+### 34.9 Multi-account and identity isolation
+
+All integration entities must bind to explicit connector + provider + account/tenant identity. Tests must prove that:
+
+- same native IDs in two accounts never collide;
+- one account's association graph does not silently leak into another;
+- one account's secret cannot authorize another account;
+- one account's approval cannot be replayed against another;
+- account unlink/revocation invalidates dependent proposals safely;
+- cross-account actions require explicit user-visible destination identity.
+
+### 34.10 Observability and supportability
+
+Every Laya-derived pipeline stage must emit structured, redaction-safe local diagnostics sufficient to reconstruct:
+
+- source event identity;
+- connector/account identity;
+- pipeline state transition;
+- rule/model/agent revision where applicable;
+- proposal revision;
+- capability request/Grant;
+- external operation identity;
+- reconciliation outcome;
+- retry/dead-letter reason.
+
+Support bundles follow the existing reviewable/redacted Kernux support-bundle contract and must not upload automatically.
+
+## 35. Additional qualification journeys
+
+The following journeys extend the minimum golden set and are mandatory when the relevant capability exists.
+
+### GJ-L11 — Cross-account isolation
+
+Two connected accounts contain colliding native identifiers -> events remain account-bound -> association remains scoped -> proposal targets the intended account -> wrong-account replay is denied.
+
+### GJ-L12 — Authenticated webhook and secret rotation
+
+Valid signed webhook accepted -> replay outside allowed window rejected -> signing secret rotates -> old/new overlap follows provider policy -> no duplicate proposal or event loss.
+
+### GJ-L13 — Event storm and bounded degradation
+
+Large duplicate/burst event load -> bounded queue/resource use -> fair processing -> dedupe/coalescing -> visible overload state -> canonical evidence preserved -> no notification storm or duplicate external action.
+
+### GJ-L14 — Offline/suspend catch-up
+
+Machine sleeps or goes offline -> provider events accumulate -> resume/catch-up preserves cursor/order semantics -> expired approvals/credentials are revalidated -> no blind stale execution.
+
+### GJ-L15 — Upgrade, migration and restore
+
+Representative persisted integration state -> application/schema upgrade -> deterministic migration -> crash interruption recovery -> backup restore -> derived indexes rebuild -> canonical task/event/evidence truth remains intact.
+
+### GJ-L16 — Hostile rendered content
+
+Email/ticket/document contains malicious HTML, deceptive Unicode, deep links and active attachment instructions -> rendering is safe -> content stays untrusted -> no hidden navigation/execution/authority escalation.
+
+### GJ-L17 — Irreversible or ambiguous action
+
+Proposal targets a non-idempotent or irreversible external write -> UI shows consequence/reversibility -> approval binds exact revision/account/destination -> timeout becomes AMBIGUOUS -> reconciliation prevents blind duplicate retry.
+
+### GJ-L18 — Notification fatigue controls
+
+Repeated low-value events -> dedupe/suppression/quiet-hours/digest behavior activates -> consequential failures remain inspectable -> dismissed/snoozed items do not dark-pattern reappear.
+
+## 36. Integration-specific readiness gate
+
+A Laya-derived implementation Grain is not ready until it can point to all applicable owners below rather than leaving the requirement implicit:
+
+| Concern | Canonical owner / proof source |
+| --- | --- |
+| secrets and credential use | P02 secret provider + SecretHandle contracts |
+| OAuth/account lifecycle | KX-P17-S02-T01 |
+| webhook/subscription authenticity and replay | KX-P17-S05-T01 |
+| connector health/scope/capability drift | KX-P17-S04-T01 |
+| normalized event identity | KX-P17-S08-T01 |
+| restart-safe normalization pipeline | KX-P17-S08-T02 |
+| lifecycle/export/backup/delete/migrations | `DATA_LIFECYCLE_AND_PORTABILITY.md` + P15 qualification |
+| privacy/no-silent-cloud fallback | `LOCAL_PRIVACY_IMPLEMENTATION_PLAN.md` |
+| update/SBOM/supply-chain integrity | `SECURITY_MODEL.md` + release gates |
+| locale/timezone/RTL/Unicode | KX-P18-S05-T01 |
+| accessibility | KX-P18-S06-T01 |
+| proactive notification suppression | KX-P19-S03-T01 + KX-P19-S04-T01 |
+| provider-loss maturity | KX-P20-S08-T01 |
+| load/SLO/chaos maturity | KX-P20-S06-T01 |
+
+If a future Grain cannot identify its owning contract, dependency, recovery model and evidence class, it must remain below GRAIN.
+
+## 37. Revised completion gate
+
+The 20-condition gate in section 32 remains binding. In addition, the Laya integration program cannot be called implementation-complete until:
+
+21. selected donor behavior has pre-adaptation characterization and intentional-difference accounting;
+22. imported dependencies have reproducible lock/SBOM/license evidence;
+23. connector conformance covers credential rotation, revocation, account isolation, webhook authenticity and schema drift;
+24. event storms and backlog have bounded resource behavior and no unbounded notification generation;
+25. suspend/resume/offline catch-up cannot execute stale approvals or credentials;
+26. persisted integration state has tested migration, backup, restore and recovery behavior;
+27. external content rendering, links and attachments preserve the hostile-content trust boundary;
+28. account/tenant identities cannot collide or cross-authorize;
+29. notification/attention controls prevent repeated low-value events from becoming user-facing storms;
+30. structured diagnostics can reconstruct a failed/ambiguous pipeline without exposing secret plaintext;
+31. update/supply-chain evidence includes selected donor code and dependencies;
+32. every Laya-specific requirement has a canonical phase/task owner and no orphan implementation obligation remains only in narrative planning.
