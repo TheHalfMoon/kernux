@@ -380,6 +380,7 @@ mod tests {
                 EgressClass::parse(invalid),
                 Err(PolicyValidationError::UnknownEgressClass),
                 "{:?}",
+                invalid,
             );
         }
     }
@@ -408,7 +409,7 @@ mod tests {
             "12345",
             "café.example",
         ] {
-            assert!(EgressHost::parse(invalid).is_err(), "{:?}",);
+            assert!(EgressHost::parse(invalid).is_err(), "{:?}", invalid);
         }
         let long_host = format!("{}.example.com", "a".repeat(250));
         assert!(EgressHost::parse(&long_host).is_err());
@@ -429,7 +430,7 @@ mod tests {
             "double..dot",
             &"a".repeat(129),
         ] {
-            assert!(EgressAccount::parse(invalid).is_err(), "{:?}",);
+            assert!(EgressAccount::parse(invalid).is_err(), "{:?}", invalid);
         }
         assert!(EgressRuntimeId::parse(RUNTIME_V7).is_ok());
         assert!(EgressRuntimeId::parse("550e8400-e29b-41d4-a716-446655440000").is_err());
