@@ -1,0 +1,144 @@
+name: PR189 Evidence Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr189-evidence-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 73b7b60e5d0a7a8e952e20e84915dfc98c2d97fa
+  TARGET_SHA: 5e62fc217ac1ebe48d450818b201c8a816047932
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact evidence surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          mapfile -t changed < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
+          test "${#changed[@]}" -eq 1
+          printf "%s\n" "${changed[@]}" | grep -Fx "docs/evidence/P02-S06-T01.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.toml crates/kernux-secret/Cargo.toml)"
+      - name: Verify SpecGrain state and packet replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000026 . --json | tee /tmp/sg26-prove.json | grep -q verified.:false
+          python3 tools/specgrain/run.py prove SG-000027 . --json | tee /tmp/sg27-prove.json | grep -q verified.:false
+          python3 tools/specgrain/run.py packet SG-000027 . --context-sources docs/evidence/SG-000027-context-sources.json --json > /tmp/SG-000027-replay.json
+          cmp docs/evidence/SG-000027-work-packet.json /tmp/SG-000027-replay.json
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Focused secret regression
+        run: cargo test -p kernux-secret --all-targets
+      - name: Focused policy store daemon regression
+        run: cargo test -p kernux-policy -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS exact surface and replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          changed="$(git diff --name-only "$BASE_SHA...$TARGET_SHA")"
+          test "$(printf "%s\n" "$changed" | sed -e "/^$/d" | wc -l | tr -d " ")" = "1"
+          printf "%s\n" "$changed" | grep -Fx "docs/evidence/P02-S06-T01.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock)"
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet SG-000027 . --context-sources docs/evidence/SG-000027-context-sources.json --json > /tmp/SG-000027-replay.json
+          cmp docs/evidence/SG-000027-work-packet.json /tmp/SG-000027-replay.json
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Focused secret regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test -p kernux-secret --all-targets
+          cargo test -p kernux-policy -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
