@@ -1,0 +1,100 @@
+{
+  "acceptance": [
+    "All eight egress classes are explicit with stable vocabulary and exact parsing that rejects unknown classes",
+    "Destination identity and scope are explicitly bound with NONE requiring no destination and every other class requiring an explicit destination",
+    "Unknown sensitive egress fails closed and incomplete metadata never infers permission",
+    "Class separation holds with DIRECT_DESTINATION distinct from EXTERNAL_MODEL, CONNECTED_ACCOUNT distinct from arbitrary EXTERNAL_TOOL, and local failure never widening to cloud",
+    "Evaluation is pure deterministic and grant-constraining with no second authority path and no grant bypass",
+    "Denial reasons are stable redaction-safe and auditable without secret plaintext",
+    "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+    "Canonical closeout advances only KX-P02-S07-T01 scope for this grain and leaves P02 exit unproven"
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000029.json",
+    "docs/evidence/SG-000029-context-sources.json",
+    "docs/evidence/SG-000029-work-packet.json",
+    "crates/kernux-policy/src/egress.rs",
+    "crates/kernux-policy/src/lib.rs",
+    "docs/evidence/P02-S07-T01.md",
+    ".specgrain/evidence/SG-000029",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 14000,
+    "estimated_tokens": 11000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "egress-vocabulary-pass",
+      "destination-binding-pass",
+      "fail-closed-corpus-pass",
+      "class-separation-pass",
+      "no-cloud-fallback-pass",
+      "grant-constraint-binding-pass",
+      "secret-compat-pass",
+      "audit-compat-pass",
+      "workpacket-durable-recovery-pass",
+      "packet-persistence-pr-pass",
+      "packet-persistence-post-merge-ci-pass",
+      "cargo-lock-byte-identity-pass",
+      "policy-secret-store-daemon-regression-pass",
+      "local-macos-pass",
+      "diffcipline-r3-proof-pass",
+      "jev-review-pass",
+      "open-code-review-accounting-pass",
+      "implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000029",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "New kernel egress module reusing Grant validation HostName and redaction patterns, no qualified policy secret store or daemon semantics touched"
+      },
+      "safety": {
+        "requirements": [
+          "Unknown sensitive egress fails closed with no permissive default",
+          "No egress class widening and no silent cloud fallback",
+          "No grant bypass and no new authority minting",
+          "No secret plaintext in types errors logs or audit projections"
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Kernel defines provider-neutral egress-class and destination policy primitives that fail closed",
+  "parent_id": null,
+  "rationale": "Policy secret broker and audit layers are proven but the kernel has no explicit egress-class destination authority for later network-capable phases",
+  "risk": {
+    "level": "high",
+    "recovery": "Revert only egress-module additions and closeout changes, keep KX-P02-S07-T01 at NEXT, preserve the SG-000028 native proof"
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Define a closed kernel EgressClass vocabulary for NONE DIRECT_DESTINATION CONNECTED_ACCOUNT EXTERNAL_MODEL EXTERNAL_TOOL REMOTE_RUNTIME UPDATE and TELEMETRY with exact parsing and stable strings and no provider coupling",
+    "Define explicit EgressDestination identity and scope with validated none host account and runtime shapes and exact class-destination binding rules",
+    "Define pure deterministic egress evaluation over presented versus authorized class and destination plus operation account boundary and sensitivity that fails closed and never widens class or falls back to cloud",
+    "Bind egress evaluation to the existing Grant and policy architecture as a constraint with no bypass and preserve secret-broker handle redaction and zeroization guarantees with one-to-one semantic mapping",
+    "Build an adversarial fail-closed corpus covering unknown class destination missing mismatched wrong account operation cross-class substitution telemetry update confusion NONE widening sensitive-incomplete and grant scope substitution cases",
+    "Persist fresh ContextSources and WorkPacket before any implementation and require byte-identical replay through the pinned CLI"
+  ],
+  "scope_out": [
+    "No browser runtime external model execution MCP remote-runtime execution connector execution telemetry backend updater provider adapters or cloud services",
+    "No KRP schema change: v1 stays frozen and egress decisions bind to the existing Event and Redaction envelope only",
+    "No new secret reveal authority no plaintext persistence no grant issuance or persistence change no P02 exit claim, later tasks stay PLANNED"
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-S07-T01 egress policy primitives"
+}
