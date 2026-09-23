@@ -174,3 +174,74 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
           test -z "$(git status --porcelain --untracked-files=all)"
+
+
+  jev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - name: Verify Jev credential availability without disclosure
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TYPESAFE_API_KEY:-}" || { echo "TYPESAFE_API_KEY_UNAVAILABLE"; exit 3; }
+          echo "TYPESAFE_API_KEY_AVAILABLE"
+      - name: Install genuine Jev CLI 0.3.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @jtsang/jev-cli@0.3.2
+          jev-cli --version
+      - name: Review exact PR-B diff with Jev 1.13.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --unified=80 "$BASE_SHA...$TARGET_SHA" -- crates/kernux-policy/src/egress.rs > /tmp/state.diff
+          cat > /tmp/questions.json <<'JSON'
+          {
+            "authority_widening": {"type":"boolean","instructions":"Does this exact diff create, mint, widen, or bypass authorization rather than only constrain an already-eligible Grant decision?"},
+            "permissive_unknown": {"type":"boolean","instructions":"Does this exact diff allow unknown or incomplete egress class, destination, sensitivity, or other security metadata instead of failing closed?"},
+            "class_substitution": {"type":"boolean","instructions":"Does this exact diff permit one egress class to substitute for another, including DIRECT_DESTINATION for EXTERNAL_MODEL or CONNECTED_ACCOUNT for EXTERNAL_TOOL?"},
+            "destination_confusion": {"type":"boolean","instructions":"Does this exact diff permit mismatched host, account, or runtime destination identity to pass egress evaluation?"},
+            "operation_bypass": {"type":"boolean","instructions":"Does this exact diff allow an operation different from the one explicitly authorized by the egress constraint?"},
+            "sensitive_data_bypass": {"type":"boolean","instructions":"Does this exact diff allow sensitive or unknown-sensitivity egress without explicit sensitive authorization?"},
+            "provider_or_io_coupling": {"type":"boolean","instructions":"Does this exact diff add provider-specific behavior, network I/O, execution side effects, or cloud fallback to the pure policy layer?"},
+            "forbidden_scope_drift": {"type":"boolean","instructions":"Does this exact diff modify or semantically widen secrets, KRP, daemon/store behavior, manifests/lockfiles, ledgers, or P02 exit claims beyond SG-000029 PR-B scope?"}
+          }
+          JSON
+          jev-cli eval --provider jev --model jev-1.13.0 --state-file /tmp/state.diff --questions-file /tmp/questions.json --full --compact > /tmp/jev.json
+          cat /tmp/jev.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('/tmp/jev.json','utf8'));
+          const ids = [
+            'authority_widening','permissive_unknown','class_substitution',
+            'destination_confusion','operation_bypass','sensitive_data_bypass',
+            'provider_or_io_coupling','forbidden_scope_drift'
+          ];
+          const answers = data.answers ?? data;
+          for (const id of ids) {
+            const a = answers[id];
+            if (!a || typeof a.probability !== 'number') {
+              console.error('JEV_RESULT_MISSING', id);
+              process.exit(2);
+            }
+            console.log('JEV_DIMENSION', id, 'P_TRUE', a.probability);
+            if (a.probability >= 0.5) {
+              console.error('JEV_BLOCKING_TRUE', id, a.probability);
+              process.exit(1);
+            }
+          }
+          console.log('JEV_8_OF_8_NO');
+          NODE
