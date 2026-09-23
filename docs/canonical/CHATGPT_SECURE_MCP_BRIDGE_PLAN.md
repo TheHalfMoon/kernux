@@ -1,447 +1,168 @@
 # Kernux ChatGPT Secure MCP Bridge Plan
-
 ## Status
-
-- Planning only.
-- Research snapshot: 2026-09-23.
-- Canonical base observed before this planning branch: `main@a55832a5e5f6b2cf2abd6ac72c756c8ab2a01235`.
-- This plan does not advance `specs/CURRENT.md`, change the P02 frontier, import donor code, or authorize a merge.
-- Detailed source ledger: `docs/research/CHATGPT_SECURE_MCP_BRIDGE_SOURCE_LEDGER.md`.
-- Open Computer Use integration remains separately owned by draft PR #200.
-- Working component name: **Kernux ChatGPT Bridge**.
-- Proposed binary/package name: `kernux-mcp-bridge`.
-
-## 1. Architecture decision
-
-### Decision
-
-Build a **thin ChatGPT/OpenAI MCP bridge backed by the existing Kernux privileged runtime**.
-
-Do not create a second standalone privileged gateway and do not make MCP itself the host-security boundary.
-
+- Planning only; research snapshot 2026-09-23.
+- Canonical base observed before this branch: `main@a55832a5e5f6b2cf2abd6ac72c756c8ab2a01235`.
+- No `specs/CURRENT.md` change, P02 advancement, donor import, dependency admission, or implementation authority.
+- Source ledger: `docs/research/CHATGPT_SECURE_MCP_BRIDGE_SOURCE_LEDGER.md`.
+- Open Computer Use detail remains separately owned by draft PR #200.
+- Working component: **Kernux ChatGPT Bridge**; proposed package/binary: `kernux-mcp-bridge`.
+## 1. Decision
+Build a **thin ChatGPT/OpenAI MCP edge backed by Kernux**. Do not create a second privileged gateway and do not make MCP the host-security boundary.
 ```text
 ChatGPT / supported OpenAI surface
-  |
-  v
-OpenAI Secure MCP Tunnel
-  |
-  v
-openai/tunnel-client
-  |  local stdio or loopback-only transport
-  v
-kernux-mcp-bridge                    UNPRIVILEGED EDGE
-  |  authenticated local IPC / Kernux Runtime Protocol
-  v
-kernuxd                              PRIVILEGED AUTHORITY
-  |
-  +--> Grant / policy engine
-  +--> workspace + resource identity
-  +--> local approval broker
-  +--> secret broker
-  +--> audit / event / evidence authority
-  +--> egress policy
-  |
-  +--> Filesystem provider
-  +--> Process / PTY provider
-  +--> Git provider
-  +--> System provider
-  +--> ComputerUse provider
-  +--> Browser provider
-  +--> Screenshot / input fallback providers
+  -> OpenAI Secure MCP Tunnel
+  -> openai/tunnel-client
+  -> kernux-mcp-bridge                 [unprivileged translation edge]
+  -> authenticated local IPC / KRP
+  -> kernuxd                           [privileged authority]
+       -> Grants / policy / approval / secrets / audit / egress / workspace identity
+       -> Files / Process / PTY / Git / System / ComputerUse / Browser providers
 ```
-
-### Why this is the preferred option
-
-Kernux already owns the required security primitives: scoped Grants, runtime/resource identity, secret brokering, policy, durable events/evidence, egress classes, and a Rust privileged daemon. Duplicating those inside a new MCP project would create two policy engines, two audit systems, two secret paths, and two definitions of workspace scope.
-
-The bridge may later be distributed as a small independently installable component, but its authority remains Kernux-owned.
-
-### Explicit rejection
-
-Do not build:
-
+Kernux already owns the required security primitives. A standalone privileged MCP project would duplicate policy, secret, audit, workspace, and runtime truth. The bridge may later ship independently, but authority remains `kernuxd`.
+Rejected topology:
 ```text
-ChatGPT -> tunnel -> Node MCP server -> arbitrary shell / UI authority
+ChatGPT -> tunnel -> Node MCP server -> arbitrary shell / desktop authority
 ```
-
-That recreates the class of design this project is intended to replace.
-
-## 2. Transport is not authorization
-
-OpenAI Secure MCP Tunnel is the default remote transport because it preserves an outbound-only network posture.
-
-Required topology:
-
+## 2. Transport boundary
+Use Secure MCP Tunnel as the default remote transport:
 ```text
 NO public inbound listener
 NO router port forwarding
 NO public relay
 NO firewall hole
-
-Windows PC
-  -> outbound HTTPS
-  -> OpenAI Secure MCP Tunnel
-  -> supported OpenAI product
+Windows PC -> outbound HTTPS -> OpenAI Secure MCP Tunnel -> OpenAI product
 ```
-
-The tunnel credential authenticates `tunnel-client` to the OpenAI tunnel control plane. It does not authorize filesystem, process, browser, desktop, secret, or network actions on the PC.
-
-Every external MCP request is re-authorized by `kernuxd`.
-
-## 3. ChatGPT product compatibility boundary
-
-The local architecture must remain correct even when ChatGPT product behavior changes.
-
-Current constraints to design around:
-
-- full MCP write/modify support is plan-dependent and beta;
-- read/fetch-only operation must remain useful;
-- ChatGPT confirmation is defense-in-depth, not local authority;
-- custom-app tool snapshots may be frozen until an admin refreshes them;
-- agent mode and deep research do not provide the same write-capable custom-app path.
-
-Therefore:
-
-- tool schemas are versioned;
-- incompatible schema changes fail explicitly;
-- the bridge provides read-only and mutation-capable profiles;
-- local approval remains independent of ChatGPT confirmation;
-- no security invariant depends on a specific ChatGPT UI.
-
+The tunnel credential authenticates `tunnel-client`; it does **not** authorize host actions. Every MCP request is re-authorized by `kernuxd`.
+## 3. ChatGPT compatibility
+Local safety must not depend on one ChatGPT UI or plan. Current product constraints require: a useful read-only path; versioned tool schemas; explicit unsupported errors on incompatible snapshots; local approval independent of ChatGPT confirmation; no assumption that agent mode/deep research can perform the same write-capable custom-app actions as ordinary supported app use.
 ## 4. Trust boundaries
-
 | Zone | Trusted for | Not trusted for |
 | --- | --- | --- |
-| Human owner / organization policy | Granting authority | Runtime correctness |
-| OpenAI product | Sending MCP calls under product policy | Local host authorization |
-| Secure MCP Tunnel | Private transport | Host authorization |
-| `tunnel-client` | Tunnel transport | Kernux policy decisions |
-| `kernux-mcp-bridge` | Schema validation, request translation | Granting privilege |
-| `kernuxd` | Local authority, policy, approvals, audit | External content truth |
-| Capability provider | Executing one bounded authorized operation | Expanding its own authority |
-| Web/document/repository content | Data | Authorization or instruction authority |
-| Agent/model output | Proposal/request | Completion or permission proof |
-
-## 5. MCP tool-surface rule
-
-Do not mirror an internal API and do not expose one `run_anything` tool.
-
-Tools are split when permission or consequence differs.
-
-Representative external surface:
-
+| Human / org policy | Granting authority | Runtime correctness |
+| OpenAI product | Sending MCP calls | Local host authorization |
+| Secure MCP Tunnel | Private transport | Host policy |
+| `tunnel-client` | Transport | Capability decisions |
+| `kernux-mcp-bridge` | Schema validation + translation | Granting privilege |
+| `kernuxd` | Local policy, approval, evidence | External-content truth |
+| Provider | One authorized operation | Expanding authority |
+| Web/repo/document/tool output | Data | Authorization |
+| Agent/model | Proposal/request | Permission or completion proof |
+## 5. MCP surface
+Do not expose `run_anything`. Split operations when permissions/consequences differ.
 ```text
-system.describe
-workspace.describe
-
-files.list
-files.read
-files.search
-files.write
-files.edit
-files.move
-files.delete
-
-process.start
-process.status
-process.read_output
-process.cancel
-
-shell.powershell
-shell.session_start
-shell.session_write
-
-git.status
-git.diff
-git.log
-git.run_declared_operation
-
-apps.list
-windows.list
-windows.observe
-windows.activate
-
-browser.observe
-browser.navigate
-browser.act
-
-screen.capture
-computer.act
-clipboard.read
-clipboard.write
+system.describe              workspace.describe
+files.list/read/search       files.write/edit/move/delete
+process.start/status/read_output/cancel
+shell.powershell             shell.session_start/write
+git.status/diff/log          git.run_declared_operation
+apps.list                    windows.list/observe/activate
+browser.observe/navigate/act screen.capture
+computer.act                 clipboard.read/write
 ```
-
-This is a product-facing vocabulary, not permission authority. Each tool compiles into one or more Kernux `CapabilityRequest` values.
-
-MCP annotations such as read-only, destructive, open-world, and idempotency hints must be accurate but never substitute for local authorization.
-
-## 6. Capability separation
-
-Minimum capability families:
-
+Every tool compiles into Kernux `CapabilityRequest` values. MCP annotations must accurately describe read-only/destructive/open-world/idempotency behavior but never replace server-side authorization.
+## 6. Capability families
 ```text
-files.observe
-files.read
-files.write
-files.delete
-
-process.observe
-process.spawn
-process.signal
-pty.open
-pty.write
-
-git.observe
-git.mutate
-
+files.observe/read/write/delete
+process.observe/spawn/signal
+pty.open/write
+git.observe/mutate
 system.observe
 app.launch
-window.observe
-window.activate
-
-computer.observe
-computer.semantic_act
-computer.coordinate_act
-computer.global_input
-
+window.observe/activate
+computer.observe/semantic_act/coordinate_act/global_input
 screen.capture
-clipboard.read
-clipboard.write
-
-browser.observe
-browser.navigate
-browser.mutate
-browser.download
-browser.upload
-
+clipboard.read/write
+browser.observe/navigate/mutate/download/upload
 network.direct
-secret.use
-secret.disclose
-
+secret.use/disclose
 system.privileged
 ```
-
-A Grant is scoped by subject, action, resource, runtime, constraints, expiry, and policy revision.
-
+A Grant binds subject + action + resource + runtime + constraints + expiry + policy revision.
 ## 7. Permission profiles
-
-Profiles compile to Grants; they are not alternate authorization logic.
-
-| Profile | Behavior |
+| Profile | Compiled behavior |
 | --- | --- |
-| `READ_ONLY` | Observation only inside selected workspaces. No writes, process starts, browser mutations, clipboard reads, or input. |
-| `DEVELOPMENT` | Read/write and declared build/test/Git operations inside approved repositories. Raw shell, external network, destructive operations, secret disclosure, and desktop input remain gated. |
-| `BALANCED` | Broader workspace/app control with local approval for material mutations and sensitive observation. |
-| `FULL` | Owner-only broad host mode. Audit, protected targets, privilege boundaries, and explicit destructive/system controls remain active. |
-
-`FULL` is never the default.
-
+| `READ_ONLY` | Observation in selected workspaces only; no mutation/process/browser/input/clipboard read |
+| `DEVELOPMENT` | Repository-scoped read/write + declared build/test/Git; raw shell/network/destructive/secret/desktop input gated |
+| `BALANCED` | Broader scoped control with local approval for material mutations and sensitive observations |
+| `FULL` | Owner-only broad host mode; protected targets, audit, destructive/system controls remain active |
+`FULL` is never default.
 ## 8. Workspace isolation
-
-Every bridge session binds to a Kernux workspace identity.
-
-Required binding:
-
+Bind each session to:
 ```text
 workspace_id
 runtime_id
 repository_identity
-read_roots
-write_roots
-delete_roots
+read_roots / write_roots / delete_roots
 browser_context_id
 network_policy_id
 secret_policy_id
 grant_revision
 ```
-
-A call for workspace A cannot silently resolve a resource from workspace B.
-
-Cross-workspace access requires an explicit new Grant and must be visible in approval/audit evidence.
-
-## 9. Windows filesystem authorization
-
-String prefix checks are forbidden as the only path boundary.
-
-The Windows provider must account for:
-
-- path normalization and case-insensitive identity;
-- symlinks, junctions, mount points, and other reparse points;
-- hard links and file identity aliases;
-- UNC/network paths;
-- device namespaces;
-- short/alternate path representations;
-- `..` and environment expansion;
-- alternate data streams;
-- WSL path translation;
-- removable media;
-- time-of-check/time-of-use races.
-
-Preferred authorization pattern for existing paths:
-
+Workspace A cannot silently resolve project B. Cross-workspace access requires fresh explicit authority and visible audit/approval.
+## 9. Windows filesystem policy
+String-prefix authorization is forbidden as the sole boundary. Account for normalization/case, symlinks, junctions, mount/reparse points, hard links, UNC, device namespaces, short/alternate paths, `..`, environment expansion, ADS, WSL translation, removable media, and TOCTOU.
+Existing-path authorization should follow:
 ```text
-parse requested resource
+parse resource
 -> reject unsupported namespace
 -> open target/ancestor with safe flags
 -> resolve final path from handle
 -> capture volume + file identity
--> evaluate root/resource policy
--> perform operation through the validated identity
+-> evaluate resource/root policy
+-> perform operation through validated identity
 ```
-
-For creates, authorize the nearest existing parent identity, reject unexpected reparse traversal, create with bounded semantics, then revalidate the resulting identity before returning success.
-
-Read, write, and delete roots may differ.
-
-## 10. Process and shell model
-
-Direct argv execution is preferred over shell interpolation.
-
-Separate:
-
-```text
-declared project command
-argv process spawn
-PowerShell script
-interactive PowerShell / shell
-background job
-long-running PTY
-system mutation
-privileged execution
-```
-
-Requirements:
-
-- executable identity and argv recorded separately;
-- cwd is a scoped resource;
-- child environment is an explicit projection, not ambient inheritance;
-- tunnel credentials and unrelated secrets are removed;
-- process tree is supervised;
-- Windows Job Objects are used where appropriate for owned process-tree lifecycle and kill-on-close behavior;
-- output is bounded and streamable;
-- process ID plus runtime-owned identity prevents PID-substitution assumptions;
-- cancellation request is distinct from verified termination;
-- ambiguous retry of side-effecting commands fails closed;
-- shell command blocklists are not a security boundary.
-
-PowerShell constrained modes may be used as defense-in-depth only.
-
-## 11. Tunnel credential and secret design
-
-Use a dedicated tunnel credential with only the minimum tunnel permissions supported.
-
-Secret requirements:
-
-- plaintext tunnel credentials never enter ordinary SQLite rows, logs, approval history, child environments, crash reports, or model context;
-- secret-at-rest protection uses the Kernux secret broker and Windows-native protection such as DPAPI / approved credential facilities;
-- `tunnel-client` receives the credential through a narrowly scoped launch/handoff path;
-- the bridge process itself does not need the plaintext runtime key after tunnel-client starts;
-- child process environment is allowlisted;
-- rotation/revocation is independent of workspace data;
-- known key/token patterns are redacted before audit persistence;
-- `.env`, SSH keys, browser cookies, Git credentials, and cloud credentials are classified as sensitive resources;
-- secret use and secret disclosure are separate capabilities.
-
-## 12. Local approval: non-self-approvable by construction
-
-The approval surface is independent of ChatGPT and must not be controllable by the agent.
-
-Required invariants:
-
-1. Approval is bound to an immutable request digest containing normalized target, action, argv/URL, workspace, runtime, data/secret references, policy revision, nonce, expiry, and consequence class.
-2. Any target or argument drift invalidates approval.
-3. The approval process/window is a protected resource denied to ComputerUse, Window, Browser, and coordinate-input providers.
-4. While approval is pending, the agent's interactive input lease for that Windows session is suspended.
-5. Background agent processes do not gain approval authority merely because they are still running.
-6. One-time approval cannot be replayed after expiry, target change, or policy revision.
-7. Highly destructive/privileged operations require fresh authority.
-8. Denial is a typed result, not a generic failure.
-
-Input-injection detection may be used as defense-in-depth, but it is not the sole invariant.
-
-## 13. Desktop / computer-use hierarchy
-
+For creation: authorize nearest existing parent identity, reject unexpected reparse traversal, create with bounded semantics, then revalidate resulting identity. Read/write/delete roots may differ. Unsupported namespace behavior fails closed.
+## 10. Process / PowerShell
+Prefer direct argv execution over shell interpolation. Keep distinct: declared project command; argv process; PowerShell script; interactive shell/PowerShell; background job; PTY; system mutation; privileged execution.
+Required invariants: executable and argv stored separately; cwd is scoped; child env is explicit/allowlisted; tunnel/unrelated secrets removed; process tree supervised; Windows Job Objects used where appropriate; output bounded; process identity not inferred from reusable PID alone; cancellation request differs from verified termination; ambiguous side-effect retry fails closed; command blocklists are never the security boundary. Constrained PowerShell modes are defense-in-depth only.
+## 11. Secrets and tunnel credential
+Use a dedicated minimum-permission tunnel credential. Requirements:
+- plaintext tunnel key never enters ordinary SQLite, logs, approval history, model context, crash dumps, or child env;
+- Kernux secret broker owns at-rest protection using Windows-native facilities such as DPAPI/approved credential storage;
+- `tunnel-client` receives the key through a narrow launch/handoff path;
+- bridge children inherit an allowlisted environment;
+- credential rotation/revocation is independent from workspace data;
+- `.env`, SSH keys, browser cookies, Git/cloud credentials are sensitive resources;
+- secret use and disclosure are separate capabilities;
+- known secret forms are redacted before persistence.
+## 12. Non-self-approvable local approval
+Approval is independent of ChatGPT and cannot be actuated by the agent.
+1. Bind approval to a digest of normalized target/action/argv-or-URL/workspace/runtime/data+secret refs/policy revision/nonce/expiry/consequence class.
+2. Any target/argument/policy drift invalidates approval.
+3. Approval process/window is a protected resource denied to UIA, Window, Browser, coordinate and global-input providers.
+4. While approval is pending, the agent interactive-input lease for that Windows session is suspended.
+5. Running background processes do not gain approval authority.
+6. One-time approval cannot replay after expiry, target change or policy revision.
+7. Destructive/privileged actions use fresh authority.
+8. Denial is typed.
+Injected-input detection may be defense-in-depth; it is not the sole invariant.
+## 13. Desktop hierarchy
 Preferred order:
-
 ```text
-typed application/tool API
-> Windows UI Automation / accessibility semantic action
+typed app/tool API
+> Windows UI Automation / semantic accessibility
 > bounded Win32/window-targeted action
-> browser DOM when the target is browser content
-> vision-assisted action
+> browser DOM for browser content
+> vision
 > coordinate input
 > raw global keyboard/mouse
 ```
-
-Windows UI Automation is the first native structured path.
-
-Element references are session-local and observation-revision-bound. A stale or substituted target returns `STALE_UI_STATE` or `ELEMENT_NOT_FOUND`; it never silently clicks the old coordinate.
-
-Every result records the actual mechanism:
-
-```text
-typed_api
-uia_pattern
-win32_targeted
-browser_dom
-vision
-coordinate_input
-global_input
-```
-
-Failure at a safer level never silently grants a stronger method.
-
-PR #200 owns the detailed Open Computer Use provider planning. The ChatGPT bridge consumes the qualified Kernux ComputerUse abstraction only.
-
-## 14. Human-input safety
-
-The agent must not fight the human for the machine.
-
-Required state:
-
-```text
-input_lease = none | background | foreground
-human_override = available
-emergency_stop = always_available
-active_control_indicator = visible_when_foreground
-lease_expiry = bounded
-```
-
-Human takeover invalidates stale UI observations and suspends agent input until a fresh observation and eligible Grant exist.
-
-Background/window-targeted interaction is preferred when reliable.
-
+Element refs are session-local + observation-revision-bound. Stale/substituted refs fail rather than reusing coordinates. Record actual method: `typed_api | uia_pattern | win32_targeted | browser_dom | vision | coordinate_input | global_input`. Failure at a safer level never grants a stronger fallback. PR #200 owns detailed Open Computer Use integration; this bridge consumes only the qualified Kernux ComputerUse contract.
+## 14. Human input
+Use `input_lease = none | background | foreground`, bounded expiry, visible foreground-control indicator, human override, emergency stop, takeover/relinquish semantics. Human takeover invalidates stale UI observations. Prefer background/window-targeted interaction when reliable.
 ## 15. Browser boundary
-
-Browser control is separate from desktop control.
-
 Preferred order:
-
 ```text
 WebMCP / typed page capability
 > Playwright / DOM / accessibility
-> semantic browser abstraction
+> semantic browser provider
 > qualified native ComputerUse
 > vision
 > coordinates
 ```
-
-Default browser automation uses an isolated profile/context.
-
-Personal authenticated profiles require explicit selection and project/session scope.
-
-Mutation requests bind to expected origin. Unexpected navigation or origin drift fails with `BROWSER_ORIGIN_CHANGED` and requires re-observation/re-authorization.
-
-Page content is hostile data. Prompt injection cannot create a new Grant.
-
-Downloads, uploads, clipboard, cookies/storage, and network destinations are separately governed.
-
-## 16. Network and egress
-
-Shell authority does not imply network authority.
-
-Supported policy shapes:
-
+Use an isolated automation profile by default. Personal authenticated profile reuse is explicit and workspace/session scoped. Mutation binds expected origin; unexpected navigation/origin drift returns `BROWSER_ORIGIN_CHANGED`. Page content is hostile provenance and cannot expand Grants. Downloads/uploads/clipboard/cookies/network destinations are separately governed.
+## 16. Network / egress
+Shell does not imply network. Preserve canonical P02 classes:
 ```text
 NONE
 DIRECT_DESTINATION
@@ -452,165 +173,71 @@ REMOTE_RUNTIME
 UPDATE
 TELEMETRY
 ```
-
-The bridge must preserve the P02 egress decision instead of creating a new network policy language.
-
-Material outbound destinations are logged without leaking secret payloads.
-
-## 17. Audit and evidence
-
-Each material operation produces an append-oriented record with:
-
-```text
-timestamp
-external_call_id
-session_id
-workspace_id
-runtime_id
-tool
-capability_request_id
-grant_id / policy_revision
-risk_or_consequence_class
-normalized_resource
-approval_id / decision
-actual_execution_method
-result_class
-duration
-artifact/evidence references
-redaction metadata
-```
-
-Never persist raw secrets by default.
-
-Audit storage is bounded, exportable, rotation-aware, and integrity-addressable through the existing Kernux event/evidence model.
-
-## 18. Typed failures
-
-The MCP adapter preserves typed local failures.
-
-Required baseline:
-
+Unknown sensitive egress fails closed. Material destinations are auditable without persisting secret payloads.
+## 17. Audit and failures
+Every material operation records: timestamp, external call ID, session/workspace/runtime, tool, CapabilityRequest, Grant/policy revision, consequence class, normalized resource, approval decision, actual execution method, result, duration, artifact/evidence refs, redaction metadata. Raw secrets are excluded.
+Baseline typed failures:
 ```text
 PERMISSION_DENIED
-LOCAL_APPROVAL_REQUIRED
-LOCAL_APPROVAL_DENIED
-PATH_OUTSIDE_SCOPE
-RESOURCE_IDENTITY_CHANGED
+LOCAL_APPROVAL_REQUIRED / LOCAL_APPROVAL_DENIED
+PATH_OUTSIDE_SCOPE / RESOURCE_IDENTITY_CHANGED
 SECRET_READ_BLOCKED
-PROCESS_FAILED
-PROCESS_TIMEOUT
-PROCESS_CANCELLED
-PROCESS_STATE_UNKNOWN
-WINDOW_NOT_FOUND
-ELEMENT_NOT_FOUND
-ELEMENT_AMBIGUOUS
-STALE_UI_STATE
-SESSION_LOCKED
-UAC_REQUIRED
-MFA_REQUIRED
-CAPTCHA_REQUIRED
-NETWORK_DENIED
-NETWORK_FAILURE
-BROWSER_ORIGIN_CHANGED
-HUMAN_TAKEOVER
-CAPABILITY_UNAVAILABLE
-PROTOCOL_VERSION_UNSUPPORTED
-TUNNEL_UNAVAILABLE
+PROCESS_FAILED / PROCESS_TIMEOUT / PROCESS_CANCELLED / PROCESS_STATE_UNKNOWN
+WINDOW_NOT_FOUND / ELEMENT_NOT_FOUND / ELEMENT_AMBIGUOUS / STALE_UI_STATE
+SESSION_LOCKED / UAC_REQUIRED / MFA_REQUIRED / CAPTCHA_REQUIRED
+NETWORK_DENIED / NETWORK_FAILURE / BROWSER_ORIGIN_CHANGED
+HUMAN_TAKEOVER / CAPABILITY_UNAVAILABLE
+PROTOCOL_VERSION_UNSUPPORTED / TUNNEL_UNAVAILABLE
 ```
-
 Unknown state is not success.
-
-## 19. Threat model
-
-| Threat | Invariant/control | Required test/evidence | Residual risk |
+## 18. Threat model
+| Threat | Control | Required evidence | Residual risk |
 | --- | --- | --- | --- |
-| Malicious page asks agent to steal secrets | Web content is untrusted provenance; secret + egress Grants are separate | Injection corpus cannot expand Grant or destination | Approved user action can still intentionally disclose data |
-| Malicious repository instruction | Repository text cannot authorize shell/network/secret use | Source-file injection fixtures | Human may deliberately approve risky work |
-| Shell output instructs agent | Tool output is data, not authority | Output-injection fixtures | Model reasoning remains probabilistic |
-| Project A reaches project B | Workspace/resource binding and separate roots | Cross-workspace denial fixtures | User can explicitly grant both |
-| Junction/reparse escape | Handle/final-path identity authorization | Junction/symlink/mount adversarial suite | Compromised kernel/filesystem driver out of scope |
-| Hard-link alias escape | File identity/volume checks and conservative write/delete policy | Cross-root hard-link fixtures | Filesystem features unsupported by policy are denied |
-| Agent clicks approval | Protected approval surface + suspended input lease | Attempt via UIA, Win32, coordinates, global input | Fully compromised same-user OS is out of scope |
-| Approval reused after drift | Request digest + nonce + expiry + policy revision | Modify target/argv after approval and prove denial | Human can approve a new request |
-| Command semantics change | argv-first execution; raw shell separately gated | quoting/substitution/alternate-interpreter corpus | Approved arbitrary shell remains powerful |
-| Environment leaks credential | allowlisted environment projection | child process asserts no tunnel/ambient secret vars | Child can access secrets explicitly granted to it |
-| Screenshot exposes secret | capture classification + protected target/redaction + approval | secure-field/protected-window fixtures | Pixels can contain unknown sensitive data |
-| Clipboard exposes password | clipboard.read separate and sensitive | denied/approved clipboard tests | User can explicitly approve disclosure |
-| Personal browser leaks sessions | isolated profile default; explicit authenticated profile scope | cross-workspace cookie/storage isolation | Explicit profile reuse carries intended risk |
-| Tunnel credential stolen | native protected storage + narrow handoff + no child inheritance | DPAPI roundtrip + log/env scans | Same-user host compromise can access user secrets |
-| Audit leaks secrets | structured redaction before persistence | seeded secret corpus absent from logs/evidence | Unknown secret formats require conservative handling |
-| Updater compromised | signed/provenanced artifacts, checksums, rollback | release provenance verification | Trust in signing keys/build infrastructure remains |
-| Duplicate action after reconnect | operation IDs + idempotency/ambiguity rules | disconnect/retry side-effect fixtures | Non-idempotent external systems may require manual reconciliation |
-| Locked/UAC/MFA/CAPTCHA surface | explicit typed failure; no bypass | native Windows fixtures/manual qualification | Workflow requires human completion |
-
-## 20. Capability comparison
-
-This table is factual/descriptive; it is not a score.
-
-| Dimension | Desktop Commander | Unlimited Agent | LocalAnt | Open Computer Use | Kernux ChatGPT Bridge target |
+| Malicious page steals secrets | Untrusted provenance; separate secret+egress Grants | Injection corpus cannot expand authority | User may intentionally approve disclosure |
+| Malicious repo instruction | Repo text cannot grant shell/network/secret | Source injection fixtures | Human approval remains powerful |
+| Shell output injection | Output is data | Tool-output injection fixtures | Model remains probabilistic |
+| Project A -> B | Workspace/resource identity | Cross-workspace denial | Explicit multi-project Grant |
+| Junction/reparse escape | Handle/final-path identity | Reparse suite | Compromised kernel/driver out of scope |
+| Hard-link alias | Volume/file identity policy | Cross-root hard-link suite | Unsupported forms denied |
+| Agent clicks approval | Protected surface + suspended lease | UIA/Win32/coordinate/global attempts denied | Same-user OS compromise out of scope |
+| Approval drift/replay | Digest + nonce + expiry + policy revision | Mutate target/argv after approval | Fresh human approval |
+| Shell semantic bypass | argv-first + shell separately gated | substitution/interpreter corpus | Approved raw shell is powerful |
+| Env credential leak | allowlisted projection | child asserts no tunnel/ambient secrets | Explicitly granted secrets remain usable |
+| Screenshot leaks secret | protected target/redaction/approval | secure-field fixtures | Unknown pixels may still be sensitive |
+| Clipboard password | separate sensitive capability | deny/approve fixtures | Explicit approval |
+| Browser session leak | isolated profile/context | cross-workspace cookie isolation | Explicit personal-profile reuse |
+| Tunnel key stolen | protected store + narrow handoff | DPAPI + env/log scans | Same-user host compromise |
+| Audit leaks secrets | pre-persistence redaction | seeded-secret corpus | Unknown secret shapes |
+| Updater compromise | signed provenance + rollback | release verification | Signing/build key trust |
+| Duplicate after reconnect | operation IDs/idempotency/ambiguity | disconnect/retry fixtures | External non-idempotent service |
+| UAC/MFA/CAPTCHA/locked session | typed stop; no bypass | native qualification | Human completion required |
+## 19. Capability comparison
+Descriptive only; no marketing score.
+| Dimension | Desktop Commander | Unlimited Agent | LocalAnt | Open Computer Use | Kernux Bridge target |
 | --- | --- | --- | --- | --- | --- |
-| Files | Yes | Yes | Yes | No / not primary | Yes, Kernux-scoped |
-| Shell/processes | Yes | Yes | Yes | No / not primary | Yes, separated capabilities |
-| Git/dev workflows | Via shell/files | Via shell/files | Documented Git/coding tools | No / not primary | Yes |
-| Browser | Limited/general through shell/docs; not core structured path | Chrome control | Documented browser capability | Native/browser UI automation | Playwright/DOM first |
-| Native desktop | Not primary | Screenshot/input/window tools | Not primary control focus | Core capability | Qualified ComputerUse provider |
-| Accessibility-first | No | Screenshot/input oriented | Not primary | Yes | Required |
-| Local approval | Guardrails, not sandbox authority | Yes | Yes | Not policy kernel | Kernux approval broker |
-| Policy granularity | Advisory guardrails | Central tool/path policy | Risk/security modes | Capability execution, not full gateway policy | Scoped Grants |
-| Workspace isolation | Filesystem setting does not constrain arbitrary shell | Allowed roots | Gateway policy concepts | Not project authority | Required identity binding |
-| Secret boundary | Not primary security boundary | DPAPI tunnel credential + env sanitization | Gateway secret/policy concepts | Not gateway focus | Kernux secret broker |
-| Audit | Local tool history | Audit log | Audit/dashboard | Not gateway focus | Durable Kernux events/evidence |
-| Network control | Shell can be broad | HTTP tool + policy/approval | Gateway controls | Not primary | P02 egress classes |
-| Secure MCP Tunnel | Not canonical baseline | Yes | Not primary | No | Official transport |
-| Extensibility | MCP tools | MCP tools | Gateway/catalog/skills | Computer-use API/MCP | Provider-neutral Kernux contracts |
-| Privileged boundary | Connected AI is trusted; guardrails are not sandbox | Node policy + approvals | Gateway runtime | Native automation service | Rust `kernuxd` |
-
-## 21. Service lifecycle
-
-Required owner operations:
-
+| Files | Yes | Yes | Yes | Not primary | Kernux-scoped |
+| Shell/process | Yes | Yes | Yes | Not primary | Separate scoped capabilities |
+| Git/dev | Via shell/files | Via shell/files | Documented Git/coding tools | Not primary | Yes |
+| Browser | Not core structured path | Chrome control | Browser capability | UI/native automation | Playwright/DOM first |
+| Native desktop | Not primary | Windows input/window | Not primary focus | Core | Qualified ComputerUse |
+| Accessibility-first | No | Not primary | Not primary | Yes | Required |
+| Local approval | Guardrails; not sandbox authority | Yes | Yes | Not policy kernel | Kernux broker |
+| Policy | Advisory guardrails | Tool/path policy | Risk/security modes | Execution layer | Scoped Grants |
+| Workspace isolation | Shell can bypass directory policy | Allowed roots | Gateway concepts | Not project authority | Required |
+| Secrets | Not primary boundary | DPAPI tunnel key + env sanitation | Gateway concepts | Not gateway focus | Kernux broker |
+| Audit | Local tool history | Audit | Dashboard/audit | Not gateway focus | Durable events/evidence |
+| Network control | Shell broad | HTTP + approval | Gateway controls | Not primary | P02 egress |
+| Secure MCP Tunnel | Not baseline | Yes | Not primary | No | Official transport |
+| Privileged boundary | Trusted connected AI; guardrails not sandbox | Node policy | Gateway runtime | Native automation | Rust `kernuxd` |
+## 20. Lifecycle / status
+Owner operations: `install, pair_tunnel, start, stop, restart, status, rotate_credential, revoke_chatgpt_access, delete_tunnel_binding, repair, update, rollback, uninstall`.
+Local status: `CONNECTED/DISCONNECTED, ACTIVE_SESSION, PENDING_APPROVAL, CURRENT_WORKSPACE, CURRENT_PROFILE, ACTIVE_INPUT_LEASE, LAST_ACTION, TUNNEL_HEALTH`. Revocation stops new bridge calls without ChatGPT cooperation.
+## 21. First usable release
+Required:
 ```text
-install
-pair_tunnel
-start
-stop
-restart
-status
-rotate_tunnel_credential
-revoke_chatgpt_access
-delete_tunnel_binding
-repair
-update
-rollback
-uninstall
-```
-
-Visible local status must expose:
-
-```text
-CONNECTED / DISCONNECTED
-ACTIVE_SESSION
-PENDING_APPROVAL
-CURRENT_WORKSPACE
-CURRENT_PROFILE
-ACTIVE_INPUT_LEASE
-LAST_ACTION
-TUNNEL_HEALTH
-```
-
-Immediate revocation must stop new bridge requests without requiring ChatGPT cooperation.
-
-## 22. First usable release
-
-The first safe usable release is intentionally narrower than full desktop automation.
-
-Required capabilities:
-
-```text
-system.describe
-workspace.describe
-files.list/read/search/write/edit/move/delete
-process.start/status/read_output/cancel
+system/workspace describe
+files list/read/search/write/edit/move/delete
+process start/status/read_output/cancel
 gated PowerShell
 Git status/diff/basic operations
 local approval
@@ -619,192 +246,94 @@ Secure MCP Tunnel
 basic app/window inspection
 revocation/status
 ```
-
-Not required for the first release:
-
-```text
-vision-first automation
-global keyboard/mouse
-personal browser-profile attachment
-arbitrary network access
-privileged Windows mutation
-service/registry mutation
-```
-
-## 23. Delivery sequence
-
-The bridge is a cross-cutting consumer of existing Kernux phases. It must not bypass the active dependency frontier.
-
+Deferred: vision-first automation, global input, personal browser-profile attachment, arbitrary network access, privileged Windows/service/registry mutation.
+## 22. Delivery slices
 | Slice | Outcome | Dependencies | Acceptance |
 | --- | --- | --- | --- |
-| `CGB-000` | Research/source ledger + architecture freeze | Current canonical docs | Exact pins, threat model, no canonical task-state change |
-| `CGB-001` | Bridge protocol contract | P01 contracts + P02 IPC | Versioned MCP-to-Capability mapping; no privilege in adapter |
-| `CGB-002` | Tunnel lifecycle + secret handoff | P02 secret broker + egress | Restricted credential protected; bridge/children cannot read it |
-| `CGB-003` | Read-only system/workspace bridge | CGB-001/002 | Real tunnel E2E returns system/workspace state without mutation |
-| `CGB-004` | Files read/search | P04 filesystem | Path escape corpus fails closed |
-| `CGB-005` | Files mutation + approval | P04 filesystem + approval UI | Request-bound approval; atomic write semantics; audit evidence |
-| `CGB-006` | Process/PowerShell lifecycle | P04 process/PTY | argv-first path; env isolation; Job Object qualification; typed cancellation |
-| `CGB-007` | Git development workflow | P04 Git | status/diff/test workflow scoped to workspace |
-| `CGB-008` | Basic Windows app/window observation | P04 ComputerUse baseline | UIA/Win32 read-only observation; stale identity tests |
-| `CGB-009` | Installer/status/revocation | CGB-002..008 | Install/pair/connect/revoke/uninstall journey |
-| `CGB-010` | First-release E2E security qualification | All first-release slices | ChatGPT -> tunnel -> bridge -> Kernux -> real repo workflow, negative/adversarial suite |
-| `CGB-011` | Structured browser capability | P06 | Isolated Playwright context, origin drift, injection, download/upload scope |
-| `CGB-012` | Accessibility-first desktop actions | qualified P04 ComputerUse | Semantic/background path before coordinate/global input |
-| `CGB-013` | Visual/coordinate fallback | P18/P06 policy | Explicit method ceiling + input lease + evidence |
-| `CGB-014` | Clipboard and sensitive observation | policy + ComputerUse | Separate Grants, protected-content fixtures |
-| `CGB-015` | Release hardening | P15 | Signed/provenanced release, upgrade/rollback, Windows qualification |
-
-Each slice becomes a SpecGrain Grain with bounded paths, explicit dependencies, negative cases, exact acceptance evidence, and Diffcipline verification.
-
-## 24. Required test layers
-
-### Unit
-
-Policy compilation, capability mapping, path identity, risk/consequence class, redaction, operation IDs, tool schema generation, audit record construction.
-
-### Integration
-
-Real Windows filesystem, process tree, PowerShell, Git, local IPC, secret broker, tunnel-client lifecycle, UIA observation, Playwright, clipboard when enabled.
-
-### Security
-
-Traversal/reparse/hard-link, device/UNC/ADS, shell injection, environment leakage, approval self-click, stale approval, stale UI refs, cross-workspace access, browser-session leakage, secret exfiltration, tunnel-key leakage, prompt injection, output injection, duplicate action after reconnect.
-
-### Failure injection
-
-Tunnel disconnect, PC sleep, process crash, bridge crash, daemon restart, Chrome crash, locked desktop, revoked permission, app closes during action, partial file write, approval denial/expiry.
-
-### E2E
-
+| `CGB-000` | Research + architecture | Canonical docs | Pins, threat model, no task-state change |
+| `CGB-001` | MCP bridge contract | P01 + P02 IPC | Versioned MCP->Capability mapping; no adapter privilege |
+| `CGB-002` | Tunnel lifecycle/secret handoff | P02 secrets + egress | Restricted credential protected; bridge/children cannot read it |
+| `CGB-003` | Read-only system/workspace | 001/002 | Real tunnel E2E; no mutation |
+| `CGB-004` | Files read/search | P04 files | Path-escape corpus fails closed |
+| `CGB-005` | File mutation + approval | P04 files + approval | Request-bound approval, atomic mutation, evidence |
+| `CGB-006` | Process/PowerShell | P04 process/PTY | argv-first, env isolation, Job Objects, typed cancellation |
+| `CGB-007` | Git workflow | P04 Git | Scoped status/diff/test journey |
+| `CGB-008` | App/window observation | P04 ComputerUse | UIA/Win32 read-only, stale identity tests |
+| `CGB-009` | Installer/status/revocation | 002-008 | Install/pair/connect/revoke/uninstall |
+| `CGB-010` | First-release E2E | all above | ChatGPT->tunnel->bridge->Kernux real repo + adversarial suite |
+| `CGB-011` | Structured browser | P06 | Isolated Playwright, origin drift/injection/upload/download tests |
+| `CGB-012` | Semantic desktop actions | qualified P04 ComputerUse | Structured/background before coordinates |
+| `CGB-013` | Vision/coordinate fallback | P06/P18 | Explicit method ceiling + input lease + evidence |
+| `CGB-014` | Clipboard/sensitive observation | policy + ComputerUse | Separate Grants + protected fixtures |
+| `CGB-015` | Release hardening | P15 | Signed provenance, update/rollback, native Windows matrix |
+Each becomes a bounded SpecGrain Grain with exact dependencies/paths/negative cases/evidence and Diffcipline qualification.
+## 23. Test strategy
+**Unit:** capability mapping, path identity, policy compilation, redaction, tool schemas, operation IDs, audit construction.
+**Integration:** Windows files/process/PowerShell/Git/local IPC/secret broker/tunnel lifecycle/UIA/Playwright/clipboard when enabled.
+**Security:** traversal/reparse/hard-link/device/UNC/ADS, shell injection, env leakage, approval self-click, stale approval/UI refs, cross-workspace/browser leakage, secret/tunnel exfiltration, prompt/output injection, duplicate reconnect.
+**Failure injection:** tunnel/network loss, sleep, process/bridge/daemon/browser crash, locked desktop, revoked permission, app closes, partial file write, approval denial/expiry.
+**E2E:**
 ```text
-ChatGPT
--> Secure MCP Tunnel
--> kernux-mcp-bridge
--> kernuxd
--> inspect repository
--> edit bounded file
--> run tests
--> inspect failure
--> repair
--> rerun
--> inspect Git diff
--> produce local audit/evidence
+ChatGPT -> Secure MCP Tunnel -> bridge -> kernuxd
+-> inspect repo -> bounded edit -> tests -> inspect failure -> repair
+-> rerun -> Git diff -> audit/evidence
 ```
-
-and later:
-
+Later desktop E2E: observe app -> semantic target -> act -> fresh observation -> approved evidence.
+## 24. Review gates
+High-risk slices require exact-head CI; native Windows qualification; applicable Linux/macOS checks without false parity; SpecGrain WorkPacket; Diffcipline exact-diff evidence; genuine Jev review; Alibaba Open Code Review accounting; semantic security review; zero blocking threads; post-merge verification before effectiveness. Review tools never replace deterministic tests.
+## 25. Installer / UX
+Target:
 ```text
-observe app
--> select semantic element
--> act
--> verify fresh observation
--> capture approved evidence
-```
-
-## 25. Independent review and evidence
-
-Every high-risk implementation slice requires:
-
-- exact-head CI;
-- native Windows qualification for Windows-specific behavior;
-- applicable Linux/macOS compatibility checks without pretending parity;
-- SpecGrain readiness and WorkPacket evidence;
-- Diffcipline exact-diff verification;
-- genuine Jev review;
-- Alibaba Open Code Review accounting;
-- semantic security review;
-- zero unresolved blocking threads;
-- post-merge verification before canonical effectiveness is claimed.
-
-No review tool may replace deterministic tests or policy evidence.
-
-## 26. Installer and UX target
-
-The intended owner experience:
-
-```text
-Install Kernux / bridge
--> create or select Secure MCP Tunnel
--> enter restricted tunnel credential into local protected setup
--> choose workspaces/folders
+Install Kernux/bridge
+-> create/select Secure MCP Tunnel
+-> store restricted credential locally through protected setup
+-> choose workspaces
 -> choose permission profile
 -> connect
--> create/select the private ChatGPT app using the tunnel
--> verify read-only system call
+-> create/select private ChatGPT app using tunnel
+-> verify read-only call
 -> optionally enable development mutations
 ```
-
-Do not require hand-editing multiple configuration files.
-
-## 27. Zero-cost-to-founder rule
-
-The base local bridge must require no Kernux-hosted relay, database, browser farm, observability service, or managed execution infrastructure.
-
-User hardware and user-owned OpenAI/product access provide runtime resources.
-
-Optional hosted services must never become a hidden dependency for the local path.
-
-## 28. Rollback and recovery
-
-Every release must support:
-
-- stop bridge without stopping unrelated Kernux work;
-- revoke tunnel credential;
-- disable the external MCP surface while retaining local Kernux data;
-- roll back bridge version within the supported protocol window;
-- reject protocol mismatch rather than silently downgrade security;
-- restore config without restoring revoked secrets;
-- uninstall bridge/tunnel integration without deleting user project data.
-
-## 29. Implementation-readiness gate
-
-The first implementation Grain is not ready until all of these are true:
-
-1. `kernuxd` remains the only privileged policy authority.
-2. MCP tool -> CapabilityRequest mapping is frozen and versioned.
-3. Tunnel-client credential ownership/handoff is specified.
-4. Child environment projection excludes tunnel and unrelated secrets.
-5. Read/write/delete workspace resources are separately scoped.
-6. Windows path identity and reparse/hard-link policy are explicit.
-7. Process argv/cwd/env/lifecycle semantics are explicit.
-8. Approval cannot be actuated through any agent input capability.
-9. Approval reuse/drift/expiry rules are explicit.
-10. Browser and desktop authorities remain separate.
-11. UIA/DOM structured paths precede vision/coordinates.
+No multi-file manual configuration requirement.
+## 26. Cost, recovery, rollback
+Local bridge must not require Kernux-hosted relay/database/browser farm/observability/execution. User hardware and user-owned OpenAI/product access supply runtime resources. Optional hosted services never become hidden dependencies.
+Recovery must support stopping bridge independently, revoking tunnel credentials, disabling external MCP while retaining local data, protocol-compatible rollback, rejecting unsafe downgrade/mismatch, restoring config without revoked secrets, and uninstalling bridge integration without deleting project data.
+## 27. Implementation-readiness gate
+Before first implementation Grain:
+1. `kernuxd` is sole privileged policy authority.
+2. MCP->Capability mapping is versioned.
+3. Tunnel credential ownership/handoff is specified.
+4. Child env excludes tunnel/unrelated secrets.
+5. Read/write/delete resources are separately scoped.
+6. Windows path/reparse/hard-link identity policy is explicit.
+7. Process argv/cwd/env/lifecycle is explicit.
+8. Approval is non-self-actuatable.
+9. Approval drift/expiry/replay is explicit.
+10. Browser/desktop authorities are separate.
+11. UIA/DOM precede vision/coordinates.
 12. Global input is separately gated.
 13. Personal browser-profile reuse is explicit.
 14. P02 egress remains authoritative.
-15. Audit/redaction schema is mapped to Kernux events/evidence.
-16. Typed failures survive the MCP adapter.
-17. Immediate revocation path exists.
-18. Threat fixtures cover the listed adversarial cases.
+15. Audit/redaction maps to Kernux evidence.
+16. Typed failures survive MCP.
+17. Immediate revocation exists.
+18. Threat fixtures cover this plan.
 19. Source provenance is pinned.
-20. No paid infrastructure is required for the local path.
-21. ChatGPT plan/product limitations are documented without weakening local security.
-22. PR #200 ComputerUse work, if merged, is consumed through its Kernux contract rather than duplicated.
-
-## 30. Final product rule
-
-The bridge is complete only when a real supported OpenAI surface can request:
-
-```text
-Open my Kernux repository, inspect the latest state, continue a bounded implementation,
-run the tests, inspect failures, repair them, verify the diff, and report evidence.
-```
-
-while the local runtime independently enforces:
-
+20. Local path needs no paid Kernux infrastructure.
+21. ChatGPT product limitations are documented without weakening security.
+22. PR #200, if merged, is consumed through its Kernux contract rather than duplicated.
+## 28. Completion rule
+The bridge is complete only when a supported OpenAI surface can request a real development workflow while local policy independently preserves:
 ```text
 least privilege
 workspace isolation
 local approval
 secret safety
-network/egress policy
+egress control
 auditability
 revocation
 human override
-typed failure semantics
+typed failures
 no ambient shell authority
 ```
-
-The bridge is not considered successful merely because ChatGPT can execute commands. It is successful when useful computer work is possible without moving host authority into the model or MCP edge.
+Success is not “ChatGPT can run commands.” Success is useful host work without moving authority into the model or MCP edge.
