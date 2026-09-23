@@ -720,8 +720,11 @@ mod tests {
 
     #[test]
     fn evaluation_matches_class_destination_operation_and_account_exactly() {
-        let request =
-            direct_request("example.com", "network.connect", EgressSensitivity::NonSensitive);
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
         let authorized = direct_authorized("example.com", "network.connect", false);
         assert_eq!(
             evaluate_egress_constraint(&eligible_grant_match(), &request, &authorized),
@@ -801,11 +804,7 @@ mod tests {
 
         let sensitive_authorized = direct_authorized("example.com", "network.connect", true);
         assert_eq!(
-            evaluate_egress_constraint(
-                &eligible_grant_match(),
-                &sensitive,
-                &sensitive_authorized,
-            ),
+            evaluate_egress_constraint(&eligible_grant_match(), &sensitive, &sensitive_authorized,),
             EgressConstraintDecision::Eligible
         );
     }
