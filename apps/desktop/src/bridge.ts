@@ -19,6 +19,8 @@ export const ALLOWED_INVOKE_CHANNELS = [
   DAEMON_VERSION_CHANNEL,
 ] as const;
 
+Object.freeze(ALLOWED_INVOKE_CHANNELS);
+
 /** One allowlisted invoke channel. */
 export type InvokeChannel = (typeof ALLOWED_INVOKE_CHANNELS)[number];
 
@@ -62,6 +64,15 @@ export function buildInvokeEnvelope(
   }
   if (typeof requestId !== "string" || requestId.length === 0) {
     throw new Error("invalid-request");
+  }
+  let serialized: string | undefined;
+  try {
+    serialized = JSON.stringify(payload) as string | undefined;
+  } catch {
+    throw new Error("invalid-payload");
+  }
+  if (serialized === undefined || serialized.length > MAX_ENVELOPE_BYTES) {
+    throw new Error("invalid-payload");
   }
   return { channel, requestId, payload };
 }
