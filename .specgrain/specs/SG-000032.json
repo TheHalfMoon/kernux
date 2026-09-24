@@ -1,0 +1,107 @@
+{
+  "acceptance": [
+    "Connection truth uses exactly the frozen nine-state vocabulary with deterministic transitions including first-attempt degraded, degraded recovery, unavailable retrigger, and disposal-terminal paths",
+    "Transport connection alone never projects serving; serving requires a fresh valid handshake",
+    "No stale success is retained while reconnecting; loss projects an honest non-serving state synchronously",
+    "Reconnect is bounded with frozen backoff, ceiling, budget, cancellation, and no post-disposal activity",
+    "Daemon restart or context change invalidates the stale session generation; stale callbacks are ignored",
+    "Duplicate reconnect triggers never create parallel loops; shutdown cancels all timers",
+    "Shell projection consumes the single connection authority; renderer creates no second truth",
+    "Error categories are stable and deterministic with secrets and paths excluded",
+    "Real daemon reconnect round trip qualifies on the required platforms",
+    "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+    "Canonical closeout advances only KX-P03-S01-T02 scope"
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000032.json",
+    "docs/evidence/SG-000032-context-sources.json",
+    "docs/evidence/SG-000032-work-packet.json",
+    "docs/evidence/P03-S01-T02.md",
+    "apps/desktop",
+    ".specgrain/evidence/SG-000032",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 14000,
+    "estimated_tokens": 11000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "connection-vocabulary-pass",
+      "transition-determinism-pass",
+      "handshake-integrity-pass",
+      "no-stale-serving-pass",
+      "bounded-reconnect-pass",
+      "reconnect-cancellation-pass",
+      "no-parallel-loop-pass",
+      "stale-generation-rejection-pass",
+      "projection-authority-pass",
+      "error-classification-pass",
+      "secret-compat-pass",
+      "adversarial-reconnect-corpus-pass",
+      "real-daemon-reconnect-pass",
+      "packet-persistence-pr-pass",
+      "packet-persistence-post-merge-ci-pass",
+      "full-baseline-pass",
+      "local-macos-pass",
+      "windows-qualification-pass",
+      "diffcipline-r2-proof-pass",
+      "jev-review-pass",
+      "open-code-review-accounting-pass",
+      "implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000032",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "Follow-on shell capability: no connection lifecycle code exists in the repository. Minimal new-code state machine and reconnect controller reusing the proven T01 handshake client and P02 daemon transport; donor import stays out of scope."
+      },
+      "safety": {
+        "requirements": [
+          "The renderer must never decide daemon availability; the connection subsystem is the sole authority and the shell consumes its projection.",
+          "Reconnect must be bounded and silent after disposal; stale sessions must never be reused after daemon restart.",
+          "Serving must never be projected without a fresh valid handshake; degraded states must reflect observed limitations only."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Project honest daemon connection truth in the desktop shell: a closed connection-state vocabulary separating transport, session, and projection layers, a bounded reconnect controller with stale-generation protection, and renderer consumption of the single connection authority with no second truth source.",
+  "parent_id": null,
+  "rationale": "P03 entry authorizes KX-P03-S01-T02 ONLY with KX-P03-S01-T01 PROVEN at canonical main 9469a34 (PR 220 merged 2026-09-24, post-merge CI 35986307130 success). The T01 handshake proves one-shot health; the shell still lacks connection lifecycle truth and would retain stale success across daemon loss. A bounded Grain must freeze the state vocabulary, reconnect bounds, stale-session rules, and projection authority before implementation so later P03 workspace tasks build on honest degraded states. Pre-freeze nine-state review kept nine states with distinct deterministic semantics and required first-attempt degraded, unavailable-retrigger, degraded-recovery, and disposal-terminal transitions. Predecessor SG-000031 is bound as context, not as a machine dependency, per repo convention keeping grains packet-eligible.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded connection, reconnect, projection, and frontier changes and keep KX-P03-S01-T02 at NEXT with P03 entry intact. No daemon or kernel state is created by this slice."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Closed nine-state connection vocabulary (initial, connecting, serving, transient-disconnect, reconnecting, unavailable, incompatible, degraded, terminal) with a pure deterministic transition reducer over a closed event set, separating transport, session, and projection layers; each state freezes entry conditions, allowed and forbidden outgoing transitions, handshake completeness, dispatch permission, reconnect scheduling, recoverability, and user-visible meaning; coverage includes first-attempt degraded, degraded recovery, unavailable retrigger, and disposal-terminal from any state",
+    "Bounded reconnect controller with frozen bounds: loss-observation or explicit-retry trigger, 200ms debounce hold in transient-disconnect, exponential backoff x2, 5000ms maximum delay, 10-attempt per-episode budget with fallback to unavailable, reset after fresh serving handshake, cancellation on serving shutdown and disposal, zero post-disposal activity, and duplicate-trigger coalescing to a single timer and single in-flight attempt",
+    "Stale session and generation protection bound to connection generation per episode, attempt and handshake generation per try, runtime revision, negotiated protocol, and handshake state; every attempt uses a fresh socket and fresh handshake and never reuses stale transport; late callbacks from older generations are ignored",
+    "Handshake integrity preserved: serving only after fresh valid handshake and compatibility checks; transport connection alone never projects serving",
+    "Shell projection wiring: single connection authority consumed by the renderer with stable error categories; renderer derives its projection mechanically with no second boolean authority",
+    "Deterministic fixtures with injectable timers plus bounded real daemon reconnect qualification",
+    "Persist fresh ContextSources and WorkPacket before any implementation and require byte-identical replay through the pinned CLI"
+  ],
+  "scope_out": [
+    "No design tokens, tabs, command bar behavior, timeline, quick-open, CLI, Design Mode, or Privacy Inspector",
+    "No donor code import; reconnect work is new code over the proven transport contract",
+    "No packaging, signing, auto-update, or release artifacts",
+    "No P03 task advancement beyond KX-P03-S01-T02"
+  ],
+  "state": "GRAIN",
+  "title": "KX-P03-S01-T02 - Daemon connection/reconnect projection and honest degraded states"
+}
