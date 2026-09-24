@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           cargo build -p kernuxd
-          ./node_modules/.bin/tsc apps/desktop/src/transport-client.ts --outDir /tmp/live-out --module nodenext --target es2024 --strict --skipLibCheck
+          ./node_modules/.bin/tsc --ignoreConfig apps/desktop/src/transport-client.ts --outDir /tmp/live-out --module nodenext --target es2024 --strict --skipLibCheck
           cat > /tmp/live-out/live-client.mjs <<'EOF'
           import net from "node:net";
           import { probeDaemonHealth } from "./transport-client.js";
@@ -181,7 +181,7 @@ jobs:
         run: |
           set -euo pipefail
           cargo build -p kernuxd
-          ./node_modules/.bin/tsc apps/desktop/src/transport-client.ts --outDir /tmp/live-out --module nodenext --target es2024 --strict --skipLibCheck
+          ./node_modules/.bin/tsc --ignoreConfig apps/desktop/src/transport-client.ts --outDir /tmp/live-out --module nodenext --target es2024 --strict --skipLibCheck
           cat > /tmp/live-out/live-client.mjs <<'EOF'
           import net from "node:net";
           import { probeDaemonHealth } from "./transport-client.js";
