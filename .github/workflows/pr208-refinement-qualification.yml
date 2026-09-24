@@ -1,0 +1,134 @@
+name: PR208 Refinement Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr208-refinement-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: e32eaf962f892c4be55366d8059907e46bf7d1e8
+  TARGET_SHA: 3ae67a1a791298fc4cffaa4e3e50f73170e4ac0e
+  PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact refinement surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          test 1 -eq $(wc -l < /tmp/paths.txt)
+          grep -q ".specgrain/specs/SG-000030.json" /tmp/paths.txt
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- specs/ docs/)"
+          test -z "$(git ls-files --others --exclude-standard)"
+          python3 -c "import json; s=json.load(open('.specgrain/specs/SG-000030.json')); assert s['id']=='SG-000030' and s['state']=='GRAIN' and len(s['acceptance'])==7 and len(s['evidence']['required'])==18, s['id']"
+      - name: Verify SpecGrain state
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000030 . --json > /tmp/sg30-prove.json || test $? -eq 1
+          grep -q 'verified.:false' /tmp/sg30-prove.json
+          python3 tools/specgrain/run.py prove SG-000029 . --json > /tmp/sg29-prove.json
+          grep -q 'verified.:true' /tmp/sg29-prove.json
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS refinement surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          test 1 -eq $(wc -l < /tmp/paths.txt)
+          grep -q ".specgrain/specs/SG-000030.json" /tmp/paths.txt
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          python3 tools/specgrain/run.py check .
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
