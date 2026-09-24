@@ -86,8 +86,10 @@ jobs:
           set -euo pipefail
           ./node_modules/.bin/tsc --ignoreConfig --noResolve --noEmit --jsx react-jsx --target es2024 --module esnext --moduleResolution bundler apps/desktop/src/main.ts apps/desktop/src/preload.ts apps/desktop/src/renderer.tsx > /tmp/syntax.log 2>&1 || true
           cat /tmp/syntax.log
-          if grep -q "error TS1" /tmp/syntax.log; then
-            echo "SYNTAX ERRORS PRESENT"
+          unexpected=$(grep -o "error TS[0-9]*" /tmp/syntax.log | sort -u | grep -v -E "error TS(2307|2591|2304|7006|18046|2366)$" || true)
+          if [ -n "$unexpected" ]; then
+            echo "UNEXPECTED DIAGNOSTICS:"
+            echo "$unexpected"
             exit 1
           fi
           echo "SYNTAX_GATE_PASS"
@@ -159,8 +161,10 @@ jobs:
           set -euo pipefail
           ./node_modules/.bin/tsc --ignoreConfig --noResolve --noEmit --jsx react-jsx --target es2024 --module esnext --moduleResolution bundler apps/desktop/src/main.ts apps/desktop/src/preload.ts apps/desktop/src/renderer.tsx > /tmp/syntax.log 2>&1 || true
           cat /tmp/syntax.log
-          if grep -q "error TS1" /tmp/syntax.log; then
-            echo "SYNTAX ERRORS PRESENT"
+          unexpected=$(grep -o "error TS[0-9]*" /tmp/syntax.log | sort -u | grep -v -E "error TS(2307|2591|2304|7006|18046|2366)$" || true)
+          if [ -n "$unexpected" ]; then
+            echo "UNEXPECTED DIAGNOSTICS:"
+            echo "$unexpected"
             exit 1
           fi
           echo "SYNTAX_GATE_PASS"
