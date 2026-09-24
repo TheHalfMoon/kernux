@@ -3,11 +3,16 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { checkFoundation } from "./foundation.mjs";
+import { checkAuthority } from "./authority.mjs";
 
 export async function checkDesignSystem(root, paths) {
   const extraPaths = paths ?? [];
   if (!Array.isArray(extraPaths)) throw new Error("invalid-design-system-file-list");
-  const { diagnostics } = await checkFoundation(root, extraPaths);
+  const result = await checkFoundation(root, extraPaths);
+  const diagnostics = [
+    ...result.diagnostics,
+    ...checkAuthority(result.canonicalRoot, result.files, result.parsed),
+  ];
   return diagnostics;
 }
 

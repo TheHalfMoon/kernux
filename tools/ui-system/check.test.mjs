@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import test from "node:test";
@@ -11,15 +11,13 @@ async function fixture(renderer = "export const clean = true;") {
   await mkdir(resolve(root, "apps/desktop/src"), { recursive: true });
   await mkdir(resolve(root, "packages/ui-system"), { recursive: true });
   await writeFile(resolve(root, "apps/desktop/src/renderer.tsx"), renderer, "utf8");
-  await writeFile(
+  await copyFile(
+    resolve(process.cwd(), "packages/ui-system/tokens.ts"),
     resolve(root, "packages/ui-system/tokens.ts"),
-    "export const token = true;\n",
-    "utf8",
   );
-  await writeFile(
+  await copyFile(
+    resolve(process.cwd(), "packages/ui-system/primitives.ts"),
     resolve(root, "packages/ui-system/primitives.ts"),
-    "export const primitive = true;\n",
-    "utf8",
   );
   return root;
 }
@@ -49,6 +47,63 @@ test("missing renderer fails closed", async () => {
   }
 });
 
+test("strict malformed canonical color and contrast values fail closed", async () => {
+  const root = await fixture();
+  try {
+    const tokenPath = resolve(root, "packages/ui-system/tokens.ts");
+    const source = await readFile(tokenPath, "utf8");
+    await writeFile(
+      tokenPath,
+      source.replace('successLight: "#146c43"', 'successLight: "#f7f8fa"'),
+      "utf8",
+    );
+    const diagnostics = await checkDesignSystem(root);
+    assert.ok(
+      diagnostics.some(
+        ({ code, detail }) => code === "invalid-contrast-pair" && detail.includes("successLight"),
+      ),
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("renderer authority and dynamic imports fail closed", async () => {
+  const root = await fixture(`
+    import fs from "node:fs";
+    import electron from "electron";
+    export const escape = () => process.env.SECRET ?? eval("1");
+  `);
+  try {
+    const diagnostics = await checkDesignSystem(root);
+    assert.ok(diagnostics.some(({ code }) => code === "renderer-authority-import"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("reachable re-export and directory-index authority files are inspected", async () => {
+  const root = await fixture(`
+    export { authority } from "../../../authority";
+  `);
+  try {
+    await mkdir(resolve(root, "authority"), { recursive: true });
+    await writeFile(
+      resolve(root, "authority/index.ts"),
+      'import fs from "node:fs"; export const authority = fs;',
+      "utf8",
+    );
+    const diagnostics = await checkDesignSystem(root);
+    assert.ok(
+      diagnostics.some(
+        ({ code, path }) =>
+          code === "renderer-authority-import" && path.includes("authority/index.ts"),
+      ),
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 test("malformed TypeScript reports a structural diagnostic", async () => {
   await withFixture("export const broken: = 1;", async (root) => {
     const diagnostics = await checkDesignSystem(root);
