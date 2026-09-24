@@ -88,6 +88,8 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 
 | KX-P02-S07-T01 | PROVEN | R3 | Define and implement kernel egress-class/destination policy primitives for NONE, DIRECT_DESTINATION, CONNECTED_ACCOUNT, EXTERNAL_MODEL, EXTERNAL_TOOL, REMOTE_RUNTIME, UPDATE and TELEMETRY; unknown sensitive egress fails closed. | policy + secret broker |
 
+**P02 EXIT: PROVEN.** SG-000030 native verification record `sha256:6c7134350d40134d576788fee7a7a06f940cb3757664c6e4d8c8117dd5c2b8cb` verified the exit assessment with acceptance 7/7 and required evidence 18/18. The bounded chain was refinement PR #208 (`3ae67a1`, exact-head CI `35975498403`, probe `35975563684`, merge `48ffffc`, post-merge `35975821048`), packet persistence PR #209 (`bb05be1`, CI `35976237526`, probe `35976296891`, merge `f6b4d53`, post-merge `35976559786`), exit evidence PR #210 (`0168a6a`, CI `35976792750`, probe `35976843452`, merge `37e6c08`, post-merge `35977057808`), and closeout PR #211 (`28ba8d6`, CI `35977524900`, probe `35977578871`, merge `b1fa75b`, post-merge `35977801272`); each slice passed exact-head six-job CI, probe linux and native macOS qualification, Diffcipline R1 and R3, genuine Jev review, Alibaba OpenCodeReview accounting, semantic review, and zero blocking threads before ordinary merge. Preserved failures: none new (exit adds no product code); chain negatives preserved in task records. P02 EXIT is PROVEN; only KX-P03-S01-T01 is NEXT.
+
 **P02 gate:** privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven; egress class/destination policy can fail closed before later network-capable phases.
 
 ---

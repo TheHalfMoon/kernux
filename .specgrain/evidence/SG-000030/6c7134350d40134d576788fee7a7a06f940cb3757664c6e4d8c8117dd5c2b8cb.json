@@ -1,0 +1,174 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:6c7134350d40134d576788fee7a7a06f940cb3757664c6e4d8c8117dd5c2b8cb",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "All ten P02 macro tasks reconciled PROVEN with immutable native records",
+        "detail": "Ten tasks reconciled PROVEN, each with an immutable native record; count reconciled, never the proof itself.",
+        "evidence_ref": "repo:specs/tasks.md;repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical closeout advances only P02 EXIT scope and authorizes P03 entry only after protected closeout",
+        "detail": "Ledgers untouched by assessment; P02 EXIT unproven, P03 unauthorized; scope authority is exit-only.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "Fail-closed egress policy proven before network-capable phases",
+        "detail": "SG-000029 closed vocabulary, grant-constraining evaluator, and 9-test adversarial corpus with no-cloud-fallback proof.",
+        "evidence_ref": "repo:docs/evidence/P02-S07-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+        "detail": "Pinned verify_execution binds packet to observed evidence with zero issues; record persisted under .specgrain/evidence/SG-000030/.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000030",
+        "passed": true
+      },
+      {
+        "check_id": "Privilege-bypass and adversarial bounds hold across policy, secret, audit, and egress layers",
+        "detail": "S05 profile ceilings plus S05-T02 adversarial corpus, S06/S07 leak and egress corpora; no layer mints authority.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "Restart/migration recovery proven for metadata store and artifact CAS",
+        "detail": "S03 SQLite WAL/migration/corruption fixtures plus S04 CAS digest verification and retention.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "Secrets stay outside ordinary DB/logs with redaction-safe audit projection",
+        "detail": "S06 provider handle-based use plus S06-T02 redaction-safe audit projection with frozen KRP binding.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "cargo-lock-byte-identity-pass",
+        "detail": "Empty manifest/lockfile diffs across exit ranges on probes.",
+        "evidence_ref": "github-pr:208;github-pr:209;github-pr:210",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Closeout PR #211 merged at b1fa75b with post-merge CI 35977801272 6/6 SUCCESS.",
+        "evidence_ref": "github-pr:211;github-actions:35977801272",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "R3 Verdict+Verification PASS on linux+macos for exit scopes.",
+        "evidence_ref": "github-pr:208;github-pr:209;github-pr:210",
+        "passed": true
+      },
+      {
+        "check_id": "egress-fail-closed-pass",
+        "detail": "SG-000029 native record 2273a0e1 (8/8, 22/22).",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000029",
+        "passed": true
+      },
+      {
+        "check_id": "exit-evidence-pr-pass",
+        "detail": "Exit evidence qualified with full gates before ordinary merge.",
+        "evidence_ref": "github-pr:210;github-actions:35976792750;github-actions:35976843452",
+        "passed": true
+      },
+      {
+        "check_id": "full-baseline-pass",
+        "detail": "Full pnpm check green on all exit probes.",
+        "evidence_ref": "github-pr:208;github-pr:209;github-pr:210",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "Genuine jev 0.3.2 TypeSafe jev-1.13.0 on exit diffs.",
+        "evidence_ref": "github-pr:208;github-pr:209;github-pr:210",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Native macos-14-arm64 probes green for refinement, packet, evidence.",
+        "evidence_ref": "github-pr:208;github-pr:209;github-pr:210",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This immutable record is the pinned native verification result.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000030",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OCR 1.12.7 Delegation Mode only on exit ranges.",
+        "evidence_ref": "github-pr:208;github-pr:209;github-pr:210",
+        "passed": true
+      },
+      {
+        "check_id": "p02-macro-registry-complete-pass",
+        "detail": "Ten PROVEN tasks reconciled with per-task native record digests.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-post-merge-ci-pass",
+        "detail": "Packet persistence post-merge CI 35976559786 6/6 SUCCESS.",
+        "evidence_ref": "github-pr:209;github-actions:35976559786",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-pr-pass",
+        "detail": "SG-000030 packet qualified through probe pr209-packet-qualification.",
+        "evidence_ref": "github-pr:209;github-actions:35976237526;github-actions:35976296891",
+        "passed": true
+      },
+      {
+        "check_id": "privilege-adversarial-bounds-pass",
+        "detail": "Profile ceilings, leak corpora, relabeling-exhaustion proof.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Closeout PR #211 merged at b1fa75b through ordinary governed history.",
+        "evidence_ref": "github-pr:211",
+        "passed": true
+      },
+      {
+        "check_id": "restart-migration-recovery-pass",
+        "detail": "Store WAL/migration fixtures, CAS digest verification.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "secret-exclusion-pass",
+        "detail": "Handle-based secrets, metadata-only audit renderings.",
+        "evidence_ref": "repo:docs/evidence/P02-EXIT.md",
+        "passed": true
+      },
+      {
+        "check_id": "workpacket-durable-recovery-pass",
+        "detail": "Tracked packet 32ed21a0 replay byte-identically (cmp) on probes.",
+        "evidence_ref": "repo:docs/evidence/SG-000030-work-packet.json",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:b1fa75bbb55f982008100be527395077371fd5cf",
+    "issues": [],
+    "observed_changed_paths": [
+      "docs/evidence/P02-EXIT.md",
+      "specs/CURRENT.md",
+      "specs/tasks.md"
+    ],
+    "packet_digest": "sha256:32ed21a014b8015084c1ec285e7313bb4b236f145419057dcad7d0fd327f94ad",
+    "result_digest": "sha256:f146871ee09e6777d6a058a9f8d4426c0649fa1d3051e4b1ca1835a8169e3c6d",
+    "spec_id": "SG-000030",
+    "spec_revision": "sha256:9c3e61d624f19bc00ea25da06441c66e6b9fc1b3125801e7fb4011bc847b9934",
+    "verification_version": 1,
+    "verified": true
+  }
+}
