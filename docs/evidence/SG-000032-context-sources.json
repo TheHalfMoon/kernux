@@ -1,0 +1,172 @@
+[
+ {
+  "priority": 0,
+  "provenance": "repo:AGENTS.md#L1-L60",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, exact-head proof, and protected-history rules.",
+  "size_bytes": 2617,
+  "source_id": "agent-governance",
+  "token_cost": 654
+ },
+ {
+  "priority": 1,
+  "provenance": "repo:specs/CURRENT.md#L70-L95",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the exact live P03 frontier with S01-T02 as the sole NEXT unit, S01-T01 proven, and later tasks planned.",
+  "size_bytes": 961,
+  "source_id": "current-frontier",
+  "token_cost": 240
+ },
+ {
+  "priority": 2,
+  "provenance": "repo:specs/tasks.md#L99-L104",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the P03 S01 macro rows with R2 risk, the shell-only dependency, and the T01 closeout precedent pointer.",
+  "size_bytes": 1776,
+  "source_id": "p03-table",
+  "token_cost": 444
+ },
+ {
+  "priority": 3,
+  "provenance": "repo:docs/evidence/P03-S01-T01.md#L1-L60",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the T01 evidence and closeout precedent: live handshake proof, native verification, and protected closeout ordering.",
+  "size_bytes": 3878,
+  "source_id": "t01-closeout-precedent",
+  "token_cost": 969
+ },
+ {
+  "priority": 4,
+  "provenance": "repo:apps/desktop/src/transport-client.ts#L1-L120",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the proven preamble, frame bounds, contract constants, and nonce discipline reused by reconnect.",
+  "size_bytes": 4186,
+  "source_id": "handshake-framing",
+  "token_cost": 1046
+ },
+ {
+  "priority": 5,
+  "provenance": "repo:apps/desktop/src/transport-client.ts#L121-L294",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind probe validation, serving derivation, and timeout semantics that reconnect must preserve.",
+  "size_bytes": 5032,
+  "source_id": "handshake-probe",
+  "token_cost": 1258
+ },
+ {
+  "priority": 6,
+  "provenance": "repo:apps/desktop/src/main.ts#L1-L150",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind main-process window lifecycle, bridge handler registration, and daemon endpoint resolution.",
+  "size_bytes": 4652,
+  "source_id": "shell-wiring",
+  "token_cost": 1163
+ },
+ {
+  "priority": 7,
+  "provenance": "repo:apps/desktop/src/renderer.tsx#L1-L50",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the current renderer status projection that must consume the single connection authority.",
+  "size_bytes": 1697,
+  "source_id": "renderer-projection",
+  "token_cost": 424
+ },
+ {
+  "priority": 8,
+  "provenance": "repo:apps/desktop/src/bridge.ts#L1-L97",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the frozen allowlisted bridge vocabulary that reconnect states must cross without widening.",
+  "size_bytes": 3268,
+  "source_id": "bridge-vocabulary",
+  "token_cost": 817
+ },
+ {
+  "priority": 9,
+  "provenance": "repo:crates/kernuxd/src/transport.rs#L80-L130",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the proven local transport endpoints: unix runtime dir, Windows pipe name, socket and pipe accessors.",
+  "size_bytes": 1507,
+  "source_id": "daemon-transport",
+  "token_cost": 376
+ },
+ {
+  "priority": 10,
+  "provenance": "repo:crates/kernuxd/src/transport.rs#L228-L300",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind daemon bind, serve, and lifecycle transitions that drive real reconnect behavior.",
+  "size_bytes": 2445,
+  "source_id": "daemon-serve",
+  "token_cost": 611
+ },
+ {
+  "priority": 11,
+  "provenance": "repo:docs/canonical/ARCHITECTURE.md#L76-L86",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the renderer-never-authority law with narrow typed preload bridge and kernel policy path.",
+  "size_bytes": 728,
+  "source_id": "renderer-unprivileged",
+  "token_cost": 182
+ },
+ {
+  "priority": 12,
+  "provenance": "repo:docs/canonical/SECURITY_MODEL.md#L1-L12",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the no-self-enforcement law: no renderer, plugin, page, or agent enforces its own permissions.",
+  "size_bytes": 765,
+  "source_id": "no-self-authorization",
+  "token_cost": 191
+ },
+ {
+  "priority": 13,
+  "provenance": "repo:docs/canonical/SECURITY_MODEL.md#L306-L320",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind mandatory adversarial classes including lost connection ambiguity and stale or forged grants.",
+  "size_bytes": 507,
+  "source_id": "security-test-classes",
+  "token_cost": 126
+ },
+ {
+  "priority": 14,
+  "provenance": "repo:docs/canonical/UX_BLUEPRINT.md#L11-L21",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the four-region primary shell and run strip where honest connection state is projected.",
+  "size_bytes": 633,
+  "source_id": "ux-primary-shell",
+  "token_cost": 158
+ },
+ {
+  "priority": 15,
+  "provenance": "repo:.specgrain/specs/SG-000031.json",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the shaped shell Grain authority with exact paths, acceptance requirements, and evidence checks.",
+  "size_bytes": 4554,
+  "source_id": "sg31-grain",
+  "token_cost": 1138
+ },
+ {
+  "priority": 16,
+  "provenance": "repo:apps/desktop/test/handshake.test.ts#L1-L80",
+  "requirement": "required",
+  "revision": "git:9469a346c9ed2c63f2d50f5e999071d9fdb1bbc9",
+  "selection_reason": "Bind the deterministic fake-socket fixture style that reconnect tests must extend.",
+  "size_bytes": 2110,
+  "source_id": "deterministic-fixture-style",
+  "token_cost": 527
+ }
+]
