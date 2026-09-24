@@ -1,0 +1,202 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:2860e1a9ab8e0595ea57cbbd6e45ff480e9f926be8dfc75ba6d7f7e489244dbe",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Canonical closeout advances only KX-P03-S01-T01 scope",
+        "detail": "Ledgers untouched by implementation; S01-T01 NEXT, later P03 planned; scope authority is shell-only.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "Daemon health and version round-trip over the proven local transport",
+        "detail": "TS handshake client proven live against real daemons on linux+macos; fake-socket unit suite covers framing and timeouts.",
+        "evidence_ref": "github-pr:216;github-actions:35982859309",
+        "passed": true
+      },
+      {
+        "check_id": "Hostile renderer and bridge bypass attempts fail closed",
+        "detail": "PR-C corpus plus frozen allowlist and payload bound; hostile channels and tampering denied.",
+        "evidence_ref": "github-pr:215;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+        "detail": "Pinned verify_execution binds packet to observed evidence with zero issues; record persisted under .specgrain/evidence/SG-000031/.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000031",
+        "passed": true
+      },
+      {
+        "check_id": "No secret or credential capture in shell, bridge, or logs",
+        "detail": "No secret or credential capture in shell, bridge, client, tests, logs; nonce hygiene proven.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "Preload exposes only allowlisted typed channels; unknown channels rejected",
+        "detail": "PR-A vocabulary with exact parsing plus PR-C corpus; preload single-method.",
+        "evidence_ref": "github-pr:215;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "Renderer exposes no ambient Node or host authority",
+        "detail": "Frozen flags, sandbox, context isolation, strict CSP; config locks plus adversarial tests.",
+        "evidence_ref": "github-pr:215;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "Shell boots exactly one workspace window bound to the preload bridge",
+        "detail": "Single-window lifecycle wired with frozen policy; execution smoke reserved for the packaging grain with admission.",
+        "evidence_ref": "github-pr:217",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "adversarial-bridge-pass",
+        "detail": "PR-C corpus plus frozen allowlist and payload bound; downgrade denied.",
+        "evidence_ref": "github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "bridge-allowlist-pass",
+        "detail": "PR-A closed vocabulary with exact parsing and constant errors.",
+        "evidence_ref": "github-pr:215",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Closeout PR #219 merged at f51f04c with post-merge CI 35985429896 6/6 SUCCESS.",
+        "evidence_ref": "github-pr:219;github-actions:35985429896",
+        "passed": true
+      },
+      {
+        "check_id": "daemon-handshake-pass",
+        "detail": "Live handshake on linux+macos plus fake-socket unit suite.",
+        "evidence_ref": "github-pr:216;github-actions:35982859309",
+        "passed": true
+      },
+      {
+        "check_id": "dependency-manifest-identity-pass",
+        "detail": "Zero npm dependencies; no manifest or lockfile drift on any probe.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "R3 Verdict+Verification PASS on linux+macos for shell scopes.",
+        "evidence_ref": "github-actions:35981484739;github-actions:35982859309",
+        "passed": true
+      },
+      {
+        "check_id": "full-baseline-pass",
+        "detail": "Full pnpm check green on all shell probes.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-post-merge-ci-pass",
+        "detail": "Post-merge CI 6/6 on ce18656, 88c5ea9, 4a61766.",
+        "evidence_ref": "github-actions:35981752210;github-actions:35983143820;github-actions:35984331591",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-pr-pass",
+        "detail": "PR 215/216/217 each: CI 6/6, R3, Jev, OCR, linux+macos+Windows, review, zero threads.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "Genuine jev 0.3.2 TypeSafe jev-1.13.0 on shell diffs.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Native macos-14-arm64 probes green for all slices plus evidence.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This immutable record is the pinned native verification result.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000031",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OCR 1.12.7 Delegation Mode only on shell ranges.",
+        "evidence_ref": "github-pr:215;github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-post-merge-ci-pass",
+        "detail": "Packet persistence post-merge CI 35979952386 6/6 SUCCESS.",
+        "evidence_ref": "github-pr:214;github-actions:35979952386",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-pr-pass",
+        "detail": "SG-000031 packet qualified through probe pr214-packet-qualification.",
+        "evidence_ref": "github-pr:214",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Closeout PR #219 merged at f51f04c through ordinary governed history.",
+        "evidence_ref": "github-pr:219",
+        "passed": true
+      },
+      {
+        "check_id": "renderer-unprivileged-pass",
+        "detail": "Frozen flags plus sandbox, isolation, and CSP locks.",
+        "evidence_ref": "github-pr:215;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "secret-compat-pass",
+        "detail": "Nonce hygiene plus constant errors; no capture in code or logs.",
+        "evidence_ref": "github-pr:216;github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "shell-boot-pass",
+        "detail": "PR-A wiring proven; execution smoke reserved for packaging grain.",
+        "evidence_ref": "github-pr:217",
+        "passed": true
+      },
+      {
+        "check_id": "workpacket-durable-recovery-pass",
+        "detail": "Tracked packet 4b7dad47 replay byte-identically (cmp) on probes.",
+        "evidence_ref": "repo:docs/evidence/SG-000031-work-packet.json",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:f51f04c3b369d7839aab56eae27efef704f1a638",
+    "issues": [],
+    "observed_changed_paths": [
+      "apps/desktop/src/bridge.ts",
+      "apps/desktop/src/main.ts",
+      "apps/desktop/src/preload.ts",
+      "apps/desktop/src/renderer.tsx",
+      "apps/desktop/src/transport-client.ts",
+      "apps/desktop/src/window-config.ts",
+      "apps/desktop/test/bridge.test.ts",
+      "apps/desktop/test/handshake.test.ts",
+      "apps/desktop/test/node-shim.d.ts",
+      "apps/desktop/test/shell-corpus.test.ts",
+      "apps/desktop/test/tsconfig.tests.json",
+      "apps/desktop/test/window-config.test.ts",
+      "apps/desktop/tsconfig.json"
+    ],
+    "packet_digest": "sha256:4b7dad47c9434c265cee589eca35a4f06723b99f21db0461ce677f380d78ee2d",
+    "result_digest": "sha256:d958adbb79942163c5bce1e8fffad55d58d8f304842a8511b3cd56c4a3b780a3",
+    "spec_id": "SG-000031",
+    "spec_revision": "sha256:6709656ac1f172bfcb3f3d5445ea5b76ac937ed75f1e7ec01901200f42a375d2",
+    "verification_version": 1,
+    "verified": true
+  }
+}
