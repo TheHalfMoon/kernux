@@ -1,0 +1,203 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:2273a0e1264a35a9300e715e17f102c42523d7dd373d539c9a427fb4b7c02e8b",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "All eight egress classes are explicit with stable vocabulary and exact parsing that rejects unknown classes",
+        "detail": "PR-A closed 8-class vocabulary, exact parsing, stable strings, structural tests; exact-head CI 35915267257 and probe 35917714275 green.",
+        "evidence_ref": "github-pr:201;github-actions:35915267257;github-actions:35917714275",
+        "passed": true
+      },
+      {
+        "check_id": "Canonical closeout advances only KX-P02-S07-T01 scope for this grain and leaves P02 exit unproven",
+        "detail": "Ledgers untouched by implementation; KX-P02-S07-T01 NEXT, P02 9/10, exit unproven; scope authority is S07-T01 only.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "Class separation holds with DIRECT_DESTINATION distinct from EXTERNAL_MODEL, CONNECTED_ACCOUNT distinct from arbitrary EXTERNAL_TOOL, and local failure never widening to cloud",
+        "detail": "PR-B evaluator plus PR-C cross-class corpus prove DIRECT!=MODEL, ACCOUNT!=TOOL, UPDATE/TELEMETRY separation, NONE and REMOTE_RUNTIME binding.",
+        "evidence_ref": "github-pr:203;github-pr:204;github-actions:35920791174;github-actions:35972003724",
+        "passed": true
+      },
+      {
+        "check_id": "Denial reasons are stable redaction-safe and auditable without secret plaintext",
+        "detail": "Six stable kebab-case denial codes; exact Debug-rendering locks plus forbidden-substring guards; no secret plaintext anywhere.",
+        "evidence_ref": "github-pr:203;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "Destination identity and scope are explicitly bound with NONE requiring no destination and every other class requiring an explicit destination",
+        "detail": "PR-A structural binding plus PR-C exhaustive 8x4 class/destination matrix (8 valid, 24 rejected); NONE destination-free.",
+        "evidence_ref": "github-pr:201;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "Evaluation is pure deterministic and grant-constraining with no second authority path and no grant bypass",
+        "detail": "PR-B evaluator narrows exact Grant bindings only; re-runs canonical matcher; grant-less eligibility impossible by construction.",
+        "evidence_ref": "github-pr:203;github-actions:35920766134",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+        "detail": "Pinned verify_execution binds packet to observed evidence with zero issues; record persisted under .specgrain/evidence/SG-000029/.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000029",
+        "passed": true
+      },
+      {
+        "check_id": "Unknown sensitive egress fails closed and incomplete metadata never infers permission",
+        "detail": "PR-C 9-test adversarial corpus; relabeling-exhaustion proof (16 combinations, exactly 1 Eligible); unknown sensitivity fails closed.",
+        "evidence_ref": "github-pr:204;github-actions:35971871519;github-actions:35972003724",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "audit-compat-pass",
+        "detail": "PR-C audit-code projection and redaction locks; SG-000028 untouched.",
+        "evidence_ref": "github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "cargo-lock-byte-identity-pass",
+        "detail": "Empty Cargo.lock/Cargo.toml/pnpm-lock.yaml diffs across a55832a...8d9cb45 on probes.",
+        "evidence_ref": "github-actions:35917714275;github-actions:35920791174;github-actions:35972003724",
+        "passed": true
+      },
+      {
+        "check_id": "class-separation-pass",
+        "detail": "PR-B evaluator and PR-C substitution corpus; cross-class swaps all denied.",
+        "evidence_ref": "github-pr:203;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Closeout PR #206 merged at cc426e9 with post-merge CI 35973916612 6/6 SUCCESS.",
+        "evidence_ref": "github-pr:206;github-actions:35973916612",
+        "passed": true
+      },
+      {
+        "check_id": "destination-binding-pass",
+        "detail": "PR-A binding plus PR-C 8x4 matrix; constructors enforce shapes.",
+        "evidence_ref": "github-pr:201;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r3-proof-pass",
+        "detail": "R3 Verdict+Verification PASS on linux+macos for 201/203/204/205 scopes.",
+        "evidence_ref": "github-actions:35917714275;github-actions:35920791174;github-actions:35972003724",
+        "passed": true
+      },
+      {
+        "check_id": "egress-vocabulary-pass",
+        "detail": "Eight exact classes, stable strings, requires_destination; 6 PR-A tests.",
+        "evidence_ref": "github-pr:201",
+        "passed": true
+      },
+      {
+        "check_id": "fail-closed-corpus-pass",
+        "detail": "PR-C 9-test corpus incl. unknown/missing/substitution/sensitivity cases.",
+        "evidence_ref": "github-pr:204;github-actions:35971871519",
+        "passed": true
+      },
+      {
+        "check_id": "grant-constraint-binding-pass",
+        "detail": "Binding re-runs canonical matcher; operation/class/dest/resource narrowed.",
+        "evidence_ref": "github-pr:203",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-post-merge-ci-pass",
+        "detail": "Post-merge CI 6/6 on a9f697c (35918418274), 912bbf7 (35971021047), 8d9cb45 (35972325065).",
+        "evidence_ref": "github-actions:35918418274;github-actions:35971021047;github-actions:35972325065",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-pr-pass",
+        "detail": "PR 201/203/204 each: CI 6/6, R3, Jev, OCR, linux+macos+Windows, review, zero threads.",
+        "evidence_ref": "github-pr:201;github-pr:203;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "Genuine jev 0.3.2 TypeSafe jev-1.13.0: PR-A 8/8 no, PR-B 8/8 no, PR-C 8/8 no.",
+        "evidence_ref": "github-pr:201;github-pr:203;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "Native macos-14-arm64 14.8.9/23J631 probes green for all slices plus evidence.",
+        "evidence_ref": "github-actions:35917714275;github-actions:35920791174;github-actions:35972003724",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This immutable record is the pinned native verification result.",
+        "evidence_ref": "repo:.specgrain/evidence/SG-000029",
+        "passed": true
+      },
+      {
+        "check_id": "no-cloud-fallback-pass",
+        "detail": "Relabeling-exhaustion proof; denied stays denied; no fallback path exists.",
+        "evidence_ref": "github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OCR 1.12.7 (85cecfe) Delegation Mode only; 2/2/0, 1/1/0, 1/1/0, 1/0/1.",
+        "evidence_ref": "github-actions:35917714275;github-actions:35920791174;github-actions:35972003724",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-post-merge-ci-pass",
+        "detail": "Packet persistence merge 897c001 post-merge CI 35911953575 6/6 SUCCESS.",
+        "evidence_ref": "github-pr:199;github-actions:35911953575",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-pr-pass",
+        "detail": "SG-000029 packet qualified through probe pr199-packet-qualification SUCCESS.",
+        "evidence_ref": "github-pr:199",
+        "passed": true
+      },
+      {
+        "check_id": "policy-secret-store-daemon-regression-pass",
+        "detail": "Full pnpm check plus focused policy/secret/store/daemon suites on probes.",
+        "evidence_ref": "github-actions:35917714275;github-actions:35920791174;github-actions:35972003724",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Closeout PR #206 merged at cc426e9 through ordinary governed history.",
+        "evidence_ref": "github-pr:206",
+        "passed": true
+      },
+      {
+        "check_id": "secret-compat-pass",
+        "detail": "No plaintext in decisions/Debug/Display/errors; exact-rendering locks.",
+        "evidence_ref": "github-pr:203;github-pr:204",
+        "passed": true
+      },
+      {
+        "check_id": "workpacket-durable-recovery-pass",
+        "detail": "Tracked packet fedbd524 replay byte-identically (cmp) on probes; SG-000028 kept.",
+        "evidence_ref": "repo:docs/evidence/SG-000029-work-packet.json;github-actions:35917714275",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:8d9cb45338b7baeb93e7212419524f48aaf26906",
+    "issues": [],
+    "observed_changed_paths": [
+      "crates/kernux-policy/src/egress.rs",
+      "crates/kernux-policy/src/lib.rs"
+    ],
+    "packet_digest": "sha256:fedbd524f487e3acbd7defc979dfd32a28be1217ac74b47d6d47a762892137ca",
+    "result_digest": "sha256:d062907271e8b392f17600eac86ffd71b4d15070cb017fbcf7126b4e6d769223",
+    "spec_id": "SG-000029",
+    "spec_revision": "sha256:8680129138f08eb434e729a28136d3d6902881eaee91929c92e60b97c61d9bc8",
+    "verification_version": 1,
+    "verified": true
+  }
+}
