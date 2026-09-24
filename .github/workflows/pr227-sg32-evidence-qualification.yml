@@ -1,0 +1,589 @@
+name: PR227 SG32 Evidence Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr227-sg32-evidence
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: bdce872d535f858f11121273b00cf926e5b0fc09
+  TARGET_SHA: c6d37db376afbc8fe21b1bf3b8c056e1096b814b
+  PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  PACKET_DIGEST: sha256:a8f29a55050ca0ec14a13e539daeb3784f8bfb4c49058fefee50f2ce0969c9dc
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact PR-E surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          test 1 -eq $(wc -l < /tmp/paths.txt)
+          grep -qx "docs/evidence/P03-S01-T02.md" /tmp/paths.txt
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "1 file changed"
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "282 insertions"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print s}')" = "282"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print d}')" = "0"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml package.json pnpm-workspace.yaml)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/ specs/ docs/canonical/ .specgrain/ apps/)"
+          test -z "$(git ls-files --others --exclude-standard)"
+      - name: Verify SpecGrain state and byte-identical replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000032 . --json > /tmp/sg32-prove.json || test $? -eq 1
+          grep -q 'verified.:false' /tmp/sg32-prove.json
+          grep -q 'record_count.:0' /tmp/sg32-prove.json
+          python3 -c "import json; d=json.load(open('docs/evidence/SG-000032-work-packet.json')); assert d['packet_digest']=='$PACKET_DIGEST'"
+          python3 tools/specgrain/run.py packet SG-000032 . --context-sources docs/evidence/SG-000032-context-sources.json --json > /tmp/SG-000032-replay.json
+          cmp docs/evidence/SG-000032-work-packet.json /tmp/SG-000032-replay.json
+          echo "REPLAY_CMP_PASS"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Desktop shell tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./node_modules/.bin/tsc --project apps/desktop/test/tsconfig.tests.json --outDir /tmp/sg32-out
+          node --test "/tmp/sg32-out/test/*.test.js" 2>&1 | tee /tmp/desktop-tests.log
+          grep -q "pass 79" /tmp/desktop-tests.log
+          grep -q "fail 0" /tmp/desktop-tests.log
+          echo "DESKTOP_TESTS_79_PASS"
+      - name: Live real-daemon reconnect round trip
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'pkill -f "target/debug/kernuxd $LIVE_RUNDIR" 2>/dev/null || true; rm -rf "$LIVE_RUNDIR" /tmp/live-out' EXIT
+          cargo build -p kernuxd
+          ./node_modules/.bin/tsc apps/desktop/src/transport-client.ts apps/desktop/src/connection-state.ts apps/desktop/src/reconnect-controller.ts apps/desktop/src/connection-projection.ts --ignoreConfig --outDir /tmp/live-out --module nodenext --moduleResolution nodenext --target es2024 --strict --skipLibCheck
+          cat > /tmp/live-out/live-reconnect.mjs <<'EOF'
+          import net from "node:net";
+          import { spawn } from "node:child_process";
+          import fs from "node:fs";
+          import { probeDaemonHealth } from "./transport-client.js";
+          import { createReconnectController } from "./reconnect-controller.js";
+          import { projectConnection } from "./connection-projection.js";
+          const sockPath = process.env.LIVE_SOCK;
+          const rundir = process.env.LIVE_RUNDIR;
+          const nonce = process.env.LIVE_NONCE;
+          const euid = process.env.LIVE_EUID;
+          const kernuxd = process.env.KERNUXD_BIN;
+          function fail(phase, detail) {
+            console.log("FAIL " + phase + " " + detail);
+            process.exit(2);
+          }
+          function sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+          }
+          let reqCounter = 0;
+          function requestId() {
+            reqCounter += 1;
+            const a = (reqCounter % 4096).toString(16).padStart(3, "0").slice(-3);
+            const b = ((reqCounter * 7919) % 4096).toString(16).padStart(3, "0").slice(-3);
+            const c = ((reqCounter * 104729) % 281474976710656).toString(16).padStart(12, "0").slice(-12);
+            return "01890f3a-7b2f-7" + a + "-8" + b + "-" + c;
+          }
+          function attempt() {
+            return new Promise((resolve) => {
+              let settled = false;
+              const done = (outcome) => {
+                if (!settled) {
+                  settled = true;
+                  resolve(outcome);
+                }
+              };
+              let raw;
+              try {
+                raw = net.createConnection(sockPath);
+              } catch (err) {
+                done({ kind: "failed" });
+                return;
+              }
+              raw.on("error", () => {});
+              const socket = {
+                write: (data) => raw.write(data, "utf8"),
+                onData: (listener) => raw.on("data", (chunk) => listener(chunk.toString("utf8"))),
+                onError: (listener) => raw.on("error", () => listener("transport-error")),
+                onClose: (listener) => raw.on("close", () => listener()),
+                destroy: () => {
+                  try {
+                    raw.destroy();
+                  } catch (err) {}
+                },
+              };
+              probeDaemonHealth(socket, nonce, requestId(), 5000).then(
+                (status) => done(status.connection === "connected" ? { kind: "serving" } : { kind: "degraded" }),
+                (error) => {
+                  const message = String((error && error.message) || "unknown");
+                  done(message === "contract-mismatch" ? { kind: "incompatible" } : { kind: "failed" });
+                },
+              );
+            });
+          }
+          let daemon = null;
+          process.on("exit", () => {
+            try {
+              if (daemon !== null) {
+                daemon.kill("SIGKILL");
+              }
+            } catch (err) {}
+          });
+          async function startDaemon() {
+            await stopDaemonQuiet();
+            const bootstrap = "kxb/1 unix " + nonce + " " + euid + " -\n";
+            daemon = spawn(kernuxd, [rundir], { stdio: ["pipe", "ignore", "ignore"] });
+            daemon.on("error", () => {});
+            daemon.stdin.write(bootstrap);
+            daemon.stdin.end();
+            const deadline = Date.now() + 15000;
+            for (;;) {
+              try {
+                fs.accessSync(sockPath);
+                break;
+              } catch (err) {}
+              if (Date.now() > deadline) {
+                fail("daemon-start", "socket never appeared");
+              }
+              await sleep(100);
+            }
+            await sleep(500);
+            console.log("DAEMON_UP");
+          }
+          async function stopDaemonQuiet() {
+            if (daemon !== null) {
+              try {
+                daemon.kill("SIGKILL");
+              } catch (err) {}
+              daemon = null;
+            }
+            await sleep(500);
+          }
+          async function stopDaemon() {
+            await stopDaemonQuiet();
+            console.log("DAEMON_DOWN");
+          }
+          async function waitState(controller, want, timeoutMs, label) {
+            const deadline = Date.now() + timeoutMs;
+            for (;;) {
+              const state = controller.getSnapshot().state;
+              if (state === want) {
+                console.log("PASS " + label + " state=" + state);
+                return;
+              }
+              if (Date.now() > deadline) {
+                fail(label, "expected=" + want + " actual=" + state + " snap=" + JSON.stringify(controller.getSnapshot()));
+              }
+              await sleep(100);
+            }
+          }
+          const controller = createReconnectController({
+            attempt,
+            clock: {
+              setTimeout: (fn, ms) => setTimeout(fn, ms),
+              clearTimeout: (id) => clearTimeout(id),
+            },
+          });
+          const snap = () => JSON.stringify(controller.getSnapshot());
+          await startDaemon();
+          controller.start();
+          await waitState(controller, "serving", 20000, "initial-handshake");
+          if (!projectConnection(controller.getSnapshot()).mayDispatch) {
+            fail("initial-handshake", "mayDispatch false while serving");
+          }
+          console.log("SNAP init-serving " + snap());
+          await stopDaemon();
+          controller.notifyConnectionLost();
+          if (controller.getSnapshot().state !== "transient-disconnect") {
+            fail("disconnect-honest", snap());
+          }
+          if (projectConnection(controller.getSnapshot()).mayDispatch) {
+            fail("disconnect-honest", "stale dispatch while disconnected");
+          }
+          console.log("PASS disconnect-honest transient-disconnect, no stale serving");
+          await startDaemon();
+          await waitState(controller, "serving", 30000, "reconnect-restore");
+          if (controller.getSnapshot().episode < 1) {
+            fail("episode-reset", snap());
+          }
+          if (controller.getSnapshot().attempt !== 0) {
+            fail("episode-reset", snap());
+          }
+          console.log("PASS episode-reset " + snap());
+          for (let cycle = 1; cycle <= 2; cycle += 1) {
+            await stopDaemon();
+            controller.notifyConnectionLost();
+            await startDaemon();
+            await waitState(controller, "serving", 30000, "cycle-" + cycle);
+          }
+          console.log("PASS disappear-return-cycles x2");
+          await stopDaemon();
+          controller.notifyConnectionLost();
+          await waitState(controller, "unavailable", 120000, "budget-exhaustion");
+          if (!projectConnection(controller.getSnapshot()).needsExplicitRetry) {
+            fail("budget-exhaustion", "explicit retry not required");
+          }
+          console.log("PASS budget-exhaustion unavailable, explicit retry required");
+          await startDaemon();
+          controller.notifyRetry();
+          await waitState(controller, "serving", 30000, "explicit-retry-recovery");
+          console.log("PASS explicit-retry-recovery");
+          controller.dispose();
+          if (controller.getSnapshot().state !== "terminal") {
+            fail("dispose-terminal", snap());
+          }
+          await stopDaemon();
+          await startDaemon();
+          await sleep(2000);
+          if (controller.getSnapshot().state !== "terminal") {
+            fail("dispose-terminal", "resurrection: " + snap());
+          }
+          if (controller.getSnapshot().timerArmed) {
+            fail("dispose-terminal", "timer armed post-disposal");
+          }
+          console.log("PASS dispose-terminal, no post-disposal activity");
+          await stopDaemon();
+          console.log("LIVE_RECONNECT_PASS");
+          EOF
+          export LIVE_NONCE
+          LIVE_NONCE="$(node --input-type=module -e "import crypto from 'node:crypto'; console.log(crypto.randomBytes(32).toString('hex'))")"
+          export LIVE_RUNDIR
+          LIVE_RUNDIR="$(mktemp -d)"
+          export LIVE_SOCK="$LIVE_RUNDIR/kernuxd.sock"
+          export LIVE_EUID
+          LIVE_EUID="$(id -u)"
+          export KERNUXD_BIN="$GITHUB_WORKSPACE/target/debug/kernuxd"
+          node /tmp/live-out/live-reconnect.mjs 2>&1 | tee /tmp/live-reconnect.log
+          grep -q "LIVE_RECONNECT_PASS" /tmp/live-reconnect.log
+      - name: Diffcipline R2
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R2
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact PR-E surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          test 1 -eq $(wc -l < /tmp/paths.txt)
+          grep -qx "docs/evidence/P03-S01-T02.md" /tmp/paths.txt
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "1 file changed"
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "282 insertions"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print s}')" = "282"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print d}')" = "0"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml package.json pnpm-workspace.yaml)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/ specs/ docs/canonical/ .specgrain/ apps/)"
+          test -z "$(git ls-files --others --exclude-standard)"
+      - name: Verify SpecGrain state and byte-identical replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000032 . --json > /tmp/sg32-prove.json || test $? -eq 1
+          grep -q 'verified.:false' /tmp/sg32-prove.json
+          grep -q 'record_count.:0' /tmp/sg32-prove.json
+          python3 -c "import json; d=json.load(open('docs/evidence/SG-000032-work-packet.json')); assert d['packet_digest']=='$PACKET_DIGEST'"
+          python3 tools/specgrain/run.py packet SG-000032 . --context-sources docs/evidence/SG-000032-context-sources.json --json > /tmp/SG-000032-replay.json
+          cmp docs/evidence/SG-000032-work-packet.json /tmp/SG-000032-replay.json
+          sw_vers
+          uname -m
+          echo "MACOS_REPLAY_CMP_PASS"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Desktop shell tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./node_modules/.bin/tsc --project apps/desktop/test/tsconfig.tests.json --outDir /tmp/sg32-out
+          node --test "/tmp/sg32-out/test/*.test.js" 2>&1 | tee /tmp/desktop-tests.log
+          grep -q "pass 79" /tmp/desktop-tests.log
+          grep -q "fail 0" /tmp/desktop-tests.log
+          echo "MACOS_DESKTOP_TESTS_79_PASS"
+      - name: Live real-daemon reconnect round trip
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'pkill -f "target/debug/kernuxd $LIVE_RUNDIR" 2>/dev/null || true; rm -rf "$LIVE_RUNDIR" /tmp/live-out' EXIT
+          cargo build -p kernuxd
+          ./node_modules/.bin/tsc apps/desktop/src/transport-client.ts apps/desktop/src/connection-state.ts apps/desktop/src/reconnect-controller.ts apps/desktop/src/connection-projection.ts --ignoreConfig --outDir /tmp/live-out --module nodenext --moduleResolution nodenext --target es2024 --strict --skipLibCheck
+          cat > /tmp/live-out/live-reconnect.mjs <<'EOF'
+          import net from "node:net";
+          import { spawn } from "node:child_process";
+          import fs from "node:fs";
+          import { probeDaemonHealth } from "./transport-client.js";
+          import { createReconnectController } from "./reconnect-controller.js";
+          import { projectConnection } from "./connection-projection.js";
+          const sockPath = process.env.LIVE_SOCK;
+          const rundir = process.env.LIVE_RUNDIR;
+          const nonce = process.env.LIVE_NONCE;
+          const euid = process.env.LIVE_EUID;
+          const kernuxd = process.env.KERNUXD_BIN;
+          function fail(phase, detail) {
+            console.log("FAIL " + phase + " " + detail);
+            process.exit(2);
+          }
+          function sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+          }
+          let reqCounter = 0;
+          function requestId() {
+            reqCounter += 1;
+            const a = (reqCounter % 4096).toString(16).padStart(3, "0").slice(-3);
+            const b = ((reqCounter * 7919) % 4096).toString(16).padStart(3, "0").slice(-3);
+            const c = ((reqCounter * 104729) % 281474976710656).toString(16).padStart(12, "0").slice(-12);
+            return "01890f3a-7b2f-7" + a + "-8" + b + "-" + c;
+          }
+          function attempt() {
+            return new Promise((resolve) => {
+              let settled = false;
+              const done = (outcome) => {
+                if (!settled) {
+                  settled = true;
+                  resolve(outcome);
+                }
+              };
+              let raw;
+              try {
+                raw = net.createConnection(sockPath);
+              } catch (err) {
+                done({ kind: "failed" });
+                return;
+              }
+              raw.on("error", () => {});
+              const socket = {
+                write: (data) => raw.write(data, "utf8"),
+                onData: (listener) => raw.on("data", (chunk) => listener(chunk.toString("utf8"))),
+                onError: (listener) => raw.on("error", () => listener("transport-error")),
+                onClose: (listener) => raw.on("close", () => listener()),
+                destroy: () => {
+                  try {
+                    raw.destroy();
+                  } catch (err) {}
+                },
+              };
+              probeDaemonHealth(socket, nonce, requestId(), 5000).then(
+                (status) => done(status.connection === "connected" ? { kind: "serving" } : { kind: "degraded" }),
+                (error) => {
+                  const message = String((error && error.message) || "unknown");
+                  done(message === "contract-mismatch" ? { kind: "incompatible" } : { kind: "failed" });
+                },
+              );
+            });
+          }
+          let daemon = null;
+          process.on("exit", () => {
+            try {
+              if (daemon !== null) {
+                daemon.kill("SIGKILL");
+              }
+            } catch (err) {}
+          });
+          async function startDaemon() {
+            await stopDaemonQuiet();
+            const bootstrap = "kxb/1 unix " + nonce + " " + euid + " -\n";
+            daemon = spawn(kernuxd, [rundir], { stdio: ["pipe", "ignore", "ignore"] });
+            daemon.on("error", () => {});
+            daemon.stdin.write(bootstrap);
+            daemon.stdin.end();
+            const deadline = Date.now() + 15000;
+            for (;;) {
+              try {
+                fs.accessSync(sockPath);
+                break;
+              } catch (err) {}
+              if (Date.now() > deadline) {
+                fail("daemon-start", "socket never appeared");
+              }
+              await sleep(100);
+            }
+            await sleep(500);
+            console.log("DAEMON_UP");
+          }
+          async function stopDaemonQuiet() {
+            if (daemon !== null) {
+              try {
+                daemon.kill("SIGKILL");
+              } catch (err) {}
+              daemon = null;
+            }
+            await sleep(500);
+          }
+          async function stopDaemon() {
+            await stopDaemonQuiet();
+            console.log("DAEMON_DOWN");
+          }
+          async function waitState(controller, want, timeoutMs, label) {
+            const deadline = Date.now() + timeoutMs;
+            for (;;) {
+              const state = controller.getSnapshot().state;
+              if (state === want) {
+                console.log("PASS " + label + " state=" + state);
+                return;
+              }
+              if (Date.now() > deadline) {
+                fail(label, "expected=" + want + " actual=" + state + " snap=" + JSON.stringify(controller.getSnapshot()));
+              }
+              await sleep(100);
+            }
+          }
+          const controller = createReconnectController({
+            attempt,
+            clock: {
+              setTimeout: (fn, ms) => setTimeout(fn, ms),
+              clearTimeout: (id) => clearTimeout(id),
+            },
+          });
+          const snap = () => JSON.stringify(controller.getSnapshot());
+          await startDaemon();
+          controller.start();
+          await waitState(controller, "serving", 20000, "initial-handshake");
+          if (!projectConnection(controller.getSnapshot()).mayDispatch) {
+            fail("initial-handshake", "mayDispatch false while serving");
+          }
+          console.log("SNAP init-serving " + snap());
+          await stopDaemon();
+          controller.notifyConnectionLost();
+          if (controller.getSnapshot().state !== "transient-disconnect") {
+            fail("disconnect-honest", snap());
+          }
+          if (projectConnection(controller.getSnapshot()).mayDispatch) {
+            fail("disconnect-honest", "stale dispatch while disconnected");
+          }
+          console.log("PASS disconnect-honest transient-disconnect, no stale serving");
+          await startDaemon();
+          await waitState(controller, "serving", 30000, "reconnect-restore");
+          if (controller.getSnapshot().episode < 1) {
+            fail("episode-reset", snap());
+          }
+          if (controller.getSnapshot().attempt !== 0) {
+            fail("episode-reset", snap());
+          }
+          console.log("PASS episode-reset " + snap());
+          for (let cycle = 1; cycle <= 2; cycle += 1) {
+            await stopDaemon();
+            controller.notifyConnectionLost();
+            await startDaemon();
+            await waitState(controller, "serving", 30000, "cycle-" + cycle);
+          }
+          console.log("PASS disappear-return-cycles x2");
+          await stopDaemon();
+          controller.notifyConnectionLost();
+          await waitState(controller, "unavailable", 120000, "budget-exhaustion");
+          if (!projectConnection(controller.getSnapshot()).needsExplicitRetry) {
+            fail("budget-exhaustion", "explicit retry not required");
+          }
+          console.log("PASS budget-exhaustion unavailable, explicit retry required");
+          await startDaemon();
+          controller.notifyRetry();
+          await waitState(controller, "serving", 30000, "explicit-retry-recovery");
+          console.log("PASS explicit-retry-recovery");
+          controller.dispose();
+          if (controller.getSnapshot().state !== "terminal") {
+            fail("dispose-terminal", snap());
+          }
+          await stopDaemon();
+          await startDaemon();
+          await sleep(2000);
+          if (controller.getSnapshot().state !== "terminal") {
+            fail("dispose-terminal", "resurrection: " + snap());
+          }
+          if (controller.getSnapshot().timerArmed) {
+            fail("dispose-terminal", "timer armed post-disposal");
+          }
+          console.log("PASS dispose-terminal, no post-disposal activity");
+          await stopDaemon();
+          console.log("LIVE_RECONNECT_PASS");
+          EOF
+          export LIVE_NONCE
+          LIVE_NONCE="$(node --input-type=module -e "import crypto from 'node:crypto'; console.log(crypto.randomBytes(32).toString('hex'))")"
+          export LIVE_RUNDIR
+          LIVE_RUNDIR="$(mktemp -d)"
+          export LIVE_SOCK="$LIVE_RUNDIR/kernuxd.sock"
+          export LIVE_EUID
+          LIVE_EUID="$(id -u)"
+          export KERNUXD_BIN="$GITHUB_WORKSPACE/target/debug/kernuxd"
+          node /tmp/live-out/live-reconnect.mjs 2>&1 | tee /tmp/live-reconnect-macos.log
+          grep -q "LIVE_RECONNECT_PASS" /tmp/live-reconnect-macos.log
+      - name: Diffcipline R2
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R2
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
