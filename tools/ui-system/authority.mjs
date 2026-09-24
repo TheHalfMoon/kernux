@@ -123,7 +123,7 @@ function inspectTokenAuthority(file, diagnostics) {
   }
 }
 
-function rendererGraph(parsed, root) {
+export function rendererGraph(parsed, root) {
   const graph = new Set(["apps/desktop/src/renderer.tsx"]);
   const queue = ["apps/desktop/src/renderer.tsx"];
   while (queue.length > 0) {
