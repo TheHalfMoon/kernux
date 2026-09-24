@@ -1,0 +1,174 @@
+name: PR214 Packet Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr214-packet-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 8421a8df4df122d60b140a16edb5ceabfc7f0161
+  TARGET_SHA: 77ac22a2fdd4b91a55fafcd69708dc5fd6e13866
+  PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
+  SPEC_REVISION: sha256:6709656ac1f172bfcb3f3d5445ea5b76ac937ed75f1e7ec01901200f42a375d2
+  CONTEXT_PLAN_DIGEST: sha256:d196775b4a0ca522e651e173c5722cd5c95c95e69c385247d662000950e6909f
+  PACKET_DIGEST: sha256:4b7dad47c9434c265cee589eca35a4f06723b99f21db0461ce677f380d78ee2d
+  WORKPACKET_SHA256: e70b0737c525f3d258d03ceb7f4734a7815d28fedd9e45cf76966c438d1ce3fb
+  WORKPACKET_BYTES: "6912"
+  CONTEXT_BYTES: "4545"
+  CONTEXT_SOURCES: "12"
+  CONTEXT_TOKENS: "3468"
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact packet surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          grep -q "docs/evidence/SG-000031-context-sources.json" /tmp/paths.txt
+          grep -q "docs/evidence/SG-000031-work-packet.json" /tmp/paths.txt
+          test 2 -eq $(wc -l < /tmp/paths.txt)
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ apps/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- protocol/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml package.json pnpm-workspace.yaml)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- specs/ docs/evidence/P03-S01-T01.md .specgrain/)"
+          test -z "$(git ls-files --others --exclude-standard)"
+      - name: Verify packet digests and context budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(stat -c%s docs/evidence/SG-000031-work-packet.json)" = "$WORKPACKET_BYTES"
+          test "$(stat -c%s docs/evidence/SG-000031-context-sources.json)" = "$CONTEXT_BYTES"
+          echo "$WORKPACKET_SHA256  docs/evidence/SG-000031-work-packet.json" | sha256sum -c -
+          python3 -c "import json; d=json.load(open('docs/evidence/SG-000031-work-packet.json')); assert d['packet_digest']=='$PACKET_DIGEST', d['packet_digest']; assert d['spec_revision']=='$SPEC_REVISION', d['spec_revision']; assert d['context_plan_digest']=='$CONTEXT_PLAN_DIGEST', d['context_plan_digest']; assert d['spec_id']=='SG-000031'"
+          python3 -c "import json; s=json.load(open('docs/evidence/SG-000031-context-sources.json')); assert len(s)==15, len(s)" || python3 -c "import json; s=json.load(open('docs/evidence/SG-000031-context-sources.json')); assert len(s)==12, len(s); total=sum(x['token_cost'] for x in s); assert total==3468, total; assert all(x['revision']=='git:$BASE_SHA' for x in s)"
+          test ! -e .specgrain/evidence/SG-000031
+          grep -q '"state": "GRAIN"' .specgrain/specs/SG-000031.json
+      - name: Verify SpecGrain state and byte-identical replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000031 . --json > /tmp/sg31-prove.json || test $? -eq 1
+          grep -q 'verified.:false' /tmp/sg31-prove.json
+          grep -q 'record_count.:0' /tmp/sg31-prove.json
+          python3 tools/specgrain/run.py prove SG-000030 . --json > /tmp/sg30-prove.json
+          grep -q 'verified.:true' /tmp/sg30-prove.json
+          python3 tools/specgrain/run.py packet SG-000031 . --context-sources docs/evidence/SG-000031-context-sources.json --json > /tmp/SG-000031-replay.json
+          cmp docs/evidence/SG-000031-work-packet.json /tmp/SG-000031-replay.json
+          echo "REPLAY_CMP_PASS"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Focused regressions
+        run: cargo test -p kernux-policy -p kernux-secret -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS packet surface and replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          grep -q "docs/evidence/SG-000031-context-sources.json" /tmp/paths.txt
+          grep -q "docs/evidence/SG-000031-work-packet.json" /tmp/paths.txt
+          test 2 -eq $(wc -l < /tmp/paths.txt)
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ apps/ protocol/ specs/)"
+          echo "$WORKPACKET_SHA256  docs/evidence/SG-000031-work-packet.json" | shasum -a 256 -c -
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000031 . --json > /tmp/sg31-prove.json || test $? -eq 1
+          python3 tools/specgrain/run.py packet SG-000031 . --context-sources docs/evidence/SG-000031-context-sources.json --json > /tmp/SG-000031-replay.json
+          cmp docs/evidence/SG-000031-work-packet.json /tmp/SG-000031-replay.json
+          echo "MACOS_REPLAY_CMP_PASS"
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Focused regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test -p kernux-policy --all-targets
+          cargo test -p kernux-secret -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
