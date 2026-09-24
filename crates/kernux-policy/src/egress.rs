@@ -1,11 +1,15 @@
-#![doc = "Provider-neutral kernel egress-class and destination primitives (SG-000029 PR-A)."]
+#![doc = "Provider-neutral kernel egress policy primitives (SG-000029)."]
 #![doc = ""]
-#![doc = "PR-A scope: closed EgressClass vocabulary with exact parsing and stable"]
-#![doc = "strings, validated destination identity shapes, and exact class-destination"]
-#![doc = "structural binding. No Grant evaluation, no authority minting, no provider"]
-#![doc = "coupling, no plaintext. Evaluation arrives in PR-B; adversarial corpus in PR-C."]
+#![doc = "PR-A established the closed egress vocabulary and destination shapes."]
+#![doc = "PR-B adds pure deterministic grant-constraining evaluation and stable"]
+#![doc = "redaction-safe denial reasons. It mints no authority and performs no I/O."]
+#![doc = "The adversarial fail-closed corpus remains reserved for PR-C."]
 
-use crate::{PolicyValidationError, canonical_uuid_v7};
+use crate::{
+    Action, CanonicalUtcSecond, ConsequenceClass, PolicyValidationError, ResourceAuthority,
+    ValidatedCapabilityRequest, ValidatedConstraints, ValidatedGrant, canonical_uuid_v7,
+    evaluate_grant_match,
+};
 
 /// Canonical string for NONE: no non-loopback network.
 pub const EGRESS_NONE: &str = "NONE";
@@ -318,6 +322,285 @@ pub fn validate_egress_binding(
         .ok_or(PolicyValidationError::EgressClassDestinationMismatch)
 }
 
+/// Sensitivity supplied by trusted policy/context classification.
+///
+/// Unknown is explicit and fails closed during evaluation. The egress layer
+/// never infers sensitivity from destination or provider identity.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EgressSensitivity {
+    NonSensitive,
+    Sensitive,
+    Unknown,
+}
+
+impl EgressSensitivity {
+    /// Stable redaction-safe string for evidence and audit projection.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::NonSensitive => "non-sensitive",
+            Self::Sensitive => "sensitive",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
+/// Validated egress request presented for constraint evaluation.
+///
+/// Construction validates the class/destination shape but authorizes nothing.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EgressRequest {
+    class: EgressClass,
+    destination: EgressDestination,
+    operation: Action,
+    sensitivity: EgressSensitivity,
+}
+
+impl EgressRequest {
+    pub fn new(
+        class: EgressClass,
+        destination: EgressDestination,
+        operation: Action,
+        sensitivity: EgressSensitivity,
+    ) -> Result<Self, PolicyValidationError> {
+        validate_egress_binding(class, &destination)?;
+        Ok(Self {
+            class,
+            destination,
+            operation,
+            sensitivity,
+        })
+    }
+
+    pub const fn class(&self) -> EgressClass {
+        self.class
+    }
+
+    pub fn destination(&self) -> &EgressDestination {
+        &self.destination
+    }
+
+    pub fn operation(&self) -> &Action {
+        &self.operation
+    }
+
+    pub const fn sensitivity(&self) -> EgressSensitivity {
+        self.sensitivity
+    }
+}
+
+/// Trusted egress-policy constraint supplied after ordinary Grant authority.
+///
+/// This value carries no Grant authority by itself. It is only intersected
+/// with an `EgressGrantBinding` that was derived from an exact validated
+/// Grant + capability request match.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AuthoritativeEgressConstraint {
+    class: EgressClass,
+    destination: EgressDestination,
+    operation: Action,
+    allow_sensitive: bool,
+}
+
+impl AuthoritativeEgressConstraint {
+    pub fn new(
+        class: EgressClass,
+        destination: EgressDestination,
+        operation: Action,
+        allow_sensitive: bool,
+    ) -> Result<Self, PolicyValidationError> {
+        validate_egress_binding(class, &destination)?;
+        Ok(Self {
+            class,
+            destination,
+            operation,
+            allow_sensitive,
+        })
+    }
+
+    pub const fn class(&self) -> EgressClass {
+        self.class
+    }
+
+    pub fn destination(&self) -> &EgressDestination {
+        &self.destination
+    }
+
+    pub fn operation(&self) -> &Action {
+        &self.operation
+    }
+
+    pub const fn allows_sensitive(&self) -> bool {
+        self.allow_sensitive
+    }
+}
+
+/// Stable redaction-safe denial classes for egress constraint evaluation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EgressDenyReason {
+    GrantNotEligible,
+    ClassMismatch,
+    DestinationMismatch,
+    OperationMismatch,
+    SensitivityUnknown,
+    SensitiveEgressDenied,
+}
+
+impl EgressDenyReason {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::GrantNotEligible => "grant-not-eligible",
+            Self::ClassMismatch => "egress-class-mismatch",
+            Self::DestinationMismatch => "egress-destination-mismatch",
+            Self::OperationMismatch => "egress-operation-mismatch",
+            Self::SensitivityUnknown => "egress-sensitivity-unknown",
+            Self::SensitiveEgressDenied => "sensitive-egress-denied",
+        }
+    }
+}
+
+impl core::fmt::Display for EgressDenyReason {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+/// Typed proof that one exact Grant matched one exact capability request.
+///
+/// Callers cannot forge this from a bare `GrantMatchDecision::Eligible`.
+/// Construction re-runs the canonical Grant matcher and retains the bound
+/// operation plus its effective constraints for subsequent egress narrowing.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EgressGrantBinding {
+    grant_id: String,
+    operation: Action,
+    resource_host: Option<String>,
+    resource_runtime: Option<String>,
+    effective_constraints: ValidatedConstraints,
+}
+
+impl EgressGrantBinding {
+    pub fn from_grant_and_request(
+        grant: &ValidatedGrant,
+        capability_request: &ValidatedCapabilityRequest,
+        authoritative_consequence: ConsequenceClass,
+        trusted_now: CanonicalUtcSecond,
+        hierarchical_resource: bool,
+    ) -> Result<Self, EgressDenyReason> {
+        match evaluate_grant_match(
+            grant,
+            capability_request,
+            authoritative_consequence,
+            trusted_now,
+            hierarchical_resource,
+        ) {
+            crate::GrantMatchDecision::Eligible {
+                effective_constraints,
+            } => Ok(Self {
+                grant_id: grant.grant_id.clone(),
+                operation: capability_request.action.clone(),
+                resource_host: resource_host(&capability_request.resource).map(str::to_owned),
+                resource_runtime: resource_runtime(&capability_request.resource).map(str::to_owned),
+                effective_constraints,
+            }),
+            crate::GrantMatchDecision::Denied(_) => Err(EgressDenyReason::GrantNotEligible),
+        }
+    }
+
+    pub fn grant_id(&self) -> &str {
+        &self.grant_id
+    }
+
+    pub fn operation(&self) -> &Action {
+        &self.operation
+    }
+
+    pub fn effective_constraints(&self) -> &ValidatedConstraints {
+        &self.effective_constraints
+    }
+}
+
+fn resource_host(resource: &crate::CanonicalResource) -> Option<&str> {
+    match resource.authority() {
+        ResourceAuthority::Network => resource.segments().get(2).map(String::as_str),
+        ResourceAuthority::Browser if resource.segments().get(2).is_some_and(|v| v == "origin") => {
+            resource.segments().get(4).map(String::as_str)
+        }
+        _ => None,
+    }
+}
+
+fn resource_runtime(resource: &crate::CanonicalResource) -> Option<&str> {
+    (resource.authority() == ResourceAuthority::Runtime)
+        .then(|| resource.segments().first().map(String::as_str))
+        .flatten()
+}
+
+/// Pure result of intersecting an exact Grant binding with egress limits.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EgressConstraintDecision {
+    Eligible,
+    Denied(EgressDenyReason),
+}
+
+/// Constrain one exact Grant/request binding by exact egress metadata.
+///
+/// This function performs no I/O, persists nothing, and cannot mint authority.
+/// The request operation and trusted egress-policy operation must both equal
+/// the operation bound by the canonical Grant matcher. Class and destination
+/// must match exactly. Existing network-host constraints are also enforced.
+/// Unknown sensitivity fails closed; sensitive egress requires an explicit
+/// trusted sensitive-data allowance.
+pub fn evaluate_egress_constraint(
+    grant_binding: &EgressGrantBinding,
+    request: &EgressRequest,
+    authorized: &AuthoritativeEgressConstraint,
+) -> EgressConstraintDecision {
+    if request.operation != grant_binding.operation
+        || authorized.operation != grant_binding.operation
+    {
+        return EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch);
+    }
+    if request.class != authorized.class {
+        return EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch);
+    }
+    if request.destination != authorized.destination {
+        return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
+    }
+    if let EgressDestination::Host(host) = &request.destination {
+        if grant_binding
+            .resource_host
+            .as_deref()
+            .is_some_and(|bound| bound != host.as_str())
+        {
+            return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
+        }
+        if let Some(allowed_hosts) = &grant_binding.effective_constraints.network_hosts
+            && !allowed_hosts.iter().any(|entry| entry == host.as_str())
+        {
+            return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
+        }
+    }
+    if let EgressDestination::Runtime(runtime) = &request.destination
+        && grant_binding
+            .resource_runtime
+            .as_deref()
+            .is_some_and(|bound| bound != runtime.as_str())
+    {
+        return EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch);
+    }
+    match request.sensitivity {
+        EgressSensitivity::Unknown => {
+            EgressConstraintDecision::Denied(EgressDenyReason::SensitivityUnknown)
+        }
+        EgressSensitivity::Sensitive if !authorized.allow_sensitive => {
+            EgressConstraintDecision::Denied(EgressDenyReason::SensitiveEgressDenied)
+        }
+        EgressSensitivity::NonSensitive | EgressSensitivity::Sensitive => {
+            EgressConstraintDecision::Eligible
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -476,5 +759,271 @@ mod tests {
         let host = EgressDestination::Host(EgressHost::parse("example.com").unwrap());
         assert!(validate_egress_binding(EgressClass::ConnectedAccount, &host).is_err());
         assert!(validate_egress_binding(EgressClass::RemoteRuntime, &host).is_err());
+    }
+
+    const RUN_V7: &str = "01890f3a-7b2f-7e55-aa66-6f708192a3b6";
+    const SESSION_V7: &str = "01890f3a-7b2f-7e55-aa66-6f708192a3b7";
+    const REQUEST_V7: &str = "01890f3a-7b2f-7e55-aa66-6f708192a3b8";
+    const GRANT_V7: &str = "01890f3a-7b2f-7e55-aa66-6f708192a3b9";
+    const NETWORK_URI: &str = "kernux://network/origin/https/example.com/443";
+
+    fn capability_request(operation: &str) -> crate::ValidatedCapabilityRequest {
+        crate::ValidatedCapabilityRequest {
+            request_id: REQUEST_V7.to_owned(),
+            subject: crate::ValidatedSubjectScope {
+                run_id: RUN_V7.to_owned(),
+                agent_session_id: Some(SESSION_V7.to_owned()),
+            },
+            action: Action::parse(operation, &[]).unwrap(),
+            resource: crate::CanonicalResource::parse(NETWORK_URI).unwrap(),
+            runtime_id: RUNTIME_V7.to_owned(),
+            runtime_revision: 2,
+            constraints: crate::ValidatedConstraints::from_parts(None, None, None, None, None)
+                .unwrap(),
+            provenance_event_ids: vec![],
+        }
+    }
+
+    fn grant(operation: &str) -> crate::ValidatedGrant {
+        crate::ValidatedGrant {
+            grant_id: GRANT_V7.to_owned(),
+            subject: crate::ValidatedSubjectScope {
+                run_id: RUN_V7.to_owned(),
+                agent_session_id: Some(SESSION_V7.to_owned()),
+            },
+            action: Action::parse(operation, &[]).unwrap(),
+            resource: crate::CanonicalResource::parse(NETWORK_URI).unwrap(),
+            resource_uri: NETWORK_URI.to_owned(),
+            resource_scope: crate::ResourceScope::Exact,
+            runtime_id: RUNTIME_V7.to_owned(),
+            runtime_revision: 2,
+            constraints: crate::ValidatedConstraints::from_parts(None, None, None, Some(3), None)
+                .unwrap(),
+            consequence_ceiling: crate::ConsequenceClass::C2,
+            issuer_authority: "local-user".to_owned(),
+            policy_revision: 1,
+            issued_at: crate::CanonicalUtcSecond::parse("2026-09-23T20:00:00Z").unwrap(),
+            not_before: crate::CanonicalUtcSecond::parse("2026-09-23T20:00:00Z").unwrap(),
+            expires_at: crate::CanonicalUtcSecond::parse("2026-09-23T22:00:00Z").unwrap(),
+            max_uses: 3,
+            delegation_depth: 0,
+            parent_grant_id: None,
+        }
+    }
+
+    fn grant_binding(operation: &str) -> EgressGrantBinding {
+        EgressGrantBinding::from_grant_and_request(
+            &grant(operation),
+            &capability_request(operation),
+            crate::ConsequenceClass::C1,
+            crate::CanonicalUtcSecond::parse("2026-09-23T21:00:00Z").unwrap(),
+            false,
+        )
+        .unwrap()
+    }
+
+    fn direct_request(
+        host: &str,
+        operation: &str,
+        sensitivity: EgressSensitivity,
+    ) -> EgressRequest {
+        EgressRequest::new(
+            EgressClass::DirectDestination,
+            EgressDestination::Host(EgressHost::parse(host).unwrap()),
+            Action::parse(operation, &[]).unwrap(),
+            sensitivity,
+        )
+        .unwrap()
+    }
+
+    fn direct_authorized(
+        host: &str,
+        operation: &str,
+        allow_sensitive: bool,
+    ) -> AuthoritativeEgressConstraint {
+        AuthoritativeEgressConstraint::new(
+            EgressClass::DirectDestination,
+            EgressDestination::Host(EgressHost::parse(host).unwrap()),
+            Action::parse(operation, &[]).unwrap(),
+            allow_sensitive,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn evaluation_requires_an_existing_eligible_grant() {
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let authorized = direct_authorized("example.com", "network.connect", false);
+        let wrong_grant = grant("network.send");
+        assert_eq!(
+            EgressGrantBinding::from_grant_and_request(
+                &wrong_grant,
+                &capability_request("network.connect"),
+                crate::ConsequenceClass::C1,
+                crate::CanonicalUtcSecond::parse("2026-09-23T21:00:00Z").unwrap(),
+                false,
+            ),
+            Err(EgressDenyReason::GrantNotEligible)
+        );
+        let binding = grant_binding("network.connect");
+        assert_eq!(binding.grant_id(), GRANT_V7);
+        assert_eq!(binding.operation().as_str(), "network.connect");
+        assert_eq!(
+            evaluate_egress_constraint(&binding, &request, &authorized),
+            EgressConstraintDecision::Eligible
+        );
+    }
+
+    #[test]
+    fn evaluation_matches_class_destination_operation_and_account_exactly() {
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let authorized = direct_authorized("example.com", "network.connect", false);
+        assert_eq!(
+            evaluate_egress_constraint(&grant_binding("network.connect"), &request, &authorized),
+            EgressConstraintDecision::Eligible
+        );
+
+        let class_changed = EgressRequest::new(
+            EgressClass::ExternalModel,
+            EgressDestination::Host(EgressHost::parse("example.com").unwrap()),
+            Action::parse("network.connect", &[]).unwrap(),
+            EgressSensitivity::NonSensitive,
+        )
+        .unwrap();
+        assert_eq!(
+            evaluate_egress_constraint(
+                &grant_binding("network.connect"),
+                &class_changed,
+                &authorized
+            ),
+            EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch)
+        );
+
+        let destination_changed = direct_request(
+            "other.example",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        assert_eq!(
+            evaluate_egress_constraint(
+                &grant_binding("network.connect"),
+                &destination_changed,
+                &authorized
+            ),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+
+        let other_host_authorized = direct_authorized("other.example", "network.connect", false);
+        assert_eq!(
+            evaluate_egress_constraint(
+                &grant_binding("network.connect"),
+                &destination_changed,
+                &other_host_authorized,
+            ),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+
+        let operation_changed = direct_request(
+            "example.com",
+            "network.send",
+            EgressSensitivity::NonSensitive,
+        );
+        let binding = grant_binding("network.connect");
+        assert_eq!(
+            evaluate_egress_constraint(&binding, &operation_changed, &authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch)
+        );
+        let other_operation_binding = grant_binding("network.send");
+        assert_eq!(
+            evaluate_egress_constraint(&other_operation_binding, &request, &authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch)
+        );
+
+        let account_a = EgressRequest::new(
+            EgressClass::ConnectedAccount,
+            EgressDestination::Account(EgressAccount::parse("account-a").unwrap()),
+            Action::parse("network.connect", &[]).unwrap(),
+            EgressSensitivity::NonSensitive,
+        )
+        .unwrap();
+        let account_b = AuthoritativeEgressConstraint::new(
+            EgressClass::ConnectedAccount,
+            EgressDestination::Account(EgressAccount::parse("account-b").unwrap()),
+            Action::parse("network.connect", &[]).unwrap(),
+            false,
+        )
+        .unwrap();
+        assert_eq!(
+            evaluate_egress_constraint(&grant_binding("network.connect"), &account_a, &account_b,),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+    }
+
+    #[test]
+    fn sensitivity_is_explicit_and_fails_closed() {
+        let authorized = direct_authorized("example.com", "network.connect", false);
+        let unknown = direct_request("example.com", "network.connect", EgressSensitivity::Unknown);
+        assert_eq!(
+            evaluate_egress_constraint(&grant_binding("network.connect"), &unknown, &authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::SensitivityUnknown)
+        );
+
+        let sensitive = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::Sensitive,
+        );
+        assert_eq!(
+            evaluate_egress_constraint(&grant_binding("network.connect"), &sensitive, &authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::SensitiveEgressDenied)
+        );
+
+        let sensitive_authorized = direct_authorized("example.com", "network.connect", true);
+        assert_eq!(
+            evaluate_egress_constraint(
+                &grant_binding("network.connect"),
+                &sensitive,
+                &sensitive_authorized,
+            ),
+            EgressConstraintDecision::Eligible
+        );
+    }
+
+    #[test]
+    fn egress_denial_reasons_are_stable_and_redaction_safe() {
+        let cases = [
+            (EgressDenyReason::GrantNotEligible, "grant-not-eligible"),
+            (EgressDenyReason::ClassMismatch, "egress-class-mismatch"),
+            (
+                EgressDenyReason::DestinationMismatch,
+                "egress-destination-mismatch",
+            ),
+            (
+                EgressDenyReason::OperationMismatch,
+                "egress-operation-mismatch",
+            ),
+            (
+                EgressDenyReason::SensitivityUnknown,
+                "egress-sensitivity-unknown",
+            ),
+            (
+                EgressDenyReason::SensitiveEgressDenied,
+                "sensitive-egress-denied",
+            ),
+        ];
+        for (reason, text) in cases {
+            assert_eq!(reason.as_str(), text);
+            assert_eq!(reason.to_string(), text);
+            assert!(!text.contains("example.com"));
+            assert!(!text.contains("account"));
+        }
     }
 }
