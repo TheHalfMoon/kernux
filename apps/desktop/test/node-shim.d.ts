@@ -18,7 +18,8 @@ declare module "node:assert/strict" {
     function deepEqual(actual: unknown, expected: unknown, message?: string): void;
     function equal(actual: unknown, expected: unknown, message?: string): void;
     function ok(value: unknown, message?: string): asserts value;
-    function throws(fn: () => void, validator: (error: unknown) => boolean): void;
+    function throws(fn: () => void, validator?: (error: unknown) => boolean): void;
+    function rejects(block: Promise<unknown>, validator?: (error: unknown) => boolean): Promise<void>;
   }
   export default assert;
 }
