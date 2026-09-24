@@ -1,0 +1,105 @@
+{
+  "acceptance": [
+    "One canonical renderer-safe token source defines the closed foundation and exposes no host capability or secret-bearing data",
+    "Semantic color pairs meet frozen machine-checked WCAG AA contrast thresholds and never encode status by color alone",
+    "Primitives preserve native semantic HTML and accessible names; interactive status and buttons support keyboard, disabled, loading, and error semantics without redundant roles",
+    "Focus treatment is always visible for keyboard use, bypasses mouse styling, respects reduced motion, and uses scalable typography",
+    "Raw color, spacing, radius, typography, and motion literals are rejected outside the canonical token source except documented structural data",
+    "The conformance checker fails closed on token bypass, unknown tokens, invalid contrast, invalid primitive semantics, and renderer authority drift",
+    "Existing connection projection and frozen unprivileged shell semantics remain unchanged and tests cover hostile token and primitive inputs",
+    "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+    "Canonical closeout advances only KX-P03-S02-T01 scope"
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000033.json",
+    "docs/evidence/SG-000033-context-sources.json",
+    "docs/evidence/SG-000033-work-packet.json",
+    "docs/evidence/P03-S02-T01.md",
+    "packages/ui-system",
+    "tools/ui-system",
+    "apps/desktop/src/renderer.tsx",
+    "apps/desktop/test/design-system.test.ts",
+    "apps/desktop/test/tsconfig.tests.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".specgrain/evidence/SG-000033",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 16000,
+    "estimated_tokens": 12500
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "token-authority-pass",
+      "token-contrast-pass",
+      "semantic-primitive-pass",
+      "accessibility-state-pass",
+      "focus-reduced-motion-pass",
+      "design-conformance-pass",
+      "renderer-authority-preservation-pass",
+      "workpacket-durable-recovery-pass",
+      "packet-persistence-pr-pass",
+      "packet-persistence-post-merge-ci-pass",
+      "full-baseline-pass",
+      "linux-desktop-qualification-pass",
+      "windows-desktop-qualification-pass",
+      "macos-desktop-qualification-pass",
+      "diffcipline-r1-proof-pass",
+      "jev-review-pass",
+      "open-code-review-accounting-pass",
+      "implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000033",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "The canonical architecture names a new packages/ui-system authority and no design-system implementation exists; use existing TypeScript and Node test tooling without adding a framework or runtime dependency."
+      },
+      "safety": {
+        "requirements": [
+          "The renderer remains unprivileged and can access no direct host capability; design primitives never widen the preload bridge or create authority.",
+          "Accessibility constraints are structural and machine-tested, including semantic elements, accessible names, focus visibility, reduced motion, non-color status meaning, and contrast."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Establish one renderer-safe design-token authority, a minimal semantic primitive set, machine-tested accessibility constraints, and fail-closed design-system conformance without workspace-feature implementation.",
+  "parent_id": null,
+  "rationale": "P03-S01 has no separate canonical exit task and both macro tasks are PROVEN; the registry authorizes KX-P03-S02-T01 as the sole NEXT unit. S03.2 requires Kernux tokens, primitives, typography, an accessibility baseline, and lintable design constraints over the proven unprivileged Electron/React shell without host authority or later workspace features.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded UI-system, conformance, renderer-integration, and frontier changes and keep KX-P03-S02-T01 at NEXT; no daemon or kernel state is created"
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "A single TypeScript-owned token module defining frozen primitive, semantic, status, focus, spacing, typography, size, radius, border, surface, and motion tokens; deterministic contrast pairs and reduced-motion behavior",
+    "Minimal renderer-agnostic semantic primitives for accessible status, button, surface, and visually hidden content using native elements and explicit props without a generic component framework",
+    "A repository-native design-system conformance checker that fails closed on token bypass, invalid semantic token references, inaccessible primitive markup, and renderer authority drift",
+    "Focused deterministic tests for token completeness, contrast ratios, primitive semantics, disabled/loading/error states, keyboard focus behavior, reduced motion, and hostile token/style inputs",
+    "Renderer consumption limited to proving the system against the existing shell without implementing later layout, tabs, command-bar behavior, or project-rail behavior",
+    "Persist fresh ContextSources and WorkPacket before implementation and require byte-identical pinned replay"
+  ],
+  "scope_out": [
+    "No adaptive pane framework, tabs, splits, docking, layout persistence, project management, command-bar behavior, timeline, artifact viewer, search, CLI, Design Mode, or Privacy Inspector",
+    "No new npm dependency, component framework, runtime package, donor code, packaging, signing, auto-update, or release artifact",
+    "No privileged host authority, bridge channel, filesystem/network/process capability, or renderer ambient Node access",
+    "No design branding service, runtime cloud cost, or provider-specific token layer"
+  ],
+  "state": "GRAIN",
+  "title": "KX-P03-S02-T01 - Kernux design system foundation"
+}
