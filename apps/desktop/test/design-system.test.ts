@@ -11,6 +11,7 @@ import {
   SPACING,
   TYPOGRAPHY,
   contrastRatio,
+  motionDurationMs,
   relativeLuminance,
   token,
   tokenCategories,
@@ -29,6 +30,7 @@ const EXPECTED_CATEGORIES = Object.freeze({
     "textLight",
     "mutedTextLight",
     "borderLight",
+    "focusLight",
     "primaryLight",
     "primaryTextLight",
     "successLight",
@@ -40,6 +42,7 @@ const EXPECTED_CATEGORIES = Object.freeze({
     "textDark",
     "mutedTextDark",
     "borderDark",
+    "focusDark",
     "primaryDark",
     "primaryTextDark",
     "successDark",
@@ -48,6 +51,31 @@ const EXPECTED_CATEGORIES = Object.freeze({
     "infoDark",
   ],
 });
+
+const EXPECTED_CONTRAST_PAIRS = Object.freeze([
+  ["color.textLight", "color.canvasLight", 4.5],
+  ["color.textLight", "color.surfaceLight", 4.5],
+  ["color.mutedTextLight", "color.surfaceLight", 4.5],
+  ["color.primaryTextLight", "color.primaryLight", 4.5],
+  ["color.successLight", "color.surfaceLight", 4.5],
+  ["color.warningLight", "color.surfaceLight", 4.5],
+  ["color.dangerLight", "color.surfaceLight", 4.5],
+  ["color.infoLight", "color.surfaceLight", 4.5],
+  ["color.borderLight", "color.surfaceLight", 3],
+  ["color.focusLight", "color.surfaceLight", 3],
+  ["color.focusLight", "color.canvasLight", 3],
+  ["color.textDark", "color.canvasDark", 4.5],
+  ["color.textDark", "color.surfaceDark", 4.5],
+  ["color.mutedTextDark", "color.surfaceDark", 4.5],
+  ["color.primaryTextDark", "color.primaryDark", 4.5],
+  ["color.successDark", "color.surfaceDark", 4.5],
+  ["color.warningDark", "color.surfaceDark", 4.5],
+  ["color.dangerDark", "color.surfaceDark", 4.5],
+  ["color.infoDark", "color.surfaceDark", 4.5],
+  ["color.borderDark", "color.surfaceDark", 3],
+  ["color.focusDark", "color.surfaceDark", 3],
+  ["color.focusDark", "color.canvasDark", 3],
+] as const);
 
 describe("canonical token authority is closed and deeply frozen", () => {
   it("has the exact frozen category surface", () => {
@@ -68,9 +96,14 @@ describe("canonical token authority is closed and deeply frozen", () => {
       BORDER,
       MOTION,
       COLOR,
+      COLOR_CONTRAST_PAIRS,
     ];
     for (const value of values) {
       assert.equal(Object.isFrozen(value), true);
+    }
+    assert.equal(Object.isFrozen(COLOR_CONTRAST_PAIRS), true);
+    for (const pair of COLOR_CONTRAST_PAIRS) {
+      assert.equal(Object.isFrozen(pair), true);
     }
   });
 
@@ -102,8 +135,17 @@ describe("canonical token authority is closed and deeply frozen", () => {
 });
 
 describe("semantic color pairs meet WCAG AA", () => {
-  it("covers light and dark text, controls, and all status meanings", () => {
-    assert.ok(COLOR_CONTRAST_PAIRS.length >= 16);
+  it("freezes the exact semantic pair corpus without duplicates or weakened thresholds", () => {
+    const actual = COLOR_CONTRAST_PAIRS.map(({ foreground, background, minimum }) => [
+      foreground,
+      background,
+      minimum,
+    ]);
+    assert.deepEqual(actual, EXPECTED_CONTRAST_PAIRS);
+    assert.equal(
+      new Set(actual.map(([foreground, background]) => `${foreground}/${background}`)).size,
+      actual.length,
+    );
     for (const pair of COLOR_CONTRAST_PAIRS) {
       const ratio = contrastRatio(
         token(pair.foreground) as string,
@@ -139,7 +181,13 @@ describe("scalable accessibility foundations are closed", () => {
       assert.ok(value.lineHeight > 1);
     }
     assert.ok(Object.values(MOTION).every((value) => value >= 0));
-    assert.equal(MOTION.reducedMs, 0);
+    assert.equal(motionDurationMs(MOTION.normalMs, false), MOTION.normalMs);
+    assert.equal(motionDurationMs(MOTION.normalMs, true), MOTION.reducedMs);
+    assert.equal(motionDurationMs(MOTION.fastMs, true), MOTION.reducedMs);
+    assert.throws(
+      () => motionDurationMs(999 as 160, false),
+      (error: unknown) => error instanceof Error && error.message === "unknown-motion-token",
+    );
     assert.ok(Object.values(RADIUS).every((value) => value.endsWith("rem")));
     assert.ok(Object.values(BORDER).every((value) => value.endsWith("rem")));
   });

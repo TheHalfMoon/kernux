@@ -48,12 +48,26 @@ export const MOTION = Object.freeze({
   reducedMs: 0,
 } as const);
 
+export type MotionDuration = (typeof MOTION)[keyof typeof MOTION];
+
+/** Select zero motion whenever the user requests reduced motion. */
+export function motionDurationMs(
+  duration: MotionDuration,
+  prefersReducedMotion: boolean,
+): MotionDuration {
+  if (!Object.values(MOTION).includes(duration)) {
+    throw new Error("unknown-motion-token");
+  }
+  return prefersReducedMotion ? MOTION.reducedMs : duration;
+}
+
 export const COLOR = Object.freeze({
   canvasLight: "#f7f8fa",
   surfaceLight: "#ffffff",
   textLight: "#172033",
   mutedTextLight: "#465166",
   borderLight: "#6b7280",
+  focusLight: "#0b57d0",
   primaryLight: "#1749b3",
   primaryTextLight: "#ffffff",
   successLight: "#146c43",
@@ -65,6 +79,7 @@ export const COLOR = Object.freeze({
   textDark: "#f2f5f9",
   mutedTextDark: "#c1cad8",
   borderDark: "#9aa6b6",
+  focusDark: "#8ab4f8",
   primaryDark: "#8ab4f8",
   primaryTextDark: "#0b1f3a",
   successDark: "#75d69b",
@@ -88,7 +103,7 @@ export type ColorTokenPath = Extract<TokenPath, `color.${string}`>;
 export interface ContrastPair {
   readonly foreground: ColorTokenPath;
   readonly background: ColorTokenPath;
-  readonly minimum: number;
+  readonly minimum: 3 | 4.5;
 }
 
 export const COLOR_CONTRAST_PAIRS = Object.freeze([
@@ -120,6 +135,9 @@ export const COLOR_CONTRAST_PAIRS = Object.freeze([
     minimum: 4.5,
   }),
   Object.freeze({ foreground: "color.infoLight", background: "color.surfaceLight", minimum: 4.5 }),
+  Object.freeze({ foreground: "color.borderLight", background: "color.surfaceLight", minimum: 3 }),
+  Object.freeze({ foreground: "color.focusLight", background: "color.surfaceLight", minimum: 3 }),
+  Object.freeze({ foreground: "color.focusLight", background: "color.canvasLight", minimum: 3 }),
   Object.freeze({ foreground: "color.textDark", background: "color.canvasDark", minimum: 4.5 }),
   Object.freeze({ foreground: "color.textDark", background: "color.surfaceDark", minimum: 4.5 }),
   Object.freeze({
@@ -136,6 +154,9 @@ export const COLOR_CONTRAST_PAIRS = Object.freeze([
   Object.freeze({ foreground: "color.warningDark", background: "color.surfaceDark", minimum: 4.5 }),
   Object.freeze({ foreground: "color.dangerDark", background: "color.surfaceDark", minimum: 4.5 }),
   Object.freeze({ foreground: "color.infoDark", background: "color.surfaceDark", minimum: 4.5 }),
+  Object.freeze({ foreground: "color.borderDark", background: "color.surfaceDark", minimum: 3 }),
+  Object.freeze({ foreground: "color.focusDark", background: "color.surfaceDark", minimum: 3 }),
+  Object.freeze({ foreground: "color.focusDark", background: "color.canvasDark", minimum: 3 }),
 ] as const satisfies readonly ContrastPair[]);
 /** Resolve a typed token reference without permitting arbitrary property access. */
 export function token(path: TokenPath): unknown {
