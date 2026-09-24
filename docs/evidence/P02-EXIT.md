@@ -99,3 +99,33 @@ each record was independently verified with zero issues before its task advanced
    transition to PROVEN and P03 entry be authorized.
 
 Status: `EXIT_EVIDENCE_UNPROVEN`. P02 stays `10/10 PROVEN`. P02 exit stays unproven.
+
+## Protected closeout (pre-proof, closeout PR)
+
+Closeout claim: SG-000030 exit assessment is canonical (refinement #208 merge
+`48ffffc`, packet persistence #209 merge `f6b4d53`, evidence #210 merge
+`37e6c08`, each with post-merge CI 6/6 SUCCESS: `35975821048`, `35976559786`,
+`35977057808`). The exit chain adds no product code; assessment, packet, and
+evidence paths sit inside the seven-path authorized surface.
+
+Pre-closeout native verification (pinned SpecGrain source
+`5de7d6499bb0a9e3a191fc0934399cf099d1980a`, script
+`.specgrain/tmp/sg30_prove.py`, NOT committed) reports verified=false with
+exactly 5 issues and nothing else: `protected-closeout-pr-pass`,
+`closeout-post-merge-ci-pass`, `native-specgrain-verification-pass`, and
+acceptance checks 2 and 7. Acceptance is 5/7, evidence 15/18; packet, spec,
+result, scope, and surface bindings are clean. Dry-run result digest:
+`sha256:f146871ee09e6777d6a058a9f8d4426c0649fa1d3051e4b1ca1835a8169e3c6d`.
+No record was appended: a passing record cannot lawfully exist before this
+closeout merges with green post-merge CI, so the closeout-dependent checks
+honestly fail. This dry run is negative evidence, not a defect.
+
+Ledgers unchanged by this PR: P02 EXIT stays unproven, P03 stays
+unauthorized, SG-000030 stays GRAIN with 0 records.
+
+Pending after this PR merges with post-merge CI 6/6: final native
+verify_execution (all 18 evidence and 7 acceptance genuinely satisfiable),
+immutable record under `.specgrain/evidence/SG-000030/`, then a proof PR
+carrying the record, the proof section, and the P02 EXIT transition.
+
+Status: `EXIT_EVIDENCE_UNPROVEN`.
