@@ -129,3 +129,56 @@ immutable record under `.specgrain/evidence/SG-000030/`, then a proof PR
 carrying the record, the proof section, and the P02 EXIT transition.
 
 Status: `EXIT_EVIDENCE_UNPROVEN`.
+
+## Native SG-000030 verification - PROVEN
+
+Pinned native verification used the repository-pinned SpecGrain CLI source
+(TheHalfMoon/SpecGrain commit `5de7d6499bb0a9e3a191fc0934399cf099d1980a`,
+archive SHA-256 `da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9`)
+via the local scratch script `.specgrain/tmp/sg30_prove.py` (NOT committed) and
+loaded the tracked WorkPacket from `docs/evidence/SG-000030-work-packet.json`.
+
+It independently observed the exit assessment as exactly three ledger and
+assessment paths:
+
+1. `docs/evidence/P02-EXIT.md`;
+2. `specs/CURRENT.md`;
+3. `specs/tasks.md`.
+
+All are inside the frozen SG-000030 seven-path authorized surface. No product
+code, manifest, lockfile, KRP, or provider path changes across the exit chain
+(probe-verified on linux and macos).
+
+Native verify_execution result:
+
+- implementation revision: `git:b1fa75bbb55f982008100be527395077371fd5cf`;
+- packet digest: `sha256:32ed21a014b8015084c1ec285e7313bb4b236f145419057dcad7d0fd327f94ad`;
+- spec revision: `sha256:9c3e61d624f19bc00ea25da06441c66e6b9fc1b3125801e7fb4011bc847b9934`;
+- context-plan digest: `sha256:ff4f9ab79d82610e06369f19e6844c73c10af777ae3b149ce80a6adfe85f92e4`;
+- execution result digest: `sha256:f146871ee09e6777d6a058a9f8d4426c0649fa1d3051e4b1ca1835a8169e3c6d`;
+- immutable evidence record: `sha256:6c7134350d40134d576788fee7a7a06f940cb3757664c6e4d8c8117dd5c2b8cb`;
+- verified=true;
+- issues=[];
+- acceptance checks: 7/7 PASS;
+- required evidence checks: 18/18 PASS.
+
+The generated evidence bytes are persisted at:
+
+`.specgrain/evidence/SG-000030/6c7134350d40134d576788fee7a7a06f940cb3757664c6e4d8c8117dd5c2b8cb.json`
+
+The generated file is 7,496 bytes with file SHA-256:
+
+`sha256:92bc60703935e5a5578135961b4d10e93c8c296695f3b309ae9b30434c1ae211`
+
+Prove status after append:
+
+- `prove SG-000030` reports verified true with record count 1;
+- `prove SG-000029` reports verified true with record count 1 (preserved);
+- `check .` reports valid.
+
+A pre-closeout dry run of the same script honestly reported verified=false
+with exactly the 5 closeout-dependent checks failing (acceptance 5/7, evidence
+15/18, bindings clean) and appended no record; the final run above ran only
+after closeout PR #211 merged with post-merge CI 6/6.
+
+Status: `P02 EXIT PROVEN` with this proof PR merge; only KX-P03-S01-T01 is NEXT.

@@ -81,11 +81,15 @@ No product code or founding-donor product code has been imported yet.
 
 **P02 ENTRY AUTHORIZED:** `P02 EXIT ONLY`
 
-**NEXT CANONICAL FRONTIER:** `P02 EXIT - Prove the P02 phase-exit gate (privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven; fail-closed egress policy) before later network-capable phases.`
+**NEXT CANONICAL FRONTIER:** `KX-P03-S01-T01 - Create Electron/React desktop shell with unprivileged renderer and typed preload bridge.`
 
 **LATEST PROVEN P02 MACRO TASK:** `KX-P02-S07-T01 — Define and implement kernel egress-class/destination policy primitives`
 
 **P02 PROGRESS:** `10 / 10 macro tasks PROVEN`
+
+**P02 EXIT STATUS:** `PROVEN`
+
+**P03 ENTRY AUTHORIZED:** `KX-P03-S01-T01 ONLY`
 
 **LONG-HORIZON UNIVERSAL PLATFORM PLAN:** `PLANNED / NON-BLOCKING TO CURRENT P02 FRONTIER`
 
@@ -166,6 +170,8 @@ KX-P02-S06-T02 is now PROVEN through the SG-000028 packet-first path: immutable 
 
 KX-P02-S07-T01 is now PROVEN through the SG-000029 packet-first path: immutable native record `sha256:2273a0e1264a35a9300e715e17f102c42523d7dd373d539c9a427fb4b7c02e8b` verified the exact two-path implementation range at `git:8d9cb45338b7baeb93e7212419524f48aaf26906` with acceptance 8/8 and required evidence 22/22; PR-A #201 egress primitives, PR-B #203 grant-constraining evaluator, PR-C #204 adversarial corpus, implementation evidence PR #205, and closeout PR #206 each passed exact-head CI 6/6, probe linux and native macOS qualification (R3, OCR, replay, focused suites), genuine Jev review, and zero blocking threads before ordinary merge, with post-merge CI 6/6 throughout. P02 has 10 / 10 macro tasks PROVEN. Only the P02 phase exit is authorized as NEXT; P02 phase exit remains unproven.
 
+P02 EXIT is now PROVEN through the SG-000030 packet-first path: immutable native record `sha256:6c7134350d40134d576788fee7a7a06f940cb3757664c6e4d8c8117dd5c2b8cb` verified the exit assessment with acceptance 7/7 and required evidence 18/18; refinement PR #208, packet persistence PR #209, exit evidence PR #210, and closeout PR #211 each passed exact-head CI 6/6, probe linux and native macOS qualification (R3, OCR, replay, focused suites), genuine Jev review, and zero blocking threads before ordinary merge with post-merge CI 6/6 throughout. P02 phase exit is PROVEN. Only KX-P03-S01-T01 is authorized as NEXT; later P03 tasks remain PLANNED.
+
 Proof for the current frontier includes:
 
 - `docs/evidence/P00-EXIT.md`;
@@ -187,6 +193,7 @@ Proof for the current frontier includes:
 - `docs/evidence/P02-S06-T01.md` — PROVEN secret-provider abstraction and OS credential-store adapter outcome through preserved SG-000026 negative evidence plus corrective native SG-000027 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S06-T02.md` - PROVEN redaction-safe audit events, correspondence, determinism, and leak corpus through the tracked SG-000028 WorkPacket, native SG-000028 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S07-T01.md` - PROVEN egress-class/destination vocabulary, grant-constraining evaluator, and adversarial fail-closed corpus through the tracked SG-000029 WorkPacket, native SG-000029 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-EXIT.md` - PROVEN privileged-kernel exit gate: ten reconciled tasks, four assessed criteria, and native SG-000030 proof with protected closeout and post-merge qualification.
 
 ## Dependency rule
 
