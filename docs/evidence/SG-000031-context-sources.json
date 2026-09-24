@@ -1,0 +1,122 @@
+[
+ {
+  "priority": 0,
+  "provenance": "repo:AGENTS.md#L1-L60",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, exact-head proof, and protected-history rules.",
+  "size_bytes": 2617,
+  "source_id": "agent-governance",
+  "token_cost": 654
+ },
+ {
+  "priority": 1,
+  "provenance": "repo:specs/CURRENT.md#L82-L92",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the exact live P03 frontier with S01-T01 as the sole NEXT unit, P02 EXIT proven, and later tasks planned.",
+  "size_bytes": 434,
+  "source_id": "current-frontier",
+  "token_cost": 108
+ },
+ {
+  "priority": 2,
+  "provenance": "repo:specs/tasks.md#L99-L102",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the P03 S01 macro outcomes with R2 risk: shell first, reconnect projection second, shell-only dependency.",
+  "size_bytes": 343,
+  "source_id": "p03-table",
+  "token_cost": 85
+ },
+ {
+  "priority": 3,
+  "provenance": "repo:specs/tasks.md#L116-L116",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the P03 gate: unprivileged renderer, surviving layout, usable bootstrap, inspectable capture, honest privacy.",
+  "size_bytes": 281,
+  "source_id": "p03-gate",
+  "token_cost": 70
+ },
+ {
+  "priority": 4,
+  "provenance": "repo:specs/tasks.md#L91-L91",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind P02 EXIT PROVEN with native SG-000030 proof as the sole entry authority for KX-P03-S01-T01.",
+  "size_bytes": 1091,
+  "source_id": "p02-exit-proof",
+  "token_cost": 272
+ },
+ {
+  "priority": 5,
+  "provenance": "repo:docs/canonical/ARCHITECTURE.md#L76-L86",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the renderer-never-authority law with narrow typed preload bridge and kernel policy path.",
+  "size_bytes": 728,
+  "source_id": "renderer-unprivileged",
+  "token_cost": 182
+ },
+ {
+  "priority": 6,
+  "provenance": "repo:docs/canonical/ARCHITECTURE.md#L135-L142",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind Electron plus React 19 and TypeScript with daemon-side privilege: shell choice, not privilege model.",
+  "size_bytes": 401,
+  "source_id": "desktop-shell-choice",
+  "token_cost": 100
+ },
+ {
+  "priority": 7,
+  "provenance": "repo:docs/canonical/SECURITY_MODEL.md#L1-L12",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the no-self-enforcement law: no renderer, plugin, page, or agent enforces its own permissions.",
+  "size_bytes": 765,
+  "source_id": "no-self-authorization",
+  "token_cost": 191
+ },
+ {
+  "priority": 8,
+  "provenance": "repo:docs/canonical/SECURITY_MODEL.md#L304-L320",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind mandatory security test classes including renderer-to-host bypass and stale or forged grants.",
+  "size_bytes": 537,
+  "source_id": "renderer-bypass-tests",
+  "token_cost": 134
+ },
+ {
+  "priority": 9,
+  "provenance": "repo:crates/kernuxd/src/transport.rs#L80-L130",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the proven local transport endpoints: unix runtime dir, Windows pipe name, socket and pipe accessors.",
+  "size_bytes": 1507,
+  "source_id": "daemon-transport",
+  "token_cost": 376
+ },
+ {
+  "priority": 10,
+  "provenance": "repo:docs/canonical/UX_BLUEPRINT.md#L10-L20",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the four-region primary shell with command bar as the primary entry point.",
+  "size_bytes": 633,
+  "source_id": "ux-primary-shell",
+  "token_cost": 158
+ },
+ {
+  "priority": 11,
+  "provenance": "repo:.specgrain/specs/SG-000031.json",
+  "requirement": "required",
+  "revision": "git:8421a8df4df122d60b140a16edb5ceabfc7f0161",
+  "selection_reason": "Bind the shaped desktop-shell Grain authority with eleven exact paths, eight acceptance requirements, and 20 evidence checks.",
+  "size_bytes": 4554,
+  "source_id": "sg31-grain",
+  "token_cost": 1138
+ }
+]
