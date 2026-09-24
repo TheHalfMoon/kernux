@@ -79,13 +79,13 @@ No product code or founding-donor product code has been imported yet.
 
 **P01 EXIT STATUS:** `PROVEN`
 
-**P02 ENTRY AUTHORIZED:** `KX-P02-S07-T01 ONLY`
+**P02 ENTRY AUTHORIZED:** `P02 EXIT ONLY`
 
-**NEXT CANONICAL FRONTIER:** `KX-P02-S07-T01 — Define and implement kernel egress-class/destination policy primitives for NONE, DIRECT_DESTINATION, CONNECTED_ACCOUNT, EXTERNAL_MODEL, EXTERNAL_TOOL, REMOTE_RUNTIME, UPDATE and TELEMETRY; unknown sensitive egress fails closed.`
+**NEXT CANONICAL FRONTIER:** `P02 EXIT - Prove the P02 phase-exit gate (privilege bypass/adversarial tests pass; secrets stay outside ordinary DB/logs; restart/migration recovery proven; fail-closed egress policy) before later network-capable phases.`
 
-**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S06-T02 — Add redaction-safe security audit events and secret-leak tests`
+**LATEST PROVEN P02 MACRO TASK:** `KX-P02-S07-T01 — Define and implement kernel egress-class/destination policy primitives`
 
-**P02 PROGRESS:** `9 / 10 macro tasks PROVEN`
+**P02 PROGRESS:** `10 / 10 macro tasks PROVEN`
 
 **LONG-HORIZON UNIVERSAL PLATFORM PLAN:** `PLANNED / NON-BLOCKING TO CURRENT P02 FRONTIER`
 
@@ -112,6 +112,8 @@ The canonical long-horizon expansion is defined in `docs/canonical/UNIVERSAL_PLA
 **KX-P02-S06-T01 QUALIFICATION:** `PROVEN`
 
 **KX-P02-S06-T02 QUALIFICATION:** `PROVEN`
+
+**KX-P02-S07-T01 QUALIFICATION:** `PROVEN`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -162,6 +164,8 @@ KX-P02-S06-T01 is now PROVEN through the corrective SG-000027 path: immutable na
 
 KX-P02-S06-T02 is now PROVEN through the SG-000028 packet-first path: immutable native record `sha256:0bb0dc7d5fe578f194b2cd9bfbca61380d2add6e49194a6323d4feb816de17ba` verified the exact two-path implementation range at `git:92f3929e26a18de25f9f3dbb2db8e68eec984bb9` with acceptance 7/7 and required evidence 21/21; refinement PR #191, packet persistence PR #192, PR-A #193 audit core, PR-B #194 correspondence and leak corpus, implementation evidence PR #195, and closeout PR #196 each passed exact-head CI 6/6, probe linux and native macOS qualification (R3, OCR, replay, focused suites), genuine Jev review, and zero blocking threads before ordinary merge, with post-merge CI 6/6 throughout. Only KX-P02-S07-T01 is authorized as NEXT; P02 phase exit remains unproven.
 
+KX-P02-S07-T01 is now PROVEN through the SG-000029 packet-first path: immutable native record `sha256:2273a0e1264a35a9300e715e17f102c42523d7dd373d539c9a427fb4b7c02e8b` verified the exact two-path implementation range at `git:8d9cb45338b7baeb93e7212419524f48aaf26906` with acceptance 8/8 and required evidence 22/22; PR-A #201 egress primitives, PR-B #203 grant-constraining evaluator, PR-C #204 adversarial corpus, implementation evidence PR #205, and closeout PR #206 each passed exact-head CI 6/6, probe linux and native macOS qualification (R3, OCR, replay, focused suites), genuine Jev review, and zero blocking threads before ordinary merge, with post-merge CI 6/6 throughout. P02 has 10 / 10 macro tasks PROVEN. Only the P02 phase exit is authorized as NEXT; P02 phase exit remains unproven.
+
 Proof for the current frontier includes:
 
 - `docs/evidence/P00-EXIT.md`;
@@ -181,7 +185,8 @@ Proof for the current frontier includes:
 - `docs/evidence/P02-S05-T01.md` — PROVEN policy/Grant implementation outcome through preserved SG-000023 negative evidence plus corrective native SG-000024 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S05-T02.md` — PROVEN permission-profile vocabulary, compiler, and adversarial corpus outcome through the tracked SG-000025 WorkPacket, native SG-000025 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 - `docs/evidence/P02-S06-T01.md` — PROVEN secret-provider abstraction and OS credential-store adapter outcome through preserved SG-000026 negative evidence plus corrective native SG-000027 proof, protected closeout, exact-head review, merge, and post-merge qualification.
-- `docs/evidence/P02-S06-T02.md` — PROVEN redaction-safe audit events, correspondence, determinism, and leak corpus through the tracked SG-000028 WorkPacket, native SG-000028 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-S06-T02.md` - PROVEN redaction-safe audit events, correspondence, determinism, and leak corpus through the tracked SG-000028 WorkPacket, native SG-000028 proof, protected closeout, exact-head review, merge, and post-merge qualification.
+- `docs/evidence/P02-S07-T01.md` - PROVEN egress-class/destination vocabulary, grant-constraining evaluator, and adversarial fail-closed corpus through the tracked SG-000029 WorkPacket, native SG-000029 proof, protected closeout, exact-head review, merge, and post-merge qualification.
 
 ## Dependency rule
 
