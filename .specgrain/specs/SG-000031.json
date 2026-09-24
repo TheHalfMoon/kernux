@@ -1,0 +1,99 @@
+{
+  "acceptance": [
+    "Shell boots exactly one workspace window bound to the preload bridge",
+    "Renderer exposes no ambient Node or host authority",
+    "Preload exposes only allowlisted typed channels; unknown channels rejected",
+    "Daemon health and version round-trip over the proven local transport",
+    "Hostile renderer and bridge bypass attempts fail closed",
+    "No secret or credential capture in shell, bridge, or logs",
+    "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+    "Canonical closeout advances only KX-P03-S01-T01 scope"
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000031.json",
+    "docs/evidence/SG-000031-context-sources.json",
+    "docs/evidence/SG-000031-work-packet.json",
+    "docs/evidence/P03-S01-T01.md",
+    "apps/desktop",
+    ".specgrain/evidence/SG-000031",
+    "specs/CURRENT.md",
+    "specs/tasks.md",
+    "package.json",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 14000,
+    "estimated_tokens": 11000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "shell-boot-pass",
+      "renderer-unprivileged-pass",
+      "bridge-allowlist-pass",
+      "daemon-handshake-pass",
+      "adversarial-bridge-pass",
+      "secret-compat-pass",
+      "workpacket-durable-recovery-pass",
+      "packet-persistence-pr-pass",
+      "packet-persistence-post-merge-ci-pass",
+      "dependency-manifest-identity-pass",
+      "full-baseline-pass",
+      "local-macos-pass",
+      "diffcipline-r3-proof-pass",
+      "jev-review-pass",
+      "open-code-review-accounting-pass",
+      "implementation-pr-pass",
+      "implementation-post-merge-ci-pass",
+      "native-specgrain-verification-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass"
+    ]
+  },
+  "id": "SG-000031",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "new-code",
+        "rationale": "Greenfield shell: no Electron code exists in the repository. Minimal new-code skeleton reusing the proven P02 daemon transport contract and existing TypeScript tooling; donor import stays out of scope."
+      },
+      "safety": {
+        "requirements": [
+          "The renderer must never receive ambient Node or host authority; all privileged actions stay behind kernel policy.",
+          "The bridge must expose only explicitly allowlisted typed channels; unknown or privileged channels fail closed."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Boot a minimal Electron and React desktop shell against the proven P02 daemon with an unprivileged renderer and a narrow typed preload bridge; no ambient Node or host authority in the renderer.",
+  "parent_id": null,
+  "rationale": "P02 EXIT is PROVEN and P03 entry authorizes KX-P03-S01-T01 ONLY. The desktop shell is greenfield: no Electron code exists yet. A bounded Grain must fix the shell, renderer, and bridge scope before implementation so later workspace tasks build on a proven unprivileged foundation.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded shell, bridge, and frontier changes and keep KX-P03-S01-T01 at NEXT with P03 entry intact. No daemon or kernel state is created by this slice."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Electron main-process shell: single workspace window lifecycle with contextIsolation, sandbox, and no nodeIntegration",
+    "React renderer skeleton: root mount with daemon status projection (connected, degraded, unknown)",
+    "Typed preload bridge: narrow allowlisted invoke-only channels mapping to typed capability envelopes",
+    "Main-process daemon client over the proven local transport with typed request/response and timeouts",
+    "Fail-closed renderer policy: channel allowlist enforcement with adversarial bypass tests",
+    "Persist fresh ContextSources and WorkPacket before any implementation and require byte-identical replay through the pinned CLI"
+  ],
+  "scope_out": [
+    "No reconnect projection (KX-P03-S01-T02), design tokens, tabs, command bar, timeline, quick-open, CLI, Design Mode, or Privacy Inspector",
+    "No donor code import; shell is minimal new code",
+    "No packaging, signing, auto-update, or release artifacts",
+    "No P03 task advancement beyond KX-P03-S01-T01"
+  ],
+  "state": "GRAIN",
+  "title": "KX-P03-S01-T01 - Desktop shell with unprivileged renderer and typed preload bridge"
+}
