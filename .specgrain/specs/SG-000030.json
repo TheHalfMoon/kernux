@@ -1,0 +1,92 @@
+{
+  "acceptance": [
+    "All ten P02 macro tasks reconciled PROVEN with immutable native records",
+    "Privilege-bypass and adversarial bounds hold across policy, secret, audit, and egress layers",
+    "Secrets stay outside ordinary DB/logs with redaction-safe audit projection",
+    "Restart/migration recovery proven for metadata store and artifact CAS",
+    "Fail-closed egress policy proven before network-capable phases",
+    "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+    "Canonical closeout advances only P02 EXIT scope and authorizes P03 entry only after protected closeout"
+  ],
+  "change_surface": [
+    ".specgrain/specs/SG-000030.json",
+    "docs/evidence/SG-000030-context-sources.json",
+    "docs/evidence/SG-000030-work-packet.json",
+    "docs/evidence/P02-EXIT.md",
+    ".specgrain/evidence/SG-000030",
+    "specs/CURRENT.md",
+    "specs/tasks.md"
+  ],
+  "children": [],
+  "context": {
+    "budget_tokens": 14000,
+    "estimated_tokens": 11000
+  },
+  "dependencies": [],
+  "evidence": {
+    "required": [
+      "p02-macro-registry-complete-pass",
+      "privilege-adversarial-bounds-pass",
+      "secret-exclusion-pass",
+      "restart-migration-recovery-pass",
+      "egress-fail-closed-pass",
+      "workpacket-durable-recovery-pass",
+      "packet-persistence-pr-pass",
+      "packet-persistence-post-merge-ci-pass",
+      "cargo-lock-byte-identity-pass",
+      "full-baseline-pass",
+      "local-macos-pass",
+      "diffcipline-r3-proof-pass",
+      "jev-review-pass",
+      "open-code-review-accounting-pass",
+      "exit-evidence-pr-pass",
+      "protected-closeout-pr-pass",
+      "closeout-post-merge-ci-pass",
+      "native-specgrain-verification-pass"
+    ]
+  },
+  "id": "SG-000030",
+  "labels": [],
+  "metadata": {
+    "readiness": {
+      "minimality": {
+        "choice": "reuse-existing",
+        "rationale": "Reuse the ten PROVEN task proofs, native SpecGrain records, P02 evidence packets, executable Node/Rust gates, protected CI, and the established P01 exit-gate governance pattern. Add no product code or new dependency for phase qualification."
+      },
+      "safety": {
+        "requirements": [
+          "The phase gate must not convert task-level evidence into claims about unbuilt P03 desktop, agent, browser, or network behavior.",
+          "P03 must remain unauthorized until the protected P02 exit closeout is merged and its post-merge qualification succeeds."
+        ],
+        "status": "requirements-defined"
+      },
+      "unresolved_decisions": [],
+      "version": 1
+    }
+  },
+  "method": "quick",
+  "outcome": "Independently prove the P02 phase exit gate from exact qualified repository evidence: privilege bypass and adversarial bounds hold, secrets stay outside ordinary DB/logs, restart/migration recovery is proven, and egress fails closed; authorize no P03 work until protected closeout and post-merge qualification succeed.",
+  "parent_id": null,
+  "rationale": "All ten P02 macro tasks are now PROVEN on qualified main, but canonical governance explicitly requires a separate phase-exit assessment. The exit gate must reconcile the four frozen P02 criteria against executable evidence without inferring phase completion from task count.",
+  "risk": {
+    "level": "medium",
+    "recovery": "Revert the bounded P02 exit refinement, evidence, and frontier changes and keep P02 exit unproven with P03 unauthorized. No product runtime state is created by this gate assessment."
+  },
+  "schema_version": 1,
+  "scope_in": [
+    "Reconcile all ten PROVEN P02 macro tasks against the four frozen exit criteria using only exact qualified repository evidence",
+    "Assess privilege-bypass and adversarial bounds from the S05 permission-profile corpus, S06 secret/audit guarantees, and S07 egress fail-closed corpus",
+    "Assess secret exclusion (secrets outside ordinary DB/logs) from the S06 provider and audit proofs with redaction guarantees",
+    "Assess restart/migration recovery from the S03 metadata-store and S04 artifact-CAS proofs",
+    "Assess fail-closed egress policy from the SG-000029 native proof before any network-capable phase",
+    "Persist fresh ContextSources and WorkPacket before any exit evidence and require byte-identical replay through the pinned CLI"
+  ],
+  "scope_out": [
+    "No P03 desktop work, no new product code, no new dependencies",
+    "No KRP schema change: v1 stays frozen",
+    "No new secret reveal authority, no grant issuance change, no P03 authorization",
+    "No phase completion inferred from task count alone"
+  ],
+  "state": "GRAIN",
+  "title": "KX-P02-EXIT - Prove the privileged-kernel exit gate"
+}
