@@ -170,6 +170,15 @@ function inspectRendererFile(path, file, diagnostics) {
         atNode(path, file, node, "renderer-authority-import", node.moduleSpecifier.text),
       );
     if (
+      isImportDeclaration(node) &&
+      isStringLiteral(node.moduleSpecifier) &&
+      !node.moduleSpecifier.text.startsWith(".") &&
+      !/^react(?:\/|$)/u.test(node.moduleSpecifier.text)
+    )
+      diagnostics.push(
+        atNode(path, file, node, "renderer-unresolved-import", node.moduleSpecifier.text),
+      );
+    if (
       isExportDeclaration(node) &&
       isStringLiteral(node.moduleSpecifier) &&
       forbiddenModule(node.moduleSpecifier.text)
