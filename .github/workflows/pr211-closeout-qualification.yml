@@ -1,0 +1,155 @@
+name: PR211 Closeout Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr211-closeout-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 37e6c08c7b57ca5e263d31d126f5f1e0fdb66a78
+  TARGET_SHA: 28ba8d6fdae1f6194fe4a4171beb36b89d44e6c6
+  PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
+  WORKPACKET_SHA256: 78453c4546f7209b163ab45470a306ca32c5dc7b0b3c1aa2cc7e0dff4ae2fb37
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact closeout surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          test 1 -eq $(wc -l < /tmp/paths.txt)
+          grep -q "docs/evidence/P02-EXIT.md" /tmp/paths.txt
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" > /tmp/counts.txt
+          cat /tmp/counts.txt
+          grep -q "1 file changed" /tmp/counts.txt
+          grep -q "30 insertions" /tmp/counts.txt
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- specs/ .specgrain/)"
+          grep -q "Protected closeout (pre-proof, closeout PR)" docs/evidence/P02-EXIT.md
+          grep -q "EXIT_EVIDENCE_UNPROVEN" docs/evidence/P02-EXIT.md
+          test -z "$(git ls-files --others --exclude-standard)"
+      - name: Verify SpecGrain state and byte-identical replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000030 . --json > /tmp/sg30-prove.json || test $? -eq 1
+          grep -q 'verified.:false' /tmp/sg30-prove.json
+          echo "$WORKPACKET_SHA256  docs/evidence/SG-000030-work-packet.json" | sha256sum -c -
+          python3 tools/specgrain/run.py packet SG-000030 . --context-sources docs/evidence/SG-000030-context-sources.json --json > /tmp/SG-000030-replay.json
+          cmp docs/evidence/SG-000030-work-packet.json /tmp/SG-000030-replay.json
+          echo "REPLAY_CMP_PASS"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Focused regressions
+        run: cargo test -p kernux-policy -p kernux-secret -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS exact surface and replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          test 1 -eq $(wc -l < /tmp/paths.txt)
+          grep -q "docs/evidence/P02-EXIT.md" /tmp/paths.txt
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- specs/ .specgrain/)"
+          echo "$WORKPACKET_SHA256  docs/evidence/SG-000030-work-packet.json" | shasum -a 256 -c -
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet SG-000030 . --context-sources docs/evidence/SG-000030-context-sources.json --json > /tmp/SG-000030-replay.json
+          cmp docs/evidence/SG-000030-work-packet.json /tmp/SG-000030-replay.json
+          echo "MACOS_REPLAY_CMP_PASS"
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Focused regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test -p kernux-policy --all-targets
+          cargo test -p kernux-secret -p kernux-store -p kernuxd -p kernux-identity --all-targets
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
