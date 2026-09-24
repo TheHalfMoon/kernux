@@ -1,0 +1,152 @@
+[
+ {
+  "priority": 0,
+  "provenance": "repo:AGENTS.md#L1-L60",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind live-truth precedence, negative-evidence preservation, bounded delivery, exact-head proof, and protected-history rules.",
+  "size_bytes": 2617,
+  "source_id": "agent-governance",
+  "token_cost": 654
+ },
+ {
+  "priority": 1,
+  "provenance": "repo:specs/CURRENT.md#L80-L90",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the exact live P02 exit frontier with S07-T01 PROVEN at 10 of 10 and P02 exit unproven.",
+  "size_bytes": 592,
+  "source_id": "current-frontier",
+  "token_cost": 148
+ },
+ {
+  "priority": 2,
+  "provenance": "repo:specs/tasks.md#L55-L67",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the P02 kernel table with ten PROVEN tasks across daemon, identity, store, artifacts, policy, secrets, audit, and egress.",
+  "size_bytes": 1429,
+  "source_id": "p02-table",
+  "token_cost": 357
+ },
+ {
+  "priority": 3,
+  "provenance": "repo:specs/tasks.md#L87-L87",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the S07-T01 closeout record with native SG-000029 proof and the full PR-A/B/C chain.",
+  "size_bytes": 1457,
+  "source_id": "s07-t01-closeout",
+  "token_cost": 364
+ },
+ {
+  "priority": 4,
+  "provenance": "repo:specs/tasks.md#L91-L91",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the four frozen P02 exit criteria: adversarial bounds, secret exclusion, recovery, fail-closed egress.",
+  "size_bytes": 213,
+  "source_id": "p02-gate",
+  "token_cost": 53
+ },
+ {
+  "priority": 5,
+  "provenance": "repo:crates/kernux-policy/src/egress.rs#L439-L610",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the proven grant-constraining evaluator, denial reasons, and Grant binding for exit reconciliation.",
+  "size_bytes": 6249,
+  "source_id": "egress-evaluator",
+  "token_cost": 1562
+ },
+ {
+  "priority": 6,
+  "provenance": "repo:crates/kernux-policy/src/decision.rs#L1-L132",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind stable DenyReason vocabulary and deterministic Grant match evaluation for exit reconciliation.",
+  "size_bytes": 4390,
+  "source_id": "grant-evaluator-semantics",
+  "token_cost": 1097
+ },
+ {
+  "priority": 7,
+  "provenance": "repo:crates/kernux-secret/src/audit.rs#L1-L60",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind redaction-safe audit construction with frozen KRP envelope binding for exit reconciliation.",
+  "size_bytes": 3241,
+  "source_id": "audit-event-compat",
+  "token_cost": 810
+ },
+ {
+  "priority": 8,
+  "provenance": "repo:crates/kernux-secret/src/broker.rs#L28-L80",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the proven secret broker egress vocabulary and destination shapes for exit reconciliation.",
+  "size_bytes": 1386,
+  "source_id": "broker-egress-semantics",
+  "token_cost": 346
+ },
+ {
+  "priority": 9,
+  "provenance": "repo:protocol/schema/krp.v1.schema.json#L770-L900",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind audit payloads to the frozen Event and Redaction envelope with no wire change.",
+  "size_bytes": 3019,
+  "source_id": "krp-event-envelope",
+  "token_cost": 754
+ },
+ {
+  "priority": 10,
+  "provenance": "repo:docs/canonical/local-privacy/FOUNDATIONS.md#L248-L290",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind no-silent-cloud-fallback and fail-closed network enforcement with destination evidence.",
+  "size_bytes": 1188,
+  "source_id": "privacy-no-fallback-enforcement",
+  "token_cost": 297
+ },
+ {
+  "priority": 11,
+  "provenance": "repo:docs/canonical/EXECUTION_MASTER_PLAN.md#L134-L145",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind canonical S02.7 egress scope with fail-closed unknown egress and the P02 exit gate.",
+  "size_bytes": 594,
+  "source_id": "master-plan-exit",
+  "token_cost": 148
+ },
+ {
+  "priority": 12,
+  "provenance": "repo:specs/tasks.md#L85-L85",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Reuse the proven SG-000028 packet-first chain shape with R3 gates and preserved negative evidence.",
+  "size_bytes": 1758,
+  "source_id": "s06-t02-closeout-precedent",
+  "token_cost": 439
+ },
+ {
+  "priority": 13,
+  "provenance": "repo:.specgrain/specs/SG-000029.json",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Depend on the proven egress-policy Grain with nine exact paths, eight acceptance requirements, and 22 evidence checks.",
+  "size_bytes": 5290,
+  "source_id": "sg29-grain",
+  "token_cost": 1322
+ },
+ {
+  "priority": 14,
+  "provenance": "repo:.specgrain/specs/SG-000030.json",
+  "requirement": "required",
+  "revision": "git:48ffffc28fe2b441f24e939a69e82ad86c0fcf26",
+  "selection_reason": "Bind the shaped P02-exit Grain authority with seven exact paths, seven acceptance requirements, and 18 evidence checks.",
+  "size_bytes": 4659,
+  "source_id": "sg30-grain",
+  "token_cost": 1164
+ }
+]
