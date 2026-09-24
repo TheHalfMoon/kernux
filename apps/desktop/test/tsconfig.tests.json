@@ -1,8 +1,14 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "..",
+    "rootDir": "../../..",
+    "outDir": "../../../.tmp/ui-system-tests",
     "noEmit": false
   },
-  "include": ["../src/bridge.ts", "../src/window-config.ts", "./**/*.ts"]
+  "include": [
+    "../src/bridge.ts",
+    "../src/window-config.ts",
+    "../../../packages/ui-system/tokens.ts",
+    "./**/*.ts"
+  ]
 }
