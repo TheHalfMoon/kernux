@@ -6,8 +6,8 @@
   "scripts": {
     "check": "pnpm check:workspace && pnpm check:protocol && pnpm check:js && pnpm check:rust && pnpm specgrain:check",
     "check:workspace": "node ./tools/workspace/check.mjs",
-    "format:check": "oxfmt --check package.json tsconfig.json protocol/fixtures/v1 tools/protocol tools/workspace tools/specgrain/run.mjs tools/typescript-smoke.ts packages/ui-system/tokens.ts apps/desktop/test/design-system.test.ts",
-    "lint": "oxlint tools/protocol tools/workspace tools/specgrain/run.mjs tools/typescript-smoke.ts packages/ui-system/tokens.ts apps/desktop/test/design-system.test.ts",
+    "format:check": "oxfmt --check package.json tsconfig.json protocol/fixtures/v1 tools/protocol tools/workspace tools/specgrain/run.mjs tools/typescript-smoke.ts packages/ui-system/tokens.ts packages/ui-system/primitives.ts apps/desktop/test/design-system.test.ts",
+    "lint": "oxlint tools/protocol tools/workspace tools/specgrain/run.mjs tools/typescript-smoke.ts packages/ui-system/tokens.ts packages/ui-system/primitives.ts apps/desktop/test/design-system.test.ts",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test:js": "node --test tools/workspace/check.test.mjs && pnpm test:ui-system",
     "test:ui-system": "tsc --project apps/desktop/test/tsconfig.tests.json && node --test .tmp/ui-system-tests/apps/desktop/test/design-system.test.js",

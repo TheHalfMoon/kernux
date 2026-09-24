@@ -16,6 +16,13 @@ import {
   token,
   tokenCategories,
 } from "../../../packages/ui-system/tokens.js";
+import {
+  STATUS_TONES,
+  buttonPrimitive,
+  statusPrimitive,
+  surfacePrimitive,
+  visuallyHiddenPrimitive,
+} from "../../../packages/ui-system/primitives.js";
 
 const EXPECTED_CATEGORIES = Object.freeze({
   spacing: ["none", "xxs", "xs", "sm", "md", "lg", "xl", "xxl"],
@@ -169,6 +176,93 @@ describe("semantic color pairs meet WCAG AA", () => {
         (error: unknown) => error instanceof Error && error.message === "invalid-color",
       );
     }
+  });
+});
+
+describe("semantic primitives preserve native accessibility", () => {
+  it("uses a native button without a redundant role and explicit name", () => {
+    assert.deepEqual(buttonPrimitive({ label: "Run task" }), {
+      tag: "button",
+      attributes: { type: "button" },
+      children: ["Run task"],
+    });
+  });
+
+  it("uses native disabled and busy semantics independently while preserving the label", () => {
+    const disabled = buttonPrimitive({ label: "Run task", disabled: true });
+    assert.equal(disabled.attributes.disabled, true);
+    assert.equal(disabled.attributes["aria-busy"], undefined);
+
+    const loading = buttonPrimitive({ label: "Run task", loading: true });
+    assert.equal(loading.tag, "button");
+    assert.equal(loading.attributes.disabled, true);
+    assert.equal(loading.attributes["aria-busy"], true);
+    assert.equal(loading.attributes.role, undefined);
+    assert.deepEqual(loading.children, ["Run task"]);
+  });
+
+  it("associates button errors with a validated description", () => {
+    const primitive = buttonPrimitive({ label: "Save", errorDescriptionId: "save-error" });
+    assert.equal(primitive.attributes["aria-describedby"], "save-error");
+    assert.equal(primitive.attributes["aria-invalid"], undefined);
+    assert.throws(
+      () => buttonPrimitive({ label: "Save", errorDescriptionId: "../../bad id" }),
+      (error: unknown) => error instanceof Error && error.message === "error-description-id",
+    );
+  });
+
+  it("uses output status with text and tone, never color alone", () => {
+    assert.deepEqual(STATUS_TONES, ["neutral", "info", "success", "warning", "danger"]);
+    for (const tone of STATUS_TONES) {
+      const primitive = statusPrimitive({ tone, message: `Status: ${tone}` });
+      assert.equal(primitive.tag, "output");
+      assert.equal(primitive.attributes.role, undefined);
+      assert.equal(primitive.attributes["data-tone"], tone);
+      assert.equal(primitive.attributes["aria-live"], tone === "danger" ? "assertive" : "polite");
+      assert.deepEqual(primitive.children, [`Status: ${tone}`]);
+    }
+  });
+
+  it("uses a named native section and a non-hidden semantic span", () => {
+    const surface = surfacePrimitive({ labelId: "workspace-heading" });
+    assert.equal(surface.tag, "section");
+    assert.equal(surface.attributes["aria-labelledby"], "workspace-heading");
+    assert.equal(surface.attributes.role, undefined);
+
+    const hidden = visuallyHiddenPrimitive({ text: "Current project" });
+    assert.equal(hidden.tag, "span");
+    assert.equal(hidden.attributes.class, "kernux-visually-hidden");
+    assert.equal(hidden.attributes["aria-hidden"], undefined);
+    assert.deepEqual(hidden.children, ["Current project"]);
+  });
+
+  it("freezes descriptor graphs and rejects empty text or invalid ids", () => {
+    const primitive = buttonPrimitive({ label: "Run" });
+    assert.equal(Object.isFrozen(primitive), true);
+    assert.equal(Object.isFrozen(primitive.attributes), true);
+    assert.equal(Object.isFrozen(primitive.children), true);
+    for (const create of [
+      () => buttonPrimitive({ label: " " }),
+      () => buttonPrimitive({ label: "Run", disabled: "false" as unknown as boolean }),
+      () => buttonPrimitive({ label: "Run", loading: 0 as unknown as boolean }),
+      () => statusPrimitive({ tone: "red" as "danger", message: "Failed" }),
+      () => surfacePrimitive({ labelId: "" }),
+      () => visuallyHiddenPrimitive({ text: "" }),
+    ]) {
+      assert.throws(create);
+    }
+
+    let reads = 0;
+    const hostileTone = {
+      get tone(): "danger" {
+        reads += 1;
+        return reads === 1 ? "danger" : ("__proto__" as "danger");
+      },
+      message: "Failed",
+    };
+    const captured = statusPrimitive(hostileTone);
+    assert.equal(captured.attributes["data-tone"], "danger");
+    assert.equal(reads, 1);
   });
 });
 
