@@ -1026,4 +1026,533 @@ mod tests {
             assert!(!text.contains("account"));
         }
     }
+    // ---- SG-000029 PR-C adversarial fail-closed corpus (synthetic data only). ----
+
+    const OTHER_NETWORK_URI: &str = "kernux://network/origin/https/other.example/443";
+    const RUNTIME_B: &str = "01890f3a-7b2c-7d45-8a61-3c4e5f607182";
+
+    fn runtime_uri(runtime_id: &str) -> String {
+        format!("kernux://runtime/{runtime_id}")
+    }
+
+    fn subject() -> crate::ValidatedSubjectScope {
+        crate::ValidatedSubjectScope {
+            run_id: RUN_V7.to_owned(),
+            agent_session_id: Some(SESSION_V7.to_owned()),
+        }
+    }
+
+    fn network_pair(
+        operation: &str,
+        uri: &str,
+        allowlist: Option<Vec<String>>,
+    ) -> EgressGrantBinding {
+        let capability_request = crate::ValidatedCapabilityRequest {
+            request_id: REQUEST_V7.to_owned(),
+            subject: subject(),
+            action: Action::parse(operation, &[]).unwrap(),
+            resource: crate::CanonicalResource::parse(uri).unwrap(),
+            runtime_id: RUNTIME_V7.to_owned(),
+            runtime_revision: 2,
+            constraints: crate::ValidatedConstraints::from_parts(
+                None,
+                None,
+                None,
+                None,
+                allowlist.clone(),
+            )
+            .unwrap(),
+            provenance_event_ids: vec![],
+        };
+        let grant = crate::ValidatedGrant {
+            grant_id: GRANT_V7.to_owned(),
+            subject: subject(),
+            action: Action::parse(operation, &[]).unwrap(),
+            resource: crate::CanonicalResource::parse(uri).unwrap(),
+            resource_uri: uri.to_owned(),
+            resource_scope: crate::ResourceScope::Exact,
+            runtime_id: RUNTIME_V7.to_owned(),
+            runtime_revision: 2,
+            constraints: crate::ValidatedConstraints::from_parts(
+                None,
+                None,
+                None,
+                Some(3),
+                allowlist,
+            )
+            .unwrap(),
+            consequence_ceiling: crate::ConsequenceClass::C2,
+            issuer_authority: "local-user".to_owned(),
+            policy_revision: 1,
+            issued_at: crate::CanonicalUtcSecond::parse("2026-09-23T20:00:00Z").unwrap(),
+            not_before: crate::CanonicalUtcSecond::parse("2026-09-23T20:00:00Z").unwrap(),
+            expires_at: crate::CanonicalUtcSecond::parse("2026-09-23T22:00:00Z").unwrap(),
+            max_uses: 3,
+            delegation_depth: 0,
+            parent_grant_id: None,
+        };
+        EgressGrantBinding::from_grant_and_request(
+            &grant,
+            &capability_request,
+            crate::ConsequenceClass::C1,
+            crate::CanonicalUtcSecond::parse("2026-09-23T21:00:00Z").unwrap(),
+            false,
+        )
+        .unwrap()
+    }
+
+    fn runtime_pair(runtime_id: &str) -> EgressGrantBinding {
+        let uri = runtime_uri(runtime_id);
+        let capability_request = crate::ValidatedCapabilityRequest {
+            request_id: REQUEST_V7.to_owned(),
+            subject: subject(),
+            action: Action::parse("computer.observe", &[]).unwrap(),
+            resource: crate::CanonicalResource::parse(&uri).unwrap(),
+            runtime_id: RUNTIME_V7.to_owned(),
+            runtime_revision: 2,
+            constraints: crate::ValidatedConstraints::from_parts(None, None, None, None, None)
+                .unwrap(),
+            provenance_event_ids: vec![],
+        };
+        let grant = crate::ValidatedGrant {
+            grant_id: GRANT_V7.to_owned(),
+            subject: subject(),
+            action: Action::parse("computer.observe", &[]).unwrap(),
+            resource: crate::CanonicalResource::parse(&uri).unwrap(),
+            resource_uri: uri,
+            resource_scope: crate::ResourceScope::Exact,
+            runtime_id: RUNTIME_V7.to_owned(),
+            runtime_revision: 2,
+            constraints: crate::ValidatedConstraints::from_parts(None, None, None, Some(3), None)
+                .unwrap(),
+            consequence_ceiling: crate::ConsequenceClass::C2,
+            issuer_authority: "local-user".to_owned(),
+            policy_revision: 1,
+            issued_at: crate::CanonicalUtcSecond::parse("2026-09-23T20:00:00Z").unwrap(),
+            not_before: crate::CanonicalUtcSecond::parse("2026-09-23T20:00:00Z").unwrap(),
+            expires_at: crate::CanonicalUtcSecond::parse("2026-09-23T22:00:00Z").unwrap(),
+            max_uses: 3,
+            delegation_depth: 0,
+            parent_grant_id: None,
+        };
+        EgressGrantBinding::from_grant_and_request(
+            &grant,
+            &capability_request,
+            crate::ConsequenceClass::C1,
+            crate::CanonicalUtcSecond::parse("2026-09-23T21:00:00Z").unwrap(),
+            false,
+        )
+        .unwrap()
+    }
+
+    fn runtime_request(runtime_id: &str) -> EgressRequest {
+        EgressRequest::new(
+            EgressClass::RemoteRuntime,
+            EgressDestination::Runtime(EgressRuntimeId::parse(runtime_id).unwrap()),
+            Action::parse("computer.observe", &[]).unwrap(),
+            EgressSensitivity::NonSensitive,
+        )
+        .unwrap()
+    }
+
+    fn runtime_authorized(runtime_id: &str) -> AuthoritativeEgressConstraint {
+        AuthoritativeEgressConstraint::new(
+            EgressClass::RemoteRuntime,
+            EgressDestination::Runtime(EgressRuntimeId::parse(runtime_id).unwrap()),
+            Action::parse("computer.observe", &[]).unwrap(),
+            false,
+        )
+        .unwrap()
+    }
+
+    fn host_request(class: EgressClass, host: &str, operation: &str) -> EgressRequest {
+        EgressRequest::new(
+            class,
+            EgressDestination::Host(EgressHost::parse(host).unwrap()),
+            Action::parse(operation, &[]).unwrap(),
+            EgressSensitivity::NonSensitive,
+        )
+        .unwrap()
+    }
+
+    fn host_authorized(
+        class: EgressClass,
+        host: &str,
+        operation: &str,
+    ) -> AuthoritativeEgressConstraint {
+        AuthoritativeEgressConstraint::new(
+            class,
+            EgressDestination::Host(EgressHost::parse(host).unwrap()),
+            Action::parse(operation, &[]).unwrap(),
+            false,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn unknown_inputs_fail_closed() {
+        for invalid in [
+            "NONE\n",
+            "NONE\r\n",
+            "NONE\0",
+            "\0NONE",
+            " NONE",
+            "NONE ",
+            "NonE",
+            "DIRECT_DESTINATION\t",
+            "EXTERNAL_MODEL\x7f",
+            "CONNECT\u{e9}D_ACCOUNT",
+            &"N".repeat(512),
+            "UNKNOWN_CLASS",
+            "DENY",
+            "ALLOW",
+        ] {
+            assert_eq!(
+                EgressClass::parse(invalid),
+                Err(PolicyValidationError::UnknownEgressClass),
+                "{:?}",
+                invalid,
+            );
+        }
+        for invalid in [
+            "example.com\n",
+            " example.com",
+            "example.com ",
+            "EXAMPLE.COM\n",
+            "*.example.com",
+            "example.com..org",
+            "example_com",
+            "-",
+            ".",
+            "..",
+            &"a".repeat(64),
+            &format!("{}.{}", "a".repeat(63), "b".repeat(63)),
+        ] {
+            assert!(EgressHost::parse(invalid).is_err(), "{:?}", invalid,);
+        }
+        assert!(EgressHost::parse(&"a".repeat(63)).is_ok());
+        for invalid in [
+            "not a uuid",
+            "01890f3a-7b2c-7d45-8a61-3c4e5f60718",
+            "01890f3a-7b2c-7d45-8a61-3c4e5f60718X",
+            "550e8400-e29b-41d4-a716-446655440000",
+            "01890f3a7b2c7d458a613c4e5f607182",
+            "",
+        ] {
+            assert!(EgressRuntimeId::parse(invalid).is_err(), "{:?}", invalid,);
+        }
+    }
+
+    #[test]
+    fn missing_destination_is_exhaustively_denied() {
+        let none = EgressDestination::None;
+        let host = EgressDestination::Host(EgressHost::parse("example.com").unwrap());
+        let account = EgressDestination::Account(EgressAccount::parse("account-a").unwrap());
+        let runtime = EgressDestination::Runtime(EgressRuntimeId::parse(RUNTIME_V7).unwrap());
+        let classes = [
+            EgressClass::None,
+            EgressClass::DirectDestination,
+            EgressClass::ConnectedAccount,
+            EgressClass::ExternalModel,
+            EgressClass::ExternalTool,
+            EgressClass::RemoteRuntime,
+            EgressClass::Update,
+            EgressClass::Telemetry,
+        ];
+        let destinations = [&none, &host, &account, &runtime];
+        let mut eligible = 0;
+        for class in classes {
+            for destination in destinations {
+                let binding = validate_egress_binding(class, destination);
+                let request = EgressRequest::new(
+                    class,
+                    (*destination).clone(),
+                    Action::parse("network.connect", &[]).unwrap(),
+                    EgressSensitivity::NonSensitive,
+                );
+                let authorized = AuthoritativeEgressConstraint::new(
+                    class,
+                    (*destination).clone(),
+                    Action::parse("network.connect", &[]).unwrap(),
+                    false,
+                );
+                if binding.is_ok() {
+                    eligible += 1;
+                    assert!(request.is_ok(), "{:?}", class);
+                    assert!(authorized.is_ok(), "{:?}", class);
+                } else {
+                    assert!(request.is_err(), "{:?}", class);
+                    assert!(authorized.is_err(), "{:?}", class);
+                }
+            }
+        }
+        assert_eq!(eligible, 8);
+    }
+
+    #[test]
+    fn cross_class_substitution_is_denied_at_the_same_host() {
+        let binding = grant_binding("network.connect");
+        let swaps = [
+            (EgressClass::DirectDestination, EgressClass::ExternalModel),
+            (EgressClass::ExternalModel, EgressClass::DirectDestination),
+            (EgressClass::ExternalTool, EgressClass::Update),
+            (EgressClass::Update, EgressClass::ExternalTool),
+            (EgressClass::Telemetry, EgressClass::ExternalModel),
+            (EgressClass::ExternalModel, EgressClass::Telemetry),
+            (EgressClass::Update, EgressClass::Telemetry),
+        ];
+        for (presented, authorized_class) in swaps {
+            let request = host_request(presented, "example.com", "network.connect");
+            let authorized = host_authorized(authorized_class, "example.com", "network.connect");
+            assert_eq!(
+                evaluate_egress_constraint(&binding, &request, &authorized),
+                EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch),
+                "{:?} vs {:?}",
+                presented,
+                authorized_class,
+            );
+        }
+        let account_request = EgressRequest::new(
+            EgressClass::ConnectedAccount,
+            EgressDestination::Account(EgressAccount::parse("account-a").unwrap()),
+            Action::parse("network.connect", &[]).unwrap(),
+            EgressSensitivity::NonSensitive,
+        )
+        .unwrap();
+        let tool_authorized = host_authorized(
+            EgressClass::ExternalTool,
+            "account-a.example",
+            "network.connect",
+        );
+        assert_eq!(
+            evaluate_egress_constraint(&binding, &account_request, &tool_authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch)
+        );
+        let none_request = EgressRequest::new(
+            EgressClass::None,
+            EgressDestination::None,
+            Action::parse("network.connect", &[]).unwrap(),
+            EgressSensitivity::NonSensitive,
+        )
+        .unwrap();
+        let model_authorized =
+            host_authorized(EgressClass::ExternalModel, "example.com", "network.connect");
+        assert_eq!(
+            evaluate_egress_constraint(&binding, &none_request, &model_authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch)
+        );
+    }
+
+    #[test]
+    fn grant_resource_substitution_is_denied() {
+        let other_binding = network_pair("network.connect", OTHER_NETWORK_URI, None);
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let authorized = direct_authorized("example.com", "network.connect", false);
+        assert_eq!(
+            evaluate_egress_constraint(&other_binding, &request, &authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+        let runtime_a_binding = runtime_pair(RUNTIME_V7);
+        let runtime_b_request = runtime_request(RUNTIME_B);
+        let runtime_b_authorized = runtime_authorized(RUNTIME_B);
+        assert_eq!(
+            evaluate_egress_constraint(
+                &runtime_a_binding,
+                &runtime_b_request,
+                &runtime_b_authorized
+            ),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+        let runtime_a_request = runtime_request(RUNTIME_V7);
+        let runtime_a_authorized = runtime_authorized(RUNTIME_V7);
+        assert_eq!(
+            evaluate_egress_constraint(
+                &runtime_a_binding,
+                &runtime_a_request,
+                &runtime_a_authorized
+            ),
+            EgressConstraintDecision::Eligible
+        );
+    }
+
+    #[test]
+    fn network_allowlist_substitution_is_denied() {
+        let allowlist = Some(vec!["example.com".to_owned()]);
+        let listed_binding = network_pair("network.connect", NETWORK_URI, allowlist.clone());
+        let listed_request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let listed_authorized = direct_authorized("example.com", "network.connect", false);
+        assert_eq!(
+            evaluate_egress_constraint(&listed_binding, &listed_request, &listed_authorized),
+            EgressConstraintDecision::Eligible
+        );
+        let unlisted_binding = network_pair("network.connect", OTHER_NETWORK_URI, allowlist);
+        let unlisted_request = direct_request(
+            "other.example",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let unlisted_authorized = direct_authorized("other.example", "network.connect", false);
+        assert_eq!(
+            evaluate_egress_constraint(&unlisted_binding, &unlisted_request, &unlisted_authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::DestinationMismatch)
+        );
+    }
+
+    #[test]
+    fn authorized_operation_divergence_is_denied() {
+        let binding = grant_binding("network.connect");
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let divergent_authorized = direct_authorized("example.com", "network.send", false);
+        assert_eq!(
+            evaluate_egress_constraint(&binding, &request, &divergent_authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::OperationMismatch)
+        );
+    }
+
+    #[test]
+    fn denied_requests_cannot_become_eligible_by_relabeling() {
+        let binding = grant_binding("network.connect");
+        let authorized = direct_authorized("example.com", "network.connect", false);
+        let host = EgressDestination::Host(EgressHost::parse("example.com").unwrap());
+        let account = EgressDestination::Account(EgressAccount::parse("account-a").unwrap());
+        let runtime = EgressDestination::Runtime(EgressRuntimeId::parse(RUNTIME_V7).unwrap());
+        let presented: [(EgressClass, EgressDestination); 8] = [
+            (EgressClass::None, EgressDestination::None),
+            (EgressClass::DirectDestination, host.clone()),
+            (EgressClass::ConnectedAccount, account.clone()),
+            (EgressClass::ExternalModel, host.clone()),
+            (EgressClass::ExternalTool, host.clone()),
+            (EgressClass::RemoteRuntime, runtime.clone()),
+            (EgressClass::Update, host.clone()),
+            (EgressClass::Telemetry, host.clone()),
+        ];
+        let mut eligible = 0;
+        for (class, destination) in presented {
+            for sensitivity in [
+                EgressSensitivity::NonSensitive,
+                EgressSensitivity::Sensitive,
+            ] {
+                let request = EgressRequest::new(
+                    class,
+                    destination.clone(),
+                    Action::parse("network.connect", &[]).unwrap(),
+                    sensitivity,
+                )
+                .unwrap();
+                let decision = evaluate_egress_constraint(&binding, &request, &authorized);
+                if decision == EgressConstraintDecision::Eligible {
+                    eligible += 1;
+                }
+                assert!(
+                    decision != EgressConstraintDecision::Eligible
+                        || (class == EgressClass::DirectDestination
+                            && sensitivity == EgressSensitivity::NonSensitive),
+                    "{:?} {:?}",
+                    class,
+                    sensitivity,
+                );
+            }
+        }
+        assert_eq!(eligible, 1);
+        let unknown = EgressRequest::new(
+            EgressClass::DirectDestination,
+            host,
+            Action::parse("network.connect", &[]).unwrap(),
+            EgressSensitivity::Unknown,
+        )
+        .unwrap();
+        assert_eq!(
+            evaluate_egress_constraint(&binding, &unknown, &authorized),
+            EgressConstraintDecision::Denied(EgressDenyReason::SensitivityUnknown)
+        );
+    }
+
+    #[test]
+    fn debug_renders_only_validated_metadata() {
+        assert_eq!(
+            format!("{:?}", EgressHost::parse("Example.COM").unwrap()),
+            "EgressHost(example.com)"
+        );
+        assert_eq!(
+            format!("{:?}", EgressAccount::parse("account-a").unwrap()),
+            "EgressAccount(account-a)"
+        );
+        assert_eq!(
+            format!("{:?}", EgressRuntimeId::parse(RUNTIME_V7).unwrap()),
+            format!("EgressRuntimeId({RUNTIME_V7})")
+        );
+        assert_eq!(
+            format!("{:?}", EgressDenyReason::DestinationMismatch),
+            "DestinationMismatch"
+        );
+        assert_eq!(
+            format!(
+                "{:?}",
+                EgressConstraintDecision::Denied(EgressDenyReason::ClassMismatch)
+            ),
+            "Denied(ClassMismatch)"
+        );
+        assert_eq!(
+            format!("{:?}", EgressConstraintDecision::Eligible),
+            "Eligible"
+        );
+        let request = direct_request(
+            "example.com",
+            "network.connect",
+            EgressSensitivity::NonSensitive,
+        );
+        let rendered = format!("{request:?}");
+        assert!(rendered.contains("DirectDestination"));
+        assert!(rendered.contains("example.com"));
+        assert!(rendered.contains("network.connect"));
+        for forbidden in ["secret", "password", "token", "expose", "plaintext"] {
+            assert!(!rendered.contains(forbidden), "{forbidden}");
+        }
+        let binding = grant_binding("network.connect");
+        let binding_rendered = format!("{binding:?}");
+        assert!(binding_rendered.contains(GRANT_V7));
+        for forbidden in ["secret", "password", "token", "expose", "plaintext"] {
+            assert!(!binding_rendered.contains(forbidden), "{forbidden}");
+        }
+    }
+
+    #[test]
+    fn denials_project_to_stable_audit_codes() {
+        let reasons = [
+            EgressDenyReason::GrantNotEligible,
+            EgressDenyReason::ClassMismatch,
+            EgressDenyReason::DestinationMismatch,
+            EgressDenyReason::OperationMismatch,
+            EgressDenyReason::SensitivityUnknown,
+            EgressDenyReason::SensitiveEgressDenied,
+        ];
+        let mut codes = Vec::new();
+        for reason in reasons {
+            let code = reason.as_str();
+            assert_eq!(code, reason.to_string());
+            assert!(!code.is_empty());
+            assert!(
+                code.bytes().all(|b| b.is_ascii_lowercase() || b == b'-'),
+                "{code}"
+            );
+            assert!(!codes.contains(&code), "{code}");
+            codes.push(code);
+        }
+        assert_eq!(codes.len(), 6);
+        assert!(canonical_uuid_v7(
+            grant_binding("network.connect").grant_id()
+        ));
+    }
 }
