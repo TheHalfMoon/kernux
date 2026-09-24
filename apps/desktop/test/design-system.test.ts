@@ -16,6 +16,7 @@ import {
   token,
   tokenCategories,
 } from "../../../packages/ui-system/tokens.js";
+import { KERNUX_STYLE_SHEET } from "../../../packages/ui-system/styles.js";
 import {
   STATUS_TONES,
   buttonPrimitive,
@@ -83,6 +84,15 @@ const EXPECTED_CONTRAST_PAIRS = Object.freeze([
   ["color.focusDark", "color.surfaceDark", 3],
   ["color.focusDark", "color.canvasDark", 3],
 ] as const);
+
+describe("renderer style contract", () => {
+  it("preserves focus-visible, reduced-motion, and visually-hidden behavior", () => {
+    assert.ok(/:focus-visible/u.test(KERNUX_STYLE_SHEET));
+    assert.ok(/prefers-reduced-motion: reduce/u.test(KERNUX_STYLE_SHEET));
+    assert.ok(/kernux-visually-hidden/u.test(KERNUX_STYLE_SHEET));
+    assert.ok(/--kernux-reduced-motion: 0ms;/u.test(KERNUX_STYLE_SHEET));
+  });
+});
 
 describe("canonical token authority is closed and deeply frozen", () => {
   it("has the exact frozen category surface", () => {
