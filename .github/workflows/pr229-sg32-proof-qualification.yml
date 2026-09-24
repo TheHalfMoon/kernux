@@ -122,15 +122,22 @@ jobs:
           test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
           git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
           cat /tmp/paths.txt
-          test 1 -eq $(wc -l < /tmp/paths.txt)
+          test 4 -eq $(wc -l < /tmp/paths.txt)
+          grep -qx ".specgrain/evidence/SG-000032/d30b9692e0a991ef63e6b5416d3180602a14d0df9ca79095d3fa87f8a11bd7b1.json" /tmp/paths.txt
           grep -qx "docs/evidence/P03-S01-T02.md" /tmp/paths.txt
-          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "1 file changed"
-          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "282 insertions"
-          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print s}')" = "282"
-          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print d}')" = "0"
+          grep -qx "specs/CURRENT.md" /tmp/paths.txt
+          grep -qx "specs/tasks.md" /tmp/paths.txt
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "4 files changed"
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" | grep -q "314 insertions"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print s}')" = "314"
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print d}')" = "4"
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml package.json pnpm-workspace.yaml)"
-          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/ specs/ docs/canonical/ .specgrain/ apps/)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/ apps/ docs/canonical/)"
+          grep -q "Native SG-000032 verification - PROVEN" docs/evidence/P03-S01-T02.md
+          grep -q "KX-P03-S01-T02 is PROVEN" specs/tasks.md
+          grep -q "KX-P03-S01-T02 QUALIFICATION" specs/CURRENT.md
+          test -f .specgrain/evidence/SG-000032/d30b9692e0a991ef63e6b5416d3180602a14d0df9ca79095d3fa87f8a11bd7b1.json
           test -z "$(git ls-files --others --exclude-standard)"
       - name: Verify SpecGrain state and byte-identical replay
         shell: bash
