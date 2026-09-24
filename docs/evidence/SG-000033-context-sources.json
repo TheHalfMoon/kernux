@@ -1,0 +1,102 @@
+[
+  {
+    "source_id": "live-governance",
+    "priority": 0,
+    "requirement": "required",
+    "provenance": "repo:AGENTS.md#L1-L144",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 2617,
+    "token_cost": 654,
+    "selection_reason": "Bind live precedence, bounded delivery, exact-head proof, negative evidence, and protected history."
+  },
+  {
+    "source_id": "canonical-frontier",
+    "priority": 1,
+    "requirement": "required",
+    "provenance": "repo:specs/CURRENT.md#L270-L313",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 1200,
+    "token_cost": 300,
+    "selection_reason": "Bind the live P03 frontier: S01 tasks are proven, SG-000033 is the active Grain, and S02-T01 is NEXT."
+  },
+  {
+    "source_id": "task-registry",
+    "priority": 2,
+    "requirement": "required",
+    "provenance": "repo:specs/tasks.md#L370-L430",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 1776,
+    "token_cost": 444,
+    "selection_reason": "Bind KX-P03-S02-T01 outcome, R1 risk, desktop-shell dependency, and the absence of a separate P03-S01 exit task."
+  },
+  {
+    "source_id": "sg33-grain",
+    "priority": 3,
+    "requirement": "required",
+    "provenance": "repo:.specgrain/specs/SG-000033.json",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 6217,
+    "token_cost": 1554,
+    "selection_reason": "Bind the complete frozen contract, acceptance, authorized surface, evidence, safety, recovery, and exclusions."
+  },
+  {
+    "source_id": "execution-plan",
+    "priority": 4,
+    "requirement": "required",
+    "provenance": "repo:docs/canonical/EXECUTION_MASTER_PLAN.md#L148-L201",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 2200,
+    "token_cost": 550,
+    "selection_reason": "Bind S03.2 design-system scope and keep later adaptive panes and P03 exit features out of this Grain."
+  },
+  {
+    "source_id": "ux-blueprint",
+    "priority": 5,
+    "requirement": "required",
+    "provenance": "repo:docs/canonical/UX_BLUEPRINT.md#L11-L45",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 1400,
+    "token_cost": 350,
+    "selection_reason": "Bind the existing shell regions, honest run strip, and accessibility direction while excluding later feature behavior."
+  },
+  {
+    "source_id": "architecture-authority",
+    "priority": 6,
+    "requirement": "required",
+    "provenance": "repo:docs/canonical/ARCHITECTURE.md#L76-L86,L100-L146",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 2100,
+    "token_cost": 525,
+    "selection_reason": "Bind renderer-never-authority, packages/ui-system, React 19/TypeScript, and tokenized system boundaries."
+  },
+  {
+    "source_id": "renderer-authority",
+    "priority": 7,
+    "requirement": "required",
+    "provenance": "repo:apps/desktop/src/window-config.ts#L1-L78",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 2425,
+    "token_cost": 606,
+    "selection_reason": "Bind frozen sandbox, context isolation, Node denial, and local-only CSP invariants."
+  },
+  {
+    "source_id": "renderer-and-projection",
+    "priority": 8,
+    "requirement": "required",
+    "provenance": "repo:apps/desktop/src/renderer.tsx#L1-L61;repo:apps/desktop/src/connection-projection.ts#L1-L115",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 3000,
+    "token_cost": 750,
+    "selection_reason": "Bind the pure renderer boundary and single connection authority that primitives must not duplicate."
+  },
+  {
+    "source_id": "test-and-closeout-precedent",
+    "priority": 9,
+    "requirement": "required",
+    "provenance": "repo:apps/desktop/test/shell-corpus.test.ts#L1-L123;repo:docs/evidence/P03-S01-T02.md#L338-L386",
+    "revision": "git:0e743a533111942b091f4ced4cc3100fea330538",
+    "size_bytes": 2700,
+    "token_cost": 675,
+    "selection_reason": "Bind adversarial test style plus prior exact-head, native proof, and protected closeout precedent."
+  }
+]
