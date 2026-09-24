@@ -10,7 +10,7 @@ permissions:
 
 env:
   BASE_SHA: 912bbf7af6f12d03ba94ed8faf43a5aa65934595
-  TARGET_SHA: c49c08e2b047bfcdfa2cf8e1a0d31be29d62e392
+  TARGET_SHA: 789331a14ad7202338499bc0790f2aebe141a593
   PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
   PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
   SPEC_REVISION: sha256:8680129138f08eb434e729a28136d3d6902881eaee91929c92e60b97c61d9bc8
@@ -43,8 +43,8 @@ jobs:
           git diff --shortstat "$BASE_SHA...$TARGET_SHA" > /tmp/counts.txt
           cat /tmp/counts.txt
           grep -q "1 file changed" /tmp/counts.txt
-          grep -q "529 insertions" /tmp/counts.txt
-          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print s}')" = "529"
+          grep -q "535 insertions" /tmp/counts.txt
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print s}')" = "535"
           test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print d}')" = "0"
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml)"
@@ -132,7 +132,7 @@ jobs:
           git diff --shortstat "$BASE_SHA...$TARGET_SHA" > /tmp/counts.txt
           cat /tmp/counts.txt
           grep -q "1 file changed" /tmp/counts.txt
-          grep -q "529 insertions" /tmp/counts.txt
+          grep -q "535 insertions" /tmp/counts.txt
           git diff --check "$BASE_SHA...$TARGET_SHA"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml)"
           test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- protocol/)"
