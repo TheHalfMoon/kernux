@@ -32,6 +32,7 @@ export async function checkFoundation(root, extraPaths = []) {
   const api = new API({ cwd: canonicalRoot });
   const snapshot = api.updateSnapshot({ openFiles: files.map(({ absolute }) => absolute) });
   const diagnostics = [];
+  const parsed = new Map();
   try {
     for (const entry of files) {
       const project = snapshot.getDefaultProjectForFile(entry.absolute);
@@ -39,6 +40,7 @@ export async function checkFoundation(root, extraPaths = []) {
       if (file === undefined) {
         throw new Error(`design-system-file-unreadable:${entry.path}`);
       }
+      parsed.set(entry.path, { file, program: project.program });
       for (const error of project.program.getSyntacticDiagnostics(entry.absolute)) {
         diagnostics.push({
           path: entry.path,
@@ -51,7 +53,7 @@ export async function checkFoundation(root, extraPaths = []) {
   } finally {
     api.close();
   }
-  return { canonicalRoot, files, diagnostics };
+  return { canonicalRoot, files, parsed, diagnostics };
 }
 
 export async function discoverSourceFiles(root) {
