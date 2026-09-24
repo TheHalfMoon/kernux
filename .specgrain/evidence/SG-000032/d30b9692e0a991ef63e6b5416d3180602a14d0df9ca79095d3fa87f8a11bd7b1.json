@@ -1,0 +1,255 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:d30b9692e0a991ef63e6b5416d3180602a14d0df9ca79095d3fa87f8a11bd7b1",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Canonical closeout advances only KX-P03-S01-T02 scope",
+        "detail": "Closeout PR 228 merges ledgers for T02 only; later P03 tasks stay PLANNED.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "Connection truth uses exactly the frozen nine-state vocabulary with deterministic transitions including first-attempt degraded, degraded recovery, unavailable retrigger, and disposal-terminal paths",
+        "detail": "Pure total reducer over 9x10 product; terminal absorbing; four frozen corrections proven by 17 unit tests.",
+        "evidence_ref": "github-pr:223;github-actions:35993214830",
+        "passed": true
+      },
+      {
+        "check_id": "Daemon restart or context change invalidates the stale session generation; stale callbacks are ignored",
+        "detail": "Connection/attempt/handshake generation guards; fake-clock stale-generation corpus plus live restart cycles.",
+        "evidence_ref": "github-pr:224;github-pr:226",
+        "passed": true
+      },
+      {
+        "check_id": "Duplicate reconnect triggers never create parallel loops; shutdown cancels all timers",
+        "detail": "Single timer plus single in-flight attempt; duplicate/concurrent trigger corpus; disposal clears timers and listeners.",
+        "evidence_ref": "github-pr:224;github-pr:226",
+        "passed": true
+      },
+      {
+        "check_id": "Error categories are stable and deterministic with secrets and paths excluded",
+        "detail": "Five closed categories, constant strings; Jev secret-hygiene 0.04 no; no nonce/path/request-id in projections.",
+        "evidence_ref": "github-pr:225",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+        "detail": "This verification itself; true only when the final run reports zero issues and appends the record.",
+        "evidence_ref": "specgrain:SG-000032",
+        "passed": true
+      },
+      {
+        "check_id": "No stale success is retained while reconnecting; loss projects an honest non-serving state synchronously",
+        "detail": "Live disconnect-honest phase: transient-disconnect synchronously with mayDispatch false; deterministic suites concur.",
+        "evidence_ref": "github-pr:224;github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "Real daemon reconnect round trip qualifies on the required platforms",
+        "detail": "Live round trip on linux and macos-14: handshake, loss, restore, episode reset, cycles, exhaustion, retry, dispose.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "Reconnect is bounded with frozen backoff, ceiling, budget, cancellation, and no post-disposal activity",
+        "detail": "200ms debounce, x2 backoff, 5000ms ceiling, 10-attempt budget; live budget-exhaustion and dispose-terminal phases PASS.",
+        "evidence_ref": "github-pr:224;github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "Shell projection consumes the single connection authority; renderer creates no second truth",
+        "detail": "Mechanical projectConnection mapping; additive authorityStatusText; Jev second-truth 0.05 no.",
+        "evidence_ref": "github-pr:225",
+        "passed": true
+      },
+      {
+        "check_id": "Transport connection alone never projects serving; serving requires a fresh valid handshake",
+        "detail": "No reducer event reaches serving except handshake-success-serving; controller emits it only after a fresh valid handshake on a fresh socket; live probe proves serving restoration.",
+        "evidence_ref": "github-pr:223;github-pr:224;github-actions:35997511182",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "adversarial-reconnect-corpus-pass",
+        "detail": "18-scenario corpus over the real controller plus live race phases; 79/79 on linux and macos.",
+        "evidence_ref": "github-pr:226;github-actions:35994100987;github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "bounded-reconnect-pass",
+        "detail": "Frozen bounds pinned by unit tests and proven live: debounce, backoff, ceiling, budget, exhaustion.",
+        "evidence_ref": "github-pr:224;github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Post-merge CI on the closeout merge must be 6/6 SUCCESS.",
+        "evidence_ref": "github-actions:35999502161",
+        "passed": true
+      },
+      {
+        "check_id": "connection-vocabulary-pass",
+        "detail": "Exactly nine states and ten events; frozen tables; 17 unit tests.",
+        "evidence_ref": "github-pr:223;github-actions:35993214830",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r2-proof-pass",
+        "detail": "Diffcipline R2 Verdict PASS plus run-verification on linux and macos-14 at the exact PR-E head.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "error-classification-pass",
+        "detail": "Five stable categories with deterministic mapping; 6-test projection suite.",
+        "evidence_ref": "github-pr:225;github-actions:35993848453",
+        "passed": true
+      },
+      {
+        "check_id": "full-baseline-pass",
+        "detail": "Full pnpm check PASS on linux and macos-14 at the exact PR-E head.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "handshake-integrity-pass",
+        "detail": "Serving only after fresh valid handshake; live initial-handshake and restore phases PASS.",
+        "evidence_ref": "github-pr:216-precedent;github-pr:224;github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-post-merge-ci-pass",
+        "detail": "Post-merge CI 6/6 SUCCESS on all four slice merges.",
+        "evidence_ref": "github-actions:35993465076;github-actions:35993779871;github-actions:35994034679;github-actions:35994268276",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-pr-pass",
+        "detail": "Four slices merged normally at be6cf1f, 653d942, 1c516ea, bdce872.",
+        "evidence_ref": "github-pr:223;github-pr:224;github-pr:225;github-pr:226",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "8/8 answer no over exact slice diffs (0.06,0.04,0.04,0.20,0.05,0.04,0.12,0.05); zero blocking findings.",
+        "evidence_ref": "jev:0.3.2/jev-1.13.0",
+        "passed": true
+      },
+      {
+        "check_id": "local-macos-pass",
+        "detail": "macos-14-arm64 leg: replay cmp, baseline, 79/79 tests, live reconnect, R2, OCR accounting.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "True only when this verification passes with zero issues and the record is appended.",
+        "evidence_ref": "specgrain:SG-000032",
+        "passed": true
+      },
+      {
+        "check_id": "no-parallel-loop-pass",
+        "detail": "Duplicate/concurrent trigger corpus plus live cycles with single attempt accounting.",
+        "evidence_ref": "github-pr:224;github-pr:226",
+        "passed": true
+      },
+      {
+        "check_id": "no-stale-serving-pass",
+        "detail": "Live disconnect-honest phase plus deterministic downgrade suites.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OCR 1.12.7 (85cecfe) delegate preview on linux and macos: total 1, reviewable 0, excluded 1 (unsupported_ext md), +282/-0.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-post-merge-ci-pass",
+        "detail": "Post-merge CI 6/6 SUCCESS on the packet-persistence merge 2f2c834.",
+        "evidence_ref": "github-actions:35990891134",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-pr-pass",
+        "detail": "ContextSources and WorkPacket persisted before implementation.",
+        "evidence_ref": "github-pr:222",
+        "passed": true
+      },
+      {
+        "check_id": "projection-authority-pass",
+        "detail": "Single-authority projection with mirrored dispatch table; renderer additive only.",
+        "evidence_ref": "github-pr:225;github-actions:35993848453",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Protected closeout PR with exact-head CI must be merged normally.",
+        "evidence_ref": "github-pr:228",
+        "passed": true
+      },
+      {
+        "check_id": "real-daemon-reconnect-pass",
+        "detail": "Real cargo-built kernuxd over UDS with real nonce auth on linux and macos: full lifecycle transcript PASS.",
+        "evidence_ref": "github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "reconnect-cancellation-pass",
+        "detail": "Disposal cancels timers and suppresses late callbacks; live dispose-terminal phase PASS.",
+        "evidence_ref": "github-pr:224;github-actions:35997511182",
+        "passed": true
+      },
+      {
+        "check_id": "secret-compat-pass",
+        "detail": "Constant errors, nonce hygiene, no secret/path capture in shell, bridge, client, tests, or logs.",
+        "evidence_ref": "github-pr:223;github-pr:224;github-pr:225",
+        "passed": true
+      },
+      {
+        "check_id": "stale-generation-rejection-pass",
+        "detail": "Generation-guarded async work; stale-callback corpus; live restart cycles restore serving cleanly.",
+        "evidence_ref": "github-pr:224;github-pr:226",
+        "passed": true
+      },
+      {
+        "check_id": "transition-determinism-pass",
+        "detail": "Total deterministic reducer plus adversarial transition corpus; 79/79 PASS.",
+        "evidence_ref": "github-pr:223;github-pr:226",
+        "passed": true
+      },
+      {
+        "check_id": "windows-qualification-pass",
+        "detail": "Windows kernuxd CI job SUCCESS at all four slice exact heads and post-merge tips; shell legs run on linux/macos probes per T01 precedent.",
+        "evidence_ref": "github-actions:35993214830;github-actions:35993559120;github-actions:35993848453;github-actions:35994100987",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:f8b92dadb290fdda3e7bdf2c7aeea8f7fd0aa3b7",
+    "issues": [],
+    "observed_changed_paths": [
+      ".specgrain/specs/SG-000032.json",
+      "apps/desktop/src/connection-projection.ts",
+      "apps/desktop/src/connection-state.ts",
+      "apps/desktop/src/reconnect-controller.ts",
+      "apps/desktop/src/renderer.tsx",
+      "apps/desktop/test/connection-adversarial.test.ts",
+      "apps/desktop/test/connection-harness.ts",
+      "apps/desktop/test/connection-projection.test.ts",
+      "apps/desktop/test/connection-state.test.ts",
+      "apps/desktop/test/reconnect-controller.test.ts",
+      "docs/evidence/SG-000032-context-sources.json",
+      "docs/evidence/SG-000032-work-packet.json"
+    ],
+    "packet_digest": "sha256:a8f29a55050ca0ec14a13e539daeb3784f8bfb4c49058fefee50f2ce0969c9dc",
+    "result_digest": "sha256:1323df801bbd0e586273004b740606514bbf989cb8fe93354bf762b821eaca9d",
+    "spec_id": "SG-000032",
+    "spec_revision": "sha256:b6fb682050e7f433f196c9b744232b824b4c7d8fbcfec83f4ae868363bfe0031",
+    "verification_version": 1,
+    "verified": true
+  }
+}
