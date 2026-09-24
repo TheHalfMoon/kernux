@@ -81,7 +81,7 @@ No product code or founding-donor product code has been imported yet.
 
 **P02 ENTRY AUTHORIZED:** `P02 EXIT ONLY`
 
-**NEXT CANONICAL FRONTIER:** `KX-P03-S01-T02 - Implement daemon connection/reconnect projection and honest degraded states.`
+**NEXT CANONICAL FRONTIER:** `KX-P03-S02-T01 - Establish Kernux design tokens, primitives, accessibility and design-system lint rules.`
 
 **LATEST PROVEN P02 MACRO TASK:** `KX-P02-S07-T01 — Define and implement kernel egress-class/destination policy primitives`
 
@@ -89,9 +89,9 @@ No product code or founding-donor product code has been imported yet.
 
 **P02 EXIT STATUS:** `PROVEN`
 
-**P03 ENTRY AUTHORIZED:** `KX-P03-S01-T02 ONLY`
+**P03 ENTRY AUTHORIZED:** `KX-P03-S02-T01 ONLY`
 
-**LATEST PROVEN P03 MACRO TASK:** `KX-P03-S01-T01 - Create Electron/React desktop shell with unprivileged renderer and typed preload bridge.`
+**LATEST PROVEN P03 MACRO TASK:** `KX-P03-S01-T02 - Implement daemon connection/reconnect projection and honest degraded states.`
 
 **LONG-HORIZON UNIVERSAL PLATFORM PLAN:** `PLANNED / NON-BLOCKING TO CURRENT P02 FRONTIER`
 
@@ -122,6 +122,8 @@ The canonical long-horizon expansion is defined in `docs/canonical/UNIVERSAL_PLA
 **KX-P02-S07-T01 QUALIFICATION:** `PROVEN`
 
 **KX-P03-S01-T01 QUALIFICATION:** `PROVEN`
+
+**KX-P03-S01-T02 QUALIFICATION:** `PROVEN`
 
 The identity/revision, capability/Grant, runtime-operation, Event/Evidence, generated-contract, compatibility/versioning, and adversarial-corpus tasks are PROVEN.
 
@@ -177,6 +179,8 @@ KX-P02-S07-T01 is now PROVEN through the SG-000029 packet-first path: immutable 
 P02 EXIT is now PROVEN through the SG-000030 packet-first path: immutable native record `sha256:6c7134350d40134d576788fee7a7a06f940cb3757664c6e4d8c8117dd5c2b8cb` verified the exit assessment with acceptance 7/7 and required evidence 18/18; refinement PR #208, packet persistence PR #209, exit evidence PR #210, and closeout PR #211 each passed exact-head CI 6/6, probe linux and native macOS qualification (R3, OCR, replay, focused suites), genuine Jev review, and zero blocking threads before ordinary merge with post-merge CI 6/6 throughout. P02 phase exit is PROVEN. Only KX-P03-S01-T01 is authorized as NEXT; later P03 tasks remain PLANNED.
 
 KX-P03-S01-T01 is now PROVEN through the SG-000031 packet-first path: immutable native record `sha256:2860e1a9ab8e0595ea57cbbd6e45ff480e9f926be8dfc75ba6d7f7e489244dbe` verified the exact thirteen-path shell range with acceptance 8/8 and required evidence 20/20; PR-A #215 bridge vocabulary, PR-B #216 handshake client with live daemon proof, PR-C #217 app wiring plus adversarial corpus, implementation evidence PR #218, and closeout PR #219 each passed exact-head CI 6/6, probe linux and native macOS qualification (R3, OCR, replay, shell suites, live handshake, syntax gate), genuine Jev review, and zero blocking threads before ordinary merge, with post-merge CI 6/6 throughout. Only KX-P03-S01-T02 is authorized as NEXT; later P03 tasks remain PLANNED.
+
+KX-P03-S01-T02 is now PROVEN through the SG-000032 packet-first path: immutable native record `sha256:d30b9692e0a991ef63e6b5416d3180602a14d0df9ca79095d3fa87f8a11bd7b1` verified the exact twelve-path connection range with acceptance 11/11 and required evidence 26/26; PR-A #223 lifecycle reducer, PR-B #224 reconnect controller with generation guards, PR-C #225 single-authority projection wiring, PR-D #226 adversarial corpus, implementation evidence PR #227, and closeout PR #228 each passed exact-head CI 6/6, probe linux and native macOS qualification (R2, OCR, replay, desktop suites, live real-daemon reconnect), genuine Jev review, and zero blocking threads before ordinary merge, with post-merge CI 6/6 throughout. Only KX-P03-S02-T01 is authorized as NEXT; later P03 tasks remain PLANNED.
 
 
 Proof for the current frontier includes:
