@@ -15,6 +15,14 @@ import React from "react";
 import type { DaemonStatus } from "./transport-client.js";
 import { projectConnection } from "./connection-projection.js";
 import type { ReconnectSnapshot } from "./reconnect-controller.js";
+import { motionDurationMs, KERNUX_STYLE_SHEET } from "../../../packages/ui-system/styles.js";
+
+export function rendererStyleContract(prefersReducedMotion: boolean): string {
+  return KERNUX_STYLE_SHEET.replace(
+    /--kernux-reduced-motion: [^;]+;/u,
+    `--kernux-reduced-motion: ${motionDurationMs(0, prefersReducedMotion)}ms;`,
+  );
+}
 
 /** Status line derived from the single connection authority (SG-000032). */
 export function authorityStatusText(snapshot: ReconnectSnapshot): string {

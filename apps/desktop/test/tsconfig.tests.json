@@ -10,6 +10,7 @@
     "../src/window-config.ts",
     "../../../packages/ui-system/tokens.ts",
     "../../../packages/ui-system/primitives.ts",
+    "../../../packages/ui-system/styles.ts",
     "./**/*.ts"
   ]
 }

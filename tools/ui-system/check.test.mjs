@@ -19,6 +19,10 @@ async function fixture(renderer = "export const clean = true;") {
     resolve(process.cwd(), "packages/ui-system/primitives.ts"),
     resolve(root, "packages/ui-system/primitives.ts"),
   );
+  await copyFile(
+    resolve(process.cwd(), "packages/ui-system/styles.ts"),
+    resolve(root, "packages/ui-system/styles.ts"),
+  );
   return root;
 }
 

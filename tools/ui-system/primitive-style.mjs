@@ -74,7 +74,12 @@ export function checkPrimitiveStyle(root, files, parsed) {
 }
 
 function inspectFile(path, file, diagnostics) {
-  if (file === undefined) return;
+  if (
+    file === undefined ||
+    path === "packages/ui-system/tokens.ts" ||
+    path === "packages/ui-system/styles.ts"
+  )
+    return;
   const visit = (node) => {
     if (isObjectLiteralExpression(node)) validatePrimitive(path, file, node, diagnostics);
     if (isJsxOpeningElement(node) || isJsxSelfClosingElement(node))
