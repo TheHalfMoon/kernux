@@ -1226,7 +1226,13 @@ mod tests {
             ".",
             "..",
             &"a".repeat(64),
-            &format!("{}.{}", "a".repeat(63), "b".repeat(63)),
+            &format!(
+                "{}.{}.{}.{}",
+                "a".repeat(63),
+                "b".repeat(63),
+                "c".repeat(63),
+                "d".repeat(63)
+            ),
         ] {
             assert!(EgressHost::parse(invalid).is_err(), "{:?}", invalid,);
         }
