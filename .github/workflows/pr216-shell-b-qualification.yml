@@ -1,0 +1,234 @@
+name: PR216 Shell-B Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr216-shell-b-qualification
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: ce1865606e4dc8d62c500516e63d527dc92123e7
+  TARGET_SHA: 9405b1a986c668b13c6b1aca8094e66db65d4463
+  PIN_COMMIT: 5de7d6499bb0a9e3a191fc0934399cf099d1980a
+  PIN_ARCHIVE_SHA256: da6a8c006c3a0154e76e2bf08bcae58bb86e04f06dd7a03115275b466489eef9
+  SPEC_REVISION: sha256:6709656ac1f172bfcb3f3d5445ea5b76ac937ed75f1e7ec01901200f42a375d2
+  CONTEXT_PLAN_DIGEST: sha256:d196775b4a0ca522e651e173c5722cd5c95c95e69c385247d662000950e6909f
+  PACKET_DIGEST: sha256:4b7dad47c9434c265cee589eca35a4f06723b99f21db0461ce677f380d78ee2d
+  WORKPACKET_SHA256: e70b0737c525f3d258d03ceb7f4734a7815d28fedd9e45cf76966c438d1ce3fb
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact PR-B surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          cat /tmp/paths.txt
+          test 3 -eq $(wc -l < /tmp/paths.txt)
+          grep -q "apps/desktop/src/transport-client.ts" /tmp/paths.txt
+          grep -q "apps/desktop/test/handshake.test.ts" /tmp/paths.txt
+          grep -q "apps/desktop/test/node-shim.d.ts" /tmp/paths.txt
+          git diff --shortstat "$BASE_SHA...$TARGET_SHA" > /tmp/counts.txt
+          cat /tmp/counts.txt
+          grep -q "3 files changed" /tmp/counts.txt
+          grep -q "535 insertions" /tmp/counts.txt
+          test "$(git diff --numstat "$BASE_SHA...$TARGET_SHA" | awk '{s+=$1; d+=$2} END {print d}')" = "1"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml package.json pnpm-workspace.yaml)"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- crates/ protocol/ specs/ docs/ .specgrain/)"
+          test -z "$(git ls-files --others --exclude-standard)"
+      - name: Verify SpecGrain state and byte-identical replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin | grep -q "$PIN_COMMIT"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py prove SG-000031 . --json > /tmp/sg31-prove.json || test $? -eq 1
+          grep -q 'verified.:false' /tmp/sg31-prove.json
+          python3 tools/specgrain/run.py packet SG-000031 . --context-sources docs/evidence/SG-000031-context-sources.json --json > /tmp/SG-000031-replay.json
+          cmp docs/evidence/SG-000031-work-packet.json /tmp/SG-000031-replay.json
+          echo "REPLAY_CMP_PASS"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Full baseline
+        run: pnpm check
+      - name: Desktop shell tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./node_modules/.bin/tsc --project apps/desktop/test/tsconfig.tests.json --outDir /tmp/shell-b-out
+          node --test "/tmp/shell-b-out/test/*.test.js"
+      - name: Live daemon handshake
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build -p kernuxd
+          ./node_modules/.bin/tsc apps/desktop/src/transport-client.ts --outDir /tmp/live-out --module nodenext --target es2024 --strict --skipLibCheck
+          cat > /tmp/live-out/live-client.mjs <<'EOF'
+          import net from "node:net";
+          import { probeDaemonHealth } from "./transport-client.js";
+          const socketPath = process.env.LIVE_SOCK;
+          const nonce = process.env.LIVE_NONCE;
+          const requestId = "01890f3a-7b2f-7e55-aa66-6f708192a3b5";
+          const raw = net.createConnection(socketPath);
+          const socket = {
+            write: (data) => raw.write(data, "utf8"),
+            onData: (listener) => raw.on("data", (chunk) => listener(chunk.toString("utf8"))),
+            onError: (listener) => raw.on("error", () => listener("transport-error")),
+            onClose: (listener) => raw.on("close", () => listener()),
+            destroy: () => raw.destroy(),
+          };
+          const status = await probeDaemonHealth(socket, nonce, requestId, 5000);
+          console.log(JSON.stringify(status));
+          if (status.connection !== "connected") {
+            process.exit(3);
+          }
+          EOF
+          export LIVE_NONCE
+          LIVE_NONCE="$(node --input-type=module -e "import crypto from 'node:crypto'; console.log(crypto.randomBytes(32).toString('hex'))")"
+          RUNDIR="$(mktemp -d)"
+          export LIVE_SOCK="$RUNDIR/kernuxd.sock"
+          printf 'kxb/1 unix %s %s -\n' "$LIVE_NONCE" "$(id -u)" | ./target/debug/kernuxd "$RUNDIR" &
+          DAEMON_PID=$!
+          sleep 2
+          node /tmp/live-out/live-client.mjs
+          echo "LIVE_HANDSHAKE_PASS"
+          kill "$DAEMON_PID"
+          rm -rf "$RUNDIR" /tmp/live-out
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native macOS exact surface and shell tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git diff --name-only "$BASE_SHA...$TARGET_SHA" > /tmp/paths.txt
+          test 3 -eq $(wc -l < /tmp/paths.txt)
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git diff --name-only "$BASE_SHA...$TARGET_SHA" -- Cargo.lock Cargo.toml pnpm-lock.yaml package.json)"
+          python3 tools/specgrain/run.py check .
+          python3 tools/specgrain/run.py packet SG-000031 . --context-sources docs/evidence/SG-000031-context-sources.json --json > /tmp/SG-000031-replay.json
+          cmp docs/evidence/SG-000031-work-packet.json /tmp/SG-000031-replay.json
+          echo "MACOS_REPLAY_CMP_PASS"
+          sw_vers
+          uname -m
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Desktop shell tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./node_modules/.bin/tsc --project apps/desktop/test/tsconfig.tests.json --outDir /tmp/shell-b-out
+          node --test "/tmp/shell-b-out/test/*.test.js"
+      - name: Live daemon handshake
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build -p kernuxd
+          ./node_modules/.bin/tsc apps/desktop/src/transport-client.ts --outDir /tmp/live-out --module nodenext --target es2024 --strict --skipLibCheck
+          cat > /tmp/live-out/live-client.mjs <<'EOF'
+          import net from "node:net";
+          import { probeDaemonHealth } from "./transport-client.js";
+          const socketPath = process.env.LIVE_SOCK;
+          const nonce = process.env.LIVE_NONCE;
+          const requestId = "01890f3a-7b2f-7e55-aa66-6f708192a3b5";
+          const raw = net.createConnection(socketPath);
+          const socket = {
+            write: (data) => raw.write(data, "utf8"),
+            onData: (listener) => raw.on("data", (chunk) => listener(chunk.toString("utf8"))),
+            onError: (listener) => raw.on("error", () => listener("transport-error")),
+            onClose: (listener) => raw.on("close", () => listener()),
+            destroy: () => raw.destroy(),
+          };
+          const status = await probeDaemonHealth(socket, nonce, requestId, 5000);
+          console.log(JSON.stringify(status));
+          if (status.connection !== "connected") {
+            process.exit(3);
+          }
+          EOF
+          export LIVE_NONCE
+          LIVE_NONCE="$(node --input-type=module -e "import crypto from 'node:crypto'; console.log(crypto.randomBytes(32).toString('hex'))")"
+          RUNDIR="$(mktemp -d)"
+          export LIVE_SOCK="$RUNDIR/kernuxd.sock"
+          printf 'kxb/1 unix %s %s -\n' "$LIVE_NONCE" "$(id -u)" | ./target/debug/kernuxd "$RUNDIR" &
+          DAEMON_PID=$!
+          sleep 2
+          node /tmp/live-out/live-client.mjs
+          echo "LIVE_HANDSHAKE_PASS"
+          kill "$DAEMON_PID"
+          rm -rf "$RUNDIR" /tmp/live-out
+      - name: Diffcipline R3
+        uses: TheHalfMoon/Diffcipline@5cb1c77340b75649f6168e0e8f66479ea047ea96
+        with:
+          base: ${{ env.BASE_SHA }}
+          risk: R3
+          run-verification: "true"
+      - name: Alibaba OpenCodeReview 1.12.7 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.7
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
