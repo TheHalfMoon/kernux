@@ -9,6 +9,7 @@
     "../src/bridge.ts",
     "../src/window-config.ts",
     "../../../packages/ui-system/tokens.ts",
+    "../../../packages/ui-system/primitives.ts",
     "./**/*.ts"
   ]
 }
