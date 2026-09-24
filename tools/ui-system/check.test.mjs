@@ -104,6 +104,30 @@ test("reachable re-export and directory-index authority files are inspected", as
     await rm(root, { recursive: true, force: true });
   }
 });
+test("primitive descriptor shapes, JSX semantics, and raw style bypasses fail closed", async () => {
+  const root = await fixture(`
+    export const primitive = { tag: "button", attributes: { type: "submit" }, children: [""] };
+    export const view = <button role="button" aria-invalid="true" style="padding:13px" />;
+  `);
+  try {
+    const diagnostics = await checkDesignSystem(root);
+    for (const expected of [
+      "missing-accessible-name",
+      "invalid-primitive-attribute",
+      "redundant-native-role",
+      "invalid-button-aria-invalid",
+      "raw-visual-literal",
+    ]) {
+      assert.ok(
+        diagnostics.some(({ code }) => code === expected),
+        expected,
+      );
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("malformed TypeScript reports a structural diagnostic", async () => {
   await withFixture("export const broken: = 1;", async (root) => {
     const diagnostics = await checkDesignSystem(root);

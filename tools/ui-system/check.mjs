@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 import { checkFoundation } from "./foundation.mjs";
 import { checkAuthority } from "./authority.mjs";
+import { checkPrimitiveStyle } from "./primitive-style.mjs";
 
 export async function checkDesignSystem(root, paths) {
   const extraPaths = paths ?? [];
@@ -12,6 +13,7 @@ export async function checkDesignSystem(root, paths) {
   const diagnostics = [
     ...result.diagnostics,
     ...checkAuthority(result.canonicalRoot, result.files, result.parsed),
+    ...checkPrimitiveStyle(result.canonicalRoot, result.files, result.parsed),
   ];
   return diagnostics;
 }
