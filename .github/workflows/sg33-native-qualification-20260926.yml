@@ -1,0 +1,85 @@
+name: SG33 Native Qualification 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg33-native-qualification-20260926
+
+permissions:
+  contents: read
+
+env:
+  TARGET_SHA: a0dbe92fc1eacb3cbd349c216dce9a9b2caa9ba2
+  PACKET_DIGEST: sha256:f6d73032728b8f1fe28dc086393639ed1240da32cfff15451f5a8ec82d43f646
+
+jobs:
+  desktop-native:
+    name: Desktop native (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact canonical source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify source revision and platform
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          node -e "console.log(JSON.stringify({platform:process.platform,arch:process.arch,node:process.version}))" || true
+          git status --porcelain --untracked-files=all
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify native design-system qualification
+        run: |
+          pnpm run test:ui-system
+          pnpm run check:workspace
+          pnpm run check:protocol
+          pnpm run specgrain:check
+          pnpm run typecheck
+          pnpm run format:check
+          pnpm run lint
+
+      - name: Verify frozen SG-000033 packet digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const raw = fs.readFileSync('docs/evidence/SG-000033-work-packet.json', 'utf8').replace(/^\uFEFF/, '');
+          const packet = JSON.parse(raw);
+          if (packet.packet_digest !== process.env.PACKET_DIGEST) {
+            throw new Error(`packet digest mismatch: ${packet.packet_digest}`);
+          }
+          console.log('PACKET_DIGEST_PASS', packet.packet_digest);
+          NODE
+
+      - name: Final source cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
