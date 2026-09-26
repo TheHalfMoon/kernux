@@ -1,0 +1,103 @@
+name: SG34 Authoring Retry 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg34-authoring-20260926
+
+permissions:
+  contents: write
+
+env:
+  TARGET_BRANCH: codex/sg34-refinement
+  BASE_SHA: 68ac3d1c39702e3e7875acf0ad8e11805a67cc98
+
+jobs:
+  author-retry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          path: repo
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Checkout authoring source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: probe/sg34-authoring-20260926
+          path: author-source
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Extract repaired authoring script
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('author-source/.github/workflows/sg34-authoring-20260926.yml').read_text(encoding='utf-8')
+          anchor = '      - name: Author SG-000034 through pinned SpecGrain CLI\n'
+          start = source.index(anchor)
+          marker = '        run: |\n'
+          body_start = source.index(marker, start) + len(marker)
+          body_end = source.index('\n      - name: Qualify authoring diff', body_start)
+          block = source[body_start:body_end]
+          lines = []
+          for line in block.splitlines():
+              assert line.startswith('          ') or line == '', repr(line)
+              lines.append(line[10:] if line else '')
+          script = '\n'.join(lines) + '\n'
+          bad = "print('SG34_AUTHORING_PASS', spec['revision_digest'])"
+          good = "import hashlib\nprint('SG34_AUTHORING_PASS', hashlib.sha256(Path('.specgrain/specs/SG-000034.json').read_bytes()).hexdigest())"
+          assert script.count(bad) == 1
+          script = script.replace(bad, good, 1)
+          Path('/tmp/sg34-author.sh').write_text(script, encoding='utf-8')
+          PY
+          chmod +x /tmp/sg34-author.sh
+
+      - name: Run repaired SpecGrain authoring
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          test ! -e .specgrain/specs/SG-000034.json
+          npm install --global pnpm@12.4.2
+          pnpm install --frozen-lockfile
+          bash /tmp/sg34-author.sh
+
+      - name: Qualify authoring diff
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run specgrain:check
+          pnpm run check:workspace
+          pnpm run check:protocol
+          pnpm run typecheck
+          pnpm run format:check
+          pnpm run lint
+          git diff --check
+          test "$(git status --porcelain --untracked-files=all | wc -l)" -eq 1
+          test "$(git status --porcelain --untracked-files=all | sed -E 's/^.. //')" = ".specgrain/specs/SG-000034.json"
+
+      - name: Commit and push refinement
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Kernux SpecGrain Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add .specgrain/specs/SG-000034.json
+          git commit -m "spec: shape SG-000034 adaptive pane grain"
+          git push origin HEAD:"$TARGET_BRANCH"
+          echo "SG34_HEAD=$(git rev-parse HEAD)"
