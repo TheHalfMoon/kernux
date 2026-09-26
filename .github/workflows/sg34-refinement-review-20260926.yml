@@ -1,0 +1,130 @@
+name: SG34 Refinement Review 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg34-refinement-review-20260926
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 68ac3d1c39702e3e7875acf0ad8e11805a67cc98
+  TARGET_SHA: c81b9243678d0e333fb2e36e3227c47ccec2e0e8
+
+jobs:
+  jev-and-ocr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+    steps:
+      - name: Checkout exact refinement head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact review surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA")" = ".specgrain/specs/SG-000034.json"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -n "${TYPESAFE_API_KEY:-}" || { echo "TYPESAFE_API_KEY_UNAVAILABLE"; exit 3; }
+
+      - name: Install genuine Jev CLI 0.3.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @jtsang/jev-cli@0.3.2
+          jev-cli --version
+
+      - name: Run exact-head Jev specification review
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --unified=80 "$BASE_SHA...$TARGET_SHA" -- .specgrain/specs/SG-000034.json > /tmp/state.diff
+          cat > /tmp/questions.json <<'JSON'
+          {
+            "authority_widening": {
+              "type": "boolean",
+              "instructions": "Does this exact SG-000034 refinement authorize new renderer host authority, bridge/daemon capability, filesystem/process/network/secret/egress access, or another ambient authority beyond the already proven unprivileged shell?"
+            },
+            "later_task_scope_drift": {
+              "type": "boolean",
+              "instructions": "Does this exact refinement implement or authorize KX-P03-S04-T01 or later pane contents/features instead of limiting itself to the adaptive pane framework?"
+            },
+            "layout_invariant_gap": {
+              "type": "boolean",
+              "instructions": "Does the refinement leave a material ambiguity or missing invariant around stable pane identity, tab/split/dock reducer behavior, empty-container collapse, bounded ratios, or deterministic replay that could allow divergent layout state?"
+            },
+            "persistence_fail_open_gap": {
+              "type": "boolean",
+              "instructions": "Does the refinement permit malformed, oversized, unknown-version, duplicate-ID, invalid-ratio, over-depth, over-pane-count, or structurally impossible persisted layout state to be accepted or destructively overwrite recoverable state?"
+            },
+            "task_minimality_gap": {
+              "type": "boolean",
+              "instructions": "Does the refinement allow task-driven pane opening to add unnecessary panes, close unrelated user panes, or silently replace valid user layout choices instead of adding only missing required surfaces?"
+            },
+            "keyboard_accessibility_gap": {
+              "type": "boolean",
+              "instructions": "Does the refinement omit a material keyboard/focus/accessibility requirement for tabs, focus recovery, split resizing, focus escape/traversal, or semantic tablist/tab/tabpanel/separator projection?"
+            },
+            "non_determinism_or_unboundedness": {
+              "type": "boolean",
+              "instructions": "Does the refinement leave layout serialization, mutation, docking, focus selection, size/depth/pane bounds, or split ratios materially nondeterministic or unbounded?"
+            },
+            "qualification_gap": {
+              "type": "boolean",
+              "instructions": "Does the refinement allow PROVEN status without packet-first persistence, byte-identical replay, Diffcipline R1, genuine Jev review, Alibaba OpenCodeReview accounting, native Linux/macOS/Windows qualification, zero-issue SpecGrain proof, protected closeout, and post-merge CI?"
+            }
+          }
+          JSON
+          jev-cli eval \
+            --provider jev \
+            --model jev-1.13.0 \
+            --state-file /tmp/state.diff \
+            --questions-file /tmp/questions.json \
+            --compact > /tmp/jev.json
+          cat /tmp/jev.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const data=JSON.parse(fs.readFileSync('/tmp/jev.json','utf8'));
+          const ids=[
+            'authority_widening','later_task_scope_drift','layout_invariant_gap',
+            'persistence_fail_open_gap','task_minimality_gap','keyboard_accessibility_gap',
+            'non_determinism_or_unboundedness','qualification_gap'
+          ];
+          for(const id of ids){
+            const a=data[id];
+            if(!a || a.type!=='boolean' || typeof a.probability!=='number'){
+              console.error('JEV_RESULT_MISSING_OR_INVALID',id);
+              process.exit(2);
+            }
+            console.log('JEV_DIMENSION',id,'P_TRUE',a.probability);
+            if(a.probability>=0.5){
+              console.error('JEV_BLOCKING_TRUE',id,a.probability);
+              process.exit(1);
+            }
+          }
+          console.log('JEV_8_OF_8_NO');
+          NODE
+
+      - name: Alibaba OpenCodeReview 1.12.9 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.9
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
