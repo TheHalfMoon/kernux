@@ -1,0 +1,123 @@
+name: PR239 SG33 Native Evidence Qualification
+
+on:
+  push:
+    branches:
+      - probe/pr239-sg33-native-evidence
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: a0dbe92fc1eacb3cbd349c216dce9a9b2caa9ba2
+  TARGET_SHA: 1a56fe03d921619d985e79c7e897f15ae4e8fdae
+
+jobs:
+  review-and-dry-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact evidence-only surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          paths="$(git diff --name-only "$BASE_SHA...$TARGET_SHA")"
+          printf '%s\n' "$paths"
+          test "$paths" = "docs/evidence/P03-S02-T01.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+          test -z "$(git ls-files --others --exclude-standard)"
+
+      - name: SpecGrain check and dry proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py check .
+          set +e
+          python3 tools/specgrain/run.py prove SG-000033 . --json > /tmp/sg33-prove.json
+          rc=$?
+          set -e
+          cat /tmp/sg33-prove.json
+          echo "SG33_DRY_PROOF_EXIT=$rc"
+          python3 - <<'PY'
+          import json
+          p='/tmp/sg33-prove.json'
+          d=json.load(open(p, encoding='utf-8'))
+          print('SG33_DRY_VERIFIED', d.get('verified'))
+          print('SG33_DRY_RECORD_COUNT', d.get('record_count'))
+          report=d.get('report') or d
+          print('SG33_DRY_ISSUES', json.dumps(report.get('issues', []), sort_keys=True))
+          PY
+
+      - name: Install genuine Jev CLI 0.3.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TYPESAFE_API_KEY:-}" || { echo "TYPESAFE_API_KEY_UNAVAILABLE"; exit 3; }
+          npm install --global @jtsang/jev-cli@0.3.2
+          jev-cli --version
+
+      - name: Run exact-head Jev evidence review
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --unified=80 "$BASE_SHA...$TARGET_SHA" -- docs/evidence/P03-S02-T01.md > /tmp/state.diff
+          cat > /tmp/questions.json <<'JSON'
+          {
+            "fabricated_or_overstated_evidence": {
+              "type": "boolean",
+              "instructions": "Does this exact evidence-only diff claim a qualification, platform result, review result, or project state that is not supported by the cited run IDs and preserved evidence?"
+            },
+            "scope_or_authority_drift": {
+              "type": "boolean",
+              "instructions": "Does this exact diff widen SG-000033 scope, advance task/project state, or change authority instead of only recording qualification evidence?"
+            },
+            "negative_evidence_suppression": {
+              "type": "boolean",
+              "instructions": "Does this exact diff hide, erase, or misleadingly minimize failed native qualification attempts rather than preserving them honestly?"
+            },
+            "premature_proven_claim": {
+              "type": "boolean",
+              "instructions": "Does this exact diff claim SG-000033 or KX-P03-S02-T01 is PROVEN before native SpecGrain proof and protected closeout are complete?"
+            }
+          }
+          JSON
+          jev-cli eval --provider jev --model jev-1.13.0 --state-file /tmp/state.diff --questions-file /tmp/questions.json --compact > /tmp/jev.json
+          cat /tmp/jev.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const data=JSON.parse(fs.readFileSync('/tmp/jev.json','utf8'));
+          const ids=['fabricated_or_overstated_evidence','scope_or_authority_drift','negative_evidence_suppression','premature_proven_claim'];
+          for(const id of ids){
+            const a=data[id];
+            if(!a || a.type!=='boolean' || typeof a.probability!=='number') process.exit(2);
+            console.log('JEV_DIMENSION',id,'P_TRUE',a.probability);
+            if(a.probability>=0.5) process.exit(1);
+          }
+          console.log('JEV_4_OF_4_NO');
+          NODE
+
+      - name: Alibaba OpenCodeReview 1.12.9 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.9
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
