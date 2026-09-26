@@ -34,19 +34,18 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
-          node -e "console.log(JSON.stringify({platform:process.platform,arch:process.arch,node:process.version}))" || true
           git status --porcelain --untracked-files=all
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-        with:
-          version: 12.4.2
-          run_install: false
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
+
+      - name: Install pinned pnpm
+        run: |
+          npm install --global pnpm@12.4.2
+          pnpm --version
+          node -e "console.log(JSON.stringify({platform:process.platform,arch:process.arch,node:process.version}))"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
