@@ -1,0 +1,61 @@
+name: SG33 CLI and OCR 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg33-cli-ocr-20260926
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: a0dbe92fc1eacb3cbd349c216dce9a9b2caa9ba2
+  TARGET_SHA: 1a56fe03d921619d985e79c7e897f15ae4e8fdae
+
+jobs:
+  inspect-and-account:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact evidence head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          test "$(git diff --name-only "$BASE_SHA...$TARGET_SHA")" = "docs/evidence/P03-S02-T01.md"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+
+      - name: Inspect pinned SpecGrain verification interface
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py --help
+          echo '--- verify-execution help ---'
+          python3 tools/specgrain/run.py verify-execution --help || true
+          echo '--- verify_execution help ---'
+          python3 tools/specgrain/run.py verify_execution --help || true
+          echo '--- evidence help ---'
+          python3 tools/specgrain/run.py evidence --help || true
+
+      - name: Alibaba OpenCodeReview 1.12.9 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.9
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
