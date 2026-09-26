@@ -1,0 +1,62 @@
+name: SG34 Packet Writer 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg34-packet-writer-20260926
+
+permissions:
+  contents: write
+
+env:
+  EXPECTED_BASE: 7e07035d8a29b234273fa84a496539cc685ad03e
+
+jobs:
+  write-packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout packet target
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: codex/sg34-packet
+          path: repo
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Checkout packet writer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: probe/sg34-packet-writer-20260926
+          path: writer
+          persist-credentials: false
+
+      - name: Generate packet through pinned SpecGrain
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_BASE"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          python3 --version
+          python3 ../writer/tools/probe/sg34_packet_writer.py
+          cat /tmp/sg34-packet-meta.json
+          python3 tools/specgrain/run.py check
+          python3 tools/specgrain/run.py packet SG-000034 \
+            --context-sources docs/evidence/SG-000034-context-sources.json \
+            --json > /tmp/sg34-replay.json
+          cmp /tmp/sg34-replay.json docs/evidence/SG-000034-work-packet.json
+          git diff --check
+          test "$(git status --porcelain --untracked-files=all | wc -l)" -eq 2
+
+      - name: Commit and push packet candidate
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Kernux SpecGrain Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/evidence/SG-000034-context-sources.json docs/evidence/SG-000034-work-packet.json
+          git commit -m "spec: persist SG-000034 work packet"
+          git push origin HEAD:codex/sg34-packet
+          echo "PACKET_HEAD=$(git rev-parse HEAD)"
