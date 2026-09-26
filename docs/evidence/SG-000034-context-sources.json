@@ -1,0 +1,112 @@
+[
+  {
+    "source_id": "live-governance",
+    "priority": 0,
+    "requirement": "required",
+    "provenance": "repo:AGENTS.md",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 6957,
+    "token_cost": 1740,
+    "selection_reason": "Bind precedence, bounded delivery, exact-head qualification, mandatory Jev/OCR review, negative evidence, and protected-history rules."
+  },
+  {
+    "source_id": "canonical-frontier",
+    "priority": 1,
+    "requirement": "required",
+    "provenance": "repo:specs/CURRENT.md#L70-L135",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 2552,
+    "token_cost": 638,
+    "selection_reason": "Bind the live P03 frontier: S02-T01 is PROVEN and only KX-P03-S03-T01 is authorized next."
+  },
+  {
+    "source_id": "task-registry",
+    "priority": 2,
+    "requirement": "required",
+    "provenance": "repo:specs/tasks.md#L105-L130",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 3660,
+    "token_cost": 915,
+    "selection_reason": "Bind KX-P03-S03-T01 outcome, R1 floor, proven design-system dependency, later-task exclusions, and P03 gate context."
+  },
+  {
+    "source_id": "sg34-grain",
+    "priority": 3,
+    "requirement": "required",
+    "provenance": "repo:.specgrain/specs/SG-000034.json",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 10775,
+    "token_cost": 2694,
+    "selection_reason": "Bind the complete frozen SG-000034 outcome, acceptance, limits, evidence, recovery, safety, and authorized change surface."
+  },
+  {
+    "source_id": "execution-plan",
+    "priority": 4,
+    "requirement": "required",
+    "provenance": "repo:docs/canonical/EXECUTION_MASTER_PLAN.md#L149-L190",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 1557,
+    "token_cost": 390,
+    "selection_reason": "Bind S03.3 adaptive-pane scope and keep S03.4+ feature work outside this Grain."
+  },
+  {
+    "source_id": "ux-blueprint",
+    "priority": 5,
+    "requirement": "required",
+    "provenance": "repo:docs/canonical/UX_BLUEPRINT.md#L1-L35",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 1423,
+    "token_cost": 356,
+    "selection_reason": "Bind the task-driven adaptive workspace, dock/split/tab model, minimum-surface opening, and remembered user layout choices."
+  },
+  {
+    "source_id": "architecture-authority",
+    "priority": 6,
+    "requirement": "required",
+    "provenance": "repo:docs/canonical/ARCHITECTURE.md#L76-L146",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 2696,
+    "token_cost": 674,
+    "selection_reason": "Bind renderer-never-authority and packages/ui-system boundaries while preserving desktop/daemon separation."
+  },
+  {
+    "source_id": "renderer-baseline",
+    "priority": 7,
+    "requirement": "required",
+    "provenance": "repo:apps/desktop/src/renderer.tsx",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 2599,
+    "token_cost": 650,
+    "selection_reason": "Bind the existing renderer integration surface that the workspace projection may extend without gaining host authority."
+  },
+  {
+    "source_id": "ui-primitives",
+    "priority": 8,
+    "requirement": "required",
+    "provenance": "repo:packages/ui-system/primitives.ts",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 3867,
+    "token_cost": 967,
+    "selection_reason": "Bind the proven SG-000033 primitive contract so adaptive-pane semantics reuse instead of fork the design system."
+  },
+  {
+    "source_id": "ui-styles",
+    "priority": 9,
+    "requirement": "required",
+    "provenance": "repo:packages/ui-system/styles.ts",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 1138,
+    "token_cost": 285,
+    "selection_reason": "Bind the proven tokenized styling authority and prevent ad-hoc workspace styling drift."
+  },
+  {
+    "source_id": "sg33-proof-precedent",
+    "priority": 10,
+    "requirement": "required",
+    "provenance": "repo:docs/evidence/P03-S02-T01.md#L1-L120",
+    "revision": "git:7e07035d8a29b234273fa84a496539cc685ad03e",
+    "size_bytes": 9525,
+    "token_cost": 2382,
+    "selection_reason": "Bind the immediately preceding native qualification, Jev/OCR accounting, exact-head, and proof-bearing closeout precedent."
+  }
+]
