@@ -49,9 +49,14 @@ Several similarly named sources must remain distinct in provenance and architect
 ### 3.1 Laya application
 
 - source: `aayushch/laya` / `https://laya.aay.sh`;
+- pinned planning revision: `5970a114241ee09cec09d571acf9ba52d27ae612`;
+- founder states Kernux has permission to copy, modify, and use Laya source code;
 - role: local-first event ingestion, cross-application action staging, action-card UX, workspaces, rules, briefings, hybrid search, budget visibility, dead-event recovery, and approval-oriented egress;
-- public license observed during planning: Apache-2.0;
-- architecture: local n8n event normalization -> Python engine -> Tauri/Svelte action-card UI -> approved egress.
+- public license observed during planning: Apache-2.0, with an upstream `NOTICE` file;
+- architecture: local n8n event normalization -> Python engine -> Tauri/Svelte action-card UI -> approved egress;
+- implementation-ready mapping: `docs/canonical/platform-fabrics/LAYA_SOURCE_ARCHITECTURE.md`.
+
+Laya's dependencies and hosted/provider boundaries remain independently governed. n8n is not admitted merely because Laya uses it and must not become a mandatory Kernux runtime.
 
 This source is **not** the same project as the `convaiinnovations/laya` model family.
 
