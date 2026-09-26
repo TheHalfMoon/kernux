@@ -57,6 +57,14 @@ jobs:
           print('CONTEXT_SOURCE_COUNT', len(packet['context_sources']))
           PY
 
+      - name: Alibaba OpenCodeReview 1.12.9 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.9
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
       - name: Install genuine Jev CLI 0.3.2
         shell: bash
         run: |
@@ -134,15 +142,8 @@ jobs:
           console.log('JEV_8_OF_8_NO');
           NODE
 
-      - name: Alibaba OpenCodeReview 1.12.9 accounting
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --global @alibaba-group/open-code-review@1.12.9
-          ocr --version
-          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
-
       - name: Final cleanliness
+        if: ${{ always() }}
         shell: bash
         run: |
           set -euo pipefail
