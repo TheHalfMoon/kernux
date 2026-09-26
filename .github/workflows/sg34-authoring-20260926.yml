@@ -1,0 +1,196 @@
+name: SG34 Authoring 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg34-authoring-20260926
+
+permissions:
+  contents: write
+
+env:
+  TARGET_BRANCH: codex/sg34-refinement
+  BASE_SHA: 68ac3d1c39702e3e7875acf0ad8e11805a67cc98
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Assert exact canonical authoring base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BASE_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          test ! -e .specgrain/specs/SG-000034.json
+
+      - name: Set up Node.js and pnpm
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Install pinned pnpm
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global pnpm@12.4.2
+          pnpm --version
+          pnpm install --frozen-lockfile
+
+      - name: Author SG-000034 through pinned SpecGrain CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py --show-pin
+          python3 tools/specgrain/run.py draft . \
+            --title "KX-P03-S03-T01 - Adaptive pane framework" \
+            --outcome "Implement a deterministic renderer-safe adaptive workspace layout model with tabs, splits, docking, versioned persistence, task-driven minimal pane opening, and keyboard-first navigation without widening renderer authority or implementing later pane content." \
+            --rationale "Fresh canonical main proves KX-P03-S02-T01 and authorizes only KX-P03-S03-T01. The canonical execution plan and UX blueprint require dock/split/tab primitives, remembered user layout choices, task-driven minimum surfaces, and keyboard-first accessibility over the proven unprivileged renderer. This Grain freezes that bounded framework while keeping KX-P03-S04-T01 and later pane features out of scope." \
+            --json > /tmp/sg34-draft.json
+          python3 - <<'PY'
+          import json
+          payload = json.load(open('/tmp/sg34-draft.json', encoding='utf-8'))
+          assert payload['spec_id'] == 'SG-000034', payload
+          assert payload['state'] == 'DRAFT', payload
+          print('DRAFT_PASS', payload['spec_id'], payload['revision_digest'])
+          PY
+
+          python3 tools/specgrain/run.py shape SG-000034 . \
+            --scope-in "Define a closed immutable WorkspaceLayout v1 tree with stable node and pane identifiers, tab-group and split nodes, and the canonical pane-kind vocabulary Agent, Browser, Computer, Terminal, Files, Diff, Artifact, Data, and Timeline; reject duplicate identifiers and structurally invalid trees." \
+            --scope-in "Freeze deterministic bounded layout limits: at most 64 panes, tree depth at most 16, canonical serialized layout at most 65536 UTF-8 bytes, split ratios represented as integer basis points from 1000 through 9000, default 5000, and keyboard resize step 500." \
+            --scope-in "Implement deterministic reducer operations for open, activate, close, move, tab, split, dock, and resize; center docking joins a tab group, edge docking creates a split, pane identity remains unique, empty containers collapse deterministically, and identical input plus operation sequences produce identical state." \
+            --scope-in "Implement task-driven pane opening that adds only missing required pane kinds, does not silently close unrelated user panes, preserves user arrangement and active selection where valid, and selects a deterministic focus target when a pane is added, moved, or closed." \
+            --scope-in "Implement WorkspaceLayout persistence as canonical version-1 JSON with deterministic serialization and a renderer-safe injected storage adapter; round trips preserve user choices, while malformed JSON, unknown versions/kinds, duplicate identifiers, invalid ratios, excess size/depth/pane counts, and structurally impossible layouts fail closed without overwriting the last recoverable bytes." \
+            --scope-in "Implement keyboard-first workspace navigation: roving tab focus with Arrow/Home/End behavior, deterministic activation and focus recovery after close/move, keyboard split resizing with orientation-aware arrows and frozen bounds, and traversal that cannot trap focus inside the workspace." \
+            --scope-in "Expose semantic workspace projection descriptors for tablist/tab/tabpanel and split separator behavior with selected/control/orientation/value metadata; status or focus meaning must never depend on color alone and the proven design-system focus/reduced-motion contract remains authoritative." \
+            --scope-in "Integrate only enough of the adaptive workspace into apps/desktop/src/renderer.tsx to prove the framework against the existing pure renderer; preserve the single daemon connection authority and leave project rail, command-bar behavior, onboarding/empty states, run-strip feature work, and real pane contents to their later canonical tasks." \
+            --scope-in "Add deterministic unit/adversarial coverage for reducer invariants, docking/move/close edge cases, canonical persistence round trips and hostile inputs, task-driven minimal opening, keyboard navigation/focus recovery, accessibility descriptors, and renderer authority preservation." \
+            --scope-in "Persist fresh canonical ContextSources and a pinned WorkPacket before implementation, require byte-identical packet replay, exact-head CI, Diffcipline R1, genuine Jev review, Alibaba OpenCodeReview accounting, native Linux/macOS/Windows desktop qualification, native SpecGrain proof, and protected closeout before PROVEN." \
+            --scope-out "No implementation of Agent, Browser, Computer, Terminal, Files, Diff, Artifact, Data, or Timeline pane feature contents; this Grain provides only the workspace framework and typed pane identity/projection needed to host them later." \
+            --scope-out "No KX-P03-S04-T01 behavior: no project management/rail implementation, command execution behavior, onboarding or empty-state journeys, run-strip feature expansion, or task proposal UX." \
+            --scope-out "No operating-system floating windows, multi-window detachment, cross-device layout sync, collaborative layout state, cloud persistence, provider-specific UI, or mobile/web workspace implementation." \
+            --scope-out "No new daemon/kernel capability, bridge channel, arbitrary filesystem/process/network authority, Electron/Node ambient renderer access, secret handling, egress change, or alteration of the proven connection/reconnect authority." \
+            --scope-out "No new npm dependency, component framework, donor source import, packaging/signing/updater work, release artifact, or later P03/P04 feature implementation." \
+            --acceptance "WorkspaceLayout v1 is closed, deterministic, immutable-by-contract, uses stable unique identifiers and the frozen pane-kind vocabulary, enforces 64-pane/16-depth/65536-byte bounds, and validates split basis-point ratios in the frozen 1000..9000 range." \
+            --acceptance "Reducer operations for open, activate, close, move, tab, split, dock and resize preserve unique pane identity, non-empty reachable tab groups, valid ratios and deterministic empty-container collapse; identical inputs and operations serialize identically." \
+            --acceptance "Center and edge docking are deterministic, never duplicate or lose a moved pane, preserve unaffected layout branches, and select a valid active/focus target after move or close." \
+            --acceptance "Task-driven opening adds only missing required pane kinds, preserves unrelated user panes and valid user layout choices, and opens the minimum additional surfaces needed for the declared requirement set." \
+            --acceptance "Version-1 persistence round trips to canonical stable bytes through an injected renderer-safe storage contract and fails closed on malformed, unknown-version, duplicate-ID, unknown-kind, oversized, over-depth, over-pane-count, invalid-ratio, or impossible-tree input without overwriting recoverable saved bytes." \
+            --acceptance "Keyboard navigation provides roving tab focus, Arrow/Home/End tab movement, deterministic activation and focus recovery, orientation-aware split resizing in frozen 500-basis-point steps, and an escape/traversal path that prevents workspace focus traps." \
+            --acceptance "Workspace accessibility projection exposes coherent tablist/tab/tabpanel and separator semantics including selected/control/orientation/value metadata, while focus and status meaning remain non-color-only and reuse the proven design-system contract." \
+            --acceptance "Renderer integration remains pure and unprivileged, does not widen preload/bridge/daemon authority, preserves the single connection projection, and does not implement KX-P03-S04-T01 or real later pane contents." \
+            --acceptance "Native Linux, macOS and Windows qualification passes the focused workspace corpus plus the existing desktop/workspace/protocol/SpecGrain/typecheck/format/lint baseline on the exact implementation revision." \
+            --acceptance "Native SpecGrain verification binds the frozen WorkPacket to observed evidence with zero issues before any PROVEN transition." \
+            --acceptance "Canonical closeout advances only KX-P03-S03-T01 and leaves KX-P03-S04-T01 and all later work unproven until their own authorized Grains." \
+            --risk-level medium \
+            --recovery "Revert the bounded workspace-layout, keyboard, persistence, renderer integration, tests, evidence and frontier changes; retain the proven SG-000033 design-system state and keep KX-P03-S03-T01 as NEXT. No daemon, host, secret, external side effect or irreversible user data migration is created by this Grain." \
+            --context-budget 18000 \
+            --context-estimate 14500 \
+            --change-surface ".specgrain/specs/SG-000034.json" \
+            --change-surface "docs/evidence/SG-000034-context-sources.json" \
+            --change-surface "docs/evidence/SG-000034-work-packet.json" \
+            --change-surface "docs/evidence/P03-S03-T01.md" \
+            --change-surface "apps/desktop/src/workspace-layout.ts" \
+            --change-surface "apps/desktop/src/workspace-keyboard.ts" \
+            --change-surface "apps/desktop/src/workspace-persistence.ts" \
+            --change-surface "apps/desktop/src/renderer.tsx" \
+            --change-surface "apps/desktop/test/workspace-layout.test.ts" \
+            --change-surface "apps/desktop/test/workspace-keyboard.test.ts" \
+            --change-surface "apps/desktop/test/tsconfig.tests.json" \
+            --change-surface "packages/ui-system/primitives.ts" \
+            --change-surface "packages/ui-system/styles.ts" \
+            --change-surface "package.json" \
+            --change-surface ".specgrain/evidence/SG-000034" \
+            --change-surface "specs/CURRENT.md" \
+            --change-surface "specs/tasks.md" \
+            --evidence "layout-model-pass" \
+            --evidence "layout-reducer-pass" \
+            --evidence "docking-pass" \
+            --evidence "task-driven-opening-pass" \
+            --evidence "layout-persistence-roundtrip-pass" \
+            --evidence "layout-persistence-hostile-pass" \
+            --evidence "keyboard-navigation-pass" \
+            --evidence "accessibility-semantics-pass" \
+            --evidence "renderer-authority-preservation-pass" \
+            --evidence "workpacket-durable-recovery-pass" \
+            --evidence "packet-persistence-pr-pass" \
+            --evidence "packet-persistence-post-merge-ci-pass" \
+            --evidence "full-baseline-pass" \
+            --evidence "linux-desktop-qualification-pass" \
+            --evidence "windows-desktop-qualification-pass" \
+            --evidence "macos-desktop-qualification-pass" \
+            --evidence "diffcipline-r1-proof-pass" \
+            --evidence "jev-review-pass" \
+            --evidence "open-code-review-accounting-pass" \
+            --evidence "implementation-pr-pass" \
+            --evidence "implementation-post-merge-ci-pass" \
+            --evidence "native-specgrain-verification-pass" \
+            --evidence "protected-closeout-pr-pass" \
+            --evidence "closeout-post-merge-ci-pass" \
+            --minimality-choice new-code \
+            --minimality-rationale "The canonical S03.3 task requires a new adaptive workspace layout layer that does not yet exist. Reuse the proven React/TypeScript shell and ui-system with repository-native tests and no new runtime dependency; implement only the missing pane model, persistence and keyboard framework." \
+            --safety-status requirements-defined \
+            --safety-requirement "The renderer remains unprivileged: workspace state and persistence adapters cannot widen preload, daemon, filesystem, process, network, secret or egress authority." \
+            --safety-requirement "Persisted layout bytes are untrusted input and must be strictly bounded, versioned and validated before use; invalid input fails closed without destructive overwrite." \
+            --safety-requirement "Keyboard and accessibility behavior is structural and deterministic, including focus recovery after mutations and no focus trap or color-only state meaning." \
+            --json > /tmp/sg34-shaped.json
+
+          python3 tools/specgrain/run.py refine SG-000034 . --json > /tmp/sg34-refining.json
+          python3 tools/specgrain/run.py grain SG-000034 . --json > /tmp/sg34-grain.json
+          python3 tools/specgrain/run.py check . --json > /tmp/sg34-check.json
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for path, expected in [
+              ('/tmp/sg34-shaped.json', 'SHAPED'),
+              ('/tmp/sg34-refining.json', 'REFINING'),
+              ('/tmp/sg34-grain.json', 'GRAIN'),
+          ]:
+              payload = json.load(open(path, encoding='utf-8'))
+              assert payload['spec_id'] == 'SG-000034', payload
+              assert payload['state'] == expected, payload
+          check = json.load(open('/tmp/sg34-check.json', encoding='utf-8'))
+          assert check['valid'] is True, check
+          spec = json.loads(Path('.specgrain/specs/SG-000034.json').read_text(encoding='utf-8'))
+          assert spec['id'] == 'SG-000034'
+          assert spec['state'] == 'GRAIN'
+          assert spec['risk']['level'] == 'medium'
+          assert spec['dependencies'] == []
+          assert len(spec['acceptance']) == 11
+          assert len(spec['evidence']['required']) == 24
+          print('SG34_AUTHORING_PASS', spec['revision_digest'])
+          PY
+
+      - name: Qualify authoring diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run specgrain:check
+          pnpm run check:workspace
+          pnpm run check:protocol
+          pnpm run typecheck
+          pnpm run format:check
+          pnpm run lint
+          git diff --check
+          test "$(git status --porcelain --untracked-files=all | wc -l)" -eq 1
+          test "$(git status --porcelain --untracked-files=all | sed -E 's/^.. //')" = ".specgrain/specs/SG-000034.json"
+
+      - name: Commit and push refinement
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Kernux SpecGrain Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add .specgrain/specs/SG-000034.json
+          git commit -m "spec: shape SG-000034 adaptive pane grain"
+          git push origin HEAD:"$TARGET_BRANCH"
+          echo "SG34_HEAD=$(git rev-parse HEAD)"
