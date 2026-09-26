@@ -129,6 +129,38 @@ High-value areas:
 
 Important constraint: upstream explicitly describes guardrails as **not a sandbox**. Kernux must not inherit an MCP server's local permission model as the system security boundary. Privileged operations go through `kernuxd` and the Kernux capability policy.
 
+## Additional donor/reference — Open Computer Use
+
+- Repository: `opensymph/open-computer-use`
+- Planning revision inspected: `5b433b98019c18201a15d11e8c3cb0010879a3d8`
+- License observed at that revision: MIT
+- Role in Kernux: **native computer-use/platform-adapter donor and reference**
+- Canonical integration plan: `docs/canonical/OPEN_COMPUTER_USE_INTEGRATION_PLAN.md`
+
+High-value areas:
+
+- cross-platform accessibility-tree observation;
+- app/window discovery and revision-bound targeting patterns;
+- accessibility-first click/set-value/secondary-action behavior;
+- background/non-intrusive action strategies;
+- screenshot and coordinate fallback mechanics;
+- Windows UI Automation + Win32 implementation lessons;
+- macOS Accessibility/ScreenCapture permission and app-identity lessons;
+- Linux AT-SPI2/D-Bus implementation lessons;
+- deterministic fixture/smoke-test patterns;
+- platform permission/degraded-state handling;
+- bounded snapshot/tree budgets and action timeouts.
+
+Import constraints:
+
+- raw donor MCP is never Kernux's privileged boundary;
+- donor environment-variable gates do not replace Kernux Grants/policy;
+- private macOS/SkyLight techniques are reference-only unless separately authorized and qualified;
+- `THIRD_PARTY_NOTICES.md` must be reviewed per import wave, including Cua/yabai-derived portions;
+- the donor cursor image is excluded by default because upstream identifies it as extracted from an official Codex bundle; do not assume the repository MIT license grants redistribution of that separately sourced asset;
+- recording/polish features are not part of the initial computer-use import;
+- prefer ported/adapted behavior behind Kernux-owned contracts over wholesale runtime embedding.
+
 ## Methodology sources — not product donors by default
 
 ### SpecGrain
@@ -216,6 +248,8 @@ The pinned planning revisions are not permanent forks. Before each import wave:
 | Browser shell | Orca | browser capability contract |
 | Semantic web extraction | TinyFish/AgentQL | provider adapter |
 | Host filesystem/process | Desktop Commander | `kernuxd` policy enforcement |
+| Native app/window/accessibility automation | Open Computer Use + platform APIs | Kernux ComputerUse contract + `kernuxd` Grants |
+| Computer-use visual/input fallback | Open Computer Use reference + Kernux adapters | explicit method ceiling + evidence + human takeover |
 | Documents/data | Desktop Commander | capability + artifact model |
 | Remote machine execution | Orca + Desktop Commander | Kernux identity/protocol |
 | Mobile steering | Orca | Kernux approval/task model |

@@ -31,6 +31,15 @@ The active implementation frontier remains governed by `specs/CURRENT.md`, SpecG
    - anti-gap admission checklist;
    - planning exit criteria.
 
+3. [Open Computer Use Integration Plan](OPEN_COMPUTER_USE_INTEGRATION_PLAN.md)
+   - Kernux-owned ComputerUse contract;
+   - Open Computer Use donor/source disposition;
+   - accessibility-first platform adapters;
+   - revision-bound targets and action-method ceilings;
+   - sensitive-target, screenshot, secret and egress boundaries;
+   - macOS/Windows/Linux qualification including truthful X11/Wayland limits;
+   - deterministic fixtures, evidence and import waves.
+
 ## Local privacy and economics
 
 All fabrics and providers inherit:

@@ -15,6 +15,7 @@ The audit is intentionally conservative. A capability is considered covered only
 - `stablyai/orca` at planning revision recorded in `DONOR_PROVENANCE.md`;
 - TinyFish / public `tinyfish-io/agentql` reference plus founder-authorized source;
 - `wonderwhy-er/DesktopCommanderMCP` at planning revision recorded in `DONOR_PROVENANCE.md`.
+- `opensymph/open-computer-use` at planning revision recorded in `DONOR_PROVENANCE.md` as an additional native computer-use donor/reference.
 
 ### Kernux canonical plans
 
@@ -87,6 +88,24 @@ Protocol-dependent implementation must reverify this truth again at execution ti
 | Audit history | STRONGER KERNUX MODEL | P02/P09 event/evidence model |
 | Docker isolation | COVERED | P10, explicitly not equivalent to universal sandboxing |
 | Safety guardrails | REPLACED BY STRONGER MODEL | kernel-enforced capability policy |
+
+### Open Computer Use-derived capability families
+
+| Capability family | Kernux coverage | Notes |
+| --- | --- | --- |
+| Cross-platform app/window observation | ADDED/CLARIFIED | P04-S06-T01/T03 |
+| Accessibility-first semantic actions | ADDED/CLARIFIED | P04 ComputerUse contract |
+| Background/non-intrusive input | ADDED/CLARIFIED | method ceiling + P04-S06-T04 |
+| Screenshot/visual fallback | COVERED | P04 observation + P06-S05-T01 |
+| Stable action targeting | STRONGER KERNUX MODEL | revision-bound ElementRef + identity revalidation |
+| Global keyboard/mouse fallback | STRONGER KERNUX MODEL | explicit capability; never silent escalation |
+| Password/protected UI handling | STRONGER KERNUX MODEL | policy classifier + redaction, not only a static denylist |
+| Permission lifecycle | ADDED/CLARIFIED | native OS qualification + truthful degraded state |
+| Fixture/smoke testing | ADOPTED AS PATTERN | Kernux-owned deterministic fixtures |
+| Raw MCP authority | REJECTED | privileged path stays behind kernuxd |
+| Private macOS API behavior | REFERENCE ONLY | not baseline authority |
+| Linux desktop parity | QUALIFIED, NOT ASSUMED | explicit X11/Wayland capability reporting |
+| Donor cursor/branding assets | EXCLUDED BY DEFAULT | separate-source rights must be independently established |
 
 ## 4. Product-level gaps found and closed
 
@@ -387,6 +406,14 @@ The second pass identified the following additional gap families.
 **Risk if absent:** feature breadth could grow faster than evidence, SLOs, extension governance and provider-failure resilience.
 
 **Closure:** U12-U14, P20, X13 and existing P15/P11 governance establish signed extensions, benchmark/regression coverage, SLO/chaos qualification, reproducible comparison rules and provider-loss journeys.
+
+### G17 — Native computer-use authority and cross-platform safety
+
+**Risk if absent:** adding a capable desktop-automation donor could accidentally make raw MCP, process-local environment gates, stale accessibility indices, coordinate fallbacks or platform-specific private APIs into de facto authority. Linux/X11 behavior could also be overgeneralized into false Wayland support, and screenshots/accessibility text could bypass the egress/privacy model.
+
+**Closure:** `OPEN_COMPUTER_USE_INTEGRATION_PLAN.md` plus P04-S06-T01/T03/T04 define a Kernux-owned ComputerUse contract, revision-bound targets, granular capability scopes, explicit action-method ceilings, protected-content handling, local-observation versus external-egress separation, deterministic fixtures and native macOS/Windows/Linux qualification. P06-S05-T01 consumes this qualified abstraction rather than importing a second desktop-control stack.
+
+**Required before the P04 computer surface is proven:** provenance/notice capture, stale-target and identity-substitution denial, protected-content redaction, no silent input escalation, explicit global-input capability, native platform fixtures, truthful X11/Wayland limitations, screenshot/secret/egress compatibility and evidence-bound actions.
 
 ### Second-pass conclusion
 

@@ -133,13 +133,15 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P04-S03-T01 | PLANNED | R3 | Implement cross-platform PTY session lifecycle, streaming, writes, stable session IDs and scrollback artifacts. | process layer |
 | KX-P04-S04-T01 | PLANNED | R2 | Implement process enumerate/inspect/terminate adapters on macOS/Windows/Linux without unsafe shell shortcuts. | process layer |
 | KX-P04-S05-T01 | PLANNED | R2 | Import/adapt bounded Desktop Commander document/data primitives behind Kernux contracts with provenance. | provenance + files |
-| KX-P04-S06-T01 | PLANNED | R3 | Define/implement structured host app/window/clipboard/notification/accessibility capability subset. | policy + platform adapters |
-| KX-P04-S06-T02 | PLANNED | R3 | Build host-boundary adversarial suite: path escape, argv injection, destructive action, output exhaustion. | local runtime |
+| KX-P04-S06-T01 | PLANNED | R3 | Define/implement the Kernux ComputerUse contract and structured host app/window/clipboard/notification/accessibility capability subset with revision-bound targets and explicit action-method ceilings. | policy + platform adapters |
+| KX-P04-S06-T02 | PLANNED | R3 | Build host-boundary adversarial suite: path escape, argv injection, destructive action, stale window/element substitution, protected-content leakage, silent input escalation and output exhaustion. | local runtime + structured host capability |
+| KX-P04-S06-T03 | PLANNED | R3 | Characterize and import/port bounded Open Computer Use app/window/accessibility/screenshot/action primitives behind Kernux contracts with exact provenance; raw donor MCP, private macOS APIs and separately sourced assets remain non-authoritative/excluded. | KX-P04-S06-T01 + provenance + P02 egress |
+| KX-P04-S06-T04 | PLANNED | R3 | Qualify ComputerUse across macOS/Windows/Linux with deterministic fixtures: permissions, stale-target identity, background/focus behavior, coordinate transforms, protected-content redaction, explicit global-input capability, timeouts/recovery and truthful X11/Wayland limitations. | KX-P04-S06-T03 + hidden/headless desktop qualification |
 
 | KX-P04-S07-T01 | PLANNED | R3 | Define and qualify protection-at-rest for Kernux-managed sensitive local content, key ownership, backup/restore/migration and no-plaintext-key invariants. | P02 secrets + metadata/artifacts |
 | KX-P04-S07-T02 | PLANNED | R3 | Prove a no-network local files/process/PTY execution fixture and truthful host-mode network limitations. | local runtime + P02 egress |
 
-**P04 gate:** project-scoped host work proven on all desktop OS families; long-running sessions survive renderer restart; donor import characterized; Kernux-managed sensitive local content has a qualified protection-at-rest strategy and local execution can be proven without non-loopback network.
+**P04 gate:** project-scoped host work proven on all desktop OS families; long-running sessions survive renderer restart; donor imports are characterized with provenance; ComputerUse is accessibility-first, revision-bound, policy-gated, redaction-safe and qualified without silent escalation or false platform parity; Kernux-managed sensitive local content has a qualified protection-at-rest strategy and local execution can be proven without non-loopback network.
 
 ---
 
@@ -175,7 +177,7 @@ Risk is the minimum Diffcipline-style profile; refinement may raise it.
 | KX-P06-S02-T01 | PLANNED | R2 | Implement deterministic CDP/Playwright navigate/observe/act/wait/extract/trace contract. | browser contexts |
 | KX-P06-S03-T01 | PLANNED | R3 | Implement negotiated WebMCP discovery/invocation with schema/provenance/policy validation. | browser contract |
 | KX-P06-S04-T01 | PLANNED | R2 | Import/adapt AgentQL/TinyFish semantic targeting/extraction behind Kernux browser provider API. | provenance + deterministic browser |
-| KX-P06-S05-T01 | PLANNED | R3 | Implement screenshot/vision + input fallback and human takeover state. | browser/computer abstractions |
+| KX-P06-S05-T01 | PLANNED | R3 | Implement screenshot/vision + input fallback and human takeover state by consuming the qualified P04 ComputerUse abstraction; structured WebMCP/CDP/semantic paths remain preferred and stronger input methods never activate silently. | browser/computer abstractions |
 | KX-P06-S06-T01 | PLANNED | R2 | Capture browser evidence: origin, action method, observation, screenshot/artifact and lineage. | all browser paths |
 | KX-P06-S06-T02 | PLANNED | R3 | Build malicious page/WebMCP/tool-output injection and cross-project auth leakage suite. | browser runtime |
 | KX-P06-S06-T03 | PLANNED | R2 | Prove research/extraction golden journey with inspectable source provenance. | browser evidence |
