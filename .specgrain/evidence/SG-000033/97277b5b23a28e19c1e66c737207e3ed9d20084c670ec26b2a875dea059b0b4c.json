@@ -1,0 +1,222 @@
+{
+  "previous_record_digest": null,
+  "record_digest": "sha256:97277b5b23a28e19c1e66c737207e3ed9d20084c670ec26b2a875dea059b0b4c",
+  "record_version": 1,
+  "report": {
+    "acceptance_checks": [
+      {
+        "check_id": "Canonical closeout advances only KX-P03-S02-T01 scope",
+        "detail": "Protected closeout PR #240 and this proof transition only KX-P03-S02-T01; later P03 tasks remain PLANNED.",
+        "evidence_ref": "repo:specs/CURRENT.md;repo:specs/tasks.md",
+        "passed": true
+      },
+      {
+        "check_id": "Existing connection projection and frozen unprivileged shell semantics remain unchanged and tests cover hostile token and primitive inputs",
+        "detail": "Renderer authority remained additive and the native corpus passed hostile token/primitive inputs on Linux, macOS, and Windows.",
+        "evidence_ref": "github-pr:237;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "Focus treatment is always visible for keyboard use, bypasses mouse styling, respects reduced motion, and uses scalable typography",
+        "detail": "The renderer accessibility style contract and native UI-system corpus establish focus-visible, reduced-motion, and scalable typography behavior.",
+        "evidence_ref": "github-pr:237;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+        "detail": "This verification itself; all nine acceptance checks and all twenty-two required evidence checks pass with zero issues before append.",
+        "evidence_ref": "specgrain:SG-000033",
+        "passed": true
+      },
+      {
+        "check_id": "One canonical renderer-safe token source defines the closed foundation and exposes no host capability or secret-bearing data",
+        "detail": "The canonical token authority is renderer-safe, closed, deterministic, and contains no host capability or secret-bearing data.",
+        "evidence_ref": "github-pr:232;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "Primitives preserve native semantic HTML and accessible names; interactive status and buttons support keyboard, disabled, loading, and error semantics without redundant roles",
+        "detail": "Semantic primitive tests establish native elements, accessible names, keyboard use, and deterministic disabled/loading/error/status semantics.",
+        "evidence_ref": "github-pr:233;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "Raw color, spacing, radius, typography, and motion literals are rejected outside the canonical token source except documented structural data",
+        "detail": "Fail-closed conformance rejects raw design literals outside the canonical authority while retaining only documented structural exceptions.",
+        "evidence_ref": "github-pr:235;github-pr:236;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "Semantic color pairs meet frozen machine-checked WCAG AA contrast thresholds and never encode status by color alone",
+        "detail": "Machine-checked semantic pairs meet frozen WCAG AA thresholds and status primitives retain non-color text semantics.",
+        "evidence_ref": "github-pr:235;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "The conformance checker fails closed on token bypass, unknown tokens, invalid contrast, invalid primitive semantics, and renderer authority drift",
+        "detail": "The repository-owned checker and hostile corpus fail closed across token, contrast, primitive, and renderer-authority violations.",
+        "evidence_ref": "github-pr:234;github-pr:235;github-pr:236;github-actions:36239099789",
+        "passed": true
+      }
+    ],
+    "evidence_checks": [
+      {
+        "check_id": "accessibility-state-pass",
+        "detail": "Semantic disabled, loading, error and status state coverage passed natively.",
+        "evidence_ref": "github-pr:233;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "closeout-post-merge-ci-pass",
+        "detail": "Closeout merge post-merge CI completed 6/6 SUCCESS.",
+        "evidence_ref": "github-actions:36243482441",
+        "passed": true
+      },
+      {
+        "check_id": "design-conformance-pass",
+        "detail": "Design-system fail-closed conformance and hostile corpus passed.",
+        "evidence_ref": "github-pr:234;github-pr:235;github-pr:236;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "diffcipline-r1-proof-pass",
+        "detail": "Diffcipline R1 passed at the exact closeout head and canonical merge.",
+        "evidence_ref": "github-actions:36243245499;github-actions:36243482441",
+        "passed": true
+      },
+      {
+        "check_id": "focus-reduced-motion-pass",
+        "detail": "Focus-visible, reduced-motion and scalable-type checks passed natively.",
+        "evidence_ref": "github-pr:237;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "full-baseline-pass",
+        "detail": "Fresh Linux/macOS/Windows qualification passed UI-system, workspace, protocol, SpecGrain, typecheck, format and lint checks.",
+        "evidence_ref": "github-actions:36243087264",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-post-merge-ci-pass",
+        "detail": "All bounded implementation slice post-merge CI runs are recorded SUCCESS in the canonical evidence document.",
+        "evidence_ref": "repo:docs/evidence/P03-S02-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "implementation-pr-pass",
+        "detail": "All bounded implementation slices merged normally after exact-head qualification.",
+        "evidence_ref": "github-pr:232;github-pr:233;github-pr:234;github-pr:235;github-pr:236;github-pr:237",
+        "passed": true
+      },
+      {
+        "check_id": "jev-review-pass",
+        "detail": "Genuine TypeSafe Jev review on exact implementation slice diffs returned no blocking defect finding.",
+        "evidence_ref": "jev:0.3.2/jev-1.13.0",
+        "passed": true
+      },
+      {
+        "check_id": "linux-desktop-qualification-pass",
+        "detail": "Linux native desktop qualification passed the complete SG-000033 suite.",
+        "evidence_ref": "github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "macos-desktop-qualification-pass",
+        "detail": "macOS-14 ARM64 native desktop qualification passed the complete SG-000033 suite.",
+        "evidence_ref": "github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "native-specgrain-verification-pass",
+        "detail": "This final native verification is zero-issue and is appended immutably by this proof candidate.",
+        "evidence_ref": "specgrain:SG-000033",
+        "passed": true
+      },
+      {
+        "check_id": "open-code-review-accounting-pass",
+        "detail": "Alibaba OpenCodeReview 1.12.9 Delegation Mode accounting is preserved for the implementation slices; no semantic model-review claim is fabricated.",
+        "evidence_ref": "alibaba-open-code-review:1.12.9;repo:docs/evidence/P03-S02-T01.md",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-post-merge-ci-pass",
+        "detail": "Packet-persistence merge post-merge CI completed SUCCESS.",
+        "evidence_ref": "github-actions:36004385573",
+        "passed": true
+      },
+      {
+        "check_id": "packet-persistence-pr-pass",
+        "detail": "ContextSources and the pinned WorkPacket were persisted before implementation.",
+        "evidence_ref": "github-pr:231",
+        "passed": true
+      },
+      {
+        "check_id": "protected-closeout-pr-pass",
+        "detail": "Protected closeout PR #240 passed exact-head 6/6 CI, semantic review with zero blocking threads, and merged normally.",
+        "evidence_ref": "github-pr:240;github-actions:36243245499",
+        "passed": true
+      },
+      {
+        "check_id": "renderer-authority-preservation-pass",
+        "detail": "Renderer remains unprivileged and the design system creates no second authority.",
+        "evidence_ref": "github-pr:235;github-pr:237;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "semantic-primitive-pass",
+        "detail": "Semantic primitive and accessibility corpus passed natively.",
+        "evidence_ref": "github-pr:233;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "token-authority-pass",
+        "detail": "Single canonical token authority and hostile token lookup checks passed.",
+        "evidence_ref": "github-pr:232;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "token-contrast-pass",
+        "detail": "Frozen semantic WCAG AA contrast checks passed on all native legs.",
+        "evidence_ref": "github-pr:235;github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "windows-desktop-qualification-pass",
+        "detail": "Windows Server 2025 native desktop qualification passed the complete SG-000033 suite.",
+        "evidence_ref": "github-actions:36239099789",
+        "passed": true
+      },
+      {
+        "check_id": "workpacket-durable-recovery-pass",
+        "detail": "Pinned WorkPacket replay was byte-identical and the durable packet digest remained frozen.",
+        "evidence_ref": "github-pr:231;github-actions:36004049157",
+        "passed": true
+      }
+    ],
+    "implementation_revision": "git:457a307b28fa95a7e4e757289995048ff7193b10",
+    "issues": [],
+    "observed_changed_paths": [
+      ".specgrain/specs/SG-000033.json",
+      "apps/desktop/src/renderer.tsx",
+      "apps/desktop/test/design-system.test.ts",
+      "apps/desktop/test/tsconfig.tests.json",
+      "docs/evidence/SG-000033-context-sources.json",
+      "docs/evidence/SG-000033-work-packet.json",
+      "package.json",
+      "packages/ui-system/primitives.ts",
+      "packages/ui-system/styles.ts",
+      "packages/ui-system/tokens.ts",
+      "tools/ui-system/authority.mjs",
+      "tools/ui-system/check.mjs",
+      "tools/ui-system/check.test.mjs",
+      "tools/ui-system/foundation.mjs",
+      "tools/ui-system/primitive-style.mjs"
+    ],
+    "packet_digest": "sha256:f6d73032728b8f1fe28dc086393639ed1240da32cfff15451f5a8ec82d43f646",
+    "result_digest": "sha256:4ee50d787e326d7c238075cdf1ffd405c7a0822585c661030897993498a989e5",
+    "spec_id": "SG-000033",
+    "spec_revision": "sha256:aa26e0ab30d05a75a1c4f2c059fd22187bf9970f1d93f0fbb9cf912e99fc523c",
+    "verification_version": 1,
+    "verified": true
+  }
+}
