@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  TARGET_SHA: a0dbe92fc1eacb3cbd349c216dce9a9b2caa9ba2
+  TARGET_SHA: 70ec02989b738e05621798e7b420d2e4cd6cc77f
   PACKET_DIGEST: sha256:f6d73032728b8f1fe28dc086393639ed1240da32cfff15451f5a8ec82d43f646
 
 jobs:
@@ -73,6 +73,104 @@ jobs:
           }
           console.log('PACKET_DIGEST_PASS', packet.packet_digest);
           NODE
+
+      - name: Dry verify SG-000033 closeout gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          from tools.specgrain.run import _load_pin, _source_root
+
+          source = _source_root(_load_pin())
+          sys.path.insert(0, str(source / "src"))
+
+          from specgrain import CheckEvidence, ExecutionResult, WorkPacket, load_project, verify_execution
+
+          project = load_project(".")
+          node = next(item for item in project.specs if item.id == "SG-000033")
+          packet_data = json.loads(Path("docs/evidence/SG-000033-work-packet.json").read_text(encoding="utf-8-sig"))
+          packet = WorkPacket.from_dict(packet_data)
+
+          changed_paths = (
+              ".specgrain/specs/SG-000033.json",
+              "apps/desktop/src/renderer.tsx",
+              "apps/desktop/test/design-system.test.ts",
+              "apps/desktop/test/tsconfig.tests.json",
+              "docs/evidence/SG-000033-context-sources.json",
+              "docs/evidence/SG-000033-work-packet.json",
+              "package.json",
+              "packages/ui-system/primitives.ts",
+              "packages/ui-system/styles.ts",
+              "packages/ui-system/tokens.ts",
+              "tools/ui-system/authority.mjs",
+              "tools/ui-system/check.mjs",
+              "tools/ui-system/check.test.mjs",
+              "tools/ui-system/foundation.mjs",
+              "tools/ui-system/primitive-style.mjs",
+          )
+          result = ExecutionResult(
+              packet_digest=packet.packet_digest,
+              status="succeeded",
+              summary="Implemented and natively qualified the bounded SG-000033 design-system foundation.",
+              changed_paths=changed_paths,
+              reported_evidence=packet.required_evidence,
+          )
+
+          pending_acceptance = {
+              "Native SpecGrain verification binds the WorkPacket to observed evidence with zero issues",
+              "Canonical closeout advances only KX-P03-S02-T01 scope",
+          }
+          pending_evidence = {
+              "native-specgrain-verification-pass",
+              "protected-closeout-pr-pass",
+              "closeout-post-merge-ci-pass",
+          }
+
+          acceptance = tuple(
+              CheckEvidence(
+                  check_id,
+                  check_id not in pending_acceptance,
+                  "specgrain:SG-000033" if check_id in pending_acceptance else "repo:docs/evidence/P03-S02-T01.md",
+                  "Pending closeout/proof gate." if check_id in pending_acceptance else "Established by the canonical implementation and native qualification chain.",
+              )
+              for check_id in packet.acceptance
+          )
+          evidence = tuple(
+              CheckEvidence(
+                  check_id,
+                  check_id not in pending_evidence,
+                  "specgrain:SG-000033" if check_id == "native-specgrain-verification-pass" else "repo:docs/evidence/P03-S02-T01.md",
+                  "Pending closeout/proof gate." if check_id in pending_evidence else "Established by the canonical implementation and native qualification chain.",
+              )
+              for check_id in packet.required_evidence
+          )
+
+          report = verify_execution(
+              current_node=node,
+              packet=packet,
+              result=result,
+              implementation_revision=f"git:{Path('.git/HEAD').read_text().strip()}",
+              observed_changed_paths=changed_paths,
+              acceptance_checks=acceptance,
+              evidence_checks=evidence,
+          )
+          payload = report.to_dict()
+          print(json.dumps(payload, sort_keys=True, indent=2))
+          print("DRY_RESULT_DIGEST", result.result_digest)
+          print("DRY_ACCEPTANCE_PASS", sum(check.passed for check in acceptance), "/", len(acceptance))
+          print("DRY_EVIDENCE_PASS", sum(check.passed for check in evidence), "/", len(evidence))
+          print("DRY_ISSUE_COUNT", len(report.issues))
+          print("DRY_ISSUE_SUBJECTS", ",".join(issue.subject for issue in report.issues))
+          assert not report.verified
+          assert len(report.issues) == 5
+          assert sum(check.passed for check in acceptance) == 7
+          assert sum(check.passed for check in evidence) == 19
+          assert {issue.subject for issue in report.issues} == pending_acceptance | pending_evidence
+          PY
 
       - name: Final source cleanliness
         shell: bash
