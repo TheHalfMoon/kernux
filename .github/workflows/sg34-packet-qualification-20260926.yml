@@ -1,0 +1,150 @@
+name: SG34 Packet Qualification 20260926
+
+on:
+  push:
+    branches:
+      - probe/sg34-packet-qualification-20260926
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 7e07035d8a29b234273fa84a496539cc685ad03e
+  TARGET_SHA: fa74f7f8c3879dd7018b758029153483cd94025e
+
+jobs:
+  qualify-packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+    steps:
+      - name: Checkout exact packet head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact packet surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(git merge-base "$BASE_SHA" HEAD)" = "$BASE_SHA"
+          mapfile -t changed < <(git diff --name-only "$BASE_SHA...$TARGET_SHA")
+          test "${#changed[@]}" -eq 2
+          test "${changed[0]}" = "docs/evidence/SG-000034-context-sources.json"
+          test "${changed[1]}" = "docs/evidence/SG-000034-work-packet.json"
+          git diff --check "$BASE_SHA...$TARGET_SHA"
+
+      - name: Verify pinned SpecGrain replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/specgrain/run.py check
+          python3 tools/specgrain/run.py packet SG-000034 \
+            --context-sources docs/evidence/SG-000034-context-sources.json \
+            --json > /tmp/sg34-replay.json
+          cmp /tmp/sg34-replay.json docs/evidence/SG-000034-work-packet.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          packet=json.loads(Path('docs/evidence/SG-000034-work-packet.json').read_text(encoding='utf-8-sig'))
+          print('PACKET_DIGEST', packet['packet_digest'])
+          print('SPEC_REVISION', packet['spec_revision'])
+          print('CONTEXT_PLAN_DIGEST', packet['context_plan_digest'])
+          print('CONTEXT_SOURCE_COUNT', len(packet['context_sources']))
+          PY
+
+      - name: Install genuine Jev CLI 0.3.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TYPESAFE_API_KEY:-}" || { echo "TYPESAFE_API_KEY_UNAVAILABLE"; exit 3; }
+          npm install --global @jtsang/jev-cli@0.3.2
+          jev-cli --version
+
+      - name: Run exact-head Jev packet review
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --unified=80 "$BASE_SHA...$TARGET_SHA" -- \
+            docs/evidence/SG-000034-context-sources.json \
+            docs/evidence/SG-000034-work-packet.json > /tmp/state.diff
+          cat > /tmp/questions.json <<'JSON'
+          {
+            "scope_widening": {
+              "type": "boolean",
+              "instructions": "Does this exact two-file SG-000034 packet diff widen implementation scope beyond KX-P03-S03-T01, authorize later P03 work, or change runtime/renderer authority rather than only persist context and a WorkPacket?"
+            },
+            "packet_contract_drift": {
+              "type": "boolean",
+              "instructions": "Does this persisted WorkPacket materially diverge from the SG-000034 adaptive-pane contract, frozen bounds, acceptance criteria, or authorized change surface?"
+            },
+            "context_authority_gap": {
+              "type": "boolean",
+              "instructions": "Does the ContextSources set omit an obvious canonical authority needed to implement SG-000034 safely, or include context that conflicts with the live canonical frontier?"
+            },
+            "fabricated_evidence": {
+              "type": "boolean",
+              "instructions": "Does this diff falsely claim that implementation, native qualification, Jev/OCR findings, closeout, or PROVEN evidence already exists when it has not yet been established?"
+            },
+            "dependency_or_cost_drift": {
+              "type": "boolean",
+              "instructions": "Does this exact diff introduce or imply a new runtime dependency, paid service, cloud requirement, donor import, or founder-funded runtime cost?"
+            },
+            "privilege_drift": {
+              "type": "boolean",
+              "instructions": "Does this packet introduce or authorize new preload, daemon, filesystem, process, network, secret, Electron/Node renderer, or egress authority beyond the existing proven boundary?"
+            },
+            "determinism_gap": {
+              "type": "boolean",
+              "instructions": "Does the packet/context design contain an obvious nondeterministic, mutable, unbounded, or revision-unbound element that would undermine byte-identical replay or deterministic implementation?"
+            },
+            "closeout_bypass": {
+              "type": "boolean",
+              "instructions": "Does this diff bypass packet-first execution, exact-head qualification, native proof, protected closeout, or the requirement to keep KX-P03-S03-T01 unproven until its evidence exists?"
+            }
+          }
+          JSON
+          jev-cli eval \
+            --provider jev \
+            --model jev-1.13.0 \
+            --state-file /tmp/state.diff \
+            --questions-file /tmp/questions.json \
+            --compact > /tmp/jev.json
+          cat /tmp/jev.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const data=JSON.parse(fs.readFileSync('/tmp/jev.json','utf8'));
+          const ids=['scope_widening','packet_contract_drift','context_authority_gap','fabricated_evidence','dependency_or_cost_drift','privilege_drift','determinism_gap','closeout_bypass'];
+          for(const id of ids){
+            const a=data[id];
+            if(!a || a.type!=='boolean' || typeof a.probability!=='number'){
+              console.error('JEV_RESULT_MISSING_OR_INVALID',id);
+              process.exit(2);
+            }
+            console.log('JEV_DIMENSION',id,'P_TRUE',a.probability);
+            if(a.probability>=0.5){
+              console.error('JEV_BLOCKING_TRUE',id,a.probability);
+              process.exit(1);
+            }
+          }
+          console.log('JEV_8_OF_8_NO');
+          NODE
+
+      - name: Alibaba OpenCodeReview 1.12.9 accounting
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global @alibaba-group/open-code-review@1.12.9
+          ocr --version
+          ocr delegate preview --format json --from "$BASE_SHA" --to "$TARGET_SHA"
+
+      - name: Final cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
